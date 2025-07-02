@@ -1,12 +1,13 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, DollarSign, Edit, Eye, FilePlus2, FileText, LayoutDashboard, Mail, MoreHorizontal, Percent, Phone, UserPlus, Users } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, DollarSign, Edit, Eye, FilePlus2, FileText, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 import { dashboardData } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
+import { UserPlus } from "lucide-react";
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
     <Card className="dashboard-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -31,14 +32,15 @@ const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { ti
     </Card>
 );
 
-const QuickActionButton = ({ label, icon: Icon }: { label: string, icon: React.ElementType }) => (
-    <Button variant="outline" className="flex flex-col items-center justify-center h-24 gap-2 transition hover:bg-muted">
+const QuickActionButton = ({ label, icon: Icon, onClick }: { label: string, icon: React.ElementType, onClick?: () => void }) => (
+    <Button variant="outline" className="flex flex-col items-center justify-center h-24 gap-2 transition hover:bg-muted" onClick={onClick}>
         <Icon className="h-6 w-6 text-primary" />
         <span className="text-sm font-medium">{label}</span>
     </Button>
 );
 
-export function DashboardPage() {
+export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
+    const { toast } = useToast();
     const getStatusVariant = (status: string) => {
         switch (status) {
             case 'Pending': return 'warning';
@@ -60,7 +62,7 @@ export function DashboardPage() {
                             <span className="font-semibold text-white"> 3 upcoming appointments</span>.
                         </p>
                     </div>
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold transition-transform hover:-translate-y-0.5 active:scale-95">
+                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold transition-transform hover:-translate-y-0.5 active:scale-95" onClick={() => setPage('applications')}>
                         View Applications
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -79,10 +81,10 @@ export function DashboardPage() {
                     <CardTitle className="font-headline text-lg">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <QuickActionButton label="New Client" icon={UserPlus} />
-                    <QuickActionButton label="New Application" icon={FilePlus2} />
-                    <QuickActionButton label="Schedule Meeting" icon={CalendarPlus} />
-                    <QuickActionButton label="Generate Invoice" icon={FileText} />
+                    <QuickActionButton label="New Client" icon={UserPlus} onClick={() => setPage('clients')} />
+                    <QuickActionButton label="New Application" icon={FilePlus2} onClick={() => setPage('applications')} />
+                    <QuickActionButton label="Schedule Meeting" icon={CalendarPlus} onClick={() => setPage('appointments')} />
+                    <QuickActionButton label="Generate Invoice" icon={FileText} onClick={() => setPage('billing')} />
                 </CardContent>
             </Card>
 
@@ -114,8 +116,8 @@ export function DashboardPage() {
                                         <TableCell>{app.submitted}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                                <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => setPage('applications')}><Eye className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => setPage('applications')}><Edit className="h-4 w-4" /></Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -129,9 +131,9 @@ export function DashboardPage() {
                     <CardHeader>
                         <CardTitle className="font-headline text-lg">Recent Messages</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-1">
                         {dashboardData.recentMessages.map(msg => (
-                            <div key={msg.id} className="flex items-start gap-3">
+                            <div key={msg.id} className="flex items-start gap-3 p-3 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('messages')}>
                                 <Avatar>
                                     <AvatarImage src={msg.avatar} />
                                     <AvatarFallback>{msg.name.charAt(0)}</AvatarFallback>
@@ -180,7 +182,7 @@ export function DashboardPage() {
                                     <Badge variant="outline">{appt.type}</Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <Button variant="outline" size="sm">
+                                    <Button variant="outline" size="sm" onClick={() => toast({ title: "Joining meeting...", description: `Connecting to meeting with ${appt.name}.` })}>
                                         Join
                                     </Button>
                                 </TableCell>

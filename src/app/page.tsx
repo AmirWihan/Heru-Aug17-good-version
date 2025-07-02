@@ -22,7 +22,7 @@ export default function Home() {
   const [page, setPage] = useState('dashboard');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const pageComponents: { [key: string]: React.ComponentType<{}> } = {
+  const pageComponents: { [key: string]: React.ComponentType<any> } = {
     dashboard: DashboardPage,
     clients: ClientsPage,
     team: TeamPage,
@@ -58,7 +58,7 @@ export default function Home() {
         <AppHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
         <main className="flex-grow p-4 md:p-6">
           <div className="animate-fade">
-            <PageComponent />
+            <PageComponent setPage={setPage} />
           </div>
         </main>
         <footer className="mt-auto border-t bg-card p-4 md:p-6">
