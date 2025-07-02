@@ -7,6 +7,7 @@ import { DashboardPage } from '@/components/pages/dashboard';
 import { ClientsPage } from '@/components/pages/clients';
 import { TeamPage } from '@/components/pages/team';
 import { DocumentsPage } from '@/components/pages/documents';
+import { AIToolsPage } from '@/components/pages/ai-tools';
 import { Facebook, Linkedin, Stamp, Twitter } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -26,6 +27,7 @@ export default function Home() {
     clients: ClientsPage,
     team: TeamPage,
     documents: DocumentsPage,
+    'ai-tools': AIToolsPage,
     applications: () => <PlaceholderPage title="Applications" />,
     appointments: () => <PlaceholderPage title="Appointments" />,
     messages: () => <PlaceholderPage title="Messages" />,
@@ -40,6 +42,7 @@ export default function Home() {
       'clients': 'All Clients',
       'team': 'Team Management',
       'documents': 'Immigration Documents',
+      'ai-tools': 'AI Tools',
       'applications': 'Applications',
       'appointments': 'Appointments',
       'messages': 'Messages',
