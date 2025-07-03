@@ -161,7 +161,7 @@ const InvoicePreview = () => (
                         <p className="mt-4">Invoice #: INV-2023-0456</p>
                         <p>Date: Jun 10, 2023</p>
                         <p>Due Date: <span className="text-red-600">Jun 24, 2023</span></p>
-                        <p className="mt-4">Status: <Badge variant="destructive">Overdue</Badge></p>
+                        <div className="mt-4">Status: <Badge variant="destructive">Overdue</Badge></div>
                     </div>
                 </div>
                  <div className="mb-12">
