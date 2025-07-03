@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'ImmiAssist CRM',
-  description: 'Immigration CRM for MAAT',
+  title: 'Heru',
+  description: 'Your AI-powered CRM',
 };
 
 export default function RootLayout({

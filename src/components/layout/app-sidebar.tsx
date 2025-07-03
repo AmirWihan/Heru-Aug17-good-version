@@ -86,7 +86,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
             <Stamp className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold font-headline text-primary">ImmiAssist</span>
+            <span className="text-xl font-bold font-headline text-primary">Heru</span>
           </Link>
           <Button
             variant="ghost"

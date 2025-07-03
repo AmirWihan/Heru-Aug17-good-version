@@ -66,7 +66,7 @@ export default function Home() {
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between md:flex-row">
             <div className="mb-4 flex items-center md:mb-0">
               <Stamp className="mr-2 h-6 w-6 text-primary" />
-              <span className="font-headline font-bold text-primary">ImmiAssist CRM</span>
+              <span className="font-headline font-bold text-primary">Heru</span>
             </div>
             <div className="text-sm text-muted-foreground">
               © 2023 MAAT Technologies. All rights reserved.
