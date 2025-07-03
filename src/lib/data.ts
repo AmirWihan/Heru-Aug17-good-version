@@ -1,4 +1,4 @@
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home } from "lucide-react";
 
 export const dashboardData = {
     recentApplications: [
@@ -36,22 +36,22 @@ export const teamPerformance = {
 export const teamMembers = [
     {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
-        email: 'emma.j@immassist.com', phone: '+1-202-555-0101',
+        email: 'emma.j@heru.com', phone: '+1-202-555-0101',
         stats: [{ label: 'Clients', value: '24' }, { label: 'Revenue', value: '$18,240' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9' }]
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen',
-        email: 'michael.c@immassist.com', phone: '+1-202-555-0102',
+        email: 'michael.c@heru.com', phone: '+1-202-555-0102',
         stats: [{ label: 'Clients', value: '18' }, { label: 'Revenue', value: '$14,580' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7' }]
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia',
-        email: 'sophia.w@immassist.com', phone: '+1-202-555-0103',
+        email: 'sophia.w@heru.com', phone: '+1-202-555-0103',
         stats: [{ label: 'Clients', value: '16' }, { label: 'Revenue', value: '$12,320' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8' }]
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Case Manager', avatar: 'https://i.pravatar.cc/150?u=david',
-        email: 'david.r@immassist.com', phone: '+1-202-555-0104',
+        email: 'david.r@heru.com', phone: '+1-202-555-0104',
         stats: [{ label: 'Clients', value: '22' }, { label: 'Revenue', value: '$13,280' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.8' }]
     },
 ];
@@ -65,12 +65,12 @@ export const teamActivity = [
 
 export const documentCategories = [
     { name: 'All Documents', icon: FileText },
-    { name: 'Permanent Residency', icon: FileText },
-    { name: 'Work Permits', icon: FileType },
-    { name: 'Student Visas', icon: FileText },
+    { name: 'Permanent Residency', icon: Home },
+    { name: 'Work Permits', icon: Briefcase },
+    { name: 'Student Visas', icon: GraduationCap },
     { name: 'Visitor Visas', icon: FileText },
     { name: 'Citizenship', icon: FileSignature },
-    { name: 'Family Sponsorship', icon: FileText },
+    { name: 'Family Sponsorship', icon: Users },
     { name: 'Health', icon: FileHeart },
 ];
 
@@ -173,4 +173,45 @@ export const paymentMethodsData = [
     { id: 1, type: 'Visa', last4: '4242', expiry: '08/2025', isPrimary: true },
     { id: 2, type: 'Mastercard', last4: '0021', expiry: '11/2024', isPrimary: false },
     { id: 3, type: 'PayPal', last4: 'n/a', expiry: 'sarah@heru.com', isPrimary: false },
-]
+];
+
+export const applicationsData = [
+    { id: 1, client: { name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' }, type: 'Permanent Residency', status: 'Pending', submitted: '2023-06-10', priority: 'High' },
+    { id: 2, client: { name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' }, type: 'Student Visa', status: 'Approved', submitted: '2023-05-28', priority: 'Low' },
+    { id: 3, client: { name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' }, type: 'Work Permit', status: 'Under Review', submitted: '2023-06-08', priority: 'Medium' },
+    { id: 4, client: { name: 'Ananya Sharma', avatar: 'https://i.pravatar.cc/150?u=ananya' }, type: 'Family Sponsorship', status: 'Submitted', submitted: '2023-06-01', priority: 'Medium' },
+    { id: 5, client: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, type: 'Work Permit', status: 'Additional Info Requested', submitted: '2023-05-20', priority: 'High' },
+    { id: 6, client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, type: 'Student Visa', status: 'Approved', submitted: '2023-04-15', priority: 'Low' },
+];
+
+export const appointmentsData = [
+    { id: 1, name: 'Elena Rodriguez', dateTime: '2023-06-13T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
+    { id: 2, name: 'James Wilson', dateTime: '2023-06-14T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james', status: 'Upcoming' },
+    { id: 3, name: 'Sophia Chen', dateTime: '2023-06-15T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },
+    { id: 4, name: 'Michael Brown', dateTime: '2023-06-12T09:00:00', type: 'Initial Meeting', avatar: 'https://i.pravatar.cc/150?u=michael', status: 'Completed' },
+    { id: 5, name: 'Li Wei', dateTime: '2023-06-11T11:00:00', type: 'Strategy Session', avatar: 'https://i.pravatar.cc/150?u=liwei', status: 'Completed' },
+];
+
+export const reportsData = {
+    clientGrowth: [
+        { month: 'Jan', clients: 4 },
+        { month: 'Feb', clients: 3 },
+        { month: 'Mar', clients: 5 },
+        { month: 'Apr', clients: 7 },
+        { month: 'May', clients: 6 },
+        { month: 'Jun', clients: 8 },
+    ],
+    revenueByCaseType: [
+        { name: 'PR', value: 40000 },
+        { name: 'Work Permit', value: 30000 },
+        { name: 'Student Visa', value: 20000 },
+        { name: 'Sponsorship', value: 15000 },
+        { name: 'Other', value: 5000 },
+    ],
+    applicationStatus: [
+        { name: 'Approved', value: 65, fill: 'hsl(var(--chart-2))' },
+        { name: 'Pending', value: 20, fill: 'hsl(var(--chart-4))' },
+        { name: 'Rejected', value: 5, fill: 'hsl(var(--destructive))' },
+        { name: 'In Review', value: 10, fill: 'hsl(var(--chart-5))' },
+    ]
+};
