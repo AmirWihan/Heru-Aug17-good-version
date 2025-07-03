@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { tasksData as initialTasksData } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { format } from 'date-fns';
 
 export function TasksPage() {
     const [tasks, setTasks] = useState(initialTasksData);
@@ -111,7 +112,7 @@ export function TasksPage() {
                                             <div className="font-medium">{task.assignedTo.name}</div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                                    <TableCell>{format(new Date(task.dueDate), 'PP')}</TableCell>
                                     <TableCell>
                                         <Badge variant={getPriorityBadgeVariant(task.priority)}>{task.priority}</Badge>
                                     </TableCell>

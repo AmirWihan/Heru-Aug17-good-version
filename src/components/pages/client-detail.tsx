@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus, FilePlus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, teamMembers } from "@/lib/data";
+import { documentCategories, teamMembers, documents as documentTemplates } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 
 const activityIcons: { [key: string]: React.ElementType } = {
@@ -41,6 +41,7 @@ const getDocumentStatusBadgeVariant = (status: string) => {
         case 'uploaded': return 'info' as const;
         case 'pending review': return 'warning' as const;
         case 'rejected': return 'destructive' as const;
+        case 'requested': return 'secondary' as const;
         default: return 'secondary' as const;
     }
 };
@@ -73,8 +74,11 @@ interface ClientDetailSheetProps {
 export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient }: ClientDetailSheetProps) {
     const { toast } = useToast();
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+    const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);
+    
     const [newDocTitle, setNewDocTitle] = useState("");
     const [newDocCategory, setNewDocCategory] = useState("");
+    const [assignedDocTemplate, setAssignedDocTemplate] = useState("");
 
     const [isAddTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -82,10 +86,12 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
     const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
 
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
-    const handleUpload = () => {
+    const handleAdHocUpload = () => {
         if (!newDocTitle || !newDocCategory) {
             toast({ title: 'Error', description: 'Please fill out all fields.', variant: 'destructive' });
             return;
@@ -109,6 +115,58 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         setNewDocTitle("");
         setNewDocCategory("");
         toast({ title: 'Success', description: 'Document uploaded successfully.' });
+    };
+
+    const handleAssignDocument = () => {
+        if (!assignedDocTemplate) {
+            toast({ title: 'Error', description: 'Please select a document template.', variant: 'destructive' });
+            return;
+        }
+        const template = documentTemplates.find(t => t.id.toString() === assignedDocTemplate);
+        if (!template) {
+             toast({ title: 'Error', description: 'Selected template not found.', variant: 'destructive' });
+            return;
+        }
+        const newDocument = {
+            id: Date.now(),
+            title: template.title,
+            category: template.category,
+            dateAdded: new Date().toISOString().split('T')[0],
+            status: 'Requested' as const,
+        };
+         const updatedClient = {
+            ...client,
+            documents: [...(client.documents || []), newDocument],
+        };
+        onUpdateClient(updatedClient);
+        setAssignDialogOpen(false);
+        setAssignedDocTemplate("");
+        toast({ title: 'Success', description: `"${template.title}" has been requested from the client.` });
+    };
+    
+    const handleUploadActionClick = (docId: number) => {
+        setUploadingDocId(docId);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0] && uploadingDocId) {
+            const file = event.target.files[0];
+            const updatedClient = {
+                ...client,
+                documents: client.documents.map(doc => 
+                    doc.id === uploadingDocId 
+                    ? { ...doc, status: 'Uploaded' as const, dateAdded: new Date().toISOString().split('T')[0] }
+                    : doc
+                )
+            };
+            onUpdateClient(updatedClient);
+            toast({ title: 'Upload Successful', description: `${file.name} has been uploaded.` });
+        }
+        setUploadingDocId(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
      const handleAddTask = () => {
@@ -160,6 +218,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-3xl p-0">
+                <input type="file" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
                 <SheetHeader className="p-6 border-b">
                     <div className="flex justify-between items-start">
                          <SheetTitle className="text-2xl font-bold">Client Details</SheetTitle>
@@ -278,9 +337,14 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                             <CardTitle className="text-lg">Client Documents</CardTitle>
                                             <CardDescription>All documents uploaded by or for the client.</CardDescription>
                                         </div>
-                                        <Button onClick={() => setUploadDialogOpen(true)}>
-                                            <Upload className="mr-2 h-4 w-4" /> Upload Document
-                                        </Button>
+                                        <div className="flex gap-2">
+                                            <Button variant="outline" onClick={() => setAssignDialogOpen(true)}>
+                                                <FilePlus className="mr-2 h-4 w-4" /> Assign Document
+                                            </Button>
+                                            <Button onClick={() => setUploadDialogOpen(true)}>
+                                                <Upload className="mr-2 h-4 w-4" /> Upload Document
+                                            </Button>
+                                        </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
@@ -302,9 +366,17 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                         <TableCell>{doc.category}</TableCell>
                                                         <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
                                                         <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                                            <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                        <TableCell className="text-right space-x-1">
+                                                             {doc.status === 'Requested' ? (
+                                                                <Button size="sm" onClick={() => handleUploadActionClick(doc.id)}>
+                                                                    <Upload className="mr-2 h-4 w-4" /> Upload
+                                                                </Button>
+                                                            ) : (
+                                                                <>
+                                                                    <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                                </>
+                                                            )}
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
@@ -436,6 +508,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                     </Tabs>
                 </div>
 
+                {/* Ad-hoc Upload Dialog */}
                 <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
@@ -467,11 +540,45 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
-                            <Button onClick={handleUpload}>Upload</Button>
+                            <Button onClick={handleAdHocUpload}>Upload</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
+                {/* Assign Document Dialog */}
+                <Dialog open={isAssignDialogOpen} onOpenChange={setAssignDialogOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Assign Document</DialogTitle>
+                            <DialogDescription>Request a document from {client.name}.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="doc-template">Document Template</Label>
+                                <Select value={assignedDocTemplate} onValueChange={setAssignedDocTemplate}>
+                                    <SelectTrigger id="doc-template">
+                                        <SelectValue placeholder="Select a document template" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {documentTemplates.map(template => (
+                                            <SelectItem key={template.id} value={template.id.toString()}>{template.title}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="doc-notes">Notes for Client (Optional)</Label>
+                                <Input id="doc-notes" placeholder="e.g., Please provide all pages" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={handleAssignDocument}>Assign & Request</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Add Task Dialog */}
                 <Dialog open={isAddTaskDialogOpen} onOpenChange={setAddTaskDialogOpen}>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>

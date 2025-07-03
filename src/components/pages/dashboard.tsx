@@ -9,6 +9,7 @@ import { dashboardData, teamPerformance, tasksData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { format } from "date-fns";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -140,7 +141,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </div>
                                     <div>
                                         <p className="font-semibold line-clamp-1">{task.title}</p>
-                                        <p className="text-sm text-muted-foreground">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                                        <p className="text-sm text-muted-foreground">Due: {format(new Date(task.dueDate), 'PP')}</p>
                                     </div>
                                 </div>
                             ))}

@@ -46,7 +46,7 @@ export type Client = {
         title: string;
         category: string;
         dateAdded: string;
-        status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected';
+        status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected' | 'Requested';
     }[];
     tasks: Task[];
 };
