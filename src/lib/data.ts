@@ -1,4 +1,4 @@
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video } from "lucide-react";
 
 export type Task = {
     id: number;
@@ -37,9 +37,11 @@ export type Client = {
         dueDate: string;
     };
     activity: {
+        id: number;
         title: string;
         description: string;
         timestamp: string;
+        teamMember?: { name: string; avatar: string; };
     }[];
     documents: {
         id: number;
@@ -148,9 +150,9 @@ export const clients: Client[] = [
             priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
         },
         activity: [
-            { title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 1, title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
+            { id: 2, title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
+            { id: 3, title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[2] },
         ],
         documents: [
             { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
@@ -166,8 +168,8 @@ export const clients: Client[] = [
             priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
         },
         activity: [
-            { title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 4, title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[1] },
+            { id: 5, title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[3] },
         ],
         documents: [
             { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
@@ -182,7 +184,7 @@ export const clients: Client[] = [
             priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
         },
         activity: [
-             { title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() },
+             { id: 6, title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[2] },
         ],
         documents: [
             { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
@@ -209,9 +211,9 @@ export const clients: Client[] = [
             priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
         },
         activity: [
-            { title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-            { title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 7, title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
+            { id: 8, title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
+            { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[1] },
         ],
         documents: [
             { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
@@ -229,11 +231,64 @@ export const teamPerformance = {
     satisfaction: 4.8
 };
 
-export const teamActivity = [
-    { icon: Phone, title: 'Client Call - James Wilson', time: 'Today, 10:30 AM', description: 'Emma Johnson discussed work permit extension options', details: { label: 'Duration', value: '25 minutes' } },
-    { icon: FileText, title: 'Application Submitted', time: 'Yesterday, 3:15 PM', description: 'Michael Chen submitted PR application for Elena Rodriguez', details: { label: 'Case ID', value: 'PR-2023-0456' } },
-    { icon: Landmark, title: 'Payment Received', time: 'Jun 12, 2023', description: 'Sophia Williams received payment from Michael Brown', details: { label: 'Amount', value: '$3,200' } },
-    { icon: CalendarCheck, title: 'Client Meeting', time: 'Jun 10, 2023', description: 'David Rodriguez met with Li Wei to review documents', details: { label: 'Duration', value: '45 minutes' } },
+export const activityTypes = [
+    { id: 'call', label: 'Call', icon: Phone },
+    { id: 'email', label: 'Email', icon: Mail },
+    { id: 'meeting', label: 'Meeting', icon: Users },
+    { id: 'note', label: 'Note', icon: MessageSquare },
+    { id: 'task', label: 'Task Completed', icon: CheckSquare },
+    { id: 'document', label: 'Document Uploaded', icon: Upload },
+];
+
+export const activityLogData = [
+    {
+      id: 1,
+      type: 'Call',
+      description: 'Discussed work permit extension options.',
+      client: clients[4],
+      teamMember: teamMembers[0],
+      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 mins ago
+    },
+    {
+      id: 2,
+      type: 'Email',
+      description: 'Sent follow-up email with document checklist.',
+      client: clients[0],
+      teamMember: teamMembers[1],
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    },
+    {
+      id: 3,
+      type: 'Meeting',
+      description: 'Initial consultation and strategy session.',
+      client: clients[1],
+      teamMember: teamMembers[0],
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    },
+    {
+      id: 4,
+      type: 'Task Completed',
+      description: 'Drafted submission cover letter for James Wilson.',
+      client: clients[4],
+      teamMember: teamMembers[2],
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    },
+    {
+      id: 5,
+      type: 'Document Uploaded',
+      description: 'Uploaded "Proof of Funds" for Adebola Okonjo.',
+      client: clients[0],
+      teamMember: teamMembers[3],
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+    },
+     {
+      id: 6,
+      type: 'Note',
+      description: 'Client is waiting for a reference letter from their previous employer.',
+      client: clients[2],
+      teamMember: teamMembers[2],
+      timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+    },
 ];
 
 export const documentCategories = [

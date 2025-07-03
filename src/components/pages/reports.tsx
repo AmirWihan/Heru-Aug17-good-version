@@ -1,9 +1,11 @@
 'use client';
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip, XAxis, YAxis } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { reportsData } from "@/lib/data";
-import { TrendingUp, Users, CheckCircle, Clock } from "lucide-react";
+import { reportsData, activityLogData, teamMembers } from "@/lib/data";
+import { TrendingUp, Users, CheckCircle, Clock, Phone, Mail } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const chartConfigClientGrowth = {
   clients: {
@@ -29,6 +31,63 @@ const chartConfigStatus = {
     pending: { label: 'Pending' },
     rejected: { label: 'Rejected' },
     'in-review': { label: 'In Review' },
+};
+
+const TeamActivityReport = () => {
+    const activitySummary = teamMembers.map(member => {
+        const memberActivities = activityLogData.filter(log => log.teamMember.id === member.id);
+        return {
+            member,
+            calls: memberActivities.filter(a => a.type === 'Call').length,
+            emails: memberActivities.filter(a => a.type === 'Email').length,
+            meetings: memberActivities.filter(a => a.type === 'Meeting').length,
+            total: memberActivities.length,
+        };
+    });
+
+    return (
+        <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle>Team Activity Breakdown</CardTitle>
+                <CardDescription>Summary of client interactions per team member.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Team Member</TableHead>
+                            <TableHead className="text-center">Calls</TableHead>
+                            <TableHead className="text-center">Emails</TableHead>
+                            <TableHead className="text-center">Meetings</TableHead>
+                            <TableHead className="text-center">Total Activities</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {activitySummary.map(({ member, calls, emails, meetings, total }) => (
+                            <TableRow key={member.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage src={member.avatar} alt={member.name} />
+                                            <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <div className="font-medium">{member.name}</div>
+                                            <div className="text-sm text-muted-foreground">{member.role}</div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center font-medium">{calls}</TableCell>
+                                <TableCell className="text-center font-medium">{emails}</TableCell>
+                                <TableCell className="text-center font-medium">{meetings}</TableCell>
+                                <TableCell className="text-center font-bold">{total}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
 };
 
 
@@ -81,6 +140,7 @@ export function ReportsPage() {
                 </Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TeamActivityReport />
                 <Card>
                     <CardHeader>
                         <CardTitle>Client Growth (Last 6 Months)</CardTitle>

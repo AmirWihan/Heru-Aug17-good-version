@@ -18,6 +18,7 @@ import { AppointmentsPage } from '@/components/pages/appointments';
 import { ReportsPage } from '@/components/pages/reports';
 import { SettingsPage } from '@/components/pages/settings';
 import { TasksPage } from '@/components/pages/tasks';
+import { ActivityLogPage } from '@/components/pages/activity';
 
 const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
   <Card className="m-6 p-6">
@@ -43,6 +44,7 @@ export default function Home() {
     billing: BillingPage,
     reports: ReportsPage,
     settings: SettingsPage,
+    activity: ActivityLogPage,
   };
 
   const PageComponent = pageComponents[page] || DashboardPage;
@@ -59,6 +61,7 @@ export default function Home() {
       'billing': 'Billing & Invoices',
       'reports': 'Reports',
       'settings': 'Settings',
+      'activity': 'Activity Log',
   };
 
   return (

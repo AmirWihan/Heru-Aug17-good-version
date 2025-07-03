@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2 } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -24,15 +25,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, teamMembers, documents as documentTemplates } from "@/lib/data";
+import { documentCategories, teamMembers, documents as documentTemplates, activityTypes } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "../ui/textarea";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
     "New Message": MessageSquare,
+    "Email Sent": Mail,
     "Appointment Completed": CalendarCheck,
-    "Email Sent": MessageSquare,
     "New Task Created": CheckSquare,
+    "Call": Phone,
+    "Meeting": Users,
+    "Note": MessageSquare,
+    "Document Uploaded": Upload,
 };
 
 const getStatusBadgeVariant = (status: string) => {
@@ -87,6 +93,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingDocId, setDeletingDocId] = useState<number | null>(null);
+    const [isLogActivityDialogOpen, setLogActivityDialogOpen] = useState(false);
     
     const [newDocTitle, setNewDocTitle] = useState("");
     const [newDocCategory, setNewDocCategory] = useState("");
@@ -97,6 +104,9 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [newTaskAssignee, setNewTaskAssignee] = useState("");
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
     const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
+
+    const [newActivityType, setNewActivityType] = useState("");
+    const [newActivityNotes, setNewActivityNotes] = useState("");
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
@@ -209,6 +219,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
             tasks: [...client.tasks, newTask],
             activity: [
                 {
+                    id: Date.now(),
                     title: 'New Task Created',
                     description: `Task "${newTaskTitle}" assigned to ${assignee.name}.`,
                     timestamp: new Date().toISOString(),
@@ -243,6 +254,32 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         setDeleteDialogOpen(false);
         setDeletingDocId(null);
         toast({ title: 'Success', description: 'Document deleted successfully.' });
+    };
+
+    const handleLogActivity = () => {
+        if (!newActivityType || !newActivityNotes) {
+            toast({ title: 'Error', description: 'Please select an activity type and enter notes.', variant: 'destructive' });
+            return;
+        }
+
+        const newActivity = {
+            id: Date.now(),
+            title: activityTypes.find(t => t.id === newActivityType)?.label || "Activity",
+            description: newActivityNotes,
+            timestamp: new Date().toISOString(),
+            teamMember: { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
+        };
+
+        const updatedClient = {
+            ...client,
+            activity: [newActivity, ...client.activity],
+        };
+
+        onUpdateClient(updatedClient);
+        setLogActivityDialogOpen(false);
+        setNewActivityType("");
+        setNewActivityNotes("");
+        toast({ title: 'Success', description: 'Activity logged successfully.' });
     };
 
 
@@ -291,13 +328,19 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                     </div>
 
                     <Tabs defaultValue="overview" className="mt-6">
-                        <TabsList>
-                            <TabsTrigger value="overview">Overview</TabsTrigger>
-                            <TabsTrigger value="documents">Documents</TabsTrigger>
-                            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                            <TabsTrigger value="communications">Communications</TabsTrigger>
-                        </TabsList>
+                        <div className="flex justify-between items-center border-b">
+                            <TabsList>
+                                <TabsTrigger value="overview">Overview</TabsTrigger>
+                                <TabsTrigger value="documents">Documents</TabsTrigger>
+                                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                                <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                                <TabsTrigger value="communications">Communications</TabsTrigger>
+                            </TabsList>
+                            <Button variant="outline" size="sm" onClick={() => setLogActivityDialogOpen(true)}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Log Activity
+                            </Button>
+                        </div>
                         <TabsContent value="overview" className="mt-4">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <Card className="lg:col-span-1">
@@ -348,7 +391,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                             </div>
                                                             <p className="text-sm text-muted-foreground">{item.description}</p>
                                                             <Button variant="link" className="p-0 h-auto text-sm">
-                                                                View {item.title.split(' ')[0]}
+                                                                View Details
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -490,7 +533,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                         {client.activity.map((item, index) => {
                                             const Icon = activityIcons[item.title] || FileText;
                                             return (
-                                                <div key={index} className="relative pl-8 py-4 first:pt-0 last:pb-0">
+                                                <div key={item.id} className="relative pl-8 py-4 first:pt-0 last:pb-0">
                                                     <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-background flex items-center justify-center">
                                                         <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
                                                             <Icon className="h-3 w-3 text-primary" />
@@ -501,6 +544,16 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                         <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
                                                     </div>
                                                     <p className="text-sm text-muted-foreground">{item.description}</p>
+                                                    {item.teamMember && (
+                                                        <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+                                                            Logged by
+                                                            <Avatar className="h-4 w-4">
+                                                                <AvatarImage src={item.teamMember.avatar} alt={item.teamMember.name} />
+                                                                <AvatarFallback>{item.teamMember.name.charAt(0)}</AvatarFallback>
+                                                            </Avatar>
+                                                            {item.teamMember.name}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             );
                                         })}
@@ -660,6 +713,39 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setAddTaskDialogOpen(false)}>Cancel</Button>
                             <Button onClick={handleAddTask}>Add Task</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                 {/* Log Activity Dialog */}
+                <Dialog open={isLogActivityDialogOpen} onOpenChange={setLogActivityDialogOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Log Activity</DialogTitle>
+                            <DialogDescription>Log an activity for {client.name}.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="activity-type">Activity Type</Label>
+                                <Select value={newActivityType} onValueChange={setNewActivityType}>
+                                    <SelectTrigger id="activity-type">
+                                        <SelectValue placeholder="Select an activity type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {activityTypes.map(type => (
+                                            <SelectItem key={type.id} value={type.id}>{type.label}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="activity-notes">Notes</Label>
+                                <Textarea id="activity-notes" value={newActivityNotes} onChange={(e) => setNewActivityNotes(e.target.value)} placeholder="Add notes about the activity..." />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setLogActivityDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={handleLogActivity}>Log Activity</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
