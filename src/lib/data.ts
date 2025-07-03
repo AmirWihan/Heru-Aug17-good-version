@@ -36,18 +36,22 @@ export const teamPerformance = {
 export const teamMembers = [
     {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
+        email: 'emma.j@immassist.com', phone: '+1-202-555-0101',
         stats: [{ label: 'Clients', value: '24' }, { label: 'Revenue', value: '$18,240' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9' }]
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen',
+        email: 'michael.c@immassist.com', phone: '+1-202-555-0102',
         stats: [{ label: 'Clients', value: '18' }, { label: 'Revenue', value: '$14,580' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7' }]
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia',
+        email: 'sophia.w@immassist.com', phone: '+1-202-555-0103',
         stats: [{ label: 'Clients', value: '16' }, { label: 'Revenue', value: '$12,320' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8' }]
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Case Manager', avatar: 'https://i.pravatar.cc/150?u=david',
+        email: 'david.r@immassist.com', phone: '+1-202-555-0104',
         stats: [{ label: 'Clients', value: '22' }, { label: 'Revenue', value: '$13,280' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.8' }]
     },
 ];
