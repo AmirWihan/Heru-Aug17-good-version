@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,13 +9,20 @@ import { Badge } from '@/components/ui/badge';
 import { appointmentsData as initialAppointmentsData } from '@/lib/data';
 import { format } from 'date-fns';
 
+type Appointment = typeof initialAppointmentsData[0];
+
 export function AppointmentsPage() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [appointments, setAppointments] = useState(initialAppointmentsData);
+    const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
     
-    const upcomingAppointments = appointments
-        .filter(a => new Date(a.dateTime) >= new Date())
-        .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    useEffect(() => {
+        const now = new Date();
+        const upcoming = appointments
+            .filter(a => new Date(a.dateTime) >= now)
+            .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+        setUpcomingAppointments(upcoming);
+    }, [appointments]);
 
     return (
         <div className="space-y-6">

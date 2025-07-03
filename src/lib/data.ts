@@ -65,9 +65,9 @@ export const dashboardData = {
         { id: 3, name: 'Michael Brown', time: '1d ago', message: 'Can we schedule another call to discuss the PNP options? I have some new questions.', avatar: 'https://i.pravatar.cc/150?u=michael' },
     ],
     upcomingAppointments: [
-        { id: 1, name: 'Elena Rodriguez', dateTime: 'Today, 2:00 PM', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena' },
-        { id: 2, name: 'James Wilson', dateTime: 'Tomorrow, 10:30 AM', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james' },
-        { id: 3, name: 'Sophia Chen', dateTime: 'Jun 15, 3:45 PM', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia' },
+        { id: 1, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena' },
+        { id: 2, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james' },
+        { id: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia' },
     ],
 };
 
@@ -100,7 +100,7 @@ export const tasksData: Task[] = [
         title: 'Follow up on document submission',
         client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' },
         assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
-        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        dueDate: '2024-07-25',
         priority: 'High',
         status: 'To Do',
     },
@@ -109,7 +109,7 @@ export const tasksData: Task[] = [
         title: 'Prepare for initial consultation',
         client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
         assignedTo: { name: 'Michael Chen', avatar: 'https://i.pravatar.cc/150?u=michaelchen' },
-        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        dueDate: '2024-07-26',
         priority: 'Medium',
         status: 'To Do',
     },
@@ -118,7 +118,7 @@ export const tasksData: Task[] = [
         title: 'Review updated offer letter',
         client: { id: 3, name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' },
         assignedTo: { name: 'Sophia Williams', avatar: 'https://i.pravatar.cc/150?u=sophia' },
-        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        dueDate: '2024-07-28',
         priority: 'Medium',
         status: 'In Progress',
     },
@@ -127,7 +127,7 @@ export const tasksData: Task[] = [
         title: 'Draft submission cover letter',
         client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
         assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
-        dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        dueDate: '2024-07-24',
         priority: 'High',
         status: 'To Do',
     },
@@ -136,7 +136,7 @@ export const tasksData: Task[] = [
         title: 'Send pre-arrival checklist',
         client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
         assignedTo: { name: 'David Rodriguez', avatar: 'https://i.pravatar.cc/150?u=david' },
-        dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        dueDate: '2024-07-22',
         priority: 'Low',
         status: 'Completed',
     }
@@ -150,9 +150,9 @@ export const clients: Client[] = [
             priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
         },
         activity: [
-            { id: 1, title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
-            { id: 2, title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
-            { id: 3, title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[2] },
+            { id: 1, title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[0] },
+            { id: 2, title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: '2024-07-18T12:00:00.000Z', teamMember: teamMembers[0] },
+            { id: 3, title: 'Application Submitted', description: 'PNP application submitted.', timestamp: '2024-07-13T12:00:00.000Z', teamMember: teamMembers[2] },
         ],
         documents: [
             { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
@@ -168,8 +168,8 @@ export const clients: Client[] = [
             priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
         },
         activity: [
-            { id: 4, title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[1] },
-            { id: 5, title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[3] },
+            { id: 4, title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: '2024-07-13T12:00:00.000Z', teamMember: teamMembers[1] },
+            { id: 5, title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: '2024-07-21T12:00:00.000Z', teamMember: teamMembers[3] },
         ],
         documents: [
             { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
@@ -184,7 +184,7 @@ export const clients: Client[] = [
             priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
         },
         activity: [
-             { id: 6, title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[2] },
+             { id: 6, title: 'New Message', description: 'Client requested to put case on hold.', timestamp: '2024-07-11T12:00:00.000Z', teamMember: teamMembers[2] },
         ],
         documents: [
             { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
@@ -211,9 +211,9 @@ export const clients: Client[] = [
             priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
         },
         activity: [
-            { id: 7, title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
-            { id: 8, title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[0] },
-            { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), teamMember: teamMembers[1] },
+            { id: 7, title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: '2024-07-23T10:00:00.000Z', teamMember: teamMembers[0] },
+            { id: 8, title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: '2024-07-22T12:00:00.000Z', teamMember: teamMembers[0] },
+            { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[1] },
         ],
         documents: [
             { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
@@ -247,7 +247,7 @@ export const activityLogData = [
       description: 'Discussed work permit extension options.',
       client: clients[4],
       teamMember: teamMembers[0],
-      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 mins ago
+      timestamp: '2024-07-23T11:30:00.000Z',
     },
     {
       id: 2,
@@ -255,7 +255,7 @@ export const activityLogData = [
       description: 'Sent follow-up email with document checklist.',
       client: clients[0],
       teamMember: teamMembers[1],
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      timestamp: '2024-07-23T10:00:00.000Z',
     },
     {
       id: 3,
@@ -263,7 +263,7 @@ export const activityLogData = [
       description: 'Initial consultation and strategy session.',
       client: clients[1],
       teamMember: teamMembers[0],
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      timestamp: '2024-07-22T12:00:00.000Z',
     },
     {
       id: 4,
@@ -271,7 +271,7 @@ export const activityLogData = [
       description: 'Drafted submission cover letter for James Wilson.',
       client: clients[4],
       teamMember: teamMembers[2],
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+      timestamp: '2024-07-21T12:00:00.000Z',
     },
     {
       id: 5,
@@ -279,7 +279,7 @@ export const activityLogData = [
       description: 'Uploaded "Proof of Funds" for Adebola Okonjo.',
       client: clients[0],
       teamMember: teamMembers[3],
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+      timestamp: '2024-07-20T12:00:00.000Z',
     },
      {
       id: 6,
@@ -287,7 +287,7 @@ export const activityLogData = [
       description: 'Client is waiting for a reference letter from their previous employer.',
       client: clients[2],
       teamMember: teamMembers[2],
-      timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+      timestamp: '2024-07-19T12:00:00.000Z',
     },
 ];
 
@@ -420,11 +420,11 @@ export const applicationsData = [
 ];
 
 export const appointmentsData = [
-    { id: 1, name: 'Elena Rodriguez', dateTime: '2023-06-13T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
-    { id: 2, name: 'James Wilson', dateTime: '2023-06-14T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james', status: 'Upcoming' },
-    { id: 3, name: 'Sophia Chen', dateTime: '2023-06-15T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },
-    { id: 4, name: 'Michael Brown', dateTime: '2023-06-12T09:00:00', type: 'Initial Meeting', avatar: 'https://i.pravatar.cc/150?u=michael', status: 'Completed' },
-    { id: 5, name: 'Li Wei', dateTime: '2023-06-11T11:00:00', type: 'Strategy Session', avatar: 'https://i.pravatar.cc/150?u=liwei', status: 'Completed' },
+    { id: 1, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
+    { id: 2, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james', status: 'Upcoming' },
+    { id: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },
+    { id: 4, name: 'Michael Brown', dateTime: '2024-07-22T09:00:00', type: 'Initial Meeting', avatar: 'https://i.pravatar.cc/150?u=michael', status: 'Completed' },
+    { id: 5, name: 'Li Wei', dateTime: '2024-07-21T11:00:00', type: 'Strategy Session', avatar: 'https://i.pravatar.cc/150?u=liwei', status: 'Completed' },
 ];
 
 export const reportsData = {
