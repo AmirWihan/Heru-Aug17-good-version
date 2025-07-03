@@ -16,7 +16,7 @@ export function HeruLogoIcon(props: SVGProps<SVGSVGElement>) {
         strokeLinejoin="round"
       />
       <path
-        d="M7.5,39.25C28.5,10,72.5,10,93.5,39.25L93.5,54.25L78.5,54.25"
+        d="M7.5,39.25C28.5,10,72.5,10,93.5,39.25"
         stroke="hsl(var(--accent))"
         strokeWidth="15"
         strokeLinecap="round"
