@@ -2,17 +2,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
     "New Message": MessageSquare,
     "Appointment Completed": CalendarCheck,
+    "Email Sent": MessageSquare,
 };
 
 const getStatusBadgeVariant = (status: string) => {
@@ -25,6 +27,17 @@ const getStatusBadgeVariant = (status: string) => {
     }
 };
 
+const getDocumentStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'approved': return 'success' as const;
+        case 'uploaded': return 'info' as const;
+        case 'pending review': return 'warning' as const;
+        case 'rejected': return 'destructive' as const;
+        default: return 'secondary' as const;
+    }
+};
+
+
 interface ClientDetailSheetProps {
     client: Client;
     isOpen: boolean;
@@ -32,6 +45,8 @@ interface ClientDetailSheetProps {
 }
 
 export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetailSheetProps) {
+    const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
+
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-3xl p-0">
@@ -45,7 +60,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetail
                         </SheetClose>
                     </div>
                 </SheetHeader>
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto h-[calc(100vh-73px)]">
                     <div className="flex flex-col sm:flex-row items-start gap-6">
                         <Avatar className="w-24 h-24 border-2 border-primary">
                             <AvatarImage src={client.avatar} alt={client.name} />
@@ -118,8 +133,8 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetail
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-6">
-                                            {client.activity.map((item, index) => {
-                                                const Icon = activityIcons[item.title];
+                                            {client.activity.slice(0,3).map((item, index) => {
+                                                const Icon = activityIcons[item.title] || FileText;
                                                 return (
                                                     <div key={index} className="flex items-start gap-4">
                                                         <div className="bg-muted p-3 rounded-full">
@@ -144,14 +159,107 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetail
                                 </Card>
                             </div>
                         </TabsContent>
-                         <TabsContent value="documents">
-                            <Card><CardContent className="p-6">Documents management is under construction.</CardContent></Card>
+                         <TabsContent value="documents" className="mt-4">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Client Documents</CardTitle>
+                                    <CardDescription>All documents uploaded by or for the client.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {client.documents && client.documents.length > 0 ? (
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Document Title</TableHead>
+                                                    <TableHead>Category</TableHead>
+                                                    <TableHead>Date Added</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {client.documents.map((doc) => (
+                                                    <TableRow key={doc.id}>
+                                                        <TableCell className="font-medium">{doc.title}</TableCell>
+                                                        <TableCell>{doc.category}</TableCell>
+                                                        <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
+                                                        <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                            <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <FileText className="mx-auto h-8 w-8 mb-2" />
+                                            <p>No documents uploaded yet.</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
                         </TabsContent>
-                         <TabsContent value="timeline">
-                            <Card><CardContent className="p-6">Timeline view is under construction.</CardContent></Card>
+                         <TabsContent value="timeline" className="mt-4">
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Case Timeline</CardTitle>
+                                    <CardDescription>A chronological history of all activities related to this case.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="relative pl-6 before:absolute before:inset-y-0 before:w-px before:bg-border before:left-0">
+                                        {client.activity.map((item, index) => {
+                                            const Icon = activityIcons[item.title] || FileText;
+                                            return (
+                                                <div key={index} className="relative pl-8 py-4 first:pt-0 last:pb-0">
+                                                    <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-background flex items-center justify-center">
+                                                        <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+                                                            <Icon className="h-3 w-3 text-primary" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <h4 className="font-medium">{item.title}</h4>
+                                                        <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </TabsContent>
-                         <TabsContent value="communications">
-                            <Card><CardContent className="p-6">Communications log is under construction.</CardContent></Card>
+                         <TabsContent value="communications" className="mt-4">
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Communication Log</CardTitle>
+                                    <CardDescription>A record of all messages and emails with the client.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {communications.length > 0 ? (
+                                        communications.map((item, index) => (
+                                            <div key={index} className="flex items-start gap-4 p-4 border rounded-lg">
+                                                <div className="bg-muted p-3 rounded-full">
+                                                    <MessageSquare className="h-5 w-5 text-primary"/>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="font-semibold">{item.title}</p>
+                                                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <MessageSquare className="mx-auto h-8 w-8 mb-2" />
+                                            <p>No communications logged yet.</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
                         </TabsContent>
                     </Tabs>
                 </div>

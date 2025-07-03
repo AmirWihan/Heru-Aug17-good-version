@@ -24,6 +24,13 @@ export type Client = {
         description: string;
         timestamp: string;
     }[];
+    documents: {
+        id: number;
+        title: string;
+        category: string;
+        dateAdded: string;
+        status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected';
+    }[];
 };
 
 
@@ -55,6 +62,12 @@ export const clients: Client[] = [
         activity: [
             { title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
             { title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
+            { id: 2, title: 'Proof of Funds', category: 'Financial', dateAdded: '2023-06-01', status: 'Pending Review' },
+            { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
         ]
     },
     { 
@@ -65,6 +78,11 @@ export const clients: Client[] = [
         },
         activity: [
             { title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
+            { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
         ]
     },
     { 
@@ -75,6 +93,10 @@ export const clients: Client[] = [
         },
         activity: [
              { title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
+            { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
         ]
     },
     { 
@@ -83,7 +105,10 @@ export const clients: Client[] = [
         caseSummary: {
             priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
         },
-        activity: []
+        activity: [],
+        documents: [
+            { id: 1, title: 'Marriage Certificate', category: 'Sponsorship', dateAdded: '2020-03-01', status: 'Approved' },
+        ]
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
@@ -95,6 +120,11 @@ export const clients: Client[] = [
             { title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
             { title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
             { title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
+            { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
+            { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
         ]
     },
 ];
