@@ -4,6 +4,7 @@ import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
+import { LawyerDashboardProvider, useLawyerDashboard } from '@/context/LawyerDashboardContext';
 
 const pageTitles: { [key: string]: string } = {
     'dashboard': 'Dashboard',
@@ -21,12 +22,8 @@ const pageTitles: { [key: string]: string } = {
     'activity': 'Activity Log',
 };
 
-export default function LawyerLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const [page, setPage] = useState('dashboard');
+function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {
+    const { page, setPage } = useLawyerDashboard();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     return (
         <div className="min-h-screen bg-background text-foreground font-body">
@@ -60,5 +57,17 @@ export default function LawyerLayout({
                 </footer>
             </div>
         </div>
+    );
+}
+
+export default function LawyerLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <LawyerDashboardProvider>
+            <LawyerDashboardLayoutContent>{children}</LawyerDashboardLayoutContent>
+        </LawyerDashboardProvider>
     );
 }

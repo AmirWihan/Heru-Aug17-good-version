@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useLawyerDashboard } from '@/context/LawyerDashboardContext';
 import type { FC } from 'react';
 import { DashboardPage } from '@/components/pages/dashboard';
 import { ClientsPage } from '@/components/pages/clients';
@@ -16,7 +16,7 @@ import { TasksPage } from '@/components/pages/tasks';
 import { ActivityLogPage } from '@/components/pages/activity';
 
 export default function LawyerDashboard() {
-  const [page, setPage] = useState('dashboard');
+  const { page, setPage } = useLawyerDashboard();
 
   const pageComponents: { [key: string]: React.ComponentType<any> } = {
     dashboard: DashboardPage,
