@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search } from "lucide-react";
 import { clients as initialClients, type Client } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,6 +45,11 @@ export function ClientsPage() {
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const { toast } = useToast();
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [caseTypeFilter, setCaseTypeFilter] = useState('all');
+    const [countryFilter, setCountryFilter] = useState('all');
 
     const form = useForm<z.infer<typeof clientFormSchema>>({
         resolver: zodResolver(clientFormSchema),
@@ -105,6 +110,19 @@ export function ClientsPage() {
         }
     }
 
+    const statuses = ['all', ...Array.from(new Set(initialClients.map(c => c.status)))];
+    const caseTypes = ['all', ...Array.from(new Set(initialClients.map(c => c.caseType)))];
+    const countries = ['all', ...Array.from(new Set(initialClients.map(c => c.countryOfOrigin)))];
+
+    const filteredClients = clients.filter(client => {
+        return (
+            client.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (statusFilter === 'all' || client.status === statusFilter) &&
+            (caseTypeFilter === 'all' || client.caseType === caseTypeFilter) &&
+            (countryFilter === 'all' || client.countryOfOrigin === countryFilter)
+        );
+    });
+
     return (
         <>
             <Card>
@@ -117,7 +135,48 @@ export function ClientsPage() {
                         </Button>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center flex-wrap">
+                        <div className="relative w-full sm:w-auto sm:flex-grow md:flex-grow-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Search by name..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="pl-10 w-full sm:w-64"
+                            />
+                        </div>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by Case Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {caseTypes.map(type => <SelectItem key={type} value={type}>{type === 'all' ? 'All Case Types' : type}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={countryFilter} onValueChange={setCountryFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by Country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {countries.map(country => <SelectItem key={country} value={country}>{country === 'all' ? 'All Countries' : country}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Button variant="outline" onClick={() => {
+                            setSearchTerm('');
+                            setStatusFilter('all');
+                            setCaseTypeFilter('all');
+                            setCountryFilter('all');
+                        }}>Reset Filters</Button>
+                    </div>
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
@@ -132,7 +191,7 @@ export function ClientsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {clients.map((client) => (
+                                {filteredClients.length > 0 ? filteredClients.map((client) => (
                                     <TableRow key={client.id} onClick={() => handleViewProfile(client)} className="cursor-pointer">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -165,7 +224,13 @@ export function ClientsPage() {
                                             </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="h-24 text-center">
+                                            No clients found.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
