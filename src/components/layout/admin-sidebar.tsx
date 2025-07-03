@@ -1,0 +1,109 @@
+'use client'
+
+import Link from "next/link"
+import {
+  Shield,
+  Users,
+  FileText,
+  LineChart,
+  Settings,
+  X,
+  CreditCard,
+  Mail,
+  Bell,
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
+import { Button } from "../ui/button"
+import { HeruLogoIcon } from "../icons/HeruLogoIcon"
+import type { Dispatch, SetStateAction } from 'react'
+
+interface AdminSidebarProps {
+  isSidebarOpen: boolean
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>
+  activePage?: string;
+  setActivePage?: Dispatch<SetStateAction<string>>;
+}
+
+const navItems = [
+  { id: 'overview', label: 'Overview', icon: Shield },
+  { id: 'users', label: 'User Management', icon: Users },
+  { id: 'cases', label: 'All Cases', icon: FileText },
+  { id: 'analytics', label: 'Analytics', icon: LineChart },
+  { id: 'payments', label: 'Payments & Subs', icon: CreditCard },
+  { id: 'notifications', label: 'System Notifications', icon: Bell },
+  { id: 'settings', label: 'Platform Settings', icon: Settings },
+]
+
+export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setActivePage }: AdminSidebarProps) {
+  const handleNavigation = (page: string) => {
+    setActivePage?.(page)
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false)
+    }
+  }
+
+  const NavLink = ({ item }: { item: typeof navItems[0] }) => {
+    const isActive = activePage === item.id;
+    return (
+      <li key={item.id}>
+        <button
+          onClick={() => handleNavigation(item.id)}
+          className={cn(
+            "flex w-full items-center p-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors",
+            isActive && "bg-primary/10 text-primary font-semibold"
+          )}
+        >
+          <item.icon className="mr-3 h-5 w-5" />
+          <span>{item.label}</span>
+        </button>
+      </li>
+    )
+  }
+
+  return (
+    <>
+      <div className={cn(
+        "fixed inset-0 z-40 bg-black/50 transition-opacity md:hidden",
+        isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      )} onClick={() => setSidebarOpen(false)}></div>
+      <aside className={cn(
+        "fixed top-0 left-0 z-50 h-full w-64 bg-card shadow-lg flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="p-4 flex items-center justify-between border-b">
+          <Link href="/" className="flex items-center gap-2">
+            <HeruLogoIcon className="h-8 w-8" />
+            <span className="text-xl font-bold font-headline text-primary">Heru Admin</span>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-6 w-6" />
+            <span className="sr-only">Close sidebar</span>
+          </Button>
+        </div>
+
+        <div className="p-4 flex items-center border-b">
+          <Avatar className="h-10 w-10 mr-3">
+            <AvatarImage src="https://i.pravatar.cc/150?u=admin" alt="Super Admin" />
+            <AvatarFallback>SA</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold text-foreground">Super Admin</p>
+            <p className="text-xs text-muted-foreground">Full Access</p>
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto">
+          <ul className="p-2 space-y-1">
+            {navItems.map((item) => <NavLink key={item.id} item={item} />)}
+          </ul>
+        </nav>
+      </aside>
+    </>
+  )
+}
