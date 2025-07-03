@@ -17,6 +17,7 @@ import { ApplicationsPage } from '@/components/pages/applications';
 import { AppointmentsPage } from '@/components/pages/appointments';
 import { ReportsPage } from '@/components/pages/reports';
 import { SettingsPage } from '@/components/pages/settings';
+import { TasksPage } from '@/components/pages/tasks';
 
 const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
   <Card className="m-6 p-6">
@@ -37,6 +38,7 @@ export default function Home() {
     'ai-tools': AIToolsPage,
     applications: ApplicationsPage,
     appointments: AppointmentsPage,
+    tasks: TasksPage,
     messages: MessagesPage,
     billing: BillingPage,
     reports: ReportsPage,
@@ -52,6 +54,7 @@ export default function Home() {
       'ai-tools': 'AI Tools',
       'applications': 'Applications',
       'appointments': 'Appointments',
+      'tasks': 'Tasks',
       'messages': 'Messages',
       'billing': 'Billing & Invoices',
       'reports': 'Reports',

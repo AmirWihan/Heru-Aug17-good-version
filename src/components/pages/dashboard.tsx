@@ -1,11 +1,11 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, DollarSign, FilePlus2, FileText, Users } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData, teamPerformance } from "@/lib/data";
+import { dashboardData, teamPerformance, tasksData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -128,23 +128,19 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 </div>
 
                 <div>
-                    <Card>
+                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline text-lg">Recent Messages</CardTitle>
+                            <CardTitle className="font-headline text-lg">Upcoming Tasks</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {dashboardData.recentMessages.map(msg => (
-                                <div key={msg.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('messages')}>
-                                    <Avatar>
-                                        <AvatarImage src={msg.avatar} />
-                                        <AvatarFallback>{msg.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
+                            {tasksData.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
+                                <div key={task.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('tasks')}>
+                                    <div className="bg-muted p-2 rounded-full mt-1">
+                                      <CheckSquare className="h-4 w-4 text-primary" />
+                                    </div>
                                     <div>
-                                        <div className="flex justify-between items-baseline">
-                                            <p className="font-semibold">{msg.name}</p>
-                                            <p className="text-xs text-muted-foreground">{msg.time}</p>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">{msg.message}</p>
+                                        <p className="font-semibold line-clamp-1">{task.title}</p>
+                                        <p className="text-sm text-muted-foreground">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                             ))}

@@ -1,4 +1,21 @@
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare } from "lucide-react";
+
+export type Task = {
+    id: number;
+    title: string;
+    client: {
+        id: number;
+        name: string;
+        avatar: string;
+    };
+    assignedTo: {
+        name: string;
+        avatar: string;
+    };
+    dueDate: string;
+    priority: 'High' | 'Medium' | 'Low';
+    status: 'To Do' | 'In Progress' | 'Completed';
+};
 
 export type Client = {
     id: number;
@@ -31,8 +48,8 @@ export type Client = {
         dateAdded: string;
         status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected';
     }[];
+    tasks: Task[];
 };
-
 
 export const dashboardData = {
     recentApplications: [
@@ -50,90 +67,6 @@ export const dashboardData = {
         { id: 2, name: 'James Wilson', dateTime: 'Tomorrow, 10:30 AM', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james' },
         { id: 3, name: 'Sophia Chen', dateTime: 'Jun 15, 3:45 PM', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia' },
     ],
-};
-
-export const clients: Client[] = [
-    { 
-        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
-        countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20',
-        caseSummary: {
-            priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
-        },
-        activity: [
-            { title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
-        ],
-        documents: [
-            { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
-            { id: 2, title: 'Proof of Funds', category: 'Financial', dateAdded: '2023-06-01', status: 'Pending Review' },
-            { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
-        ]
-    },
-    { 
-        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
-        countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10',
-        caseSummary: {
-            priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
-        },
-        activity: [
-            { title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-        ],
-        documents: [
-            { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
-            { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
-        ]
-    },
-    { 
-        id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
-        countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05',
-        caseSummary: {
-            priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
-        },
-        activity: [
-             { title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() },
-        ],
-        documents: [
-            { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
-            { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
-        ]
-    },
-    { 
-        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
-        countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18',
-        caseSummary: {
-            priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
-        },
-        activity: [],
-        documents: [
-            { id: 1, title: 'Marriage Certificate', category: 'Sponsorship', dateAdded: '2020-03-01', status: 'Approved' },
-        ]
-    },
-    { 
-        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-        countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15',
-        caseSummary: {
-            priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
-        },
-        activity: [
-            { title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-            { title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-        ],
-        documents: [
-            { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
-            { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
-            { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
-        ]
-    },
-];
-
-export const teamPerformance = {
-    newClients: 24,
-    successRate: 92,
-    revenue: 58420,
-    satisfaction: 4.8
 };
 
 export const teamMembers = [
@@ -159,6 +92,143 @@ export const teamMembers = [
     },
 ];
 
+export const tasksData: Task[] = [
+    {
+        id: 1,
+        title: 'Follow up on document submission',
+        client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' },
+        assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 'High',
+        status: 'To Do',
+    },
+    {
+        id: 2,
+        title: 'Prepare for initial consultation',
+        client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
+        assignedTo: { name: 'Michael Chen', avatar: 'https://i.pravatar.cc/150?u=michaelchen' },
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 'Medium',
+        status: 'To Do',
+    },
+    {
+        id: 3,
+        title: 'Review updated offer letter',
+        client: { id: 3, name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' },
+        assignedTo: { name: 'Sophia Williams', avatar: 'https://i.pravatar.cc/150?u=sophia' },
+        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 'Medium',
+        status: 'In Progress',
+    },
+    {
+        id: 4,
+        title: 'Draft submission cover letter',
+        client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
+        assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
+        dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 'High',
+        status: 'To Do',
+    },
+    {
+        id: 5,
+        title: 'Send pre-arrival checklist',
+        client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
+        assignedTo: { name: 'David Rodriguez', avatar: 'https://i.pravatar.cc/150?u=david' },
+        dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 'Low',
+        status: 'Completed',
+    }
+];
+
+export const clients: Client[] = [
+    { 
+        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
+        countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20',
+        caseSummary: {
+            priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
+        },
+        activity: [
+            { title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Application Submitted', description: 'PNP application submitted.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
+            { id: 2, title: 'Proof of Funds', category: 'Financial', dateAdded: '2023-06-01', status: 'Pending Review' },
+            { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
+        ],
+        tasks: [tasksData[0]]
+    },
+    { 
+        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
+        countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10',
+        caseSummary: {
+            priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
+        },
+        activity: [
+            { title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
+            { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
+        ],
+        tasks: [tasksData[1], tasksData[4]]
+    },
+    { 
+        id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
+        countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05',
+        caseSummary: {
+            priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
+        },
+        activity: [
+             { title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
+            { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
+        ],
+        tasks: [tasksData[2]]
+    },
+    { 
+        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
+        countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18',
+        caseSummary: {
+            priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
+        },
+        activity: [],
+        documents: [
+            { id: 1, title: 'Marriage Certificate', category: 'Sponsorship', dateAdded: '2020-03-01', status: 'Approved' },
+        ],
+        tasks: []
+    },
+    { 
+        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15',
+        caseSummary: {
+            priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
+        },
+        activity: [
+            { title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+        ],
+        documents: [
+            { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
+            { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
+            { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
+        ],
+        tasks: [tasksData[3]]
+    },
+];
+
+export const teamPerformance = {
+    newClients: 24,
+    successRate: 92,
+    revenue: 58420,
+    satisfaction: 4.8
+};
+
 export const teamActivity = [
     { icon: Phone, title: 'Client Call - James Wilson', time: 'Today, 10:30 AM', description: 'Emma Johnson discussed work permit extension options', details: { label: 'Duration', value: '25 minutes' } },
     { icon: FileText, title: 'Application Submitted', time: 'Yesterday, 3:15 PM', description: 'Michael Chen submitted PR application for Elena Rodriguez', details: { label: 'Case ID', value: 'PR-2023-0456' } },
@@ -175,6 +245,13 @@ export const documentCategories = [
     { name: 'Citizenship', icon: FileSignature },
     { name: 'Family Sponsorship', icon: Users },
     { name: 'Health', icon: FileHeart },
+    { name: 'Identification', icon: FileText },
+    { name: 'Financial', icon: Landmark },
+    { name: 'Language Test', icon: MessageSquare },
+    { name: 'Education', icon: GraduationCap },
+    { name: 'Employment', icon: Briefcase },
+    { name: 'Sponsorship', icon: Users },
+    { name: 'Immigration', icon: FileType },
 ];
 
 export const documents = [

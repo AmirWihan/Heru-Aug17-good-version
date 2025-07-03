@@ -7,14 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload } from "lucide-react";
+import type { Client, Task } from "@/lib/data";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories } from "@/lib/data";
+import { documentCategories, teamMembers } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 
 const activityIcons: { [key: string]: React.ElementType } = {
@@ -22,6 +22,7 @@ const activityIcons: { [key: string]: React.ElementType } = {
     "New Message": MessageSquare,
     "Appointment Completed": CalendarCheck,
     "Email Sent": MessageSquare,
+    "New Task Created": CheckSquare,
 };
 
 const getStatusBadgeVariant = (status: string) => {
@@ -44,6 +45,23 @@ const getDocumentStatusBadgeVariant = (status: string) => {
     }
 };
 
+const getPriorityBadgeVariant = (priority: string) => {
+    switch (priority.toLowerCase()) {
+        case 'high': return 'destructive' as const;
+        case 'medium': return 'warning' as const;
+        case 'low': return 'secondary' as const;
+        default: return 'default' as const;
+    }
+};
+
+const getTaskStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'completed': return 'success' as const;
+        case 'in progress': return 'info' as const;
+        case 'to do': return 'warning' as const;
+        default: return 'secondary' as const;
+    }
+};
 
 interface ClientDetailSheetProps {
     client: Client;
@@ -57,6 +75,13 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [newDocTitle, setNewDocTitle] = useState("");
     const [newDocCategory, setNewDocCategory] = useState("");
+
+    const [isAddTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
+    const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [newTaskAssignee, setNewTaskAssignee] = useState("");
+    const [newTaskDueDate, setNewTaskDueDate] = useState("");
+    const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
+
 
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
@@ -85,6 +110,52 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         setNewDocCategory("");
         toast({ title: 'Success', description: 'Document uploaded successfully.' });
     };
+
+     const handleAddTask = () => {
+        if (!newTaskTitle || !newTaskAssignee || !newTaskDueDate) {
+            toast({ title: 'Error', description: 'Please fill out all fields.', variant: 'destructive' });
+            return;
+        }
+
+        const assignee = teamMembers.find(m => m.id.toString() === newTaskAssignee);
+
+        if (!assignee) {
+             toast({ title: 'Error', description: 'Selected assignee not found.', variant: 'destructive' });
+            return;
+        }
+
+        const newTask: Task = {
+            id: Date.now(),
+            title: newTaskTitle,
+            client: { id: client.id, name: client.name, avatar: client.avatar },
+            assignedTo: { name: assignee.name, avatar: assignee.avatar },
+            dueDate: newTaskDueDate,
+            priority: newTaskPriority,
+            status: 'To Do',
+        };
+
+        const updatedClient: Client = {
+            ...client,
+            tasks: [...client.tasks, newTask],
+            activity: [
+                {
+                    title: 'New Task Created',
+                    description: `Task "${newTaskTitle}" assigned to ${assignee.name}.`,
+                    timestamp: new Date().toISOString(),
+                },
+                ...client.activity,
+            ],
+        };
+
+        onUpdateClient(updatedClient);
+        setAddTaskDialogOpen(false);
+        setNewTaskTitle('');
+        setNewTaskAssignee('');
+        setNewTaskDueDate('');
+        setNewTaskPriority('Medium');
+        toast({ title: 'Success', description: 'Task added successfully.' });
+    };
+
 
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -133,6 +204,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         <TabsList>
                             <TabsTrigger value="overview">Overview</TabsTrigger>
                             <TabsTrigger value="documents">Documents</TabsTrigger>
+                            <TabsTrigger value="tasks">Tasks</TabsTrigger>
                             <TabsTrigger value="timeline">Timeline</TabsTrigger>
                             <TabsTrigger value="communications">Communications</TabsTrigger>
                         </TabsList>
@@ -247,6 +319,60 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                 </CardContent>
                             </Card>
                         </TabsContent>
+                        <TabsContent value="tasks" className="mt-4">
+                            <Card>
+                                <CardHeader>
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <CardTitle className="text-lg">Client Tasks</CardTitle>
+                                            <CardDescription>All tasks associated with {client.name}.</CardDescription>
+                                        </div>
+                                        <Button onClick={() => setAddTaskDialogOpen(true)}>
+                                            <Plus className="mr-2 h-4 w-4" /> Add Task
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {client.tasks && client.tasks.length > 0 ? (
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Task</TableHead>
+                                                    <TableHead>Assigned To</TableHead>
+                                                    <TableHead>Due Date</TableHead>
+                                                    <TableHead>Priority</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {client.tasks.map((task) => (
+                                                    <TableRow key={task.id}>
+                                                        <TableCell className="font-medium">{task.title}</TableCell>
+                                                        <TableCell>
+                                                            <div className="flex items-center gap-2">
+                                                                <Avatar className="h-6 w-6">
+                                                                    <AvatarImage src={task.assignedTo.avatar} />
+                                                                    <AvatarFallback>{task.assignedTo.name.charAt(0)}</AvatarFallback>
+                                                                </Avatar>
+                                                                {task.assignedTo.name}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>{format(new Date(task.dueDate), 'PP')}</TableCell>
+                                                        <TableCell><Badge variant={getPriorityBadgeVariant(task.priority)}>{task.priority}</Badge></TableCell>
+                                                        <TableCell><Badge variant={getTaskStatusBadgeVariant(task.status)}>{task.status}</Badge></TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <CheckSquare className="mx-auto h-8 w-8 mb-2" />
+                                            <p>No tasks assigned for this client yet.</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
                          <TabsContent value="timeline" className="mt-4">
                              <Card>
                                 <CardHeader>
@@ -342,6 +468,57 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
                             <Button onClick={handleUpload}>Upload</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={isAddTaskDialogOpen} onOpenChange={setAddTaskDialogOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Add New Task</DialogTitle>
+                            <DialogDescription>Assign a new task for {client.name}.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="task-title">Task Title</Label>
+                                <Input id="task-title" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} placeholder="e.g., Follow up on RFE" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="task-assignee">Assign To</Label>
+                                <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
+                                    <SelectTrigger id="task-assignee">
+                                        <SelectValue placeholder="Select a team member" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {teamMembers.map(member => (
+                                            <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="task-due-date">Due Date</Label>
+                                    <Input id="task-due-date" type="date" value={newTaskDueDate} onChange={(e) => setNewTaskDueDate(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                     <Label htmlFor="task-priority">Priority</Label>
+                                    <Select value={newTaskPriority} onValueChange={(v: Task['priority']) => setNewTaskPriority(v)}>
+                                        <SelectTrigger id="task-priority">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="High">High</SelectItem>
+                                            <SelectItem value="Medium">Medium</SelectItem>
+                                            <SelectItem value="Low">Low</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setAddTaskDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={handleAddTask}>Add Task</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

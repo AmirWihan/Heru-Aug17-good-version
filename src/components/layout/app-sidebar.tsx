@@ -14,6 +14,7 @@ import {
   X,
   Users2,
   Wand2,
+  CheckSquare,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +36,7 @@ const navItems = [
   { id: 'documents', label: 'Documents', icon: FileText },
   { id: 'applications', label: 'Applications', icon: FileText, badge: '24' },
   { id: 'appointments', label: 'Appointments', icon: Calendar },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3' },
   { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive' },
   { id: 'billing', label: 'Billing', icon: FileDigit },
   { id: 'reports', label: 'Reports', icon: LineChart },
