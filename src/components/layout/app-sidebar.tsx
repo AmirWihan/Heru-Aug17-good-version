@@ -1,7 +1,6 @@
 'use client'
 
 import Link from "next/link"
-import Image from "next/image"
 import {
   LayoutDashboard,
   Users,
@@ -20,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
+import { HeruLogoIcon } from "../icons/HeruLogoIcon"
 
 interface AppSidebarProps {
   activePage: string
@@ -85,7 +85,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
       )}>
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="https://placehold.co/32x32.png" alt="Heru Logo" width={32} height={32} data-ai-hint="logo" />
+            <HeruLogoIcon className="h-8 w-8" />
             <span className="text-xl font-bold font-headline text-primary">Heru</span>
           </Link>
           <Button
