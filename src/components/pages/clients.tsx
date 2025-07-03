@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -83,6 +84,7 @@ export function ClientsPage() {
             },
             activity: [],
             documents: [],
+            tasks: [],
         };
         setClients([newClient, ...clients]);
         setAddClientDialogOpen(false);
@@ -193,6 +195,7 @@ export function ClientsPage() {
                                     <TableHead className="hidden md:table-cell">Case Type</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="hidden lg:table-cell">Last Contact</TableHead>
+                                    <TableHead>Activity</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -215,6 +218,7 @@ export function ClientsPage() {
                                             <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
                                         </TableCell>
                                         <TableCell className="hidden lg:table-cell">{client.lastContact}</TableCell>
+                                        <TableCell>{client.activity.length} logs</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -232,7 +236,7 @@ export function ClientsPage() {
                                     </TableRow>
                                 )) : (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-24 text-center">
+                                        <TableCell colSpan={8} className="h-24 text-center">
                                             No clients found.
                                         </TableCell>
                                     </TableRow>
