@@ -82,3 +82,67 @@ export const documents = [
     { id: 5, title: 'Citizenship Application', description: 'Form CIT 0002 for adult applications', category: 'Citizenship', format: 'PDF', size: '310KB' },
     { id: 6, title: 'Medical Examination Form', description: 'Required for immigration medical exams', category: 'Health', format: 'PDF', size: '180KB' },
 ];
+
+export const messagesData = [
+    {
+      id: 1,
+      name: 'James Wilson',
+      avatar: 'https://i.pravatar.cc/150?u=james',
+      lastMessage: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?',
+      time: '2h ago',
+      unreadCount: 1,
+      messages: [
+        { id: 1, sender: 'James Wilson', text: 'Hi Sarah, hope you\'re well.', timestamp: '10:30 AM' },
+        { id: 2, sender: 'James Wilson', text: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?', timestamp: '10:32 AM' },
+        { id: 3, sender: 'me', text: 'Hi James, I just checked the portal. It\'s still showing as "under review". I will follow up with them next week if there\'s no change.', timestamp: '11:15 AM' },
+      ],
+    },
+    {
+      id: 2,
+      name: 'Elena Rodriguez',
+      avatar: 'https://i.pravatar.cc/150?u=elena',
+      lastMessage: 'Thank you for the consultation yesterday! I\'ll gather all the documents you mentioned.',
+      time: '5h ago',
+      unreadCount: 0,
+      messages: [
+         { id: 1, sender: 'me', text: 'It was a pleasure speaking with you, Elena. Let me know if you have any questions while preparing the documents.', timestamp: 'Yesterday, 4:30 PM' },
+         { id: 2, sender: 'Elena Rodriguez', text: 'Thank you for the consultation yesterday! I\'ll gather all the documents you mentioned.', timestamp: '5h ago' },
+      ],
+    },
+    {
+      id: 3,
+      name: 'Michael Brown',
+      avatar: 'https://i.pravatar.cc/150?u=michael',
+      lastMessage: 'Can we schedule another call to discuss the PNP options? I have some new questions.',
+      time: '1d ago',
+      unreadCount: 0,
+      messages: [
+         { id: 1, sender: 'Michael Brown', text: 'Can we schedule another call to discuss the PNP options? I have some new questions.', timestamp: '1d ago' },
+      ],
+    },
+    {
+      id: 4,
+      name: 'Ananya Sharma',
+      avatar: 'https://i.pravatar.cc/150?u=ananya',
+      lastMessage: 'All documents have been uploaded to the portal.',
+      time: '3d ago',
+      unreadCount: 0,
+      messages: [
+         { id: 1, sender: 'Ananya Sharma', text: 'All documents have been uploaded to the portal.', timestamp: '3d ago' },
+         { id: 2, sender: 'me', text: 'Great, thank you Ananya. I will review them and let you know if anything else is needed.', timestamp: '3d ago' },
+      ],
+    },
+    {
+      id: 5,
+      name: 'Internal - Legal Team',
+      avatar: 'https://i.pravatar.cc/150?u=team',
+      lastMessage: 'Michael: Can someone take a look at the new policy update for spousal sponsorships?',
+      time: '4d ago',
+      unreadCount: 0,
+      isGroup: true,
+      messages: [
+         { id: 1, sender: 'Michael Chen', text: 'Can someone take a look at the new policy update for spousal sponsorships?', timestamp: '4d ago' },
+         { id: 2, sender: 'Emma Johnson', text: 'I\'m on it. Will share a summary by EOD.', timestamp: '4d ago' },
+      ],
+    }
+  ];
