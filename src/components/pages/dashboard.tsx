@@ -56,22 +56,6 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
 
     return (
         <div className="space-y-6">
-            <div className="relative rounded-xl shadow-lg overflow-hidden bg-primary text-primary-foreground p-8">
-                <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <h2 className="text-3xl md:text-4xl font-bold font-headline mb-2">Welcome back, Sarah! 👋</h2>
-                        <p className="text-lg text-primary-foreground/80">
-                            You have <span className="font-semibold text-white">5 new client applications</span> and 
-                            <span className="font-semibold text-white"> 3 upcoming appointments</span> needing your attention today.
-                        </p>
-                    </div>
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold transition-transform hover:-translate-y-0.5 active:scale-95" onClick={() => setPage('applications')}>
-                        View Applications
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard title="Total Clients" value="142" icon={Users} change="12% from last month" changeType="up" />
                 <StatCard title="Pending Applications" value="24" icon={FileText} change="3 urgent cases" changeType="down" />
