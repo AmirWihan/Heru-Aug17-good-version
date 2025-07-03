@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { clients as initialClients } from "@/lib/data";
+import { clients as initialClients, type Client } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { ClientDetailSheet } from "./client-detail";
 
 
 const clientFormSchema = z.object({
@@ -41,6 +42,8 @@ const clientFormSchema = z.object({
 export function ClientsPage() {
     const [clients, setClients] = useState(initialClients);
     const [isAddClientDialogOpen, setAddClientDialogOpen] = useState(false);
+    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const { toast } = useToast();
 
     const form = useForm<z.infer<typeof clientFormSchema>>({
@@ -54,7 +57,7 @@ export function ClientsPage() {
     });
 
     function onSubmit(values: z.infer<typeof clientFormSchema>) {
-        const newClient = {
+        const newClient: Client = {
             id: clients.length + 1,
             name: values.name,
             email: values.email,
@@ -62,7 +65,18 @@ export function ClientsPage() {
             caseType: values.caseType,
             status: 'Active',
             lastContact: new Date().toLocaleDateString('en-CA'),
-            avatar: `https://i.pravatar.cc/150?u=${values.email}`
+            avatar: `https://i.pravatar.cc/150?u=${values.email}`,
+            countryOfOrigin: 'Unknown',
+            currentLocation: 'Unknown',
+            joined: new Date().toISOString().split('T')[0],
+            caseSummary: {
+                priority: 'Medium',
+                caseType: values.caseType,
+                currentStatus: 'New',
+                nextStep: 'Initial consultation',
+                dueDate: '',
+            },
+            activity: [],
         };
         setClients([newClient, ...clients]);
         setAddClientDialogOpen(false);
@@ -72,6 +86,11 @@ export function ClientsPage() {
             description: `${values.name} has been successfully added to your client list.`,
         });
     }
+
+    const handleViewProfile = (client: Client) => {
+        setSelectedClient(client);
+        setIsSheetOpen(true);
+    };
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status.toLowerCase()) {
@@ -114,7 +133,7 @@ export function ClientsPage() {
                             </TableHeader>
                             <TableBody>
                                 {clients.map((client) => (
-                                    <TableRow key={client.id}>
+                                    <TableRow key={client.id} onClick={() => handleViewProfile(client)} className="cursor-pointer">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
@@ -133,13 +152,13 @@ export function ClientsPage() {
                                         <TableCell className="hidden lg:table-cell">{client.lastContact}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                                     <Button variant="ghost" size="icon">
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleViewProfile(client)}>View Profile</DropdownMenuItem>
                                                     <DropdownMenuItem>Send Message</DropdownMenuItem>
                                                     <DropdownMenuItem>Edit</DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -235,6 +254,14 @@ export function ClientsPage() {
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            {selectedClient && (
+                 <ClientDetailSheet
+                    client={selectedClient}
+                    isOpen={isSheetOpen}
+                    onOpenChange={setIsSheetOpen}
+                />
+            )}
         </>
     );
 }

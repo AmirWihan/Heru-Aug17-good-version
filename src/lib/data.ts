@@ -1,4 +1,31 @@
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare } from "lucide-react";
+
+export type Client = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    caseType: string;
+    status: string;
+    lastContact: string;
+    avatar: string;
+    countryOfOrigin: string;
+    currentLocation: string;
+    joined: string;
+    caseSummary: {
+        priority: string;
+        caseType: string;
+        currentStatus: string;
+        nextStep: string;
+        dueDate: string;
+    };
+    activity: {
+        title: string;
+        description: string;
+        timestamp: string;
+    }[];
+};
+
 
 export const dashboardData = {
     recentApplications: [
@@ -18,12 +45,58 @@ export const dashboardData = {
     ],
 };
 
-export const clients = [
-    { id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola' },
-    { id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos' },
-    { id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei' },
-    { id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya' },
-    { id: 5, name: 'James Wilson', email: 'j.wilson@example.com', phone: '+1-202-555-0111', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=james' },
+export const clients: Client[] = [
+    { 
+        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
+        countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20',
+        caseSummary: {
+            priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
+        },
+        activity: [
+            { title: 'New Message', description: 'Client confirmed receipt of document checklist.', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+        ]
+    },
+    { 
+        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
+        countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10',
+        caseSummary: {
+            priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
+        },
+        activity: [
+            { title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+        ]
+    },
+    { 
+        id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
+        countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05',
+        caseSummary: {
+            priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
+        },
+        activity: [
+             { title: 'New Message', description: 'Client requested to put case on hold.', timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() },
+        ]
+    },
+    { 
+        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
+        countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18',
+        caseSummary: {
+            priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
+        },
+        activity: []
+    },
+    { 
+        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15',
+        caseSummary: {
+            priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
+        },
+        activity: [
+            { title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'New Message', description: 'Client asked about processing times for work permit extensions', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+        ]
+    },
 ];
 
 export const teamPerformance = {
