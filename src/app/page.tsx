@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import type { FC } from 'react';
+import Image from 'next/image';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { DashboardPage } from '@/components/pages/dashboard';
@@ -11,7 +12,6 @@ import { AIToolsPage } from '@/components/pages/ai-tools';
 import { MessagesPage } from '@/components/pages/messages';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
 
 const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
   <Card className="m-6 p-6">
@@ -66,7 +66,7 @@ export default function Home() {
         <footer className="mt-auto border-t bg-card p-4 md:p-6">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between md:flex-row">
             <div className="mb-4 flex items-center md:mb-0">
-              <HeruLogoIcon className="mr-2 h-6 w-6" />
+              <Image src="https://placehold.co/24x24.png" alt="Heru Logo" width={24} height={24} className="mr-2" data-ai-hint="logo" />
               <span className="font-headline font-bold text-primary">Heru</span>
             </div>
             <div className="text-sm text-muted-foreground">
