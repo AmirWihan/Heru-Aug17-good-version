@@ -8,9 +8,19 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus, FilePlus } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -75,6 +85,8 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const { toast } = useToast();
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deletingDocId, setDeletingDocId] = useState<number | null>(null);
     
     const [newDocTitle, setNewDocTitle] = useState("");
     const [newDocCategory, setNewDocCategory] = useState("");
@@ -212,6 +224,25 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         setNewTaskDueDate('');
         setNewTaskPriority('Medium');
         toast({ title: 'Success', description: 'Task added successfully.' });
+    };
+
+    const handleDeleteClick = (docId: number) => {
+        setDeletingDocId(docId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deletingDocId) return;
+
+        const updatedClient = {
+            ...client,
+            documents: client.documents.filter(doc => doc.id !== deletingDocId),
+        };
+
+        onUpdateClient(updatedClient);
+        setDeleteDialogOpen(false);
+        setDeletingDocId(null);
+        toast({ title: 'Success', description: 'Document deleted successfully.' });
     };
 
 
@@ -377,6 +408,9 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                                     <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
                                                                 </>
                                                             )}
+                                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteClick(doc.id)}>
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
@@ -629,6 +663,26 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the document
+                                "{client.documents.find(d => d.id === deletingDocId)?.title}" from the client's profile.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setDeletingDocId(null)}>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
             </SheetContent>
         </Sheet>
     );
