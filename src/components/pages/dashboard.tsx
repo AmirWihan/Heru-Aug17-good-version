@@ -5,9 +5,10 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, DollarSign
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData } from "@/lib/data";
+import { dashboardData, teamPerformance } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -38,6 +39,16 @@ const QuickActionButton = ({ label, icon: Icon, onClick }: { label: string, icon
         <Icon className="h-6 w-6 text-primary" />
         <span className="text-sm font-medium">{label}</span>
     </Button>
+);
+
+const PerformanceBar = ({ label, value, progress, colorClass }: { label: string, value: string, progress: number, colorClass: string }) => (
+    <div>
+        <div className="flex justify-between mb-1">
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <span className="text-sm font-medium">{value}</span>
+        </div>
+        <Progress value={progress} indicatorClassName={colorClass} />
+    </div>
 );
 
 const getStatusVariant = (status: string) => {
@@ -142,8 +153,8 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 </div>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 <Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle className="font-headline text-lg">Upcoming Appointments</CardTitle>
                     </CardHeader>
@@ -184,17 +195,30 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                         </Table>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-lg">Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <QuickActionButton label="New Client" icon={UserPlus} onClick={() => setPage('clients')} />
-                        <QuickActionButton label="New Application" icon={FilePlus2} onClick={() => setPage('applications')} />
-                        <QuickActionButton label="Schedule Meeting" icon={CalendarPlus} onClick={() => setPage('appointments')} />
-                        <QuickActionButton label="Generate Invoice" icon={FileText} onClick={() => setPage('billing')} />
-                    </CardContent>
-                </Card>
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <PerformanceBar label="New Clients This Month" value={`${teamPerformance.newClients}`} progress={teamPerformance.newClients / 30 * 100} colorClass="bg-green-500" />
+                            <PerformanceBar label="Application Success Rate" value={`${teamPerformance.successRate}%`} progress={teamPerformance.successRate} colorClass="bg-blue-500" />
+                            <PerformanceBar label="Revenue Generated" value={`$${teamPerformance.revenue.toLocaleString()}`} progress={teamPerformance.revenue / 80000 * 100} colorClass="bg-purple-500" />
+                            <PerformanceBar label="Client Satisfaction" value={`${teamPerformance.satisfaction}/5.0`} progress={teamPerformance.satisfaction / 5 * 100} colorClass="bg-yellow-500" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Quick Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-4">
+                            <QuickActionButton label="New Client" icon={UserPlus} onClick={() => setPage('clients')} />
+                            <QuickActionButton label="New Application" icon={FilePlus2} onClick={() => setPage('applications')} />
+                            <QuickActionButton label="Schedule Meeting" icon={CalendarPlus} onClick={() => setPage('appointments')} />
+                            <QuickActionButton label="Generate Invoice" icon={FileText} onClick={() => setPage('billing')} />
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );
