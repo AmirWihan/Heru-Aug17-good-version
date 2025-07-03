@@ -6,8 +6,7 @@ import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { teamMembers as initialTeamMembers, teamPerformance, activityLogData, activityTypes } from "@/lib/data";
+import { teamMembers as initialTeamMembers, activityLogData, activityTypes } from "@/lib/data";
 import { PlusCircle, Phone, Mail, LineChart } from "lucide-react";
 import {
     Dialog,
@@ -21,16 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
-
-const PerformanceBar = ({ label, value, progress, colorClass }: { label: string, value: string, progress: number, colorClass: string }) => (
-    <div>
-        <div className="flex justify-between mb-1">
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <span className="text-sm font-medium">{value}</span>
-        </div>
-        <Progress value={progress} indicatorClassName={colorClass} />
-    </div>
-);
+import { SalesTeamPerformance } from '../sales-team-performance';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -110,20 +100,10 @@ export function TeamPage() {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <Card className="lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <PerformanceBar label="New Clients This Month" value={`${teamPerformance.newClients}`} progress={teamPerformance.newClients / 30 * 100} colorClass="bg-green-500" />
-                            <PerformanceBar label="Application Success Rate" value={`${teamPerformance.successRate}%`} progress={teamPerformance.successRate} colorClass="bg-blue-500" />
-                            <PerformanceBar label="Revenue Generated" value={`$${teamPerformance.revenue.toLocaleString()}`} progress={teamPerformance.revenue / 80000 * 100} colorClass="bg-purple-500" />
-                            <PerformanceBar label="Client Satisfaction" value={`${teamPerformance.satisfaction}/5.0`} progress={teamPerformance.satisfaction / 5 * 100} colorClass="bg-yellow-500" />
-                        </CardContent>
-                    </Card>
+                <SalesTeamPerformance />
 
-                    <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Team Members</CardTitle>
@@ -159,44 +139,44 @@ export function TeamPage() {
                             </CardContent>
                         </Card>
                     </div>
-                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-lg">Recent Team Activity</CardTitle>
-                        <CardDescription>A log of the most recent activities across the team.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="relative pl-6 before:absolute before:inset-y-0 before:w-px before:bg-border before:left-0">
-                            {activityLogData.slice(0, 5).map((activity) => {
-                                const Icon = getIconForType(activity.type);
-                                return (
-                                <div key={activity.id} className="relative pl-8 py-4">
-                                    <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-card flex items-center justify-center">
-                                        <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
-                                            {Icon && <Icon className="h-3 w-3 text-primary" />}
+                     <Card className="lg:col-span-1">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Recent Team Activity</CardTitle>
+                            <CardDescription>A log of the most recent activities across the team.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="relative pl-6 before:absolute before:inset-y-0 before:w-px before:bg-border before:left-0">
+                                {activityLogData.slice(0, 5).map((activity) => {
+                                    const Icon = getIconForType(activity.type);
+                                    return (
+                                    <div key={activity.id} className="relative pl-8 py-4">
+                                        <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-card flex items-center justify-center">
+                                            <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+                                                {Icon && <Icon className="h-3 w-3 text-primary" />}
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-medium">{activity.type} for {activity.client.name}</h4>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}</span >
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">{activity.description}</p>
+                                        <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+                                            Logged by
+                                            <Avatar className="h-4 w-4">
+                                                <AvatarImage src={activity.teamMember.avatar} alt={activity.teamMember.name} />
+                                                <AvatarFallback>{activity.teamMember.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            {activity.teamMember.name}
                                         </div>
                                     </div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-medium">{activity.type} for {activity.client.name}</h4>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}</span >
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">{activity.description}</p>
-                                     <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
-                                        Logged by
-                                        <Avatar className="h-4 w-4">
-                                            <AvatarImage src={activity.teamMember.avatar} alt={activity.teamMember.name} />
-                                            <AvatarFallback>{activity.teamMember.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        {activity.teamMember.name}
-                                    </div>
-                                </div>
-                            )})}
-                        </div>
-                    </CardContent>
-                </Card>
+                                )})}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             <Dialog open={isAddMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>

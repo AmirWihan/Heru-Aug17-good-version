@@ -5,10 +5,10 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquar
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData, teamPerformance, tasksData } from "@/lib/data";
+import { dashboardData, tasksData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
+import { SalesTeamPerformance } from "../sales-team-performance";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -39,16 +39,6 @@ const QuickActionButton = ({ label, icon: Icon, onClick }: { label: string, icon
         <Icon className="h-6 w-6 text-primary" />
         <span className="text-sm font-medium">{label}</span>
     </Button>
-);
-
-const PerformanceBar = ({ label, value, progress, colorClass }: { label: string, value: string, progress: number, colorClass: string }) => (
-    <div>
-        <div className="flex justify-between mb-1">
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <span className="text-sm font-medium">{value}</span>
-        </div>
-        <Progress value={progress} indicatorClassName={colorClass} />
-    </div>
 );
 
 const getStatusVariant = (status: string) => {
@@ -88,6 +78,8 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 <StatCard title="Upcoming Appointments" value="7" icon={CalendarCheck} footer="Next: Today at 2:30 PM" />
                 <StatCard title="Revenue This Month" value="$24,580" icon={DollarSign} change="18% from last month" changeType="up" />
             </div>
+
+            <SalesTeamPerformance />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -184,39 +176,6 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </div>
                                 </div>
                             ))}
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Recent Messages</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {dashboardData.recentMessages.map(message => (
-                                <div key={message.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('messages')}>
-                                    <Avatar className="h-10 w-10 border">
-                                        <AvatarImage src={message.avatar} alt={message.name} />
-                                        <AvatarFallback>{message.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-center">
-                                            <p className="font-semibold">{message.name}</p>
-                                            <p className="text-xs text-muted-foreground">{message.time}</p>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">{message.message}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <PerformanceBar label="New Clients This Month" value={`${teamPerformance.newClients}`} progress={teamPerformance.newClients / 30 * 100} colorClass="bg-green-500" />
-                            <PerformanceBar label="Application Success Rate" value={`${teamPerformance.successRate}%`} progress={teamPerformance.successRate} colorClass="bg-blue-500" />
-                            <PerformanceBar label="Revenue Generated" value={`$${teamPerformance.revenue.toLocaleString()}`} progress={teamPerformance.revenue / 80000 * 100} colorClass="bg-purple-500" />
-                            <PerformanceBar label="Client Satisfaction" value={`${teamPerformance.satisfaction}/5.0`} progress={teamPerformance.satisfaction / 5 * 100} colorClass="bg-yellow-500" />
                         </CardContent>
                     </Card>
                     <Card>
