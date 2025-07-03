@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { teamMembers, clients } from "@/lib/data";
-import { ArrowRight, CheckCircle, FileText, MessageSquare, Search, UserCheck, FileStack, ClipboardSearch, CheckCircle2, ChevronRight, Users } from "lucide-react";
+import { ArrowRight, CheckCircle, FileText, MessageSquare, Search, UserCheck, FileStack, ClipboardList, CheckCircle2, ChevronRight, Users } from "lucide-react";
 import { LawyerProfileCard } from "@/components/lawyer-profile-card";
 import { Input } from "../ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 const applicationStages = [
     { name: 'Profile Complete', icon: UserCheck, statuses: ['New'] },
     { name: 'Document Collection', icon: FileStack, statuses: ['Awaiting Documents', 'Additional Info Requested'] },
-    { name: 'IRCC Review', icon: ClipboardSearch, statuses: ['Under Review', 'Pending Review', 'Submitted'] },
+    { name: 'IRCC Review', icon: ClipboardList, statuses: ['Under Review', 'Pending Review', 'Submitted'] },
     { name: 'Decision Made', icon: CheckCircle2, statuses: ['Approved', 'Closed', 'Rejected'] }
 ];
 
