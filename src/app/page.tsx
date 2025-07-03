@@ -9,8 +9,9 @@ import { TeamPage } from '@/components/pages/team';
 import { DocumentsPage } from '@/components/pages/documents';
 import { AIToolsPage } from '@/components/pages/ai-tools';
 import { MessagesPage } from '@/components/pages/messages';
-import { Facebook, Linkedin, Stamp, Twitter } from 'lucide-react';
+import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
 
 const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
   <Card className="m-6 p-6">
@@ -65,7 +66,7 @@ export default function Home() {
         <footer className="mt-auto border-t bg-card p-4 md:p-6">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between md:flex-row">
             <div className="mb-4 flex items-center md:mb-0">
-              <Stamp className="mr-2 h-6 w-6 text-primary" />
+              <HeruLogoIcon className="mr-2 h-6 w-6" />
               <span className="font-headline font-bold text-primary">Heru</span>
             </div>
             <div className="text-sm text-muted-foreground">
