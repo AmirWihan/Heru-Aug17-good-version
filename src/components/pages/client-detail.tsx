@@ -1,4 +1,5 @@
 'use client';
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,8 +8,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, X, Download, Eye } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, X, Download, Eye, Upload } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { documentCategories } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -42,10 +49,42 @@ interface ClientDetailSheetProps {
     client: Client;
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
+    onUpdateClient: (updatedClient: Client) => void;
 }
 
-export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetailSheetProps) {
+export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient }: ClientDetailSheetProps) {
+    const { toast } = useToast();
+    const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+    const [newDocTitle, setNewDocTitle] = useState("");
+    const [newDocCategory, setNewDocCategory] = useState("");
+
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
+
+    const handleUpload = () => {
+        if (!newDocTitle || !newDocCategory) {
+            toast({ title: 'Error', description: 'Please fill out all fields.', variant: 'destructive' });
+            return;
+        }
+
+        const newDocument = {
+            id: Date.now(),
+            title: newDocTitle,
+            category: newDocCategory,
+            dateAdded: new Date().toISOString().split('T')[0],
+            status: 'Uploaded' as const,
+        };
+
+        const updatedClient = {
+            ...client,
+            documents: [...(client.documents || []), newDocument],
+        };
+
+        onUpdateClient(updatedClient);
+        setUploadDialogOpen(false);
+        setNewDocTitle("");
+        setNewDocCategory("");
+        toast({ title: 'Success', description: 'Document uploaded successfully.' });
+    };
 
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -162,8 +201,15 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetail
                          <TabsContent value="documents" className="mt-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-lg">Client Documents</CardTitle>
-                                    <CardDescription>All documents uploaded by or for the client.</CardDescription>
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <CardTitle className="text-lg">Client Documents</CardTitle>
+                                            <CardDescription>All documents uploaded by or for the client.</CardDescription>
+                                        </div>
+                                        <Button onClick={() => setUploadDialogOpen(true)}>
+                                            <Upload className="mr-2 h-4 w-4" /> Upload Document
+                                        </Button>
+                                    </div>
                                 </CardHeader>
                                 <CardContent>
                                     {client.documents && client.documents.length > 0 ? (
@@ -263,6 +309,42 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange }: ClientDetail
                         </TabsContent>
                     </Tabs>
                 </div>
+
+                <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Upload Document</DialogTitle>
+                            <DialogDescription>Add a new document to {client.name}'s profile.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="doc-title">Document Title</Label>
+                                <Input id="doc-title" value={newDocTitle} onChange={(e) => setNewDocTitle(e.target.value)} placeholder="e.g., Passport Bio Page" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="doc-category">Category</Label>
+                                <Select value={newDocCategory} onValueChange={setNewDocCategory}>
+                                    <SelectTrigger id="doc-category">
+                                        <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {documentCategories.filter(c => c.name !== 'All Documents').map(cat => (
+                                            <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="doc-file">File</Label>
+                                <Input id="doc-file" type="file" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={handleUpload}>Upload</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </SheetContent>
         </Sheet>
     );

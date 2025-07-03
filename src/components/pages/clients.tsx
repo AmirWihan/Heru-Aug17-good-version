@@ -82,6 +82,7 @@ export function ClientsPage() {
                 dueDate: '',
             },
             activity: [],
+            documents: [],
         };
         setClients([newClient, ...clients]);
         setAddClientDialogOpen(false);
@@ -95,6 +96,11 @@ export function ClientsPage() {
     const handleViewProfile = (client: Client) => {
         setSelectedClient(client);
         setIsSheetOpen(true);
+    };
+
+    const handleUpdateClient = (updatedClient: Client) => {
+        setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c));
+        setSelectedClient(updatedClient);
     };
 
     const getStatusBadgeVariant = (status: string) => {
@@ -325,6 +331,7 @@ export function ClientsPage() {
                     client={selectedClient}
                     isOpen={isSheetOpen}
                     onOpenChange={setIsSheetOpen}
+                    onUpdateClient={handleUpdateClient}
                 />
             )}
         </>
