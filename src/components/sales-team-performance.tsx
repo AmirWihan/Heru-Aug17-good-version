@@ -19,11 +19,11 @@ const performanceData = {
     ]
 }
 
-export function SalesTeamPerformance() {
+export function TeamPerformance() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-lg">Sales Team Performance</CardTitle>
+                <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

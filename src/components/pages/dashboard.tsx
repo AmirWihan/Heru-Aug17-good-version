@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { dashboardData, tasksData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { SalesTeamPerformance } from "../sales-team-performance";
+import { TeamPerformance } from "../sales-team-performance";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -78,8 +78,6 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 <StatCard title="Upcoming Appointments" value="7" icon={CalendarCheck} footer="Next: Today at 2:30 PM" />
                 <StatCard title="Revenue This Month" value="$24,580" icon={DollarSign} change="18% from last month" changeType="up" />
             </div>
-
-            <SalesTeamPerformance />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -191,6 +189,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </Card>
                 </div>
             </div>
+            <TeamPerformance />
         </div>
     );
 }

@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
-import { SalesTeamPerformance } from '../sales-team-performance';
+import { TeamPerformance } from '../sales-team-performance';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -100,7 +100,7 @@ export function TeamPage() {
                     </Button>
                 </div>
 
-                <SalesTeamPerformance />
+                <TeamPerformance />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
