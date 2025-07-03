@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from '../ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
     <Card>
