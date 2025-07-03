@@ -1,13 +1,12 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { dashboardData, teamPerformance, tasksData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 
@@ -91,7 +90,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Recent Applications</CardTitle>
@@ -126,15 +125,55 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                             </Table>
                         </CardContent>
                     </Card>
-                </div>
-
-                <div className="space-y-6">
                      <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Upcoming Appointments</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Client</TableHead>
+                                        <TableHead>Date & Time</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {dashboardData.upcomingAppointments.map((appt) => (
+                                    <TableRow key={appt.id}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <Avatar>
+                                                    <AvatarImage src={appt.avatar} />
+                                                    <AvatarFallback>{appt.name.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                {appt.name}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{appt.dateTime}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline">{appt.type}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button variant="outline" size="sm" onClick={() => toast({ title: "Joining meeting...", description: `Connecting to meeting with ${appt.name}.` })}>
+                                                Join
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="space-y-6">
+                    <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Upcoming Tasks</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {tasksData.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
+                            {tasksData.filter(t => t.status !== 'Completed').slice(0, 3).map(task => (
                                 <div key={task.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('tasks')}>
                                     <div className="bg-muted p-2 rounded-full mt-1">
                                       <CheckSquare className="h-4 w-4 text-primary" />
@@ -169,53 +208,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                             ))}
                         </CardContent>
                     </Card>
-                </div>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                 <Card className="lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-lg">Upcoming Appointments</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Date & Time</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {dashboardData.upcomingAppointments.map((appt) => (
-                                <TableRow key={appt.id}>
-                                    <TableCell>
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarImage src={appt.avatar} />
-                                                <AvatarFallback>{appt.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            {appt.name}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{appt.dateTime}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">{appt.type}</Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button variant="outline" size="sm" onClick={() => toast({ title: "Joining meeting...", description: `Connecting to meeting with ${appt.name}.` })}>
-                                            Join
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-                <div className="space-y-6">
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
                         </CardHeader>
