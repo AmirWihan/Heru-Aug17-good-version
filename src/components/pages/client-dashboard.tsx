@@ -1,9 +1,10 @@
+
 'use client';
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { teamMembers, documents as templateDocuments } from "@/lib/data";
-import { ArrowRight, CheckCircle, FileText, MessageSquare, Search } from "lucide-react";
+import { teamMembers, clients } from "@/lib/data";
+import { ArrowRight, CheckCircle, FileText, MessageSquare, Search, UserCheck, FileStack, ClipboardSearch, CheckCircle2, ChevronRight, Users } from "lucide-react";
 import { LawyerProfileCard } from "@/components/lawyer-profile-card";
 import { Input } from "../ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -11,10 +12,23 @@ import { Badge } from "../ui/badge";
 import { Table, TableBody, TableCell, TableRow, TableHeader, TableHead } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { format } from 'date-fns';
+import { cn } from "@/lib/utils";
+
+const applicationStages = [
+    { name: 'Profile Complete', icon: UserCheck, statuses: ['New'] },
+    { name: 'Document Collection', icon: FileStack, statuses: ['Awaiting Documents', 'Additional Info Requested'] },
+    { name: 'IRCC Review', icon: ClipboardSearch, statuses: ['Under Review', 'Pending Review', 'Submitted'] },
+    { name: 'Decision Made', icon: CheckCircle2, statuses: ['Approved', 'Closed', 'Rejected'] }
+];
 
 export function ClientDashboard() {
     const { toast } = useToast();
     const [connectedLawyers, setConnectedLawyers] = useState<number[]>([]);
+    
+    // Use a mock client for demonstration purposes
+    const client = clients[0];
+
+    const currentStageIndex = applicationStages.findIndex(stage => stage.statuses.includes(client.caseSummary.currentStatus));
 
     const handleConnect = (lawyerId: number) => {
         if (!connectedLawyers.includes(lawyerId)) {
@@ -31,21 +45,54 @@ export function ClientDashboard() {
 
     return (
         <div className="space-y-6">
-            <Card className="bg-primary text-primary-foreground">
-                <CardHeader>
-                    <CardTitle className="text-white">Welcome, John!</CardTitle>
-                    <CardDescription className="text-primary-foreground/80">
-                        Your immigration journey starts here. Track your progress and communicate with your legal team.
-                    </CardDescription>
+             <Card className="overflow-hidden">
+                <CardHeader className="bg-muted/30 p-6">
+                    <CardTitle className="font-headline">Welcome, {client.name}!</CardTitle>
+                    <CardDescription>Here's a summary of your immigration application progress.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <CardContent className="p-6 space-y-6">
                     <div>
-                        <p className="font-semibold">Your Next Step:</p>
-                        <p className="text-primary-foreground/90">Upload your "Proof of Funds" document.</p>
+                        <h3 className="font-semibold mb-4">Application Progress</h3>
+                        <div className="flex justify-between items-center">
+                            {applicationStages.map((stage, index) => {
+                                const isCompleted = index < currentStageIndex;
+                                const isCurrent = index === currentStageIndex;
+                                const isUpcoming = index > currentStageIndex;
+                                
+                                return (
+                                    <React.Fragment key={stage.name}>
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-full flex items-center justify-center border-2 transition-colors",
+                                                isCompleted ? "bg-primary border-primary text-primary-foreground" : "",
+                                                isCurrent ? "bg-primary/10 border-primary text-primary animate-pulse" : "",
+                                                isUpcoming ? "bg-muted border-border text-muted-foreground" : ""
+                                            )}>
+                                                <stage.icon className="w-6 h-6" />
+                                            </div>
+                                            <p className={cn(
+                                                "text-xs mt-2 font-medium w-24",
+                                                isCurrent ? "text-primary" : "text-muted-foreground"
+                                            )}>{stage.name}</p>
+                                        </div>
+                                        {index < applicationStages.length - 1 && <div className="flex-1 h-0.5 bg-border -mx-2 mb-8" />}
+                                    </React.Fragment>
+                                )
+                            })}
+                        </div>
                     </div>
-                    <Button variant="secondary" className="bg-white text-primary hover:bg-white/90">
-                        Upload Document <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <div className="border-t pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <p className="text-sm text-muted-foreground">Current Status: <Badge variant={
+                                client.caseSummary.currentStatus === 'Approved' ? 'success' :
+                                client.caseSummary.currentStatus === 'Awaiting Documents' ? 'warning' : 'info'
+                            }>{client.caseSummary.currentStatus}</Badge></p>
+                            <p className="font-semibold mt-1">Next Step: {client.caseSummary.nextStep}</p>
+                        </div>
+                        <Button>
+                            Upload Documents <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
 
