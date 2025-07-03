@@ -9,6 +9,7 @@ import { TeamPage } from '@/components/pages/team';
 import { DocumentsPage } from '@/components/pages/documents';
 import { AIToolsPage } from '@/components/pages/ai-tools';
 import { MessagesPage } from '@/components/pages/messages';
+import { BillingPage } from '@/components/pages/billing';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
@@ -33,7 +34,7 @@ export default function Home() {
     applications: () => <PlaceholderPage title="Applications" />,
     appointments: () => <PlaceholderPage title="Appointments" />,
     messages: MessagesPage,
-    billing: () => <PlaceholderPage title="Billing" />,
+    billing: BillingPage,
     reports: () => <PlaceholderPage title="Reports" />,
     settings: () => <PlaceholderPage title="Settings" />,
   };
@@ -48,7 +49,7 @@ export default function Home() {
       'applications': 'Applications',
       'appointments': 'Appointments',
       'messages': 'Messages',
-      'billing': 'Billing',
+      'billing': 'Billing & Invoices',
       'reports': 'Reports',
       'settings': 'Settings',
   };

@@ -146,3 +146,31 @@ export const messagesData = [
       ],
     }
   ];
+
+  export const billingSummary = {
+    totalRevenue: 64820,
+    outstanding: 12450,
+    overdueInvoices: 7,
+    thisMonth: 24580,
+    collected: 18240,
+    avgPayment: 1250,
+};
+
+export const invoicesData = [
+    { id: 1, invoiceNumber: 'INV-2023-0456', service: 'Work Permit', client: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, date: 'Jun 10, 2023', dueDate: 'Jun 24, 2023', amount: 3250, status: 'Overdue' },
+    { id: 2, invoiceNumber: 'INV-2023-0452', service: 'PR Application', client: { name: 'Michael Brown', avatar: 'https://i.pravatar.cc/150?u=michael' }, date: 'Jun 5, 2023', dueDate: 'Jun 19, 2023', amount: 4500, status: 'Paid' },
+    { id: 3, invoiceNumber: 'INV-2023-0448', service: 'Visitor Visa', client: { name: 'Elena Rodriguez', avatar: 'https://i.pravatar.cc/150?u=elena' }, date: 'May 28, 2023', dueDate: 'Jun 11, 2023', amount: 1850, status: 'Pending' },
+    { id: 4, invoiceNumber: 'INV-2023-0440', service: 'Student Visa', client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, date: 'May 15, 2023', dueDate: 'May 29, 2023', amount: 2750, status: 'Paid' },
+];
+
+export const paymentsData = [
+    { id: 1, paymentNumber: 'PAY-2023-0452', date: 'Jun 12, 2023', client: { name: 'Michael Brown', avatar: 'https://i.pravatar.cc/150?u=michael' }, invoiceNumber: 'INV-2023-0452', method: 'Credit Card', amount: 4500, status: 'Completed' },
+    { id: 2, paymentNumber: 'PAY-2023-0440', date: 'May 28, 2023', client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, invoiceNumber: 'INV-2023-0440', method: 'Bank Transfer', amount: 2750, status: 'Completed' },
+    { id: 3, paymentNumber: 'PAY-2023-0438', date: 'May 18, 2023', client: { name: 'Sophia Williams', avatar: 'https://i.pravatar.cc/150?u=sophiaw' }, invoiceNumber: 'INV-2023-0438', method: 'PayPal', amount: 3150, status: 'Completed' },
+];
+
+export const paymentMethodsData = [
+    { id: 1, type: 'Visa', last4: '4242', expiry: '08/2025', isPrimary: true },
+    { id: 2, type: 'Mastercard', last4: '0021', expiry: '11/2024', isPrimary: false },
+    { id: 3, type: 'PayPal', last4: 'n/a', expiry: 'sarah@heru.com', isPrimary: false },
+]
