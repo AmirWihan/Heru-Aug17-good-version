@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,13 +57,12 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
     return (
         <div className="space-y-6">
             <div className="relative rounded-xl shadow-lg overflow-hidden bg-primary text-primary-foreground p-8">
-                <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
                 <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
                     <div>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline mb-2">Welcome back, Sarah! 👋</h2>
                         <p className="text-lg text-primary-foreground/80">
                             You have <span className="font-semibold text-white">5 new client applications</span> and 
-                            <span className="font-semibold text-white"> 3 upcoming appointments</span>.
+                            <span className="font-semibold text-white"> 3 upcoming appointments</span> needing your attention today.
                         </p>
                     </div>
                     <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold transition-transform hover:-translate-y-0.5 active:scale-95" onClick={() => setPage('applications')}>
