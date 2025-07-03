@@ -40,7 +40,7 @@ const clientFormSchema = z.object({
     }),
 });
 
-export function ClientsPage() {
+export function ClientsPage({ setPage }: { setPage: (page: string) => void }) {
     const [clients, setClients] = useState(initialClients);
     const [isAddClientDialogOpen, setAddClientDialogOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -336,6 +336,7 @@ export function ClientsPage() {
                     isOpen={isSheetOpen}
                     onOpenChange={setIsSheetOpen}
                     onUpdateClient={handleUpdateClient}
+                    setPage={setPage}
                 />
             )}
         </>

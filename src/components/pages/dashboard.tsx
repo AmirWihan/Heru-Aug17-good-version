@@ -1,7 +1,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Users } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -128,7 +128,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </Card>
                 </div>
 
-                <div>
+                <div className="space-y-6">
                      <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Upcoming Tasks</CardTitle>
@@ -142,6 +142,28 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     <div>
                                         <p className="font-semibold line-clamp-1">{task.title}</p>
                                         <p className="text-sm text-muted-foreground">Due: {format(new Date(task.dueDate), 'PP')}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Recent Messages</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {dashboardData.recentMessages.map(message => (
+                                <div key={message.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('messages')}>
+                                    <Avatar className="h-10 w-10 border">
+                                        <AvatarImage src={message.avatar} alt={message.name} />
+                                        <AvatarFallback>{message.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-semibold">{message.name}</p>
+                                            <p className="text-xs text-muted-foreground">{message.time}</p>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground line-clamp-2">{message.message}</p>
                                     </div>
                                 </div>
                             ))}

@@ -86,9 +86,10 @@ interface ClientDetailSheetProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
     onUpdateClient: (updatedClient: Client) => void;
+    setPage: (page: string) => void;
 }
 
-export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient }: ClientDetailSheetProps) {
+export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient, setPage }: ClientDetailSheetProps) {
     const { toast } = useToast();
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -427,7 +428,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                             <p className="text-muted-foreground">Due Date</p>
                                             <p className="font-semibold">{client.caseSummary.dueDate}</p>
                                         </div>
-                                        <Button className="w-full">View Full Application</Button>
+                                        <Button className="w-full" onClick={() => setPage('applications')}>View Full Application</Button>
                                     </CardContent>
                                 </Card>
                                 <Card className="lg:col-span-2">
