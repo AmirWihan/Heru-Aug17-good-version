@@ -20,9 +20,10 @@ type LawyerProfileCardProps = {
         specialties: string[];
     };
     onConnect: (lawyerId: number) => void;
+    onMessage?: () => void;
 };
 
-export function LawyerProfileCard({ lawyer, onConnect }: LawyerProfileCardProps) {
+export function LawyerProfileCard({ lawyer, onConnect, onMessage }: LawyerProfileCardProps) {
     const displayedStats = lawyer.stats.filter(
         stat => stat.label === 'Clients' || stat.label === 'Success Rate'
     );
@@ -68,7 +69,7 @@ export function LawyerProfileCard({ lawyer, onConnect }: LawyerProfileCardProps)
                     <Share2 className="mr-2 h-4 w-4" /> Share Info & Connect
                 </Button>
                 <div className="flex w-full gap-2">
-                    <Button variant="outline" className="flex-1">
+                    <Button variant="outline" className="flex-1" onClick={onMessage} disabled={!onMessage}>
                         <MessageSquare className="mr-2 h-4 w-4" /> Message
                     </Button>
                      <Button variant="outline" size="icon">

@@ -17,6 +17,10 @@ export function MyLawyersPage({ setPage }: { setPage: (page: string) => void }) 
         toast({ title: "Action", description: `Viewing profile for ${teamMembers.find(l => l.id === lawyerId)?.name}.` });
     };
 
+    const handleMessage = () => {
+        setPage('messages');
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -27,7 +31,7 @@ export function MyLawyersPage({ setPage }: { setPage: (page: string) => void }) 
                 {connectedLawyers.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {teamMembers.filter(l => connectedLawyers.includes(l.id)).map(lawyer => (
-                        <LawyerProfileCard key={lawyer.id} lawyer={lawyer} onConnect={handleConnect} />
+                        <LawyerProfileCard key={lawyer.id} lawyer={lawyer} onConnect={handleConnect} onMessage={handleMessage} />
                     ))}
                     </div>
                 ) : (

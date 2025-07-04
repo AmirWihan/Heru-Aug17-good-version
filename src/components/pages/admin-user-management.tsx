@@ -21,6 +21,32 @@ export function UserManagementPage() {
     const { toast } = useToast();
     const [selectedUser, setSelectedUser] = useState<TeamMember | Client | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    
+    // State for lawyer filters
+    const [lawyerSearchTerm, setLawyerSearchTerm] = useState('');
+    const [lawyerStatusFilter, setLawyerStatusFilter] = useState('all');
+    const [lawyerPlanFilter, setLawyerPlanFilter] = useState('all');
+
+    // State for client filters
+    const [clientSearchTerm, setClientSearchTerm] = useState('');
+    const [clientStatusFilter, setClientStatusFilter] = useState('all');
+
+    const lawyerStatuses = ['all', ...Array.from(new Set(teamMembers.map(m => m.status)))];
+    const lawyerPlans = ['all', ...Array.from(new Set(teamMembers.map(m => m.plan)))];
+    const clientStatuses = ['all', ...Array.from(new Set(clients.map(c => c.status)))];
+
+    const filteredLawyers = teamMembers.filter(member => {
+        const searchMatch = member.name.toLowerCase().includes(lawyerSearchTerm.toLowerCase()) || member.email.toLowerCase().includes(lawyerSearchTerm.toLowerCase());
+        const statusMatch = lawyerStatusFilter === 'all' || member.status === lawyerStatusFilter;
+        const planMatch = lawyerPlanFilter === 'all' || member.plan === lawyerPlanFilter;
+        return searchMatch && statusMatch && planMatch;
+    });
+
+    const filteredClients = clients.filter(client => {
+        const searchMatch = client.name.toLowerCase().includes(clientSearchTerm.toLowerCase()) || client.email.toLowerCase().includes(clientSearchTerm.toLowerCase());
+        const statusMatch = clientStatusFilter === 'all' || client.status === clientStatusFilter;
+        return searchMatch && statusMatch;
+    });
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status.toLowerCase()) {
@@ -85,31 +111,25 @@ export function UserManagementPage() {
                         </TabsList>
                         
                         <TabsContent value="lawyers" className="mt-4">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="relative flex-1">
+                            <div className="flex items-center gap-4 mb-4 flex-wrap">
+                                <div className="relative flex-1 min-w-[200px]">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search by name or email..." className="pl-10" />
+                                    <Input placeholder="Search by name or email..." className="pl-10" value={lawyerSearchTerm} onChange={e => setLawyerSearchTerm(e.target.value)} />
                                 </div>
-                                <Select>
-                                    <SelectTrigger className="w-[180px]">
+                                <Select value={lawyerStatusFilter} onValueChange={setLawyerStatusFilter}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
                                         <SelectValue placeholder="Filter by Status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">All Statuses</SelectItem>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="suspended">Suspended</SelectItem>
-                                        <SelectItem value="pending verification">Pending Verification</SelectItem>
-                                        <SelectItem value="pending activation">Pending Activation</SelectItem>
+                                        {lawyerStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
-                                 <Select>
-                                    <SelectTrigger className="w-[180px]">
+                                 <Select value={lawyerPlanFilter} onValueChange={setLawyerPlanFilter}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
                                         <SelectValue placeholder="Filter by Plan" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">All Plans</SelectItem>
-                                        <SelectItem value="pro">Pro Tier</SelectItem>
-                                        <SelectItem value="basic">Basic Tier</SelectItem>
+                                        {lawyerPlans.map(plan => <SelectItem key={plan} value={plan}>{plan === 'all' ? 'All Plans' : plan}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -124,7 +144,7 @@ export function UserManagementPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {teamMembers.map(member => (
+                                        {filteredLawyers.map(member => (
                                             <TableRow key={member.id}>
                                                 <TableCell>
                                                     <div className="flex items-center gap-3">
@@ -160,11 +180,19 @@ export function UserManagementPage() {
                         </TabsContent>
                         
                         <TabsContent value="clients" className="mt-4">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="relative flex-1">
+                            <div className="flex items-center gap-4 mb-4 flex-wrap">
+                                <div className="relative flex-1 min-w-[200px]">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search clients by name or email..." className="pl-10" />
+                                    <Input placeholder="Search clients by name or email..." className="pl-10" value={clientSearchTerm} onChange={e => setClientSearchTerm(e.target.value)}/>
                                 </div>
+                                <Select value={clientStatusFilter} onValueChange={setClientStatusFilter}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
+                                        <SelectValue placeholder="Filter by Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {clientStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="overflow-x-auto">
                                 <Table>
@@ -178,7 +206,7 @@ export function UserManagementPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {clients.map(client => (
+                                        {filteredClients.map(client => (
                                             <TableRow key={client.id}>
                                                 <TableCell>
                                                      <div className="flex items-center gap-3">
