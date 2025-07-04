@@ -79,6 +79,8 @@ export default function LoginPage() {
         setIsLoading(true);
 
         const processedEmail = email.toLowerCase().trim();
+
+        // Universal password check
         if (password !== 'password123') {
             toast({
                 title: 'Login Failed',
@@ -89,36 +91,53 @@ export default function LoginPage() {
             return;
         }
 
+        // Admin Login
         if (role === 'admin') {
-            const user = teamMembers.find(member => member.type === 'admin' && member.email.toLowerCase().trim() === processedEmail);
-            if (user?.status === 'Active') {
+            const user = teamMembers.find(member => 
+                member.type === 'admin' && 
+                member.email.toLowerCase().trim() === processedEmail
+            );
+            if (user && user.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/admin/dashboard');
-                return;
+                return; // Exit after successful login
             }
-        } else if (role === 'lawyer') {
-            const user = teamMembers.find(member => member.type === 'legal' && member.email.toLowerCase().trim() === processedEmail);
+        }
+
+        // Lawyer Login
+        if (role === 'lawyer') {
+            const user = teamMembers.find(member => 
+                member.type === 'legal' && 
+                member.email.toLowerCase().trim() === processedEmail
+            );
             if (user) {
                 if (user.status === 'Active') {
                     toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                     router.push('/lawyer/dashboard');
-                    return;
+                    return; // Exit after successful login
                 } else {
-                    toast({ title: 'Account Not Active', description: `Your account status is: ${user.status}. Please wait for activation.`, variant: 'destructive' });
+                    toast({ 
+                        title: 'Account Not Active', 
+                        description: `Your account status is: ${user.status}. Please wait for activation.`, 
+                        variant: 'destructive' 
+                    });
                     setIsLoading(false);
-                    return;
+                    return; // Exit with specific message
                 }
             }
-        } else if (role === 'client') {
+        }
+
+        // Client Login
+        if (role === 'client') {
             const user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
             if (user) {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/client/dashboard');
-                return;
+                return; // Exit after successful login
             }
         }
-
-        // Generic failure if no successful path was taken
+        
+        // If no successful login path was taken, show a generic failure message
         toast({
             title: 'Login Failed',
             description: 'Invalid credentials for the selected role.',
