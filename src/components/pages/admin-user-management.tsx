@@ -150,10 +150,13 @@ export function UserManagementPage() {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     {member.status === 'Pending Activation' ? (
-                                                        <Button size="sm" onClick={() => handleActivateAccount(member.id)}>
-                                                            <ShieldCheck className="mr-2 h-4 w-4" />
-                                                            Activate
-                                                        </Button>
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>View Details</Button>
+                                                            <Button size="sm" onClick={() => handleActivateAccount(member.id)}>
+                                                                <ShieldCheck className="mr-2 h-4 w-4" />
+                                                                Activate
+                                                            </Button>
+                                                        </div>
                                                     ) : (
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
