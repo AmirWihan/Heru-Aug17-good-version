@@ -75,25 +75,29 @@ export const teamMembers = [
     {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
         email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin',
-        stats: [{ label: 'Clients', value: '24' }, { label: 'Success Rate', value: '96%' }],
+        location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96,
+        stats: [{ label: 'Success Rate', value: '96%' }, { label: 'Experience', value: '12+ Yrs' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen',
         email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member',
-        stats: [{ label: 'Clients', value: '18' }, { label: 'Success Rate', value: '89%' }],
+        location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89,
+        stats: [{ label: 'Success Rate', value: '89%' }, { label: 'Experience', value: '8+ Yrs' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia',
         email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member',
-        stats: [{ label: 'Clients', value: '16' }, { label: 'Success Rate', value: '92%' }],
+        location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92,
+        stats: [{ label: 'Success Rate', value: '92%' }, { label: 'Experience', value: '5+ Yrs' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication']
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Case Manager', avatar: 'https://i.pravatar.cc/150?u=david',
         email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Viewer',
-        stats: [{ label: 'Clients', value: '22' }, { label: 'Success Rate', value: '94%' }],
+        location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94,
+        stats: [{ label: 'Success Rate', value: '94%' }, { label: 'Experience', value: '7+ Yrs' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
     },
 ];
