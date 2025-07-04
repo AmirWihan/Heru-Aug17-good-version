@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2 } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -32,6 +32,8 @@ import { Checkbox } from "../ui/checkbox";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { predictSuccess, SuccessPredictorOutput } from '@/ai/flows/success-predictor';
 import { cn } from "@/lib/utils";
+import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
+import { CaseTimeline } from "@/components/case-timeline";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -139,9 +141,40 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
 
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
+    const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
+    const [isTimelineLoading, setIsTimelineLoading] = useState(true);
+    const [timelineError, setTimelineError] = useState<string | null>(null);
+
     useEffect(() => {
         setAnalysisResult(client.analysis || null);
     }, [client]);
+
+    useEffect(() => {
+        async function fetchTimeline() {
+            if (!client) return;
+            setIsTimelineLoading(true);
+            setTimelineError(null);
+            try {
+                const response = await getCaseTimeline({
+                    visaType: client.caseSummary.caseType,
+                    currentStage: client.caseSummary.currentStatus,
+                    countryOfOrigin: client.countryOfOrigin,
+                });
+                setTimelineData(response.timeline);
+            } catch (err) {
+                console.error("Failed to fetch timeline:", err);
+                setTimelineError("Could not generate the projected timeline. Please try again later.");
+                toast({
+                    title: "Timeline Error",
+                    description: "Failed to generate the case timeline.",
+                    variant: "destructive",
+                });
+            } finally {
+                setIsTimelineLoading(false);
+            }
+        }
+        fetchTimeline();
+    }, [client.id, client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
 
     useEffect(() => {
         if (isLogActivityDialogOpen) {
@@ -692,46 +725,34 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         </CardContent>
                     </Card>
                 </TabsContent>
-                    <TabsContent value="timeline" className="mt-4">
-                        <Card>
+                <TabsContent value="timeline" className="mt-4">
+                    <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg">Case Timeline</CardTitle>
-                            <CardDescription>A chronological history of all activities related to this case.</CardDescription>
+                             <CardTitle className="text-lg flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                AI-Powered Case Timeline
+                            </CardTitle>
+                            <CardDescription>A personalized, estimated timeline of the client's immigration journey.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="relative pl-6 before:absolute before:inset-y-0 before:w-px before:bg-border before:left-0">
-                                {client.activity.map((item, index) => {
-                                    const Icon = activityIcons[item.title] || FileText;
-                                    return (
-                                        <div key={item.id} className="relative pl-8 py-4 first:pt-0 last:pb-0">
-                                            <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-background flex items-center justify-center">
-                                                <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
-                                                    <Icon className="h-3 w-3 text-primary" />
-                                                </div>
-                                            </div>
-                                            <div className="flex justify-between items-center mb-1">
-                                                <h4 className="font-medium">{item.title}</h4>
-                                                <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                                            {item.teamMember && (
-                                                <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
-                                                    Logged by
-                                                    <Avatar className="h-4 w-4">
-                                                        <AvatarImage src={item.teamMember.avatar} alt={item.teamMember.name} />
-                                                        <AvatarFallback>{item.teamMember.name.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    {item.teamMember.name}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {isTimelineLoading && (
+                               <div className="flex items-center justify-center h-40">
+                                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                   <p className="ml-4 text-muted-foreground">Generating projected timeline...</p>
+                               </div>
+                            )}
+                            {timelineError && !isTimelineLoading && (
+                               <div className="flex flex-col items-center justify-center h-40 text-center text-destructive">
+                                   <AlertTriangle className="h-8 w-8 mb-2" />
+                                   <p className="font-semibold">Timeline Generation Failed</p>
+                                   <p className="text-sm">{timelineError}</p>
+                               </div>
+                            )}
+                            {timelineData && !isTimelineLoading && <CaseTimeline timeline={timelineData} />}
                         </CardContent>
                     </Card>
                 </TabsContent>
-                    <TabsContent value="communications" className="mt-4">
+                <TabsContent value="communications" className="mt-4">
                         <Card>
                         <CardHeader>
                             <CardTitle className="text-lg">Communication Log</CardTitle>
