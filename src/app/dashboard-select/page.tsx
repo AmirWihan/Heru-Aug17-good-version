@@ -80,7 +80,7 @@ export default function LoginPage() {
 
         const processedEmail = email.toLowerCase().trim();
 
-        // Universal password check
+        // Universal password check for prototype
         if (password !== 'password123') {
             toast({
                 title: 'Login Failed',
@@ -91,7 +91,8 @@ export default function LoginPage() {
             return;
         }
 
-        // Admin Login
+        let userFoundAndRedirecting = false;
+
         if (role === 'admin') {
             const user = teamMembers.find(member => 
                 member.type === 'admin' && 
@@ -100,12 +101,9 @@ export default function LoginPage() {
             if (user && user.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/admin/dashboard');
-                return; // Exit after successful login
+                userFoundAndRedirecting = true;
             }
-        }
-
-        // Lawyer Login
-        if (role === 'lawyer') {
+        } else if (role === 'lawyer') {
             const user = teamMembers.find(member => 
                 member.type === 'legal' && 
                 member.email.toLowerCase().trim() === processedEmail
@@ -114,36 +112,34 @@ export default function LoginPage() {
                 if (user.status === 'Active') {
                     toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                     router.push('/lawyer/dashboard');
-                    return; // Exit after successful login
+                    userFoundAndRedirecting = true;
                 } else {
                     toast({ 
                         title: 'Account Not Active', 
-                        description: `Your account status is: ${user.status}. Please wait for activation.`, 
+                        description: `Your account status is: ${user.status}. Please wait for activation or contact support.`, 
                         variant: 'destructive' 
                     });
                     setIsLoading(false);
-                    return; // Exit with specific message
+                    return; // Exit here to show specific status message
                 }
             }
-        }
-
-        // Client Login
-        if (role === 'client') {
+        } else if (role === 'client') {
             const user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
             if (user) {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/client/dashboard');
-                return; // Exit after successful login
+                userFoundAndRedirecting = true;
             }
         }
         
-        // If no successful login path was taken, show a generic failure message
-        toast({
-            title: 'Login Failed',
-            description: 'Invalid credentials for the selected role.',
-            variant: 'destructive'
-        });
-        setIsLoading(false);
+        if (!userFoundAndRedirecting) {
+            toast({
+                title: 'Login Failed',
+                description: 'Invalid credentials for the selected role.',
+                variant: 'destructive'
+            });
+            setIsLoading(false);
+        }
     };
 
     return (
