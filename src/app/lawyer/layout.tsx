@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { LawyerDashboardProvider, useLawyerDashboard } from '@/context/LawyerDashboardContext';
@@ -23,10 +23,34 @@ const pageTitles: { [key: string]: string } = {
     'support': 'Help & Support',
 };
 
+const BANNER_DISMISS_KEY = 'heru-upgrade-banner-dismissed-date';
+
 function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const { page, setPage } = useLawyerDashboard();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
-    const [isBannerOpen, setIsBannerOpen] = useState(true);
+    const [isBannerOpen, setIsBannerOpen] = useState(false);
+
+    useEffect(() => {
+        const lastDismissedDateStr = localStorage.getItem(BANNER_DISMISS_KEY);
+        if (lastDismissedDateStr) {
+            const lastDismissedDate = new Date(lastDismissedDateStr);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            if (lastDismissedDate < thirtyDaysAgo) {
+                // It's been more than 30 days, show the banner
+                setIsBannerOpen(true);
+            }
+        } else {
+            // Never dismissed, show the banner
+            setIsBannerOpen(true);
+        }
+    }, []);
+
+    const handleDismissBanner = () => {
+        setIsBannerOpen(false);
+        localStorage.setItem(BANNER_DISMISS_KEY, new Date().toISOString());
+    };
 
     return (
         <div className="min-h-screen bg-background text-foreground font-body">
@@ -48,7 +72,7 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                             </div>
                             <div className="flex items-center flex-shrink-0 gap-2">
                                 <Button size="sm" variant="secondary" onClick={() => { setPage('settings'); }}>Upgrade Now</Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsBannerOpen(false)}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDismissBanner}>
                                     <X className="h-4 w-4" />
                                     <span className="sr-only">Dismiss</span>
                                 </Button>
