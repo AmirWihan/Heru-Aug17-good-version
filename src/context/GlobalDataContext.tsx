@@ -1,6 +1,6 @@
 'use client';
 
-import { teamMembers as initialTeamMembers, clients as initialClients, type Client, type TeamMember } from '@/lib/data';
+import { teamMembers as initialTeamMembers, clients as initialClients, tasksData as initialTasksData, type Client, type TeamMember, type Task } from '@/lib/data';
 import type { Dispatch, SetStateAction} from 'react';
 import { createContext, useState, useContext, useCallback } from 'react';
 
@@ -11,6 +11,8 @@ interface GlobalDataContextType {
     clients: Client[];
     addClient: (client: Client) => void;
     updateClient: (updatedClient: Client) => void;
+    tasks: Task[];
+    addTask: (task: Task) => void;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 export function GlobalDataProvider({ children }: { children: React.ReactNode }) {
     const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
     const [clients, setClients] = useState(initialClients);
+    const [tasks, setTasks] = useState(initialTasksData);
 
     const addTeamMember = useCallback((member: TeamMember) => {
         setTeamMembers(prev => [member, ...prev]);
@@ -35,8 +38,12 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
     }, []);
 
+    const addTask = useCallback((task: Task) => {
+        setTasks(prev => [task, ...prev]);
+    }, []);
+
     return (
-        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient }}>
+        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask }}>
             {children}
         </GlobalDataContext.Provider>
     );
