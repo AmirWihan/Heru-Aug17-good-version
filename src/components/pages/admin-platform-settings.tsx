@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QuickBooksIcon } from "@/components/icons/QuickBooksIcon";
 
 export function PlatformSettingsPage() {
     return (
@@ -124,6 +125,21 @@ export function PlatformSettingsPage() {
                                         <Input id="stripe-api-key" type="password" defaultValue="......." />
                                     </div>
                                 </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader className="flex flex-row items-center gap-4">
+                                    <QuickBooksIcon className="h-10 w-10" />
+                                    <div>
+                                        <CardTitle>QuickBooks Integration</CardTitle>
+                                        <CardDescription>Connect your platform's master account to QuickBooks for centralized accounting.</CardDescription>
+                                    </div>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Button>
+                                        <QuickBooksIcon className="mr-2 h-5 w-5" />
+                                        Connect to QuickBooks
+                                    </Button>
+                                </CardFooter>
                             </Card>
                         </TabsContent>
                     </Tabs>

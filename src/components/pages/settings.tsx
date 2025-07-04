@@ -8,6 +8,7 @@ import { AppearanceSettings } from './settings/appearance-settings';
 import { TeamSettings } from './settings/team-settings';
 import { GeneralSettings } from './settings/general-settings';
 import { Card, CardContent } from '@/components/ui/card';
+import { IntegrationsSettings } from './settings/integrations-settings';
 
 const PlaceholderSettings = ({ title }: { title: string }) => (
     <Card>
@@ -28,7 +29,7 @@ export function SettingsPage() {
         'notifications': NotificationsSettings,
         'appearance': AppearanceSettings,
         'team': TeamSettings,
-        'integrations': () => <PlaceholderSettings title="Integrations" />,
+        'integrations': IntegrationsSettings,
         'data': () => <PlaceholderSettings title="Data Management" />,
     };
 
