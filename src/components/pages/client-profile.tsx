@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -29,6 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
 import { useGlobalData } from "@/context/GlobalDataContext";
+import { predictSuccess, SuccessPredictorOutput } from '@/ai/flows/success-predictor';
+import { cn } from "@/lib/utils";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -131,6 +134,9 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
 
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState<SuccessPredictorOutput | null>(null);
+
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
     useEffect(() => {
@@ -138,6 +144,28 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             setNewActivityDate(format(new Date(), 'yyyy-MM-dd'));
         }
     }, [isLogActivityDialogOpen]);
+    
+    const handleAnalyze = async () => {
+        setIsAnalyzing(true);
+        setAnalysisResult(null);
+        try {
+            const result = await predictSuccess({
+                visaType: client.caseSummary.caseType,
+                countryOfOrigin: client.countryOfOrigin,
+                age: client.age,
+                educationLevel: client.educationLevel,
+            });
+            setAnalysisResult(result);
+        } catch (error) {
+            console.error("Analysis failed:", error);
+            toast({
+                title: "Analysis Failed",
+                description: "Could not get a prediction at this time. Please try again later.",
+                variant: "destructive",
+            });
+        }
+        setIsAnalyzing(false);
+    };
 
     const handleAdHocUpload = () => {
         if (!newDocTitle || !newDocCategory) {
@@ -385,7 +413,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         <Badge variant={getStatusBadgeVariant(client.caseType)}>{client.caseType}</Badge>
                     </div>
                     <p className="text-muted-foreground mt-1">{client.email} • {client.phone}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
                         <div>
                             <p className="text-muted-foreground">Country of Origin</p>
                             <p className="font-medium">{client.countryOfOrigin}</p>
@@ -393,6 +421,10 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         <div>
                             <p className="text-muted-foreground">Current Location</p>
                             <p className="font-medium">{client.currentLocation}</p>
+                        </div>
+                        <div>
+                            <p className="text-muted-foreground">Age</p>
+                            <p className="font-medium">{client.age}</p>
                         </div>
                         <div>
                             <p className="text-muted-foreground">Joined</p>
@@ -433,6 +465,10 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     <p className="font-semibold">{client.caseSummary.caseType}</p>
                                 </div>
                                 <div>
+                                    <p className="text-muted-foreground">Education</p>
+                                    <p className="font-semibold">{client.educationLevel}</p>
+                                </div>
+                                <div>
                                     <p className="text-muted-foreground">Current Status</p>
                                     <Badge variant={getStatusBadgeVariant(client.caseSummary.currentStatus)}>{client.caseSummary.currentStatus}</Badge>
                                 </div>
@@ -446,39 +482,90 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="lg:col-span-2">
+                        <div className="lg:col-span-2 space-y-6">
+                            <Card>
                                 <CardHeader>
-                                <CardTitle className="text-lg">Recent Activity</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-6">
-                                    {client.activity.slice(0,3).map((item, index) => {
-                                        const Icon = activityIcons[item.title] || FileText;
-                                        return (
-                                            <div key={index} className="flex items-start gap-4">
-                                                <div className="bg-muted p-3 rounded-full">
-                                                    <Icon className="h-5 w-5 text-primary"/>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-center">
-                                                        <p className="font-semibold">{item.title}</p>
-                                                        <p suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                                                    <Button variant="link" className="p-0 h-auto text-sm">
-                                                        View Details
-                                                    </Button>
-                                                </div>
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <BrainCircuit className="h-5 w-5 text-primary" />
+                                        AI Success Predictor
+                                    </CardTitle>
+                                    <CardDescription>
+                                        An AI-powered analysis of this profile based on current immigration trends.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {isAnalyzing ? (
+                                        <div className="flex items-center justify-center h-24">
+                                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                            <p className="ml-4 text-muted-foreground">Analyzing profile...</p>
+                                        </div>
+                                    ) : analysisResult ? (
+                                        <div className="flex flex-col md:flex-row items-center gap-6 animate-fade">
+                                            <div className="flex flex-col items-center justify-center">
+                                                <p className="text-sm text-muted-foreground">Success Probability</p>
+                                                <p className={cn(
+                                                    "text-6xl font-bold",
+                                                    analysisResult.scoreLabel === 'Green' && 'text-green-500',
+                                                    analysisResult.scoreLabel === 'Yellow' && 'text-yellow-500',
+                                                    analysisResult.scoreLabel === 'Red' && 'text-red-500'
+                                                )}>
+                                                    {analysisResult.successProbability}%
+                                                </p>
+                                                <Badge variant={
+                                                    analysisResult.scoreLabel === 'Green' ? 'success' :
+                                                    analysisResult.scoreLabel === 'Yellow' ? 'warning' :
+                                                    'destructive'
+                                                }>
+                                                    {analysisResult.scoreLabel}
+                                                </Badge>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                                <Button variant="outline" className="w-full mt-6">View All Activity</Button>
-                            </CardContent>
-                        </Card>
+                                            <div className="flex-1 space-y-2">
+                                                <p className="font-semibold">Justification:</p>
+                                                <p className="text-muted-foreground text-sm">{analysisResult.reason}</p>
+                                                <p className="text-xs text-muted-foreground/80 pt-2 italic">Disclaimer: This is an AI-powered estimation and not a guarantee of success. It should be used for advisory purposes only.</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center">
+                                            <p className="text-muted-foreground mb-4">Click to run an AI analysis on the client's profile to predict the application outcome.</p>
+                                            <Button onClick={handleAnalyze}>
+                                                <Sparkles className="mr-2 h-4 w-4" />
+                                                Analyze Success Probability
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Recent Activity</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-6">
+                                        {client.activity.slice(0,2).map((item, index) => {
+                                            const Icon = activityIcons[item.title] || FileText;
+                                            return (
+                                                <div key={index} className="flex items-start gap-4">
+                                                    <div className="bg-muted p-3 rounded-full">
+                                                        <Icon className="h-5 w-5 text-primary"/>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex justify-between items-center">
+                                                            <p className="font-semibold">{item.title}</p>
+                                                            <p suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </TabsContent>
-                    <TabsContent value="documents" className="mt-4">
+                <TabsContent value="documents" className="mt-4">
                     <Card>
                         <CardHeader>
                             <div className="flex justify-between items-center">
