@@ -2,11 +2,12 @@
 import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { teamMembers, reportsData, applicationsData, invoicesData } from "@/lib/data";
+import { applicationsData, invoicesData, paymentsData, reportsData } from "@/lib/data";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Cell } from "recharts";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
 import { AdminTeamPerformance } from "../admin-team-performance";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
     <Card>
@@ -16,7 +17,7 @@ const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { tit
         </CardHeader>
         <CardContent>
             <div className="text-2xl font-bold">{value}</div>
-            <p className={`text-xs ${changeType === 'up' ? 'text-green-500' : 'text-red-500'}`}>{change}</p>
+            <p className="text-xs text-muted-foreground">{change}</p>
         </CardContent>
     </Card>
 );
@@ -38,6 +39,11 @@ const chartConfigRevenue = {
 
 export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
+    const { teamMembers, clients } = useGlobalData();
+
+    const totalUsers = teamMembers.length + clients.length;
+    const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
+    const totalRevenue = paymentsData.filter(p => p.status === 'Completed').reduce((acc, p) => acc + p.amount, 0);
 
     const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
     const casesForReview = applicationsData.filter(a => a.status === 'Additional Info Requested').length;
@@ -67,6 +73,8 @@ export function AdminOverviewPage() {
         }
     ].filter(item => item.count > 0);
 
+    const totalActionItems = actionItems.reduce((acc, item) => acc + item.count, 0);
+
     return (
         <div className="space-y-6">
             <Card className="bg-gradient-to-r from-primary/80 to-accent/80 text-primary-foreground border-0">
@@ -76,10 +84,10 @@ export function AdminOverviewPage() {
                 </CardHeader>
             </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Users" value="1,254" change="+120 this month" icon={Users} />
-                <StatCard title="Active Firms" value="84" change="+5 this month" icon={UserCheck} />
-                <StatCard title="Total Revenue" value="$245,670" change="+15% vs last quarter" icon={DollarSign} />
-                <StatCard title="Pending Tasks" value={actionItems.reduce((acc, item) => acc + item.count, 0).toString()} change="across the platform" icon={Bell} changeType="down"/>
+                <StatCard title="Total Users" value={totalUsers.toLocaleString()} change="All firms and clients" icon={Users} />
+                <StatCard title="Active Firms" value={activeFirms.toLocaleString()} change="Verified legal firms" icon={UserCheck} />
+                <StatCard title="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} change="From all completed payments" icon={DollarSign} />
+                <StatCard title="Action Items" value={totalActionItems.toString()} change="Pending across platform" icon={Bell} changeType="down"/>
             </div>
             
             <Card>
