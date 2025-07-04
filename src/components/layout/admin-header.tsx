@@ -8,9 +8,10 @@ import { Button } from "../ui/button"
 interface AdminHeaderProps {
   isSidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
+  pageTitle: string
 }
 
-export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
+export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -24,7 +25,7 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
             <Menu className="h-6 w-6" />
             <span className="sr-only">Open sidebar</span>
           </Button>
-          <h1 className="font-headline text-xl font-semibold text-foreground">Super Admin Dashboard</h1>
+          <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center space-x-4">
           <div className="relative hidden sm:block">
