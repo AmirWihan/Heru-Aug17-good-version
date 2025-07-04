@@ -7,16 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AdminAllCasesPage } from '@/components/pages/admin-all-cases';
 import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';
 import { AdminPaymentsPage } from '@/components/pages/admin-payments';
-
-// Placeholder for pages that are not created yet
-const PlaceholderPage = ({ title }: { title: string }) => (
-    <Card>
-        <CardContent className="p-6">
-            <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="text-muted-foreground">This page is under construction.</p>
-        </CardContent>
-    </Card>
-);
+import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
@@ -27,7 +18,7 @@ export default function AdminDashboardPage() {
         'cases': AdminAllCasesPage,
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,
-        'notifications': () => <PlaceholderPage title="System Notifications" />,
+        'notifications': AdminSystemNotificationsPage,
         'settings': PlatformSettingsPage,
     };
 
