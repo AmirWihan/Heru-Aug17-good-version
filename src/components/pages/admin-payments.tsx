@@ -2,11 +2,14 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { paymentsData, subscriptionsData } from '@/lib/data';
+import { paymentsData, subscriptionsData, invoicesData } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreditCard, MoreHorizontal, DollarSign, Users, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -21,9 +24,24 @@ const getStatusBadgeVariant = (status: string) => {
 };
 
 export function AdminPaymentsPage() {
+    const { toast } = useToast();
     const totalRevenue = paymentsData.reduce((acc, p) => acc + p.amount, 0);
     const mrr = subscriptionsData.filter(s => s.status === 'Active').reduce((acc, s) => acc + s.amount, 0);
     const activeSubscriptions = subscriptionsData.filter(s => s.status === 'Active').length;
+
+    const handleInvoiceAction = (action: string, invoiceNumber: string) => {
+        toast({
+            title: `Invoice ${invoiceNumber}`,
+            description: `${action} successfully.`,
+        });
+    }
+
+    const handleSubscriptionAction = (action: string, firmName: string) => {
+        toast({
+            title: `Subscription for ${firmName}`,
+            description: `${action} action has been triggered.`,
+        });
+    }
 
     return (
          <div className="space-y-6">
@@ -59,19 +77,20 @@ export function AdminPaymentsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Payments & Subscriptions</CardTitle>
-                    <CardDescription>Monitor all financial activity on the platform.</CardDescription>
+                    <CardDescription>Monitor all financial activity on the platform. Monthly subscriptions are billed automatically.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="subscriptions">
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="subscriptions">Firm Subscriptions</TabsTrigger>
-                            <TabsTrigger value="transactions">All Transactions</TabsTrigger>
+                            <TabsTrigger value="invoices">Client Invoices</TabsTrigger>
+                            <TabsTrigger value="transactions">Transaction History</TabsTrigger>
                         </TabsList>
                         <TabsContent value="subscriptions" className="mt-6">
                              <Card>
                                 <CardHeader>
                                     <CardTitle>Firm Subscriptions</CardTitle>
-                                    <CardDescription>Overview of all active and past subscriptions from law firms.</CardDescription>
+                                    <CardDescription>Active subscriptions are billed automatically each month.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <Table>
@@ -81,7 +100,7 @@ export function AdminPaymentsPage() {
                                                 <TableHead>Plan</TableHead>
                                                 <TableHead>Users</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Next Billing</TableHead>
+                                                <TableHead>Renews On</TableHead>
                                                 <TableHead>MRR</TableHead>
                                                 <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
@@ -103,9 +122,65 @@ export function AdminPaymentsPage() {
                                                                 <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent>
-                                                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                                <DropdownMenuItem>Manage Plan</DropdownMenuItem>
-                                                                <DropdownMenuItem className="text-destructive">Cancel Subscription</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('View Details for', sub.firmName)}>View Details</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('Manage Plan for', sub.firmName)}>Manage Plan</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('Manage Auto-Renewal for', sub.firmName)}>Manage Auto-Renewal</DropdownMenuItem>
+                                                                <DropdownMenuItem className="text-destructive" onClick={() => handleSubscriptionAction('Cancel Subscription for', sub.firmName)}>Cancel Subscription</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="invoices" className="mt-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Client Invoices</CardTitle>
+                                    <CardDescription>Manage one-time invoices for individual client services.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Invoice #</TableHead>
+                                                <TableHead>Client</TableHead>
+                                                <TableHead>Amount</TableHead>
+                                                <TableHead>Due Date</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {invoicesData.map(invoice => (
+                                                <TableRow key={invoice.id}>
+                                                    <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage src={invoice.client.avatar} alt={invoice.client.name} />
+                                                                <AvatarFallback>{invoice.client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                            </Avatar>
+                                                            <div className="font-medium">{invoice.client.name}</div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>${invoice.amount.toLocaleString()}</TableCell>
+                                                    <TableCell>{invoice.dueDate}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={getStatusBadgeVariant(invoice.status)}>{invoice.status}</Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                         <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                <DropdownMenuItem onClick={() => handleInvoiceAction('Details Viewed', invoice.invoiceNumber)}>View Details</DropdownMenuItem>
+                                                                {invoice.status !== 'Paid' && <DropdownMenuItem onClick={() => handleInvoiceAction('Reminder Sent', invoice.invoiceNumber)}>Send Reminder</DropdownMenuItem>}
+                                                                {invoice.status !== 'Paid' && <DropdownMenuItem onClick={() => handleInvoiceAction('Marked as Paid', invoice.invoiceNumber)}>Mark as Paid</DropdownMenuItem>}
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </TableCell>
