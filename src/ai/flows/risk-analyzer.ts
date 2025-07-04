@@ -33,14 +33,14 @@ const ClientProfileForAnalysisSchema = z.object({
   }),
 });
 
-export const RiskAnalysisInputSchema = z.object({
+const RiskAnalysisInputSchema = z.object({
   clients: z.array(ClientProfileForAnalysisSchema),
   currentDate: z.string().describe('The current date in YYYY-MM-DD format.'),
 });
 export type RiskAnalysisInput = z.infer<typeof RiskAnalysisInputSchema>;
 
 
-export const ClientAlertSchema = z.object({
+const ClientAlertSchema = z.object({
   clientId: z.number().describe("The ID of the flagged client."),
   clientName: z.string().describe("The name of the flagged client."),
   issueSummary: z.string().describe("A short summary of the issue or risk identified."),
@@ -49,7 +49,7 @@ export const ClientAlertSchema = z.object({
 export type ClientAlert = z.infer<typeof ClientAlertSchema>;
 
 
-export const RiskAnalysisOutputSchema = z.object({
+const RiskAnalysisOutputSchema = z.object({
   alerts: z.array(ClientAlertSchema),
 });
 export type RiskAnalysisOutput = z.infer<typeof RiskAnalysisOutputSchema>;
