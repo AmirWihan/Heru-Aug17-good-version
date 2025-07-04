@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, Upload
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 const steps = [
     { name: 'Firm & Personal Details', icon: Building },
@@ -105,19 +107,33 @@ export function LawyerOnboarding() {
                     {currentStep === 0 && (
                         <div className="space-y-4 animate-fade">
                             <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm & Personal Details</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label htmlFor="firm-name">Firm Name</Label>
-                                    <Input id="firm-name" placeholder="e.g., Heru Immigration Services" />
-                                </div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <Label htmlFor="your-name">Your Full Name</Label>
                                     <Input id="your-name" placeholder="e.g., Sarah Johnson" />
                                 </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="email">Email Address</Label>
+                                    <Input id="email" type="email" placeholder="sarah.j@example.com" />
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="sarah.j@example.com" />
+                             <div className="space-y-1 pt-2">
+                                <Label htmlFor="firm-name">Firm Name</Label>
+                                <Input id="firm-name" placeholder="e.g., Heru Immigration Services" />
+                            </div>
+                             <div className="space-y-1">
+                                <Label htmlFor="firm-address">Firm Address</Label>
+                                <Textarea id="firm-address" placeholder="123 Main Street, Suite 400, Toronto, ON M5H 2N2" />
+                            </div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <Label htmlFor="num-employees">Number of Employees</Label>
+                                    <Input id="num-employees" type="number" placeholder="e.g., 5" />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="firm-website">Firm Website</Label>
+                                    <Input id="firm-website" type="url" placeholder="https://www.yourfirm.com" />
+                                </div>
                             </div>
                         </div>
                     )}
