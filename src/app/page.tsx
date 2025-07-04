@@ -110,15 +110,18 @@ export default function HomePage() {
                     </div>
                 </div>
               </Link>
-              <Link href="/dashboard-select?role=lawyer" className="block">
-                <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-primary hover:shadow-primary/20">
+              <div className="group flex flex-col rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-primary/50 hover:shadow-primary/20">
                   <h2 className="font-headline text-2xl font-bold">For Professionals</h2>
-                  <p className="mt-2 text-muted-foreground">Manage your clients, automate tasks, and streamline your entire workflow with AI.</p>
-                   <div className="mt-4 font-semibold text-primary group-hover:underline">
-                        Go to Professional CRM <ArrowRight className="ml-1 inline h-4 w-4" />
+                  <p className="mt-2 flex-grow text-muted-foreground">Manage your clients, automate tasks, and streamline your entire workflow with AI.</p>
+                   <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Link href="/lawyer/register" passHref>
+                           <Button className="w-full">Create an Account</Button>
+                        </Link>
+                        <Link href="/dashboard-select?role=lawyer" passHref>
+                            <Button variant="outline" className="w-full">Log In</Button>
+                        </Link>
                     </div>
                 </div>
-              </Link>
             </div>
           </div>
         </section>

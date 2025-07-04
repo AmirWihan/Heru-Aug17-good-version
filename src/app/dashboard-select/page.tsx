@@ -50,7 +50,7 @@ export default function LoginPage() {
             case 'client':
                 return '/client/onboarding';
             case 'lawyer':
-                return '/lawyer/onboarding';
+                return '/lawyer/register'; // Default new lawyers to registration
             case 'admin':
                 return '/admin/dashboard';
             default:
@@ -133,25 +133,19 @@ export default function LoginPage() {
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Sign Up / Log In</CardTitle>
+                        <CardTitle>Sign In</CardTitle>
                         <CardDescription>Choose your preferred method to continue.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Link href={redirectPath} passHref>
-                            <Button className="w-full" variant="outline">
-                                <GoogleIcon /> Continue with Google
-                            </Button>
-                        </Link>
-                        <Link href={redirectPath} passHref>
-                            <Button className="w-full" variant="outline">
-                                <FacebookIcon /> Continue with Facebook
-                            </Button>
-                        </Link>
-                         <Link href={redirectPath} passHref>
-                            <Button className="w-full" variant="outline">
-                                <AppleIcon /> Continue with Apple
-                            </Button>
-                        </Link>
+                        <Button className="w-full" variant="outline">
+                            <GoogleIcon /> Continue with Google
+                        </Button>
+                        <Button className="w-full" variant="outline">
+                            <FacebookIcon /> Continue with Facebook
+                        </Button>
+                         <Button className="w-full" variant="outline">
+                            <AppleIcon /> Continue with Apple
+                        </Button>
                         <div className="relative">
                             <Separator />
                             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
@@ -176,7 +170,9 @@ export default function LoginPage() {
                     </CardContent>
                 </Card>
                 <div className="text-center text-sm text-muted-foreground">
-                    <p>New here? <Link href={redirectPath} className="underline">Create an account</Link></p>
+                     {role !== 'admin' && (
+                        <p>New here? <Link href={redirectPath} className="underline">Create an account</Link></p>
+                    )}
                     <Link href="/" className="underline mt-2 inline-block">Back to role selection</Link>
                 </div>
             </div>
