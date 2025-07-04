@@ -419,12 +419,12 @@ export const paymentMethodsData = [
 ];
 
 export const applicationsData = [
-    { id: 1, client: { name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' }, type: 'Permanent Residency', status: 'Pending', submitted: '2023-06-10', priority: 'High' },
-    { id: 2, client: { name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' }, type: 'Student Visa', status: 'Approved', submitted: '2023-05-28', priority: 'Low' },
-    { id: 3, client: { name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' }, type: 'Work Permit', status: 'Under Review', submitted: '2023-06-08', priority: 'Medium' },
-    { id: 4, client: { name: 'Ananya Sharma', avatar: 'https://i.pravatar.cc/150?u=ananya' }, type: 'Family Sponsorship', status: 'Submitted', submitted: '2023-06-01', priority: 'Medium' },
-    { id: 5, client: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, type: 'Work Permit', status: 'Additional Info Requested', submitted: '2023-05-20', priority: 'High' },
-    { id: 6, client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, type: 'Student Visa', status: 'Approved', submitted: '2023-04-15', priority: 'Low' },
+    { id: 1, client: { name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' }, type: 'Permanent Residency', status: 'Pending', submitted: '2023-06-10', priority: 'High', assignedTo: teamMembers[0] },
+    { id: 2, client: { name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' }, type: 'Student Visa', status: 'Approved', submitted: '2023-05-28', priority: 'Low', assignedTo: teamMembers[1] },
+    { id: 3, client: { name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' }, type: 'Work Permit', status: 'Under Review', submitted: '2023-06-08', priority: 'Medium', assignedTo: teamMembers[2] },
+    { id: 4, client: { name: 'Ananya Sharma', avatar: 'https://i.pravatar.cc/150?u=ananya' }, type: 'Family Sponsorship', status: 'Submitted', submitted: '2023-06-01', priority: 'Medium', assignedTo: teamMembers[0] },
+    { id: 5, client: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, type: 'Work Permit', status: 'Additional Info Requested', submitted: '2023-05-20', priority: 'High', assignedTo: teamMembers[3] },
+    { id: 6, client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, type: 'Student Visa', status: 'Approved', submitted: '2023-04-15', priority: 'Low', assignedTo: teamMembers[1] },
 ];
 
 export const appointmentsData = [
@@ -444,12 +444,26 @@ export const reportsData = {
         { month: 'May', clients: 6 },
         { month: 'Jun', clients: 8 },
     ],
+    userGrowth: [
+        { month: 'Jan', lawyers: 1, clients: 4 },
+        { month: 'Feb', lawyers: 1, clients: 3 },
+        { month: 'Mar', lawyers: 2, clients: 5 },
+        { month: 'Apr', lawyers: 2, clients: 7 },
+        { month: 'May', lawyers: 3, clients: 6 },
+        { month: 'Jun', lawyers: 4, clients: 8 },
+    ],
     revenueByCaseType: [
         { name: 'PR', value: 40000 },
         { name: 'Work Permit', value: 30000 },
         { name: 'Student Visa', value: 20000 },
         { name: 'Sponsorship', value: 15000 },
         { name: 'Other', value: 5000 },
+    ],
+    quarterlyRevenue: [
+        { quarter: 'Q1', revenue: 75000 },
+        { quarter: 'Q2', revenue: 98000 },
+        { quarter: 'Q3', revenue: 112000 },
+        { quarter: 'Q4', revenue: 130000 },
     ],
     applicationStatus: [
         { name: 'Approved', value: 65, fill: 'hsl(var(--chart-2))' },
@@ -458,3 +472,11 @@ export const reportsData = {
         { name: 'In Review', value: 10, fill: 'hsl(var(--chart-5))' },
     ]
 };
+
+export const subscriptionsData = [
+  { id: 1, firmName: 'Heru Immigration Services', plan: 'Pro Tier', users: 4, status: 'Active', nextBilling: '2024-08-01', amount: 396 },
+  { id: 2, firmName: 'Chen & Associates', plan: 'Basic Tier', users: 2, status: 'Active', nextBilling: '2024-08-05', amount: 98 },
+  { id: 3, firmName: 'Williams Legal', plan: 'Pro Tier', users: 5, status: 'Active', nextBilling: '2024-08-12', amount: 495 },
+  { id: 4, firmName: 'Global-Pathways Inc.', plan: 'Enterprise', users: 15, status: 'Active', nextBilling: '2024-08-15', amount: 1200 },
+  { id: 5, firmName: 'Bridge Immigration', plan: 'Basic Tier', users: 1, status: 'Canceled', nextBilling: 'N/A', amount: 49 },
+];

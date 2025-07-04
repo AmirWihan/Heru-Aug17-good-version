@@ -4,6 +4,9 @@ import { AdminOverviewPage } from '@/components/pages/admin-overview';
 import { UserManagementPage } from '@/components/pages/admin-user-management';
 import { PlatformSettingsPage } from '@/components/pages/admin-platform-settings';
 import { Card, CardContent } from '@/components/ui/card';
+import { AdminAllCasesPage } from '@/components/pages/admin-all-cases';
+import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';
+import { AdminPaymentsPage } from '@/components/pages/admin-payments';
 
 // Placeholder for pages that are not created yet
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -21,9 +24,9 @@ export default function AdminDashboardPage() {
     const pageComponents: { [key: string]: React.ComponentType<any> } = {
         'overview': AdminOverviewPage,
         'users': UserManagementPage,
-        'cases': () => <PlaceholderPage title="All Cases" />,
-        'analytics': () => <PlaceholderPage title="Platform Analytics" />,
-        'payments': () => <PlaceholderPage title="Payments & Subscriptions" />,
+        'cases': AdminAllCasesPage,
+        'analytics': AdminPlatformAnalyticsPage,
+        'payments': AdminPaymentsPage,
         'notifications': () => <PlaceholderPage title="System Notifications" />,
         'settings': PlatformSettingsPage,
     };
