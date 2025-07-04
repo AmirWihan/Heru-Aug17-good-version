@@ -2,9 +2,7 @@
 import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock, CheckSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { applicationsData, invoicesData, paymentsData, reportsData, tasksData, dashboardData } from "@/lib/data";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Cell } from "recharts";
+import { applicationsData, invoicesData, paymentsData, dashboardData } from "@/lib/data";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
 import { AdminTeamPerformance } from "../admin-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
@@ -25,24 +23,9 @@ const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { tit
     </Card>
 );
 
-const chartConfigClientGrowth = {
-  clients: {
-    label: "New Clients",
-    color: "hsl(var(--chart-1))",
-  },
-};
-
-const chartConfigRevenue = {
-    value: { label: "Revenue" },
-    'Q1': { label: "Q1", color: "hsl(var(--chart-1))" },
-    'Q2': { label: "Q2", color: "hsl(var(--chart-2))" },
-    'Q3': { label: "Q3", color: "hsl(var(--chart-3))" },
-    'Q4': { label: "Q4", color: "hsl(var(--chart-4))" },
-};
-
 export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
-    const { teamMembers, clients } = useGlobalData();
+    const { teamMembers, clients, tasks } = useGlobalData();
 
     const totalApplicants = clients.length;
     const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
@@ -117,50 +100,6 @@ export function AdminOverviewPage() {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Platform Growth</CardTitle>
-                         <CardDescription>User signups over the last 6 months.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={chartConfigClientGrowth} className="h-[250px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={reportsData.clientGrowth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                                    <YAxis />
-                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                                    <Line type="monotone" dataKey="clients" stroke="hsl(var(--primary))" strokeWidth={2} dot={true} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Quarterly Revenue</CardTitle>
-                        <CardDescription>Total revenue generated per quarter.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <ChartContainer config={chartConfigRevenue} className="h-[250px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={reportsData.quarterlyRevenue} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} />
-                                    <YAxis />
-                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                                    <Bar dataKey="revenue" radius={8}>
-                                        {reportsData.quarterlyRevenue.map((entry) => (
-                                            <Cell key={entry.quarter} fill={chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue]?.color} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  <Card>
                      <CardHeader>
                          <CardTitle className="flex items-center gap-2">
@@ -180,7 +119,7 @@ export function AdminOverviewPage() {
                                  </TableRow>
                              </TableHeader>
                              <TableBody>
-                                 {tasksData.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
+                                 {tasks.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
                                      <TableRow key={task.id} className="cursor-pointer" onClick={() => setPage('tasks')}>
                                          <TableCell className="font-medium">{task.title}</TableCell>
                                          <TableCell>
@@ -201,7 +140,7 @@ export function AdminOverviewPage() {
                                                  <span className="text-sm">{task.client.name}</span>
                                              </div>
                                          </TableCell>
-                                         <TableCell>{format(new Date(task.dueDate), "PP")}</TableCell>
+                                         <TableCell suppressHydrationWarning>{format(new Date(task.dueDate), "PP")}</TableCell>
                                      </TableRow>
                                  ))}
                              </TableBody>

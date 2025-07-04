@@ -172,7 +172,7 @@ export function AdminAllCasesPage() {
                                     <TableCell>
                                         <Badge variant={getPriorityBadgeVariant(app.priority)}>{app.priority}</Badge>
                                     </TableCell>
-                                    <TableCell>{format(new Date(app.submitted), "PP")}</TableCell>
+                                    <TableCell suppressHydrationWarning>{format(new Date(app.submitted), "PP")}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

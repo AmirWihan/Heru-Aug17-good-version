@@ -115,7 +115,7 @@ export function TasksPage() {
                                             <div className="font-medium">{task.assignedTo.name}</div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{format(new Date(task.dueDate), 'PP')}</TableCell>
+                                    <TableCell suppressHydrationWarning>{format(new Date(task.dueDate), 'PP')}</TableCell>
                                     <TableCell>
                                         <Badge variant={getPriorityBadgeVariant(task.priority)}>{task.priority}</Badge>
                                     </TableCell>

@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -124,7 +124,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
 
     const [newActivityType, setNewActivityType] = useState("");
     const [newActivityNotes, setNewActivityNotes] = useState("");
-    const [newActivityDate, setNewActivityDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const [newActivityDate, setNewActivityDate] = useState("");
     const [createFollowUpTask, setCreateFollowUpTask] = useState(false);
     const [followUpTaskTitle, setFollowUpTaskTitle] = useState("");
     const [followUpTaskDescription, setFollowUpTaskDescription] = useState("");
@@ -136,6 +136,12 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
 
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
+
+    useEffect(() => {
+        if (isLogActivityDialogOpen) {
+            setNewActivityDate(format(new Date(), 'yyyy-MM-dd'));
+        }
+    }, [isLogActivityDialogOpen]);
 
     const handleAdHocUpload = () => {
         if (!newDocTitle || !newDocCategory) {
@@ -406,7 +412,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                 </div>
                                 <div>
                                     <p className="text-muted-foreground">Joined</p>
-                                    <p className="font-medium">{format(new Date(client.joined), 'PP')}</p>
+                                    <p suppressHydrationWarning className="font-medium">{format(new Date(client.joined), 'PP')}</p>
                                 </div>
                             </div>
                         </div>
@@ -523,7 +529,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                     <TableRow key={doc.id}>
                                                         <TableCell className="font-medium">{doc.title}</TableCell>
                                                         <TableCell>{doc.category}</TableCell>
-                                                        <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
+                                                        <TableCell suppressHydrationWarning>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
                                                         <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
                                                         <TableCell className="text-right space-x-1">
                                                              {doc.status === 'Requested' ? (
@@ -594,7 +600,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                                 {task.assignedTo.name}
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell>{format(new Date(task.dueDate), 'PP')}</TableCell>
+                                                        <TableCell suppressHydrationWarning>{format(new Date(task.dueDate), 'PP')}</TableCell>
                                                         <TableCell><Badge variant={getPriorityBadgeVariant(task.priority)}>{task.priority}</Badge></TableCell>
                                                         <TableCell><Badge variant={getTaskStatusBadgeVariant(task.status)}>{task.status}</Badge></TableCell>
                                                     </TableRow>

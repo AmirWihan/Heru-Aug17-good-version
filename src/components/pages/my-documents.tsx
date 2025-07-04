@@ -122,7 +122,7 @@ export function MyDocumentsPage() {
                                     <TableCell>
                                         <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
                                     </TableCell>
-                                    <TableCell>{format(new Date(doc.date), 'PP')}</TableCell>
+                                    <TableCell suppressHydrationWarning>{format(new Date(doc.date), 'PP')}</TableCell>
                                     <TableCell className="text-right space-x-1">
                                         {doc.status === 'Requested' && <Button size="sm" onClick={() => handleUploadClick(doc.id)}><Upload className="mr-2 h-4 w-4" />Upload</Button>}
                                         {doc.status === 'Rejected' && <Button size="sm" variant="destructive" onClick={() => handleUploadClick(doc.id)}><Upload className="mr-2 h-4 w-4" />Re-upload</Button>}
