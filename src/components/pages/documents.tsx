@@ -1,125 +1,303 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, documents, clients } from "@/lib/data";
-import { Download, FileText, PlusCircle, Share2, UserPlus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { documentCategories, documents as allDocumentTemplates, clients, type DocumentTemplate } from "@/lib/data";
+import { FileText, PlusCircle, UserPlus, FilePlus2, Edit, Trash2 } from "lucide-react";
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { Textarea } from '../ui/textarea';
 
 export function DocumentsPage() {
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [selectedDoc, setSelectedDoc] = useState<{ title: string } | null>(null);
-    const [activeCategory, setActiveCategory] = useState('All Documents');
+    const { clients, updateClient } = useGlobalData();
+    const { toast } = useToast();
 
-    const handleAssignClick = (doc: { title: string }) => {
-        setSelectedDoc(doc);
-        setModalOpen(true);
+    const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>(allDocumentTemplates);
+    const [activeCategory, setActiveCategory] = useState('Permanent Residency');
+    
+    const [isAssignModalOpen, setAssignModalOpen] = useState(false);
+    const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
+    const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
+
+    const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null);
+    const [deletingTemplate, setDeletingTemplate] = useState<DocumentTemplate | null>(null);
+    const [selectedClient, setSelectedClient] = useState('');
+
+    const [newTemplateTitle, setNewTemplateTitle] = useState('');
+    const [newTemplateDescription, setNewTemplateDescription] = useState('');
+    const [newTemplateCategory, setNewTemplateCategory] = useState('');
+
+    const filteredDocuments = documentTemplates.filter(doc => doc.category === activeCategory);
+
+    const handleAssignCategory = () => {
+        if (!selectedClient) {
+            toast({ title: 'Error', description: 'Please select a client.', variant: 'destructive' });
+            return;
+        }
+
+        const clientToUpdate = clients.find(c => c.id.toString() === selectedClient);
+        if (!clientToUpdate) {
+            toast({ title: 'Error', description: 'Client not found.', variant: 'destructive' });
+            return;
+        }
+
+        const newDocsForClient = filteredDocuments
+            .filter(template => !clientToUpdate.documents.some(d => d.title === template.title))
+            .map(template => ({
+                id: Date.now() + Math.random(),
+                title: template.title,
+                category: template.category,
+                dateAdded: new Date().toISOString().split('T')[0],
+                status: 'Requested' as const,
+            }));
+        
+        if (newDocsForClient.length === 0) {
+            toast({ title: 'No new documents to assign.', description: `All documents in the "${activeCategory}" category are already assigned to ${clientToUpdate.name}.` });
+            return;
+        }
+
+        const updatedClient = {
+            ...clientToUpdate,
+            documents: [...clientToUpdate.documents, ...newDocsForClient],
+        };
+
+        updateClient(updatedClient);
+        setAssignModalOpen(false);
+        setSelectedClient('');
+        toast({ title: 'Success', description: `${newDocsForClient.length} document(s) from "${activeCategory}" have been requested from ${clientToUpdate.name}.` });
     };
 
-    const getIconForCategory = (category: string) => {
-        const cat = documentCategories.find(c => c.name === category);
-        return cat?.icon || FileText;
+    const handleSaveTemplate = () => {
+        if (!newTemplateTitle || !newTemplateCategory) {
+            toast({ title: 'Error', description: 'Title and category are required.', variant: 'destructive' });
+            return;
+        }
+
+        if (editingTemplate) {
+            // Update existing template
+            setDocumentTemplates(documentTemplates.map(t => t.id === editingTemplate.id ? { ...t, title: newTemplateTitle, description: newTemplateDescription, category: newTemplateCategory } : t));
+            toast({ title: 'Template Updated', description: `"${newTemplateTitle}" has been updated.` });
+        } else {
+            // Create new template
+            const newTemplate = {
+                id: Date.now(),
+                title: newTemplateTitle,
+                description: newTemplateDescription,
+                category: newTemplateCategory,
+                format: 'PDF',
+                size: 'Template',
+            };
+            setDocumentTemplates([...documentTemplates, newTemplate]);
+            toast({ title: 'Template Created', description: `"${newTemplate.title}" has been added.` });
+        }
+        
+        setTemplateModalOpen(false);
+        setEditingTemplate(null);
+        setNewTemplateTitle('');
+        setNewTemplateDescription('');
+        setNewTemplateCategory('');
     };
 
-    const filteredDocuments = activeCategory === 'All Documents' 
-        ? documents 
-        : documents.filter(doc => doc.category === activeCategory);
+    const handleOpenNewTemplateDialog = () => {
+        setEditingTemplate(null);
+        setNewTemplateTitle('');
+        setNewTemplateDescription('');
+        setNewTemplateCategory(activeCategory);
+        setTemplateModalOpen(true);
+    };
+
+    const handleOpenEditTemplateDialog = (template: DocumentTemplate) => {
+        setEditingTemplate(template);
+        setNewTemplateTitle(template.title);
+        setNewTemplateDescription(template.description);
+        setNewTemplateCategory(template.category);
+        setTemplateModalOpen(true);
+    };
+
+    const handleDeleteTemplate = (template: DocumentTemplate) => {
+        setDeletingTemplate(template);
+        setDeleteAlertOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (deletingTemplate) {
+            setDocumentTemplates(documentTemplates.filter(t => t.id !== deletingTemplate.id));
+            toast({ title: 'Template Deleted', description: `"${deletingTemplate.title}" has been removed.` });
+        }
+        setDeleteAlertOpen(false);
+        setDeletingTemplate(null);
+    };
+
+    const categoriesWithCounts = documentCategories
+        .filter(c => c.name !== 'All Documents')
+        .map(category => ({
+            ...category,
+            count: documentTemplates.filter(doc => doc.category === category.name).length,
+        }));
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold font-headline text-foreground">Immigration Documents</h1>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Document
+        <>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold font-headline text-foreground">Document Library</h1>
+                <Button onClick={handleOpenNewTemplateDialog}>
+                    <FilePlus2 className="mr-2 h-4 w-4" /> New Template
                 </Button>
             </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-lg">Document Categories</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                    {documentCategories.map(cat => (
-                        <Button 
-                            key={cat.name} 
-                            variant={activeCategory === cat.name ? 'default' : 'outline'}
-                            onClick={() => setActiveCategory(cat.name)}
-                        >
-                            {cat.name}
-                        </Button>
-                    ))}
-                </CardContent>
-            </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDocuments.map((doc) => {
-                    const Icon = getIconForCategory(doc.category);
-                    return (
-                        <Card key={doc.id} className="document-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col">
-                            <CardHeader className="flex-row items-start gap-4">
-                                <div className="bg-muted p-3 rounded-full">
-                                    <Icon className="h-6 w-6 text-primary" />
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-1">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Categories</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col gap-1">
+                                {categoriesWithCounts.map(cat => (
+                                    <Button
+                                        key={cat.name}
+                                        variant={activeCategory === cat.name ? 'default' : 'ghost'}
+                                        className="w-full justify-start gap-3"
+                                        onClick={() => setActiveCategory(cat.name)}
+                                    >
+                                        <cat.icon className="h-4 w-4 text-muted-foreground" />
+                                        <span className="flex-1 text-left">{cat.name}</span>
+                                        <span className="text-xs text-muted-foreground">{cat.count}</span>
+                                    </Button>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="lg:col-span-3">
+                    <Card>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <CardTitle>{activeCategory}</CardTitle>
+                                {filteredDocuments.length > 0 &&
+                                    <Button onClick={() => setAssignModalOpen(true)}>
+                                        <UserPlus className="mr-2 h-4 w-4" /> Assign Category to Client
+                                    </Button>
+                                }
+                            </div>
+                            <CardDescription>A collection of required documents for the {activeCategory.toLowerCase()} process.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {filteredDocuments.length > 0 ? (
+                                <div className="space-y-3">
+                                    {filteredDocuments.map((doc) => (
+                                        <div key={doc.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50">
+                                            <FileText className="h-5 w-5 text-primary" />
+                                            <div className="flex-1">
+                                                <p className="font-semibold">{doc.title}</p>
+                                                <p className="text-sm text-muted-foreground">{doc.description}</p>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Button variant="ghost" size="icon" onClick={() => handleOpenEditTemplateDialog(doc)}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteTemplate(doc)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="flex-1">
-                                    <CardTitle className="text-base font-bold">{doc.title}</CardTitle>
-                                    <p className="text-sm text-muted-foreground">{doc.description}</p>
+                            ) : (
+                                <div className="text-center py-12 text-muted-foreground">
+                                    <p>No document templates found in this category.</p>
+                                    <Button variant="link" onClick={handleOpenNewTemplateDialog}>Create a new template</Button>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="flex-grow">
-                                <div className="flex justify-between items-center">
-                                    <Badge variant="secondary">{doc.category}</Badge>
-                                    <span className="text-xs text-muted-foreground">{doc.format} • {doc.size}</span>
-                                </div>
-                            </CardContent>
-                            <CardFooter className="flex justify-between gap-2">
-                                <Button variant="ghost" size="sm"><Download className="mr-2 h-4 w-4" />Download</Button>
-                                <Button variant="outline" size="sm" onClick={() => handleAssignClick(doc)}><UserPlus className="mr-2 h-4 w-4" />Assign</Button>
-                                <Button variant="ghost" size="icon"><Share2 className="h-4 w-4" /></Button>
-                            </CardFooter>
-                        </Card>
-                    );
-                })}
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
-            <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
+            <Dialog open={isAssignModalOpen} onOpenChange={setAssignModalOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Assign: {selectedDoc?.title}</DialogTitle>
+                        <DialogTitle>Assign Category: {activeCategory}</DialogTitle>
+                        <DialogDescription>Request all documents in this category from a client.</DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="client" className="text-right">Client</Label>
-                            <Select>
-                                <SelectTrigger className="col-span-3">
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="client-select">Client</Label>
+                            <Select value={selectedClient} onValueChange={setSelectedClient}>
+                                <SelectTrigger id="client-select">
                                     <SelectValue placeholder="Select a client" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {clients.map(client => (
-                                        <SelectItem key={client.id} value={client.name}>{client.name}</SelectItem>
+                                        <SelectItem key={client.id} value={client.id.toString()}>{client.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="due-date" className="text-right">Due Date</Label>
-                            <Input id="due-date" type="date" className="col-span-3" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="notes" className="text-right">Notes</Label>
-                            <Textarea id="notes" placeholder="Add instructions for the client" className="col-span-3" />
-                        </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
-                        <Button type="submit">Assign Document</Button>
+                        <Button variant="outline" onClick={() => setAssignModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAssignCategory}>Assign & Request</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+
+            <Dialog open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingTemplate ? 'Edit' : 'Create'} Document Template</DialogTitle>
+                        <DialogDescription>{editingTemplate ? 'Update the details for this template.' : 'Add a new reusable document to your library.'}</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="template-title">Template Title</Label>
+                            <Input id="template-title" value={newTemplateTitle} onChange={(e) => setNewTemplateTitle(e.target.value)} placeholder="e.g., Proof of Work Experience" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="template-description">Description</Label>
+                            <Textarea id="template-description" value={newTemplateDescription} onChange={(e) => setNewTemplateDescription(e.target.value)} placeholder="A short description of what this document is." />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="template-category">Category</Label>
+                            <Select value={newTemplateCategory} onValueChange={setNewTemplateCategory}>
+                                <SelectTrigger id="template-category"><SelectValue placeholder="Select a category" /></SelectTrigger>
+                                <SelectContent>
+                                    {documentCategories.filter(c => c.name !== 'All Documents').map(cat => (
+                                        <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setTemplateModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleSaveTemplate}>Save Template</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+             <AlertDialog open={isDeleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the template: "{deletingTemplate?.title}".
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeletingTemplate(null)}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Delete Template
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 }

@@ -462,13 +462,37 @@ export const documentCategories = [
     { name: 'Immigration', icon: FileType },
 ];
 
-export const documents = [
-    { id: 1, title: 'Express Entry Profile', description: 'Required for all Express Entry applications', category: 'Permanent Residency', format: 'PDF', size: '120KB' },
-    { id: 2, title: 'Work Permit Application', description: 'Form for temporary work permits', category: 'Work Permits', format: 'DOCX', size: '85KB' },
-    { id: 3, title: 'Student Visa Checklist', description: 'Required documents for student visa applications', category: 'Student Visas', format: 'PDF', size: '210KB' },
-    { id: 4, title: 'Invitation Letter Template', description: 'For temporary resident visa applications', category: 'Visitor Visas', format: 'DOCX', size: '75KB' },
-    { id: 5, title: 'Citizenship Application', description: 'Form CIT 0002 for adult applications', category: 'Citizenship', format: 'PDF', size: '310KB' },
-    { id: 6, title: 'Medical Examination Form', description: 'Required for immigration medical exams', category: 'Health', format: 'PDF', size: '180KB' },
+export type DocumentTemplate = {
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    format: string;
+    size: string;
+};
+
+export const documents: DocumentTemplate[] = [
+    // PR
+    { id: 1, title: 'Express Entry Profile Submission', description: 'Confirmation of profile submission.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 7, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 8, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 9, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    // Work Permits
+    { id: 2, title: 'Work Permit Application (IMM 1295)', description: 'Main application form for temporary work permits.', category: 'Work Permits', format: 'PDF', size: 'Template' },
+    { id: 10, title: 'Job Offer Letter', description: 'A formal job offer from a Canadian employer.', category: 'Work Permits', format: 'PDF', size: 'Template' },
+    { id: 11, title: 'LMIA (if applicable)', description: 'Labour Market Impact Assessment document.', category: 'Work Permits', format: 'PDF', size: 'Template' },
+    // Student Visas
+    { id: 3, title: 'Student Visa Application (IMM 1294)', description: 'Main application form for study permits.', category: 'Student Visas', format: 'PDF', size: 'Template' },
+    { id: 12, title: 'Letter of Acceptance (LOA)', description: 'Official acceptance letter from a Designated Learning Institution (DLI).', category: 'Student Visas', format: 'PDF', size: 'Template' },
+    { id: 13, title: 'Guaranteed Investment Certificate (GIC)', description: 'Proof of funds for students, often required for SDS stream.', category: 'Student Visas', format: 'PDF', size: 'Template' },
+    // Visitor Visas
+    { id: 4, title: 'Invitation Letter Template', description: 'For temporary resident visa applications.', category: 'Visitor Visas', format: 'DOCX', size: 'Template' },
+    { id: 14, title: 'Proof of Ties to Home Country', description: 'Documents showing intent to return, e.g., property, job.', category: 'Visitor Visas', format: 'PDF', size: 'Template' },
+    // Citizenship
+    { id: 5, title: 'Citizenship Application (CIT 0002)', description: 'Form CIT 0002 for adult applications.', category: 'Citizenship', format: 'PDF', size: 'Template' },
+    { id: 15, title: 'Residency Calculation', description: 'Physical presence calculation for citizenship.', category: 'Citizenship', format: 'PDF', size: 'Template' },
+    // Health
+    { id: 6, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Health', format: 'PDF', size: 'Template' },
 ];
 
 export const messagesData = [
