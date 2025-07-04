@@ -80,7 +80,6 @@ export default function LoginPage() {
 
         const processedEmail = email.toLowerCase().trim();
 
-        // Universal password check for prototype
         if (password !== 'password123') {
             toast({
                 title: 'Login Failed',
@@ -91,8 +90,6 @@ export default function LoginPage() {
             return;
         }
 
-        let userFoundAndRedirecting = false;
-
         if (role === 'admin') {
             const user = teamMembers.find(member => 
                 member.type === 'admin' && 
@@ -101,7 +98,7 @@ export default function LoginPage() {
             if (user && user.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/admin/dashboard');
-                userFoundAndRedirecting = true;
+                return;
             }
         } else if (role === 'lawyer') {
             const user = teamMembers.find(member => 
@@ -112,7 +109,7 @@ export default function LoginPage() {
                 if (user.status === 'Active') {
                     toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                     router.push('/lawyer/dashboard');
-                    userFoundAndRedirecting = true;
+                    return;
                 } else {
                     toast({ 
                         title: 'Account Not Active', 
@@ -120,7 +117,7 @@ export default function LoginPage() {
                         variant: 'destructive' 
                     });
                     setIsLoading(false);
-                    return; // Exit here to show specific status message
+                    return;
                 }
             }
         } else if (role === 'client') {
@@ -128,18 +125,17 @@ export default function LoginPage() {
             if (user) {
                 toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/client/dashboard');
-                userFoundAndRedirecting = true;
+                return;
             }
         }
         
-        if (!userFoundAndRedirecting) {
-            toast({
-                title: 'Login Failed',
-                description: 'Invalid credentials for the selected role.',
-                variant: 'destructive'
-            });
-            setIsLoading(false);
-        }
+        // If we reach here, no user was found for the selected role.
+        toast({
+            title: 'Login Failed',
+            description: 'Invalid credentials for the selected role.',
+            variant: 'destructive'
+        });
+        setIsLoading(false);
     };
 
     return (
