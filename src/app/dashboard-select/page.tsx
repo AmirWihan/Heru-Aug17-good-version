@@ -89,9 +89,10 @@ export default function LoginPage() {
         }
 
         let userFound = null;
+        const processedEmail = email.toLowerCase().trim();
 
         if (role === 'lawyer') {
-            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type === 'legal');
+            userFound = teamMembers.find(member => member.email.toLowerCase() === processedEmail && member.type === 'legal');
             if (userFound && userFound.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/lawyer/dashboard');
@@ -103,7 +104,7 @@ export default function LoginPage() {
                 setIsLoading(false);
             }
         } else if (role === 'admin') {
-            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type === 'admin');
+            userFound = teamMembers.find(member => member.email.toLowerCase() === processedEmail && member.type === 'admin');
             if (userFound && userFound.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/admin/dashboard');
@@ -112,7 +113,7 @@ export default function LoginPage() {
                 setIsLoading(false);
             }
         } else if (role === 'client') {
-            userFound = clients.find(client => client.email.toLowerCase() === email.toLowerCase());
+            userFound = clients.find(client => client.email.toLowerCase() === processedEmail);
             if (userFound) {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/client/dashboard');
