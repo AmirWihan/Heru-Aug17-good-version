@@ -26,6 +26,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { ClientDetailSheet } from "./client-detail";
 import { useGlobalData } from "@/context/GlobalDataContext";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils";
 
 
 const clientFormSchema = z.object({
@@ -76,6 +83,8 @@ export function ClientsPage() {
             countryOfOrigin: 'Unknown',
             currentLocation: 'Unknown',
             joined: new Date().toISOString().split('T')[0],
+            age: 30, // Default age
+            educationLevel: "Bachelor's degree", // Default education
             caseSummary: {
                 priority: 'Medium',
                 caseType: values.caseType,
@@ -133,212 +142,231 @@ export function ClientsPage() {
     });
 
     return (
-        <>
-            <Card>
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <CardTitle className="font-headline">All Clients</CardTitle>
-                        <Button onClick={() => setAddClientDialogOpen(true)}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            New Client
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                    <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center flex-wrap">
-                        <div className="relative w-full sm:w-auto sm:flex-grow md:flex-grow-0">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Search by name..."
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                className="pl-10 w-full sm:w-64"
-                            />
+        <TooltipProvider>
+            <>
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="font-headline">All Clients</CardTitle>
+                            <Button onClick={() => setAddClientDialogOpen(true)}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                New Client
+                            </Button>
                         </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by Case Type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {caseTypes.map(type => <SelectItem key={type} value={type}>{type === 'all' ? 'All Case Types' : type}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={countryFilter} onValueChange={setCountryFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by Country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {countries.map(country => <SelectItem key={country} value={country}>{country === 'all' ? 'All Countries' : country}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Button variant="outline" onClick={() => {
-                            setSearchTerm('');
-                            setStatusFilter('all');
-                            setCaseTypeFilter('all');
-                            setCountryFilter('all');
-                        }}>Reset Filters</Button>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead className="hidden md:table-cell">Email</TableHead>
-                                    <TableHead className="hidden lg:table-cell">Phone</TableHead>
-                                    <TableHead className="hidden md:table-cell">Case Type</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="hidden lg:table-cell">Last Contact</TableHead>
-                                    <TableHead>Activity</TableHead>
-                                    <TableHead><span className="sr-only">Actions</span></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredClients.length > 0 ? filteredClients.map((client) => (
-                                    <TableRow key={client.id} onClick={() => handleViewProfile(client)} className="cursor-pointer">
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar>
-                                                    <AvatarImage src={client.avatar} alt={client.name} />
-                                                    <AvatarFallback>{client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="font-medium">{client.name}</div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{client.email}</TableCell>
-                                        <TableCell className="hidden lg:table-cell">{client.phone}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{client.caseType}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
-                                        </TableCell>
-                                        <TableCell className="hidden lg:table-cell">{client.lastContact}</TableCell>
-                                        <TableCell>{client.activity.length} logs</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                    <Button variant="ghost" size="icon">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleViewProfile(client)}>View Profile</DropdownMenuItem>
-                                                    <DropdownMenuItem>Send Message</DropdownMenuItem>
-                                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                )) : (
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center flex-wrap">
+                            <div className="relative w-full sm:w-auto sm:flex-grow md:flex-grow-0">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input 
+                                    placeholder="Search by name..."
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    className="pl-10 w-full sm:w-64"
+                                />
+                            </div>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Filter by Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Filter by Case Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {caseTypes.map(type => <SelectItem key={type} value={type}>{type === 'all' ? 'All Case Types' : type}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            <Select value={countryFilter} onValueChange={setCountryFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Filter by Country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {countries.map(country => <SelectItem key={country} value={country}>{country === 'all' ? 'All Countries' : country}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            <Button variant="outline" onClick={() => {
+                                setSearchTerm('');
+                                setStatusFilter('all');
+                                setCaseTypeFilter('all');
+                                setCountryFilter('all');
+                            }}>Reset Filters</Button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-24 text-center">
-                                            No clients found.
-                                        </TableCell>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead className="hidden md:table-cell">Email</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Phone</TableHead>
+                                        <TableHead className="hidden md:table-cell">Case Type</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Last Contact</TableHead>
+                                        <TableHead>Activity</TableHead>
+                                        <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredClients.length > 0 ? filteredClients.map((client) => (
+                                        <TableRow key={client.id} onClick={() => handleViewProfile(client)} className="cursor-pointer">
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    {client.analysis ? (
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <div className={cn(
+                                                                    'h-2.5 w-2.5 rounded-full',
+                                                                    client.analysis.scoreLabel === 'Green' && 'bg-green-500',
+                                                                    client.analysis.scoreLabel === 'Yellow' && 'bg-yellow-500',
+                                                                    client.analysis.scoreLabel === 'Red' && 'bg-red-500'
+                                                                )} />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Success Probability: {client.analysis.successProbability}%</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <div className="w-2.5 h-2.5" /> // Placeholder for alignment
+                                                    )}
+                                                    <Avatar>
+                                                        <AvatarImage src={client.avatar} alt={client.name} />
+                                                        <AvatarFallback>{client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="font-medium">{client.name}</div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">{client.email}</TableCell>
+                                            <TableCell className="hidden lg:table-cell">{client.phone}</TableCell>
+                                            <TableCell className="hidden md:table-cell">{client.caseType}</TableCell>
+                                            <TableCell>
+                                                <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden lg:table-cell">{client.lastContact}</TableCell>
+                                            <TableCell>{client.activity.length} logs</TableCell>
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                        <Button variant="ghost" size="icon">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => handleViewProfile(client)}>View Profile</DropdownMenuItem>
+                                                        <DropdownMenuItem>Send Message</DropdownMenuItem>
+                                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">
+                                                No clients found.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
 
-            <Dialog open={isAddClientDialogOpen} onOpenChange={setAddClientDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Add New Client</DialogTitle>
-                        <DialogDescription>
-                            Enter the details for the new client. Click save when you're done.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="John Doe" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="john.doe@example.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Phone (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="+1-202-555-0176" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="caseType"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Case Type</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Dialog open={isAddClientDialogOpen} onOpenChange={setAddClientDialogOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Add New Client</DialogTitle>
+                            <DialogDescription>
+                                Enter the details for the new client. Click save when you're done.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Name</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a case type" />
-                                                </SelectTrigger>
+                                                <Input placeholder="John Doe" {...field} />
                                             </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="Permanent Residency">Permanent Residency</SelectItem>
-                                                <SelectItem value="Student Visa">Student Visa</SelectItem>
-                                                <SelectItem value="Work Permit">Work Permit</SelectItem>
-                                                <SelectItem value="Family Sponsorship">Family Sponsorship</SelectItem>
-                                                <SelectItem value="Visitor Visa">Visitor Visa</SelectItem>
-                                                <SelectItem value="Citizenship">Citizenship</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <DialogFooter>
-                                <Button type="button" variant="secondary" onClick={() => setAddClientDialogOpen(false)}>Cancel</Button>
-                                <Button type="submit">Save Client</Button>
-                            </DialogFooter>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="john.doe@example.com" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Phone (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="+1-202-555-0176" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="caseType"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Case Type</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a case type" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Permanent Residency">Permanent Residency</SelectItem>
+                                                    <SelectItem value="Student Visa">Student Visa</SelectItem>
+                                                    <SelectItem value="Work Permit">Work Permit</SelectItem>
+                                                    <SelectItem value="Family Sponsorship">Family Sponsorship</SelectItem>
+                                                    <SelectItem value="Visitor Visa">Visitor Visa</SelectItem>
+                                                    <SelectItem value="Citizenship">Citizenship</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter>
+                                    <Button type="button" variant="secondary" onClick={() => setAddClientDialogOpen(false)}>Cancel</Button>
+                                    <Button type="submit">Save Client</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
 
-            {selectedClient && (
-                 <ClientDetailSheet
-                    client={selectedClient}
-                    isOpen={isSheetOpen}
-                    onOpenChange={setIsSheetOpen}
-                    onUpdateClient={handleUpdateClient}
-                />
-            )}
-        </>
+                {selectedClient && (
+                    <ClientDetailSheet
+                        client={selectedClient}
+                        isOpen={isSheetOpen}
+                        onOpenChange={setIsSheetOpen}
+                        onUpdateClient={handleUpdateClient}
+                    />
+                )}
+            </>
+        </TooltipProvider>
     );
 }

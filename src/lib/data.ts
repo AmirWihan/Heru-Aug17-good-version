@@ -1,5 +1,6 @@
 
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target } from "lucide-react";
+import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 
 export type Task = {
     id: number;
@@ -55,6 +56,7 @@ export type Client = {
         status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected' | 'Requested';
     }[];
     tasks: Task[];
+    analysis?: SuccessPredictorOutput;
 };
 
 export const dashboardData = {

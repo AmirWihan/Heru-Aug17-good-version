@@ -140,6 +140,10 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
     useEffect(() => {
+        setAnalysisResult(client.analysis || null);
+    }, [client]);
+
+    useEffect(() => {
         if (isLogActivityDialogOpen) {
             setNewActivityDate(format(new Date(), 'yyyy-MM-dd'));
         }
@@ -156,6 +160,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 educationLevel: client.educationLevel,
             });
             setAnalysisResult(result);
+            onUpdateClient({ ...client, analysis: result });
         } catch (error) {
             console.error("Analysis failed:", error);
             toast({
