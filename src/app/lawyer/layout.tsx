@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
@@ -34,15 +35,17 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                     {children}
                 </main>
                 <footer className="mt-auto border-t bg-card p-4 md:p-6">
-                  <div className="mx-auto flex max-w-7xl flex-col items-center justify-between md:flex-row">
-                    <div className="mb-4 flex items-center md:mb-0">
-                      <HeruLogoIcon className="mr-2 h-6 w-6" />
-                      <span className="font-headline font-bold text-primary">Heru</span>
+                  <div className="container flex flex-col items-center justify-between gap-4 py-0 md:flex-row">
+                    <div className="flex items-center gap-2">
+                      <Link href="/" className="flex items-center gap-2">
+                        <HeruLogoIcon className="h-6 w-6" />
+                        <span className="font-headline font-bold text-primary">Heru</span>
+                      </Link>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      © 2023 MAAT Technologies. All rights reserved.
+                      © 2024 MAAT Technologies. All rights reserved.
                     </div>
-                    <div className="mt-4 flex space-x-4 md:mt-0">
+                    <div className="flex items-center space-x-4">
                       <a href="#" className="text-muted-foreground hover:text-primary">
                         <Facebook size={18} />
                       </a>
