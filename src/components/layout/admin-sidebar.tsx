@@ -12,6 +12,7 @@ import {
   Mail,
   Bell,
   Briefcase,
+  CheckSquare,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ const navItems = [
   { id: 'users', label: 'User Management', icon: Users },
   { id: 'team', label: 'Team Management', icon: Briefcase },
   { id: 'cases', label: 'All Cases', icon: FileText },
+  { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
   { id: 'analytics', label: 'Analytics', icon: LineChart },
   { id: 'payments', label: 'Payments & Subs', icon: CreditCard },
   { id: 'notifications', label: 'System Notifications', icon: Bell },

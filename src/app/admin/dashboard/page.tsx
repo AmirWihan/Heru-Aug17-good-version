@@ -9,6 +9,7 @@ import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-an
 import { AdminPaymentsPage } from '@/components/pages/admin-payments';
 import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
 import { AdminTeamManagementPage } from '@/components/pages/admin-team-management';
+import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
@@ -18,6 +19,7 @@ export default function AdminDashboardPage() {
         'users': UserManagementPage,
         'team': AdminTeamManagementPage,
         'cases': AdminAllCasesPage,
+        'tasks': AdminAllTasksPage,
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,
         'notifications': AdminSystemNotificationsPage,
