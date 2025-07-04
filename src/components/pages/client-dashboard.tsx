@@ -37,26 +37,23 @@ export function ClientDashboard() {
 
     return (
         <div className="space-y-6">
-            <div className="relative rounded-xl shadow-lg overflow-hidden bg-primary text-primary-foreground p-8">
-                <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <Card className="bg-primary text-primary-foreground shadow-lg">
+                <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-bold font-headline mb-2">Welcome, {client.name}! 👋</h2>
-                         <p className="text-lg text-primary-foreground/80">
-                            Your current application status is: <Badge variant={
-                                client.caseSummary.currentStatus === 'Approved' ? 'success' :
-                                client.caseSummary.currentStatus === 'Awaiting Documents' ? 'warning' : 'info'
-                            } className="text-lg px-3 py-1 ml-2">{client.caseSummary.currentStatus}</Badge>
-                        </p>
-                         <p className="text-md text-primary-foreground/80 mt-4">
-                            Next Step: <span className="font-semibold">{client.caseSummary.nextStep}</span>
+                        <h2 className="text-3xl font-bold">Welcome, {client.name}! 👋</h2>
+                        <p className="text-primary-foreground/80 mt-1">
+                            Your application status is currently: <span className="font-bold">{client.caseSummary.currentStatus}</span>.
+                            <br/>
+                            Next Step: <span className="font-bold">{client.caseSummary.nextStep}</span>.
                         </p>
                     </div>
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold transition-transform hover:-translate-y-0.5 active:scale-95" onClick={() => setActiveTab('documents')}>
-                        Upload Documents
-                        <ChevronRight className="ml-2 h-4 w-4" />
+                    <Button 
+                        className="bg-white text-primary hover:bg-white/90 w-full md:w-auto"
+                        onClick={() => setActiveTab('documents')}>
+                        View My Documents <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="find-lawyer">
                 <TabsList>
