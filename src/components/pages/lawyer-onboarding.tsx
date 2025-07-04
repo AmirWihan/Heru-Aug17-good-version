@@ -14,11 +14,14 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import type { TeamMember } from '@/lib/data';
 
 const onboardingSchema = z.object({
     // Step 0
     fullName: z.string().min(2, "Full name is required."),
     email: z.string().email("A valid email is required."),
+    phone: z.string().min(10, "A valid phone number is required."),
     firmName: z.string().min(2, "Firm name is required."),
     firmAddress: z.string().min(10, "Firm address is required."),
     numEmployees: z.coerce.number().min(1, "At least one employee is required."),
@@ -37,7 +40,7 @@ const onboardingSchema = z.object({
 
 
 const steps = [
-    { name: 'Firm & Personal Details', icon: Building, fields: ['fullName', 'email', 'firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
+    { name: 'Firm & Personal Details', icon: Building, fields: ['fullName', 'email', 'phone', 'firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
     { name: 'License & Verification', icon: Award, fields: ['licenseNumber', 'registrationNumber', 'governmentId'] as const },
     { name: 'Subscription & Payment', icon: CreditCard, fields: ['selectedPlan', 'cardName', 'cardNumber', 'expiryDate', 'cvc'] as const },
 ];
@@ -54,12 +57,14 @@ export function LawyerOnboarding() {
     const [fileName, setFileName] = useState<string | null>(null);
     const router = useRouter();
     const { toast } = useToast();
+    const { addTeamMember } = useGlobalData();
 
     const form = useForm<z.infer<typeof onboardingSchema>>({
         resolver: zodResolver(onboardingSchema),
         defaultValues: {
             fullName: "",
             email: "",
+            phone: "",
             firmName: "",
             firmAddress: "",
             numEmployees: 1,
@@ -78,9 +83,32 @@ export function LawyerOnboarding() {
     const selectedPlanId = form.watch('selectedPlan');
 
     async function processSubmit(data: z.infer<typeof onboardingSchema>) {
-        console.log("Form Submitted:", data);
-        // In a real app, this would send data to the backend.
-        // We add a new user to data.ts to simulate this for the prototype.
+        const newMember: TeamMember = {
+            id: Date.now(),
+            name: data.fullName,
+            role: 'Awaiting Verification',
+            avatar: `https://i.pravatar.cc/150?u=${data.email}`,
+            type: 'legal',
+            email: data.email,
+            phone: data.phone,
+            accessLevel: 'Member',
+            status: 'Pending Activation',
+            plan: data.selectedPlan,
+            location: 'Unknown',
+            yearsOfPractice: 0,
+            successRate: 0,
+            licenseNumber: data.licenseNumber,
+            registrationNumber: data.registrationNumber,
+            stats: [
+                { label: 'Clients', value: '0' },
+                { label: 'Revenue', value: '$0' },
+                { label: 'Success Rate', value: 'N/A' },
+                { label: 'Rating', value: 'N/A' }
+            ],
+            specialties: ['Awaiting Activation']
+        };
+
+        addTeamMember(newMember);
         setIsComplete(true);
         toast({
             title: 'Request Submitted!',
@@ -166,9 +194,14 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="sarah.j@example.com" {...field} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
-                                    <FormField control={form.control} name="firmName" render={({ field }) => (
-                                        <FormItem><FormLabel>Firm Name</FormLabel><FormControl><Input placeholder="e.g., Heru Immigration Services" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField control={form.control} name="phone" render={({ field }) => (
+                                            <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+1-555-0199" {...field} /></FormControl><FormMessage /></FormItem>
+                                        )} />
+                                        <FormField control={form.control} name="firmName" render={({ field }) => (
+                                            <FormItem><FormLabel>Firm Name</FormLabel><FormControl><Input placeholder="e.g., Heru Immigration Services" {...field} /></FormControl><FormMessage /></FormItem>
+                                        )} />
+                                    </div>
                                     <FormField control={form.control} name="firmAddress" render={({ field }) => (
                                         <FormItem><FormLabel>Firm Address</FormLabel><FormControl><Textarea placeholder="123 Main Street, Suite 400, Toronto, ON M5H 2N2" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
@@ -194,7 +227,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
-                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, value, ...rest } }) => (
+                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, ...rest } }) => (
                                         <FormItem>
                                             <FormLabel>Government-Issued ID</FormLabel>
                                             <FormControl>

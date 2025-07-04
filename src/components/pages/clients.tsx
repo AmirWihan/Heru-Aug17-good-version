@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreHorizontal, PlusCircle, Search } from "lucide-react";
-import { clients as initialClients, type Client } from "@/lib/data";
+import type { Client } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ClientDetailSheet } from "./client-detail";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 
 const clientFormSchema = z.object({
@@ -41,7 +42,7 @@ const clientFormSchema = z.object({
 });
 
 export function ClientsPage() {
-    const [clients, setClients] = useState(initialClients);
+    const { clients, addClient, updateClient } = useGlobalData();
     const [isAddClientDialogOpen, setAddClientDialogOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -64,7 +65,7 @@ export function ClientsPage() {
 
     function onSubmit(values: z.infer<typeof clientFormSchema>) {
         const newClient: Client = {
-            id: clients.length + 1,
+            id: Date.now(),
             name: values.name,
             email: values.email,
             phone: values.phone || '',
@@ -86,7 +87,7 @@ export function ClientsPage() {
             documents: [],
             tasks: [],
         };
-        setClients([newClient, ...clients]);
+        addClient(newClient);
         setAddClientDialogOpen(false);
         form.reset();
         toast({
@@ -101,7 +102,7 @@ export function ClientsPage() {
     };
 
     const handleUpdateClient = (updatedClient: Client) => {
-        setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c));
+        updateClient(updatedClient);
         setSelectedClient(updatedClient);
     };
 
@@ -118,9 +119,9 @@ export function ClientsPage() {
         }
     }
 
-    const statuses = ['all', ...Array.from(new Set(initialClients.map(c => c.status)))];
-    const caseTypes = ['all', ...Array.from(new Set(initialClients.map(c => c.caseType)))];
-    const countries = ['all', ...Array.from(new Set(initialClients.map(c => c.countryOfOrigin)))];
+    const statuses = ['all', ...Array.from(new Set(clients.map(c => c.status)))];
+    const caseTypes = ['all', ...Array.from(new Set(clients.map(c => c.caseType)))];
+    const countries = ['all', ...Array.from(new Set(clients.map(c => c.countryOfOrigin)))];
 
     const filteredClients = clients.filter(client => {
         return (

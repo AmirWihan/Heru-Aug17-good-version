@@ -159,6 +159,8 @@ export const teamMembers = [
     },
 ];
 
+export type TeamMember = typeof teamMembers[0];
+
 export const tasksData: Task[] = [
     {
         id: 1,

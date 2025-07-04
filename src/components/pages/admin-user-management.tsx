@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { clients as initialClients, teamMembers as initialTeamMembers } from "@/lib/data";
+import { clients as initialClients } from "@/lib/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { MoreHorizontal, Search, UserPlus, ShieldCheck } from "lucide-react";
@@ -12,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 export function UserManagementPage() {
-    const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+    const { teamMembers, updateTeamMember } = useGlobalData();
     const [clients, setClients] = useState(initialClients);
     const { toast } = useToast();
 
@@ -30,15 +31,14 @@ export function UserManagementPage() {
     };
 
     const handleActivateAccount = (memberId: number) => {
-        setTeamMembers(prevMembers =>
-            prevMembers.map(member =>
-                member.id === memberId ? { ...member, status: 'Active' } : member
-            )
-        );
-        toast({
-            title: "Account Activated",
-            description: "The lawyer's account has been successfully activated.",
-        });
+        const memberToUpdate = teamMembers.find(m => m.id === memberId);
+        if (memberToUpdate) {
+            updateTeamMember({ ...memberToUpdate, status: 'Active', role: 'Immigration Lawyer' });
+            toast({
+                title: "Account Activated",
+                description: "The lawyer's account has been successfully activated.",
+            });
+        }
     };
     
     return (
