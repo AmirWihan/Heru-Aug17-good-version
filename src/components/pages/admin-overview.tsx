@@ -32,7 +32,6 @@ export function AdminOverviewPage() {
     const totalRevenue = paymentsData.filter(p => p.status === 'Completed').reduce((acc, p) => acc + p.amount, 0);
 
     const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
-    const casesForReview = applicationsData.filter(a => a.status === 'Additional Info Requested').length;
     const overdueInvoices = invoicesData.filter(i => i.status === 'Overdue').length;
 
     const actionItems = [
@@ -42,13 +41,6 @@ export function AdminOverviewPage() {
             description: "accounts waiting for verification.",
             icon: ShieldCheck,
             page: "users",
-        },
-        {
-            count: casesForReview,
-            title: "Cases Requiring Attention",
-            description: "cases need additional information.",
-            icon: FileWarning,
-            page: "cases",
         },
         {
             count: overdueInvoices,

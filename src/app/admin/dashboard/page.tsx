@@ -3,8 +3,6 @@ import { useAdminDashboard } from '@/context/AdminDashboardContext';
 import { AdminOverviewPage } from '@/components/pages/admin-overview';
 import { UserManagementPage } from '@/components/pages/admin-user-management';
 import { PlatformSettingsPage } from '@/components/pages/admin-platform-settings';
-import { Card, CardContent } from '@/components/ui/card';
-import { AdminAllCasesPage } from '@/components/pages/admin-all-cases';
 import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';
 import { AdminPaymentsPage } from '@/components/pages/admin-payments';
 import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
@@ -21,7 +19,6 @@ export default function AdminDashboardPage() {
         'users': UserManagementPage,
         'team': AdminTeamManagementPage,
         'leads': AdminLeadManagementPage,
-        'cases': AdminAllCasesPage,
         'tasks': AdminAllTasksPage,
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,

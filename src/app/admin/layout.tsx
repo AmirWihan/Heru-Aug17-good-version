@@ -9,7 +9,6 @@ const pageTitles: { [key: string]: string } = {
     'users': 'User Management',
     'team': 'Team Management',
     'leads': 'Lead Management',
-    'cases': 'All Cases',
     'tasks': 'All Tasks',
     'analytics': 'Platform Analytics',
     'payments': 'Payments & Subscriptions',
