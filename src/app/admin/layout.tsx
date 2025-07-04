@@ -7,6 +7,7 @@ import { AdminDashboardProvider, useAdminDashboard } from '@/context/AdminDashbo
 const pageTitles: { [key: string]: string } = {
     'overview': 'Super Admin Dashboard',
     'users': 'User Management',
+    'team': 'Team Management',
     'cases': 'All Cases',
     'analytics': 'Platform Analytics',
     'payments': 'Payments & Subscriptions',

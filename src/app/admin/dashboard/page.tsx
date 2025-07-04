@@ -8,6 +8,7 @@ import { AdminAllCasesPage } from '@/components/pages/admin-all-cases';
 import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';
 import { AdminPaymentsPage } from '@/components/pages/admin-payments';
 import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
+import { AdminTeamManagementPage } from '@/components/pages/admin-team-management';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
@@ -15,6 +16,7 @@ export default function AdminDashboardPage() {
     const pageComponents: { [key: string]: React.ComponentType<any> } = {
         'overview': AdminOverviewPage,
         'users': UserManagementPage,
+        'team': AdminTeamManagementPage,
         'cases': AdminAllCasesPage,
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,

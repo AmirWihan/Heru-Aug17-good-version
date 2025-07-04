@@ -6,6 +6,7 @@ import { teamMembers, reportsData, applicationsData, invoicesData } from "@/lib/
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
+import { AdminTeamPerformance } from "../admin-team-performance";
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
     <Card>
@@ -115,6 +116,7 @@ export function AdminOverviewPage() {
                     </CardContent>
                 </Card>
             </div>
+             <AdminTeamPerformance />
         </div>
     );
 }

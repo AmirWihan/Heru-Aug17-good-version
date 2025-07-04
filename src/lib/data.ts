@@ -1,5 +1,5 @@
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target } from "lucide-react";
 
 export type Task = {
     id: number;
@@ -74,32 +74,40 @@ export const dashboardData = {
 
 export const teamMembers = [
     {
-        id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
+        id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
         email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Tier',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
         stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$120k' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9/5' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
     },
     {
-        id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen',
+        id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
         email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Tier',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
         stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$85k' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7/5' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
     },
     {
-        id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia',
+        id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
         email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Basic Tier',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$50k' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8/5' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication']
     },
     {
-        id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david',
+        id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
         email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Pending Activation', plan: 'Pro Tier',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
         stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$75k' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.6/5' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
+    },
+    {
+        id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
+        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', accessLevel: 'Member', status: 'Active',
+    },
+    {
+        id: 6, name: 'Chris Davis', role: 'Marketing Advisor', avatar: 'https://i.pravatar.cc/150?u=chris', type: 'advisor',
+        email: 'chris.d@heru.com', phone: '+1-202-555-0106', accessLevel: 'Member', status: 'Active',
     },
 ];
 
@@ -481,3 +489,15 @@ export const subscriptionsData = [
   { id: 4, firmName: 'Global-Pathways Inc.', plan: 'Enterprise', users: 15, status: 'Active', nextBilling: '2024-08-15', amount: 1200 },
   { id: 5, firmName: 'Bridge Immigration', plan: 'Basic Tier', users: 1, status: 'Canceled', nextBilling: 'N/A', amount: 49 },
 ];
+
+export const salesPerformanceData = {
+    stats: [
+        { title: "New Leads", value: "84", change: "+20%", icon: UserPlus },
+        { title: "Conversion Rate", value: "15.2%", change: "+1.8%", icon: Zap },
+        { title: "Marketing Engagement", value: "32%", change: "+5%", icon: Target },
+    ],
+    topPerformers: [
+        { id: 5, name: "Jessica Miller", avatar: "https://i.pravatar.cc/150?u=jessica", performance: "35 leads • 18% conversion", isTop: true },
+        { id: 6, name: "Chris Davis", avatar: "https://i.pravatar.cc/150?u=chris", performance: "28 leads • 14% conversion", isTop: false },
+    ]
+};
