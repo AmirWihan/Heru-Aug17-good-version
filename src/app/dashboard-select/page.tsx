@@ -91,7 +91,7 @@ export default function LoginPage() {
         let userFound = null;
 
         if (role === 'lawyer') {
-            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type !== 'admin');
+            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type === 'legal');
             if (userFound && userFound.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/lawyer/dashboard');

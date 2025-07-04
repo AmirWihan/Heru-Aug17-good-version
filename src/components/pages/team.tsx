@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { teamMembers as initialTeamMembers, activityLogData, activityTypes } from "@/lib/data";
+import { activityLogData, activityTypes } from "@/lib/data";
 import { PlusCircle, Phone, Mail, LineChart } from "lucide-react";
 import {
     Dialog,
@@ -22,6 +22,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { TeamPerformance } from '../sales-team-performance';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -31,7 +32,7 @@ const memberFormSchema = z.object({
 });
 
 export function TeamPage() {
-    const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+    const { teamMembers, addTeamMember } = useGlobalData();
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
     const { toast } = useToast();
 
@@ -47,7 +48,7 @@ export function TeamPage() {
 
     function onSubmit(values: z.infer<typeof memberFormSchema>) {
         const newMember = {
-            id: teamMembers.length + 1,
+            id: Date.now(),
             name: values.name,
             role: values.role,
             email: values.email,
@@ -55,20 +56,23 @@ export function TeamPage() {
             avatar: `https://i.pravatar.cc/150?u=${values.email}`,
             accessLevel: 'Member',
             status: 'Active',
-            plan: 'Pro Tier',
+            plan: 'Pro Team',
             location: 'Remote',
             yearsOfPractice: 0,
             successRate: 0,
-            specialties: [],
+            licenseNumber: 'N/A',
+            registrationNumber: 'N/A',
+            type: 'legal' as const,
             stats: [
                 { label: 'Clients', value: '0' },
                 { label: 'Success Rate', value: 'N/A' },
                 { label: 'Active Cases', value: '0' },
                 { label: 'Revenue', value: '$0' }
-            ]
+            ],
+            specialties: []
         };
-        // @ts-ignore - This is a safe cast because newMember has all required fields
-        setTeamMembers([newMember, ...teamMembers]);
+        
+        addTeamMember(newMember);
         setAddMemberDialogOpen(false);
         form.reset();
         toast({
@@ -117,7 +121,7 @@ export function TeamPage() {
                                 <CardTitle className="font-headline text-lg">Team Members</CardTitle>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {teamMembers.map(member => (
+                                {teamMembers.filter(m => m.type === 'legal').map(member => (
                                     <Card key={member.id} className="team-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col">
                                         <CardHeader className="flex-row items-center gap-4">
                                             <Avatar className="w-12 h-12">
