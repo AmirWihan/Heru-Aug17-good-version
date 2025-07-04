@@ -74,6 +74,30 @@ export const dashboardData = {
 
 export const teamMembers = [
     {
+        id: 8,
+        name: 'Test Lawyer Account',
+        role: 'Awaiting Verification',
+        avatar: 'https://i.pravatar.cc/150?u=testlawyer',
+        type: 'legal',
+        email: 'test.lawyer@example.com',
+        phone: '+1-555-0199',
+        accessLevel: 'Member',
+        status: 'Pending Activation',
+        plan: 'Pro Team',
+        location: 'Ottawa, ON',
+        yearsOfPractice: 0,
+        successRate: 0,
+        licenseNumber: 'LSO-T12345',
+        registrationNumber: 'CICC-T54321',
+        stats: [
+            { label: 'Clients', value: '0' },
+            { label: 'Revenue', value: '$0' },
+            { label: 'Success Rate', value: 'N/A' },
+            { label: 'Rating', value: 'N/A' }
+        ],
+        specialties: ['Awaiting Activation']
+    },
+    {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
         email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
