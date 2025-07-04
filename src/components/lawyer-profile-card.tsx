@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Check, Mail, MessageSquare, Phone, Star } from "lucide-react";
+import { Share2, Mail, MessageSquare, Phone, Star } from "lucide-react";
 
 type LawyerProfileCardProps = {
     lawyer: {
@@ -61,7 +61,7 @@ export function LawyerProfileCard({ lawyer, onConnect }: LawyerProfileCardProps)
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
                 <Button className="w-full" onClick={() => onConnect(lawyer.id)}>
-                    <Check className="mr-2 h-4 w-4" /> Connect
+                    <Share2 className="mr-2 h-4 w-4" /> Share Info & Connect
                 </Button>
                 <div className="flex w-full gap-2">
                     <Button variant="outline" className="flex-1">
