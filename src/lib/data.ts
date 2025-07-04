@@ -74,6 +74,30 @@ export const dashboardData = {
 
 export const teamMembers = [
     {
+        id: 9,
+        name: 'Dr. Evelyn Reed',
+        role: 'Awaiting Verification',
+        avatar: 'https://i.pravatar.cc/150?u=evelynreed',
+        type: 'legal',
+        email: 'e.reed@innovatelegal.com',
+        phone: '+1-555-0123',
+        accessLevel: 'Admin',
+        status: 'Pending Activation',
+        plan: 'Enterprise',
+        location: 'Montreal, QC',
+        yearsOfPractice: 15,
+        successRate: 0,
+        licenseNumber: 'LSM-E98765',
+        registrationNumber: 'CICC-E54321',
+        stats: [
+            { label: 'Clients', value: '0' },
+            { label: 'Revenue', value: '$0' },
+            { label: 'Success Rate', value: 'N/A' },
+            { label: 'Rating', value: 'N/A' }
+        ],
+        specialties: ['Awaiting Activation']
+    },
+    {
         id: 8,
         name: 'Test Lawyer Account',
         role: 'Awaiting Verification',
@@ -120,7 +144,7 @@ export const teamMembers = [
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
-        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Pending Activation', plan: 'Pro Team',
+        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
         stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$75k' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.6/5' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
