@@ -74,6 +74,25 @@ export const dashboardData = {
 
 export const teamMembers = [
     {
+        id: 10,
+        name: 'Super Admin',
+        role: 'Super Admin',
+        avatar: 'https://i.pravatar.cc/150?u=superadmin',
+        type: 'admin',
+        email: 'admin@heru.com',
+        phone: '+1-555-0100',
+        accessLevel: 'Admin',
+        status: 'Active',
+        plan: 'Enterprise',
+        location: 'Platform',
+        yearsOfPractice: 0,
+        successRate: 0,
+        licenseNumber: 'N/A',
+        registrationNumber: 'N/A',
+        stats: [],
+        specialties: ['Platform Management']
+    },
+    {
         id: 9,
         name: 'Dr. Evelyn Reed',
         role: 'Awaiting Verification',

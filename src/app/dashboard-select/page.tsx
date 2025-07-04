@@ -1,3 +1,6 @@
+
+'use client';
+
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +8,11 @@ import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -29,6 +37,12 @@ const FacebookIcon = () => (
 
 export default function LoginPage({ searchParams }: { searchParams: { role?: string } }) {
     const role = searchParams.role || 'client';
+    const router = useRouter();
+    const { toast } = useToast();
+    const { teamMembers, clients } = useGlobalData();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const getRedirectPath = () => {
         switch (role) {
@@ -58,6 +72,55 @@ export default function LoginPage({ searchParams }: { searchParams: { role?: str
 
     const redirectPath = getRedirectPath();
     const roleName = getRoleName();
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        if (password !== 'password123') {
+            toast({
+                title: 'Login Failed',
+                description: 'Invalid email or password.',
+                variant: 'destructive'
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        let userFound = null;
+
+        if (role === 'lawyer') {
+            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type !== 'admin');
+            if (userFound && userFound.status === 'Active') {
+                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
+                router.push('/lawyer/dashboard');
+            } else if (userFound && userFound.status !== 'Active') {
+                toast({ title: 'Account Not Active', description: `Your account status is: ${userFound.status}. Please wait for activation.`, variant: 'destructive' });
+                setIsLoading(false);
+            } else {
+                toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
+                setIsLoading(false);
+            }
+        } else if (role === 'admin') {
+            userFound = teamMembers.find(member => member.email.toLowerCase() === email.toLowerCase() && member.type === 'admin');
+            if (userFound && userFound.status === 'Active') {
+                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
+                router.push('/admin/dashboard');
+            } else {
+                toast({ title: 'Login Failed', description: 'Invalid credentials for Super Admin.', variant: 'destructive' });
+                setIsLoading(false);
+            }
+        } else if (role === 'client') {
+            userFound = clients.find(client => client.email.toLowerCase() === email.toLowerCase());
+            if (userFound) {
+                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
+                router.push('/client/dashboard');
+            } else {
+                toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
+                setIsLoading(false);
+            }
+        }
+    };
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
@@ -94,23 +157,26 @@ export default function LoginPage({ searchParams }: { searchParams: { role?: str
                                 OR
                             </span>
                         </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="email">Email</Label>
-                           <Input id="email" type="email" placeholder="your.email@example.com"/>
-                        </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="password">Password</Label>
-                           <Input id="password" type="password" placeholder="••••••••"/>
-                        </div>
-                        <Link href={redirectPath} passHref>
-                            <Button className="w-full">
-                                Continue with Email
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" placeholder="your.email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password</Label>
+                                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                <p className="text-xs text-muted-foreground">Hint: Use 'password123' for this prototype.</p>
+                            </div>
+                            <Button className="w-full" type="submit" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {isLoading ? 'Logging in...' : 'Continue with Email'}
                             </Button>
-                        </Link>
+                        </form>
                     </CardContent>
                 </Card>
                 <div className="text-center text-sm text-muted-foreground">
-                    <Link href="/" className="underline">Back to role selection</Link>
+                    <p>New here? <Link href={redirectPath} className="underline">Create an account</Link></p>
+                    <Link href="/" className="underline mt-2 inline-block">Back to role selection</Link>
                 </div>
             </div>
         </div>
