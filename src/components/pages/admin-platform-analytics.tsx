@@ -1,5 +1,5 @@
 'use client';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { reportsData, clients } from "@/lib/data";
