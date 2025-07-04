@@ -5,14 +5,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, Users, Briefcase } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, UploadCloud } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const steps = [
     { name: 'Firm & Personal Details', icon: Building },
-    { name: 'License Information', icon: Award },
+    { name: 'License & Verification', icon: Award },
     { name: 'Subscription & Payment', icon: CreditCard },
 ];
 
@@ -26,6 +26,7 @@ export function LawyerOnboarding() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState('pro');
+    const [fileName, setFileName] = useState<string | null>(null);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -44,6 +45,14 @@ export function LawyerOnboarding() {
     const prevStep = () => {
         if (currentStep > 0) {
             setCurrentStep(currentStep - 1);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setFileName(event.target.files[0].name);
+        } else {
+            setFileName(null);
         }
     };
 
@@ -113,8 +122,8 @@ export function LawyerOnboarding() {
                         </div>
                     )}
                      {currentStep === 1 && (
-                        <div className="space-y-4 animate-fade">
-                             <h3 className="font-semibold text-lg flex items-center"><Award className="mr-2 h-5 w-5"/>License Information</h3>
+                        <div className="space-y-6 animate-fade">
+                             <h3 className="font-semibold text-lg flex items-center"><Award className="mr-2 h-5 w-5"/>License & Verification</h3>
                             <p className="text-sm text-muted-foreground">Please provide your professional credentials for verification.</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1">
@@ -125,6 +134,28 @@ export function LawyerOnboarding() {
                                     <Label htmlFor="registration-number">ICCRC / CICC Registration #</Label>
                                     <Input id="registration-number" placeholder="e.g., R543210" />
                                 </div>
+                            </div>
+                             <div className="space-y-1">
+                                <Label htmlFor="id-upload">Government-Issued ID</Label>
+                                <div className="flex items-center justify-center w-full">
+                                    <label htmlFor="id-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            {fileName ? (
+                                                <>
+                                                    <CheckCircle className="w-8 h-8 mb-4 text-green-500" />
+                                                    <p className="text-sm text-muted-foreground"><span className="font-semibold">{fileName}</span> uploaded</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
+                                                    <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                                    <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
+                                                </>
+                                            )}
+                                        </div>
+                                        <Input id="id-upload" type="file" className="hidden" onChange={handleFileChange} />
+                                    </label>
+                                </div> 
                             </div>
                         </div>
                     )}
