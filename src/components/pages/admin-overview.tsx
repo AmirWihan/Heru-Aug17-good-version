@@ -1,11 +1,11 @@
 'use client';
-import { Users, UserCheck, UserX, DollarSign } from "lucide-react";
+import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { teamMembers, reportsData } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { teamMembers, reportsData, applicationsData, invoicesData } from "@/lib/data";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { useAdminDashboard } from "@/context/AdminDashboardContext";
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
     <Card>
@@ -28,44 +28,71 @@ const chartConfigClientGrowth = {
 };
 
 export function AdminOverviewPage() {
+    const { setPage } = useAdminDashboard();
+
+    const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
+    const casesForReview = applicationsData.filter(a => a.status === 'Additional Info Requested').length;
+    const overdueInvoices = invoicesData.filter(i => i.status === 'Overdue').length;
+
+    const actionItems = [
+        {
+            count: pendingActivations,
+            title: "Pending Lawyer Activations",
+            description: "accounts waiting for verification.",
+            icon: ShieldCheck,
+            page: "users",
+        },
+        {
+            count: casesForReview,
+            title: "Cases Requiring Attention",
+            description: "cases need additional information.",
+            icon: FileWarning,
+            page: "cases",
+        },
+        {
+            count: overdueInvoices,
+            title: "Overdue Invoices",
+            description: "invoices are past their due date.",
+            icon: FileClock,
+            page: "payments",
+        }
+    ].filter(item => item.count > 0);
+
     return (
         <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-primary/80 to-accent/80 text-primary-foreground border-0">
+                <CardHeader>
+                    <CardTitle className="text-2xl">Welcome, Super Admin!</CardTitle>
+                    <CardDescription className="text-primary-foreground/80">Here's your platform summary and urgent tasks for today.</CardDescription>
+                </CardHeader>
+            </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard title="Total Users" value="1,254" change="+120 this month" icon={Users} />
                 <StatCard title="Active Firms" value="84" change="+5 this month" icon={UserCheck} />
                 <StatCard title="Total Revenue" value="$245,670" change="+15% vs last quarter" icon={DollarSign} />
-                <StatCard title="New Signups (24h)" value="12" change="+200% vs yesterday" icon={UserX} />
+                <StatCard title="Pending Tasks" value={actionItems.reduce((acc, item) => acc + item.count, 0).toString()} change="across the platform" icon={Bell} changeType="down"/>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <Card className="lg:col-span-3">
                     <CardHeader>
-                        <CardTitle>Recent Signups</CardTitle>
-                        <CardDescription>Recently registered lawyers and firms.</CardDescription>
+                        <CardTitle>Action Items</CardTitle>
+                        <CardDescription>Tasks that require your immediate attention.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Joined</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {teamMembers.slice(0, 5).map(user => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>
-                                            <div className="font-medium">{user.name}</div>
-                                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                                        </TableCell>
-                                        <TableCell>{user.role}</TableCell>
-                                        <TableCell>2 days ago</TableCell>
-                                        <TableCell><Badge variant="success">Active</Badge></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                    <CardContent className="space-y-4">
+                        {actionItems.length > 0 ? actionItems.map(item => (
+                            <div key={item.title} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                <div className="flex items-center gap-4">
+                                    <item.icon className="h-6 w-6 text-destructive" />
+                                    <div>
+                                        <p className="font-semibold">{item.title}</p>
+                                        <p className="text-sm text-muted-foreground">{item.count} {item.description}</p>
+                                    </div>
+                                </div>
+                                <Button size="sm" onClick={() => setPage(item.page)}>Review</Button>
+                            </div>
+                        )) : (
+                            <p className="text-muted-foreground text-center py-4">No urgent tasks. All clear!</p>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className="lg:col-span-2">
