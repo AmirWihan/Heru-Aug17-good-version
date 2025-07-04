@@ -1,6 +1,7 @@
+
 'use client';
 import { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -170,12 +171,12 @@ export function ClientOnboarding() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <FormProvider {...form}>
-                        <form onSubmit={form.handleSubmit(processForm)}>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(processForm)} className="space-y-6">
                             {currentStep === 0 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Personal Details</h3>
-                                    <FormField name="maritalStatus" render={({ field }) => (
+                                    <FormField control={form.control} name="maritalStatus" render={({ field }) => (
                                         <FormItem><FormLabel>What is your marital status?</FormLabel>
                                             <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
                                                 <FormItem><FormControl><RadioGroupItem value="single" id="single" /></FormControl><Label htmlFor="single" className="ml-2">Single</Label></FormItem>
@@ -183,7 +184,7 @@ export function ClientOnboarding() {
                                             </RadioGroup></FormControl><FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField name="age" render={({ field }) => (
+                                    <FormField control={form.control} name="age" render={({ field }) => (
                                         <FormItem><FormLabel>What is your age?</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
@@ -192,7 +193,7 @@ export function ClientOnboarding() {
                              {currentStep === 1 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Education History</h3>
-                                    <FormField name="educationLevel" render={({ field }) => (
+                                    <FormField control={form.control} name="educationLevel" render={({ field }) => (
                                         <FormItem><FormLabel>What is your highest level of education?</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger></FormControl>
@@ -208,7 +209,7 @@ export function ClientOnboarding() {
                                             </Select><FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField name="studiedInCanada" render={({ field }) => (
+                                    <FormField control={form.control} name="studiedInCanada" render={({ field }) => (
                                         <FormItem><FormLabel>Did you study in Canada for a post-secondary degree/diploma?</FormLabel>
                                             <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
                                                 <FormItem><FormControl><RadioGroupItem value="yes" id="study-yes" /></FormControl><Label htmlFor="study-yes" className="ml-2">Yes</Label></FormItem>
@@ -222,7 +223,7 @@ export function ClientOnboarding() {
                              {currentStep === 2 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Work Experience</h3>
-                                    <FormField name="canadianWorkExperience" render={({ field }) => (
+                                    <FormField control={form.control} name="canadianWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Years of skilled work experience in Canada</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
@@ -230,7 +231,7 @@ export function ClientOnboarding() {
                                             </Select><FormMessage />
                                         </FormItem>
                                     )} />
-                                     <FormField name="foreignWorkExperience" render={({ field }) => (
+                                     <FormField control={form.control} name="foreignWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Years of skilled foreign work experience (outside Canada)</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
@@ -244,7 +245,7 @@ export function ClientOnboarding() {
                              {currentStep === 3 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Language Proficiency</h3>
-                                    <FormField name="firstLanguage" render={({ field }) => (
+                                    <FormField control={form.control} name="firstLanguage" render={({ field }) => (
                                         <FormItem><FormLabel>Which is your first official language?</FormLabel>
                                             <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
                                                 <FormItem><FormControl><RadioGroupItem value="english" id="lang-en" /></FormControl><Label htmlFor="lang-en" className="ml-2">English</Label></FormItem>
@@ -255,18 +256,18 @@ export function ClientOnboarding() {
                                     <Separator />
                                     <h4 className="font-medium">English Test Scores (IELTS General)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField name="englishScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="englishScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="englishScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="englishScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                     <Separator />
                                     <h4 className="font-medium">French Test Scores (TEF)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField name="frenchScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="frenchScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="frenchScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="frenchScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                 </div>
                             )}
@@ -274,7 +275,7 @@ export function ClientOnboarding() {
                             {currentStep === 4 && watchMaritalStatus === 'married' && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Spouse/Partner Information</h3>
-                                    <FormField name="spouse.educationLevel" render={({ field }) => (
+                                    <FormField control={form.control} name="spouse.educationLevel" render={({ field }) => (
                                         <FormItem><FormLabel>Spouse's highest level of education?</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger></FormControl>
@@ -290,7 +291,7 @@ export function ClientOnboarding() {
                                             </Select><FormMessage />
                                         </FormItem>
                                     )} />
-                                    <FormField name="spouse.canadianWorkExperience" render={({ field }) => (
+                                    <FormField control={form.control} name="spouse.canadianWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Spouse's years of skilled work experience in Canada</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
@@ -300,10 +301,10 @@ export function ClientOnboarding() {
                                     )} />
                                     <h4 className="font-medium">Spouse's First Language Test Scores (IELTS)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField name="spouse.firstLanguageScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="spouse.firstLanguageScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="spouse.firstLanguageScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField name="spouse.firstLanguageScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                 </div>
                             )}
@@ -311,9 +312,9 @@ export function ClientOnboarding() {
                              {currentStep === 5 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg">Additional Factors</h3>
-                                    <FormField name="hasProvincialNomination" render={({ field }) => (<FormItem><FormLabel>Do you have a nomination from a province or territory?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><RadioGroupItem value="yes" id="pnp-yes" /><Label htmlFor="pnp-yes" className="ml-2">Yes</Label></FormItem><FormItem><RadioGroupItem value="no" id="pnp-no" /><Label htmlFor="pnp-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField name="hasJobOffer" render={({ field }) => (<FormItem><FormLabel>Do you have a valid job offer from a Canadian employer?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><RadioGroupItem value="yes" id="job-yes" /><Label htmlFor="job-yes" className="ml-2">Yes</Label></FormItem><FormItem><RadioGroupItem value="no" id="job-no" /><Label htmlFor="job-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField name="hasSiblingInCanada" render={({ field }) => (<FormItem><FormLabel>Do you have a sibling in Canada who is a citizen or PR?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><RadioGroupItem value="yes" id="sib-yes" /><Label htmlFor="sib-yes" className="ml-2">Yes</Label></FormItem><FormItem><RadioGroupItem value="no" id="sib-no" /><Label htmlFor="sib-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="hasProvincialNomination" render={({ field }) => (<FormItem><FormLabel>Do you have a nomination from a province or territory?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" id="pnp-yes" /></FormControl><Label htmlFor="pnp-yes" className="ml-2">Yes</Label></FormItem><FormItem><FormControl><RadioGroupItem value="no" id="pnp-no" /></FormControl><Label htmlFor="pnp-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="hasJobOffer" render={({ field }) => (<FormItem><FormLabel>Do you have a valid job offer from a Canadian employer?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" id="job-yes" /></FormControl><Label htmlFor="job-yes" className="ml-2">Yes</Label></FormItem><FormItem><FormControl><RadioGroupItem value="no" id="job-no" /></FormControl><Label htmlFor="job-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="hasSiblingInCanada" render={({ field }) => (<FormItem><FormLabel>Do you have a sibling in Canada who is a citizen or PR?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" id="sib-yes" /></FormControl><Label htmlFor="sib-yes" className="ml-2">Yes</Label></FormItem><FormItem><FormControl><RadioGroupItem value="no" id="sib-no" /></FormControl><Label htmlFor="sib-no" className="ml-2">No</Label></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
                                 </div>
                             )}
                             
@@ -342,7 +343,7 @@ export function ClientOnboarding() {
                                 </div>
                             )}
                         </form>
-                    </FormProvider>
+                    </Form>
                 </CardContent>
 
                 {!result && (
