@@ -501,3 +501,12 @@ export const salesPerformanceData = {
         { id: 6, name: "Chris Davis", avatar: "https://i.pravatar.cc/150?u=chris", performance: "28 leads • 14% conversion", isTop: false },
     ]
 };
+
+export const teamMembersWithStats = [
+  ...teamMembers,
+  {
+      id: 7, name: 'Olivia Martinez', role: 'Case Manager', avatar: 'https://i.pravatar.cc/150?u=olivia',
+      stats: [{ label: 'Clients', value: '25' }, { label: 'Revenue', value: '$45k' }],
+      email: 'olivia.m@example.com', phone: '+1-202-555-0107'
+  }
+];

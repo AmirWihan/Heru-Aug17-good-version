@@ -6,10 +6,12 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquar
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData, tasksData } from "@/lib/data";
+import { dashboardData, tasksData, reportsData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -49,6 +51,17 @@ const getStatusVariant = (status: string) => {
         case 'Under Review': return 'info' as const;
         default: return 'secondary' as const;
     }
+};
+
+const chartConfigRevenue = {
+    value: {
+        label: "Revenue",
+    },
+    'PR': { label: "PR", color: "hsl(var(--chart-1))" },
+    'Work Permit': { label: "Work Permit", color: "hsl(var(--chart-2))" },
+    'Student Visa': { label: "Student Visa", color: "hsl(var(--chart-3))" },
+    'Sponsorship': { label: "Sponsorship", color: "hsl(var(--chart-4))" },
+    'Other': { label: "Other", color: "hsl(var(--chart-5))" },
 };
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
@@ -189,6 +202,27 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </Card>
                 </div>
             </div>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Revenue by Case Type</CardTitle>
+                </CardHeader>
+                <CardContent>
+                        <ChartContainer config={chartConfigRevenue} className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={reportsData.revenueByCaseType} layout="vertical" margin={{ left: 10, right: 10 }}>
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80}/>
+                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                <Bar dataKey="value" layout="vertical" radius={5}>
+                                    {reportsData.revenueByCaseType.map((entry) => (
+                                        <Cell key={entry.name} fill={chartConfigRevenue[entry.name as keyof typeof chartConfigRevenue]?.color} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
             <TeamPerformance />
         </div>
     );
