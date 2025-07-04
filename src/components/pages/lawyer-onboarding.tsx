@@ -207,7 +207,7 @@ export function LawyerOnboarding() {
                                     )} />
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="numEmployees" render={({ field }) => (
-                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? 0} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="firmWebsite" render={({ field }) => (
                                             <FormItem><FormLabel>Firm Website</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
@@ -227,7 +227,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
-                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, ...rest } }) => (
+                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, onBlur, name, ref } }) => (
                                         <FormItem>
                                             <FormLabel>Government-Issued ID</FormLabel>
                                             <FormControl>
@@ -246,12 +246,22 @@ export function LawyerOnboarding() {
                                                             </>
                                                         )}
                                                     </div>
-                                                    <Input id="id-upload" type="file" className="hidden" accept="image/png, image/jpeg, application/pdf" onChange={(e) => {
-                                                        if (e.target.files && e.target.files.length > 0) {
-                                                            onChange(e.target.files[0]);
-                                                            setFileName(e.target.files[0].name);
-                                                        }
-                                                    }} {...rest} />
+                                                    <Input 
+                                                        id="id-upload" 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        accept="image/png, image/jpeg, application/pdf"
+                                                        onBlur={onBlur}
+                                                        name={name}
+                                                        ref={ref}
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            onChange(file);
+                                                            if (file) {
+                                                                setFileName(file.name);
+                                                            }
+                                                        }}
+                                                    />
                                                 </label>
                                             </FormControl>
                                             <FormMessage />
