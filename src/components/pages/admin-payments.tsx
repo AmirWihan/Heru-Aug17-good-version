@@ -2,14 +2,19 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { paymentsData, subscriptionsData, invoicesData } from '@/lib/data';
+import { paymentsData, subscriptionsData as initialSubscriptionsData, invoicesData } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreditCard, MoreHorizontal, DollarSign, Users, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -23,11 +28,22 @@ const getStatusBadgeVariant = (status: string) => {
     }
 };
 
+type Subscription = typeof initialSubscriptionsData[0];
+
 export function AdminPaymentsPage() {
     const { toast } = useToast();
+    const [subscriptions, setSubscriptions] = useState(initialSubscriptionsData);
+    const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+    const [isDetailsOpen, setDetailsOpen] = useState(false);
+    const [isManagePlanOpen, setManagePlanOpen] = useState(false);
+    const [isManageRenewalOpen, setManageRenewalOpen] = useState(false);
+    const [isCancelAlertOpen, setCancelAlertOpen] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState('');
+    const [autoRenew, setAutoRenew] = useState(true);
+
     const totalRevenue = paymentsData.reduce((acc, p) => acc + p.amount, 0);
-    const mrr = subscriptionsData.filter(s => s.status === 'Active').reduce((acc, s) => acc + s.amount, 0);
-    const activeSubscriptions = subscriptionsData.filter(s => s.status === 'Active').length;
+    const mrr = subscriptions.filter(s => s.status === 'Active').reduce((acc, s) => acc + s.amount, 0);
+    const activeSubscriptions = subscriptions.filter(s => s.status === 'Active').length;
 
     const handleInvoiceAction = (action: string, invoiceNumber: string) => {
         toast({
@@ -36,11 +52,40 @@ export function AdminPaymentsPage() {
         });
     }
 
-    const handleSubscriptionAction = (action: string, firmName: string) => {
-        toast({
-            title: `Subscription for ${firmName}`,
-            description: `${action} action has been triggered.`,
-        });
+    const openDialog = (sub: Subscription, dialog: 'details' | 'plan' | 'renewal' | 'cancel') => {
+        setSelectedSubscription(sub);
+        switch (dialog) {
+            case 'details': setDetailsOpen(true); break;
+            case 'plan':
+                setCurrentPlan(sub.plan);
+                setManagePlanOpen(true);
+                break;
+            case 'renewal':
+                setAutoRenew(sub.status === 'Active'); // Assume active means auto-renew is on
+                setManageRenewalOpen(true);
+                break;
+            case 'cancel': setCancelAlertOpen(true); break;
+        }
+    }
+
+    const handleUpdatePlan = () => {
+        if (!selectedSubscription) return;
+        setSubscriptions(subs => subs.map(s => s.id === selectedSubscription.id ? {...s, plan: currentPlan} : s));
+        toast({ title: 'Subscription Updated', description: `${selectedSubscription.firmName}'s plan has been changed to ${currentPlan}.` });
+        setManagePlanOpen(false);
+    };
+
+    const handleUpdateRenewal = () => {
+        if (!selectedSubscription) return;
+        toast({ title: 'Subscription Updated', description: `Auto-renewal for ${selectedSubscription.firmName} has been ${autoRenew ? 'enabled' : 'disabled'}.` });
+        setManageRenewalOpen(false);
+    }
+    
+    const handleCancelSubscription = () => {
+        if (!selectedSubscription) return;
+        setSubscriptions(subs => subs.map(s => s.id === selectedSubscription.id ? {...s, status: 'Canceled', nextBilling: 'N/A' } : s));
+        toast({ title: 'Subscription Canceled', description: `${selectedSubscription.firmName}'s subscription has been canceled.`, variant: 'destructive' });
+        setCancelAlertOpen(false);
     }
 
     return (
@@ -106,7 +151,7 @@ export function AdminPaymentsPage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {subscriptionsData.map(sub => (
+                                            {subscriptions.map(sub => (
                                                 <TableRow key={sub.id}>
                                                     <TableCell className="font-medium">{sub.firmName}</TableCell>
                                                     <TableCell>{sub.plan}</TableCell>
@@ -122,10 +167,10 @@ export function AdminPaymentsPage() {
                                                                 <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent>
-                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('View Details for', sub.firmName)}>View Details</DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('Manage Plan for', sub.firmName)}>Manage Plan</DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction('Manage Auto-Renewal for', sub.firmName)}>Manage Auto-Renewal</DropdownMenuItem>
-                                                                <DropdownMenuItem className="text-destructive" onClick={() => handleSubscriptionAction('Cancel Subscription for', sub.firmName)}>Cancel Subscription</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => openDialog(sub, 'details')}>View Details</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => openDialog(sub, 'plan')}>Manage Plan</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => openDialog(sub, 'renewal')}>Manage Auto-Renewal</DropdownMenuItem>
+                                                                <DropdownMenuItem className="text-destructive" onClick={() => openDialog(sub, 'cancel')}>Cancel Subscription</DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </TableCell>
@@ -233,6 +278,88 @@ export function AdminPaymentsPage() {
                     </Tabs>
                 </CardContent>
             </Card>
+
+            {selectedSubscription && (
+                <>
+                    <Dialog open={isDetailsOpen} onOpenChange={setDetailsOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Subscription Details</DialogTitle>
+                                <DialogDescription>Viewing details for {selectedSubscription.firmName}.</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-2 py-4 text-sm">
+                                <p><strong>Plan:</strong> {selectedSubscription.plan}</p>
+                                <p><strong>Status:</strong> {selectedSubscription.status}</p>
+                                <p><strong>Users:</strong> {selectedSubscription.users}</p>
+                                <p><strong>Monthly Cost:</strong> ${selectedSubscription.amount.toLocaleString()}</p>
+                                <p><strong>Next Renewal:</strong> {selectedSubscription.nextBilling}</p>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={isManagePlanOpen} onOpenChange={setManagePlanOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Manage Plan</DialogTitle>
+                                <DialogDescription>Change the subscription plan for {selectedSubscription.firmName}.</DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4 space-y-2">
+                                <Label htmlFor="plan-select">New Plan</Label>
+                                <Select value={currentPlan} onValueChange={setCurrentPlan}>
+                                    <SelectTrigger id="plan-select"><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Basic Tier">Basic Tier</SelectItem>
+                                        <SelectItem value="Pro Tier">Pro Tier</SelectItem>
+                                        <SelectItem value="Enterprise">Enterprise</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setManagePlanOpen(false)}>Cancel</Button>
+                                <Button onClick={handleUpdatePlan}>Update Plan</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={isManageRenewalOpen} onOpenChange={setManageRenewalOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Manage Auto-Renewal</DialogTitle>
+                                <DialogDescription>Enable or disable automatic renewal for {selectedSubscription.firmName}.</DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4 flex items-center space-x-2">
+                                <Switch id="auto-renew-switch" checked={autoRenew} onCheckedChange={setAutoRenew} />
+                                <Label htmlFor="auto-renew-switch">Auto-renewal is {autoRenew ? 'ON' : 'OFF'}</Label>
+                            </div>
+                             <DialogFooter>
+                                <Button variant="outline" onClick={() => setManageRenewalOpen(false)}>Cancel</Button>
+                                <Button onClick={handleUpdateRenewal}>Save Changes</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                    
+                    <AlertDialog open={isCancelAlertOpen} onOpenChange={setCancelAlertOpen}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action will cancel the subscription for {selectedSubscription.firmName} at the end of the current billing period. This cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleCancelSubscription} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                    Confirm Cancellation
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </>
+            )}
+
         </div>
     );
 }
