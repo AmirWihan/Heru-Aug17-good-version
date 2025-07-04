@@ -502,6 +502,72 @@ export const salesPerformanceData = {
     ]
 };
 
+export const leadsData = [
+    {
+        id: 1,
+        name: 'John Smith',
+        email: 'john.smith@acmecorp.com',
+        phone: '+1-555-0101',
+        company: 'Acme Corp Immigration',
+        status: 'New',
+        source: 'Website Form',
+        owner: teamMembers[4], // Jessica Miller
+        lastContacted: '2024-07-20T10:00:00Z',
+        createdDate: '2024-07-20T10:00:00Z'
+    },
+    {
+        id: 2,
+        name: 'Maria Garcia',
+        email: 'maria.g@globex.legal',
+        phone: '+1-555-0102',
+        company: 'Globex Legal Services',
+        status: 'Contacted',
+        source: 'Referral',
+        owner: teamMembers[5], // Chris Davis
+        lastContacted: '2024-07-22T14:30:00Z',
+        createdDate: '2024-07-18T09:00:00Z'
+    },
+    {
+        id: 3,
+        name: 'Chen Wang',
+        email: 'chen.wang@waystar.ca',
+        phone: '+1-555-0103',
+        company: 'Waystar Immigration',
+        status: 'Qualified',
+        source: 'LinkedIn',
+        owner: teamMembers[4], // Jessica Miller
+        lastContacted: '2024-07-23T11:00:00Z',
+        createdDate: '2024-07-15T15:00:00Z'
+    },
+    {
+        id: 4,
+        name: 'Aisha Khan',
+        email: 'aisha.k@khanconsulting.org',
+        phone: '+1-555-0104',
+        company: 'Khan Consulting',
+        status: 'Unqualified',
+        source: 'Cold Call',
+        owner: teamMembers[5], // Chris Davis
+        lastContacted: '2024-07-19T16:00:00Z',
+        createdDate: '2024-07-19T14:00:00Z'
+    },
+    {
+        id: 5,
+        name: 'David Miller',
+        email: 'david.m@stark-industries.net',
+        phone: '+1-555-0105',
+        company: 'Stark Industries Legal',
+        status: 'New',
+        source: 'Website Form',
+        owner: teamMembers[4], // Jessica Miller
+        lastContacted: '2024-07-24T09:00:00Z',
+        createdDate: '2024-07-24T09:00:00Z'
+    }
+];
+
+export type Lead = typeof leadsData[0];
+
+
 export const teamMembersWithStats = [
   ...teamMembers,
   {

@@ -13,6 +13,7 @@ import {
   Bell,
   Briefcase,
   CheckSquare,
+  Target,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ const navItems = [
   { id: 'overview', label: 'Overview', icon: Shield },
   { id: 'users', label: 'User Management', icon: Users },
   { id: 'team', label: 'Team Management', icon: Briefcase },
+  { id: 'leads', label: 'Lead Management', icon: Target },
   { id: 'cases', label: 'All Cases', icon: FileText },
   { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
   { id: 'analytics', label: 'Analytics', icon: LineChart },
