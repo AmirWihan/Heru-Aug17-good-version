@@ -11,19 +11,34 @@ import { MoreHorizontal, Search, UserPlus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 export function UserManagementPage() {
     const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
     const [clients, setClients] = useState(initialClients);
+    const { toast } = useToast();
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status.toLowerCase()) {
             case 'active': return 'success';
             case 'suspended': return 'destructive';
             case 'pending verification': return 'warning';
+            case 'pending activation': return 'warning';
             case 'blocked': return 'destructive';
             default: return 'secondary';
         }
+    };
+
+    const handleActivateAccount = (memberId: number) => {
+        setTeamMembers(prevMembers =>
+            prevMembers.map(member =>
+                member.id === memberId ? { ...member, status: 'Active' } : member
+            )
+        );
+        toast({
+            title: "Account Activated",
+            description: "The lawyer's account has been successfully activated.",
+        });
     };
     
     return (
@@ -61,7 +76,8 @@ export function UserManagementPage() {
                                     <SelectItem value="all">All Statuses</SelectItem>
                                     <SelectItem value="active">Active</SelectItem>
                                     <SelectItem value="suspended">Suspended</SelectItem>
-                                    <SelectItem value="pending">Pending Verification</SelectItem>
+                                    <SelectItem value="pending verification">Pending Verification</SelectItem>
+                                    <SelectItem value="pending activation">Pending Activation</SelectItem>
                                 </SelectContent>
                             </Select>
                              <Select>
@@ -97,6 +113,11 @@ export function UserManagementPage() {
                                                     <div>
                                                         <div className="font-medium">{member.name}</div>
                                                         <div className="text-sm text-muted-foreground">{member.email}</div>
+                                                         {member.status === 'Pending Activation' && (
+                                                            <div className="text-xs text-muted-foreground mt-1">
+                                                                Lic: {member.licenseNumber} / Reg: {member.registrationNumber}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </TableCell>
@@ -111,7 +132,11 @@ export function UserManagementPage() {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
                                                         <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                        <DropdownMenuItem>Verify Account</DropdownMenuItem>
+                                                        {member.status === 'Pending Activation' ? (
+                                                            <DropdownMenuItem onClick={() => handleActivateAccount(member.id)}>Activate Account</DropdownMenuItem>
+                                                        ) : (
+                                                            <DropdownMenuItem>Verify Account</DropdownMenuItem>
+                                                        )}
                                                         <DropdownMenuItem className="text-destructive">Suspend Account</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>

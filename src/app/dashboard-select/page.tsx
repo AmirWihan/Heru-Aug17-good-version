@@ -35,7 +35,7 @@ export default function LoginPage({ searchParams }: { searchParams: { role?: str
             case 'client':
                 return '/client/onboarding';
             case 'lawyer':
-                return '/lawyer/dashboard';
+                return '/lawyer/onboarding';
             case 'admin':
                 return '/admin/dashboard';
             default:
