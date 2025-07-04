@@ -1,3 +1,4 @@
+
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video } from "lucide-react";
 
 export type Task = {
@@ -76,28 +77,28 @@ export const teamMembers = [
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
         email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Tier',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96,
-        stats: [{ label: 'Success Rate', value: '96%' }, { label: 'Experience', value: '12+ Yrs' }],
+        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$120k' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9/5' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen',
         email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Tier',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89,
-        stats: [{ label: 'Success Rate', value: '89%' }, { label: 'Experience', value: '8+ Yrs' }],
+        stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$85k' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7/5' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia',
         email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Basic Tier',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92,
-        stats: [{ label: 'Success Rate', value: '92%' }, { label: 'Experience', value: '5+ Yrs' }],
+        stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$50k' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8/5' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication']
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Case Manager', avatar: 'https://i.pravatar.cc/150?u=david',
         email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Viewer', status: 'Pending Verification', plan: 'Basic Tier',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94,
-        stats: [{ label: 'Success Rate', value: '94%' }, { label: 'Experience', value: '7+ Yrs' }],
+        stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$75k' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.6/5' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
     },
 ];
