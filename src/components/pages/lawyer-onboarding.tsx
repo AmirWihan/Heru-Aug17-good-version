@@ -58,8 +58,20 @@ export function LawyerOnboarding() {
     const form = useForm<z.infer<typeof onboardingSchema>>({
         resolver: zodResolver(onboardingSchema),
         defaultValues: {
-            selectedPlan: 'pro',
+            fullName: "",
+            email: "",
+            firmName: "",
+            firmAddress: "",
+            numEmployees: 1,
             firmWebsite: '',
+            licenseNumber: "",
+            registrationNumber: "",
+            governmentId: undefined,
+            selectedPlan: 'pro',
+            cardName: "",
+            cardNumber: "",
+            expiryDate: "",
+            cvc: "",
         }
     });
 
