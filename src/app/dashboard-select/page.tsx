@@ -1,7 +1,7 @@
 
 'use client';
 
-import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -150,7 +150,7 @@ export default function LoginPage() {
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md space-y-6">
                 <div className="text-center">
-                    <HeruLogoIcon className="mx-auto h-12 w-12" />
+                    <DynamicLogoIcon className="mx-auto h-12 w-12" />
                     <h1 className="mt-4 font-headline text-3xl font-bold">Log in as {roleName}</h1>
                     <p className="mt-2 text-muted-foreground">Your AI-Powered Immigration CRM</p>
                 </div>

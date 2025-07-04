@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,8 +8,44 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuickBooksIcon } from "@/components/icons/QuickBooksIcon";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { DynamicLogoIcon } from "../icons/DynamicLogoIcon";
+import { UploadCloud } from "lucide-react";
+import { useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export function PlatformSettingsPage() {
+    const { setLogoSrc } = useGlobalData();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
+
+    const handleLogoUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                toast({
+                    title: "File too large",
+                    description: "Please upload an image smaller than 2MB.",
+                    variant: "destructive",
+                });
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setLogoSrc(e.target?.result as string);
+                toast({
+                    title: "Logo updated",
+                    description: "Your new logo has been applied."
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="space-y-6">
              <Card>
@@ -34,8 +71,25 @@ export function PlatformSettingsPage() {
                                         <Input id="platform-name" defaultValue="Heru Immigration CRM" />
                                     </div>
                                      <div className="space-y-2">
-                                        <Label htmlFor="platform-logo">Platform Logo</Label>
-                                        <Input id="platform-logo" type="file" />
+                                        <Label>Platform Logo</Label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-4 border rounded-lg bg-muted flex items-center justify-center h-20 w-20">
+                                                <DynamicLogoIcon className="h-12 w-12" />
+                                            </div>
+                                            <Button type="button" variant="outline" onClick={handleLogoUploadClick}>
+                                                <UploadCloud className="mr-2 h-4 w-4" />
+                                                Upload Logo
+                                            </Button>
+                                            <Input 
+                                                id="logo-upload"
+                                                type="file"
+                                                ref={fileInputRef}
+                                                className="hidden"
+                                                accept="image/png, image/jpeg, image/svg+xml"
+                                                onChange={handleFileChange}
+                                            />
+                                        </div>
+                                         <p className="text-xs text-muted-foreground">Recommended: SVG, PNG, or JPG. Max 2MB.</p>
                                     </div>
                                 </CardContent>
                             </Card>

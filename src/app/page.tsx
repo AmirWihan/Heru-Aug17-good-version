@@ -1,4 +1,4 @@
-import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
       <header className="flex h-20 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <HeruLogoIcon className="h-8 w-8" />
+          <DynamicLogoIcon className="h-8 w-8" />
           <span className="text-xl font-bold">Heru</span>
         </Link>
         <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function HomePage() {
       <footer className="border-t">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 py-8 text-center text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-                <HeruLogoIcon className="h-6 w-6" />
+                <DynamicLogoIcon className="h-6 w-6" />
                 <span>© 2024 MAAT Technologies. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-4">

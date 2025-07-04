@@ -18,7 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
-import { HeruLogoIcon } from "../icons/HeruLogoIcon"
+import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -83,7 +83,7 @@ export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setAct
       )}>
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
-            <HeruLogoIcon className="h-8 w-8" />
+            <DynamicLogoIcon className="h-8 w-8" />
             <span className="text-xl font-bold font-headline text-primary">Heru Admin</span>
           </Link>
           <Button
