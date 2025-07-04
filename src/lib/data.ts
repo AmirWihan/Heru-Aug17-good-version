@@ -747,7 +747,8 @@ export const plans = [
 ];
 
 export const supportTicketsData = [
-    { id: 'TKT-84321', subject: 'Unable to upload passport PDF', topic: 'Technical Issue', status: 'In Progress', lastUpdated: '2024-07-22T10:00:00Z' },
-    { id: 'TKT-84320', subject: 'Question about annual billing', topic: 'Billing & Subscription', status: 'Closed', lastUpdated: '2024-07-18T15:30:00Z' },
-    { id: 'TKT-84319', subject: 'Suggestion for AI Tools page', topic: 'Feature Request', status: 'Open', lastUpdated: '2024-07-23T11:45:00Z' },
+    { id: 'TKT-84321', user: clients[4], userType: 'Client' as const, subject: 'Unable to upload passport PDF', topic: 'Technical Issue', status: 'In Progress' as const, lastUpdated: '2024-07-22T10:00:00Z', description: 'I am trying to upload my passport PDF in the documents section for my Work Permit Extension, but I keep getting an "Upload Failed" error. The file is only 2MB and is a valid PDF. Could you please check?' },
+    { id: 'TKT-84320', user: teamMembers[1], userType: 'Lawyer' as const, subject: 'Question about annual billing', topic: 'Billing & Subscription', status: 'Closed' as const, lastUpdated: '2024-07-18T15:30:00Z', description: 'One of my clients was asking about the cost savings for the annual plan vs the monthly one. Can you confirm the current discount percentage?' },
+    { id: 'TKT-84319', user: teamMembers[0], userType: 'Lawyer' as const, subject: 'Suggestion for AI Tools page', topic: 'Feature Request', status: 'Open' as const, lastUpdated: '2024-07-23T11:45:00Z', description: 'It would be great if the AI Application Checker could also check for specific formatting required by different visa offices. For example, some require dates in DD-MM-YYYY format.' },
+    { id: 'TKT-84318', user: clients[2], userType: 'Client' as const, subject: 'Cannot access messages', topic: 'Technical Issue', status: 'Open' as const, lastUpdated: '2024-07-24T09:00:00Z', description: 'When I click on the messages tab in my dashboard, it shows a blank page. I have tried clearing my cache and using a different browser. My lawyer is Michael Chen.' },
 ];
