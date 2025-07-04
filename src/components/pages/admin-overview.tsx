@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { teamMembers, reportsData, applicationsData, invoicesData } from "@/lib/data";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Cell } from "recharts";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
 import { AdminTeamPerformance } from "../admin-team-performance";
 
@@ -26,6 +26,14 @@ const chartConfigClientGrowth = {
     label: "New Clients",
     color: "hsl(var(--chart-1))",
   },
+};
+
+const chartConfigRevenue = {
+    value: { label: "Revenue" },
+    'Q1': { label: "Q1", color: "hsl(var(--chart-1))" },
+    'Q2': { label: "Q2", color: "hsl(var(--chart-2))" },
+    'Q3': { label: "Q3", color: "hsl(var(--chart-3))" },
+    'Q4': { label: "Q4", color: "hsl(var(--chart-4))" },
 };
 
 export function AdminOverviewPage() {
@@ -73,30 +81,32 @@ export function AdminOverviewPage() {
                 <StatCard title="Total Revenue" value="$245,670" change="+15% vs last quarter" icon={DollarSign} />
                 <StatCard title="Pending Tasks" value={actionItems.reduce((acc, item) => acc + item.count, 0).toString()} change="across the platform" icon={Bell} changeType="down"/>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <Card className="lg:col-span-3">
-                    <CardHeader>
-                        <CardTitle>Action Items</CardTitle>
-                        <CardDescription>Tasks that require your immediate attention.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {actionItems.length > 0 ? actionItems.map(item => (
-                            <div key={item.title} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                <div className="flex items-center gap-4">
-                                    <item.icon className="h-6 w-6 text-destructive" />
-                                    <div>
-                                        <p className="font-semibold">{item.title}</p>
-                                        <p className="text-sm text-muted-foreground">{item.count} {item.description}</p>
-                                    </div>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Action Items</CardTitle>
+                    <CardDescription>Tasks that require your immediate attention.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {actionItems.length > 0 ? actionItems.map(item => (
+                        <div key={item.title} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-4">
+                                <item.icon className="h-6 w-6 text-destructive" />
+                                <div>
+                                    <p className="font-semibold">{item.title}</p>
+                                    <p className="text-sm text-muted-foreground">{item.count} {item.description}</p>
                                 </div>
-                                <Button size="sm" onClick={() => setPage(item.page)}>Review</Button>
                             </div>
-                        )) : (
-                            <p className="text-muted-foreground text-center py-4">No urgent tasks. All clear!</p>
-                        )}
-                    </CardContent>
-                </Card>
-                <Card className="lg:col-span-2">
+                            <Button size="sm" onClick={() => setPage(item.page)}>Review</Button>
+                        </div>
+                    )) : (
+                        <p className="text-muted-foreground text-center py-4">No urgent tasks. All clear!</p>
+                    )}
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
                     <CardHeader>
                         <CardTitle>Platform Growth</CardTitle>
                          <CardDescription>User signups over the last 6 months.</CardDescription>
@@ -111,6 +121,29 @@ export function AdminOverviewPage() {
                                     <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
                                     <Line type="monotone" dataKey="clients" stroke="hsl(var(--primary))" strokeWidth={2} dot={true} />
                                 </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Quarterly Revenue</CardTitle>
+                        <CardDescription>Total revenue generated per quarter.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <ChartContainer config={chartConfigRevenue} className="h-[250px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={reportsData.quarterlyRevenue} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis />
+                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                                    <Bar dataKey="revenue" radius={8}>
+                                        {reportsData.quarterlyRevenue.map((entry) => (
+                                            <Cell key={entry.quarter} fill={chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue]?.color} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
