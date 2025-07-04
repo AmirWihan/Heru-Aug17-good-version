@@ -13,7 +13,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import type { Client, TeamMember } from '@/lib/data';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -81,65 +80,46 @@ export default function LoginPage() {
 
         const processedEmail = email.toLowerCase().trim();
 
+        // 1. Check password first
         if (password !== 'password123') {
-            toast({
-                title: 'Login Failed',
-                description: 'Invalid email or password.',
-                variant: 'destructive'
-            });
+            toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
             setIsLoading(false);
             return;
         }
 
-        let user: TeamMember | Client | undefined;
-        let redirectUrl: string | null = null;
-        let nonActiveMessage: string | null = null;
-
+        // 2. Handle login based on role
         if (role === 'admin') {
-            user = teamMembers.find(member => 
-                member.type === 'admin' && 
-                member.email.toLowerCase().trim() === processedEmail
-            );
-            if (user && user.status === 'Active') {
-                redirectUrl = '/admin/dashboard';
+            const user = teamMembers.find(m => m.type === 'admin' && m.email.toLowerCase().trim() === processedEmail);
+            if (user?.status === 'Active') {
+                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
+                router.push('/admin/dashboard');
+                return; // Exit successfully
             }
         } else if (role === 'lawyer') {
-            user = teamMembers.find(member => 
-                member.type === 'legal' && 
-                member.email.toLowerCase().trim() === processedEmail
-            );
+            const user = teamMembers.find(m => m.type === 'legal' && m.email.toLowerCase().trim() === processedEmail);
             if (user) {
                 if (user.status === 'Active') {
-                    redirectUrl = '/lawyer/dashboard';
+                    toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
+                    router.push('/lawyer/dashboard');
+                    return; // Exit successfully
                 } else {
-                     nonActiveMessage = `Your account status is: ${user.status}. Please wait for activation or contact support.`;
+                    toast({ title: 'Account Not Active', description: `Your account status is: ${user.status}. Please wait for activation or contact support.`, variant: 'destructive' });
+                    setIsLoading(false);
+                    return; // Exit with specific error
                 }
             }
         } else if (role === 'client') {
-            user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
+            const user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
             if (user) {
-                redirectUrl = '/client/dashboard';
+                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
+                router.push('/client/dashboard');
+                return; // Exit successfully
             }
         }
 
-        if (redirectUrl && user) {
-            toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
-            router.push(redirectUrl);
-        } else if (nonActiveMessage) {
-            toast({ 
-                title: 'Account Not Active', 
-                description: nonActiveMessage, 
-                variant: 'destructive' 
-            });
-            setIsLoading(false);
-        } else {
-            toast({
-                title: 'Login Failed',
-                description: 'Invalid credentials for the selected role.',
-                variant: 'destructive'
-            });
-            setIsLoading(false);
-        }
+        // 3. If we reach here, it means no user was found for the role, or they were inactive.
+        toast({ title: 'Login Failed', description: 'Invalid credentials for the selected role.', variant: 'destructive' });
+        setIsLoading(false);
     };
 
     return (
