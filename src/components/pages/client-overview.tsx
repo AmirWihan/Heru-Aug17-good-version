@@ -1,28 +1,44 @@
 'use client';
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { clients } from "@/lib/data";
-import { ArrowRight, CheckCircle, FileText, MessageSquare, Search, UserCheck, FileStack, ClipboardList, CheckCircle2, ChevronRight, Users } from "lucide-react";
+import { ArrowRight, FileText, MessageSquare, Search, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
-
-const applicationSteps = [
-    { name: 'Profile Created', icon: UserCheck, status: 'complete' },
-    { name: 'Documents Uploaded', icon: FileStack, status: 'complete' },
-    { name: 'IRCC Review', icon: ClipboardList, status: 'active' },
-    { name: 'Biometrics', icon: CheckCircle2, status: 'incomplete' },
-    { name: 'Decision', icon: CheckCircle, status: 'incomplete' },
-];
+import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
+import { CaseTimeline } from "@/components/case-timeline";
 
 export function ClientOverviewPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    
     const client = clients[0];
+    
+    const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const activeStepIndex = applicationSteps.findIndex(step => step.status === 'active');
-    const progressPercentage = (applicationSteps.filter(s => s.status === 'complete').length / (applicationSteps.length -1)) * 100;
+    useEffect(() => {
+        async function fetchTimeline() {
+            try {
+                const response = await getCaseTimeline({
+                    visaType: client.caseSummary.caseType,
+                    currentStage: client.caseSummary.currentStatus,
+                    countryOfOrigin: client.countryOfOrigin,
+                });
+                setTimelineData(response.timeline);
+            } catch (err) {
+                console.error("Failed to fetch timeline:", err);
+                setError("Could not generate your personalized timeline at this moment. Please try again later.");
+                toast({
+                    title: "Timeline Error",
+                    description: "Failed to generate the case timeline.",
+                    variant: "destructive",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchTimeline();
+    }, [client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
 
     return (
         <div className="space-y-6">
@@ -46,31 +62,27 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Application Progress</CardTitle>
-                    <CardDescription>Track your immigration journey from start to finish.</CardDescription>
+                    <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        AI-Powered Case Timeline
+                    </CardTitle>
+                    <CardDescription>A personalized estimate of your immigration journey's next steps and timelines.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-4">
-                        <Progress value={progressPercentage} className="h-2" indicatorClassName="bg-gradient-to-r from-emerald-400 to-cyan-400" />
-                    </div>
-                    <div className="flex justify-between">
-                        {applicationSteps.map((step, index) => (
-                            <div key={step.name} className="flex flex-col items-center w-1/5">
-                                <div className={cn(
-                                    "w-12 h-12 rounded-full flex items-center justify-center border-2",
-                                    step.status === 'complete' && "bg-primary border-primary text-primary-foreground",
-                                    step.status === 'active' && "bg-accent border-accent text-accent-foreground animate-pulse",
-                                    step.status === 'incomplete' && "bg-muted border-border text-muted-foreground"
-                                )}>
-                                    <step.icon className="h-6 w-6" />
-                                </div>
-                                <p className={cn(
-                                    "text-xs text-center mt-2",
-                                    step.status === 'active' ? "font-bold text-accent-foreground" : "text-muted-foreground"
-                                )}>{step.name}</p>
-                            </div>
-                        ))}
-                    </div>
+                   {isLoading && (
+                       <div className="flex items-center justify-center h-40">
+                           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                           <p className="ml-4 text-muted-foreground">Generating your personalized timeline...</p>
+                       </div>
+                   )}
+                   {error && !isLoading && (
+                       <div className="flex flex-col items-center justify-center h-40 text-center text-destructive">
+                           <AlertTriangle className="h-8 w-8 mb-2" />
+                           <p className="font-semibold">Timeline Generation Failed</p>
+                           <p className="text-sm">{error}</p>
+                       </div>
+                   )}
+                   {timelineData && !isLoading && <CaseTimeline timeline={timelineData} />}
                 </CardContent>
             </Card>
 
