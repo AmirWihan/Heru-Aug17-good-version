@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, Users, Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const steps = [
     { name: 'Firm & Personal Details', icon: Building },
@@ -15,9 +16,16 @@ const steps = [
     { name: 'Subscription & Payment', icon: CreditCard },
 ];
 
+const plans = [
+    { id: 'starter', name: 'Starter', price: 49, userLimit: 2, clientLimit: 50, features: ['Up to 2 users', 'Up to 50 clients', 'Basic AI Tools', 'Standard Support'] },
+    { id: 'pro', name: 'Pro Team', price: 99, userLimit: 10, clientLimit: 500, features: ['Up to 10 users', 'Up to 500 clients', 'Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
+    { id: 'enterprise', name: 'Enterprise', price: 'Custom', userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Unlimited users & clients', 'Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
+];
+
 export function LawyerOnboarding() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState('pro');
     const router = useRouter();
     const { toast } = useToast();
 
@@ -25,7 +33,6 @@ export function LawyerOnboarding() {
         if (currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
-            // Final step: process payment and show completion
             setIsComplete(true);
             toast({
                 title: 'Request Submitted!',
@@ -68,7 +75,7 @@ export function LawyerOnboarding() {
 
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] py-8">
-            <Card className="w-full max-w-2xl">
+            <Card className="w-full max-w-3xl">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Welcome! Let's Set Up Your Account.</CardTitle>
                     <CardDescription>Complete these steps to activate your professional account.</CardDescription>
@@ -85,7 +92,7 @@ export function LawyerOnboarding() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="min-h-[250px]">
+                <CardContent className="min-h-[350px]">
                     {currentStep === 0 && (
                         <div className="space-y-4 animate-fade">
                             <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm & Personal Details</h3>
@@ -122,25 +129,54 @@ export function LawyerOnboarding() {
                         </div>
                     )}
                     {currentStep === 2 && (
-                        <div className="space-y-4 animate-fade">
+                        <div className="space-y-6 animate-fade">
                              <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription & Payment</h3>
                             <p className="text-sm text-muted-foreground">Choose a plan and enter your payment details. You will only be charged upon account activation.</p>
-                            <div className="space-y-1">
-                                <Label htmlFor="card-name">Name on Card</Label>
-                                <Input id="card-name" />
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-center">
+                                {plans.map((plan) => (
+                                    <Card key={plan.id} onClick={() => setSelectedPlan(plan.id)} className={cn('cursor-pointer flex flex-col', selectedPlan === plan.id ? 'border-primary ring-2 ring-primary' : 'hover:shadow-md')}>
+                                        <CardHeader>
+                                            <CardTitle>{plan.name}</CardTitle>
+                                            <CardDescription>
+                                                {typeof plan.price === 'number' ?
+                                                    <><span className="text-3xl font-bold text-foreground">${plan.price}</span> / user / month</> :
+                                                    <span className="text-3xl font-bold text-foreground">Contact Us</span>
+                                                }
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="flex-grow space-y-2 text-sm">
+                                            {plan.features.map(feature => (
+                                                <div key={feature} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /><span>{feature}</span></div>
+                                            ))}
+                                        </CardContent>
+                                        <CardFooter>
+                                            <Button className="w-full" variant={selectedPlan === plan.id ? 'default' : 'outline'}>
+                                                {selectedPlan === plan.id ? 'Selected' : 'Choose Plan'}
+                                            </Button>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
                             </div>
-                            <div className="space-y-1">
-                                <Label htmlFor="card-number">Card Number</Label>
-                                <Input id="card-number" placeholder="•••• •••• •••• ••••" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+
+                            <div className="space-y-4 pt-6 border-t">
                                 <div className="space-y-1">
-                                    <Label htmlFor="expiry">Expiry Date</Label>
-                                    <Input id="expiry" placeholder="MM/YY" />
+                                    <Label htmlFor="card-name">Name on Card</Label>
+                                    <Input id="card-name" />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label htmlFor="cvc">CVC</Label>
-                                    <Input id="cvc" placeholder="123" />
+                                    <Label htmlFor="card-number">Card Number</Label>
+                                    <Input id="card-number" placeholder="•••• •••• •••• ••••" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <Label htmlFor="expiry">Expiry Date</Label>
+                                        <Input id="expiry" placeholder="MM/YY" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="cvc">CVC</Label>
+                                        <Input id="cvc" placeholder="123" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

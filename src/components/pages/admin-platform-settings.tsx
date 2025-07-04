@@ -64,16 +64,48 @@ export function PlatformSettingsPage() {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Subscription Plans</CardTitle>
+                                    <CardDescription>Manage the pricing and features for each subscription tier.</CardDescription>
                                 </CardHeader>
-                                 <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="pro-plan-price">Pro Plan Price ($/month per user)</Label>
-                                        <Input id="pro-plan-price" type="number" defaultValue="99" />
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label htmlFor="features">Pro Plan Features (one per line)</Label>
-                                        <Textarea id="features" rows={5} defaultValue="Unlimited Clients\nAI Tools Access\nTeam Collaboration\nCustom Branding" />
-                                    </div>
+                                <CardContent className="grid md:grid-cols-3 gap-6">
+                                    <Card>
+                                        <CardHeader><CardTitle>Starter</CardTitle></CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="starter-price">Price ($/month/user)</Label>
+                                                <Input id="starter-price" type="number" defaultValue="49" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="starter-features">Features (one per line)</Label>
+                                                <Textarea id="starter-features" rows={5} defaultValue={"Up to 2 users\nUp to 50 clients\nBasic AI Tools\nStandard Support"} />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card>
+                                        <CardHeader><CardTitle>Pro Team</CardTitle></CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="pro-price">Price ($/month/user)</Label>
+                                                <Input id="pro-price" type="number" defaultValue="99" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="pro-features">Features (one per line)</Label>
+                                                <Textarea id="pro-features" rows={5} defaultValue={"Up to 10 users\nUp to 500 clients\nAdvanced AI Tools\nTeam Collaboration Features\nPriority Email Support"} />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card>
+                                        <CardHeader><CardTitle>Enterprise</CardTitle></CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="enterprise-price">Price</Label>
+                                                <Input id="enterprise-price" defaultValue="Custom" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="enterprise-features">Features (one per line)</Label>
+                                                <Textarea id="enterprise-features" rows={5} defaultValue={"Unlimited users & clients\nDedicated Support & Onboarding\nCustom Integrations\nAdvanced Security & Compliance"} />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </CardContent>
                             </Card>
                         </TabsContent>

@@ -311,8 +311,8 @@ export function AdminPaymentsPage() {
                                 <Select value={currentPlan} onValueChange={setCurrentPlan}>
                                     <SelectTrigger id="plan-select"><SelectValue/></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Basic Tier">Basic Tier</SelectItem>
-                                        <SelectItem value="Pro Tier">Pro Tier</SelectItem>
+                                        <SelectItem value="Starter">Starter</SelectItem>
+                                        <SelectItem value="Pro Team">Pro Team</SelectItem>
                                         <SelectItem value="Enterprise">Enterprise</SelectItem>
                                     </SelectContent>
                                 </Select>
