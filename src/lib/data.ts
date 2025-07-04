@@ -72,7 +72,34 @@ export const dashboardData = {
     ],
 };
 
-export const teamMembers = [
+export type TeamMember = {
+    id: number;
+    name: string;
+    role: string;
+    avatar: string;
+    type: 'legal' | 'sales' | 'advisor' | 'admin';
+    email: string;
+    phone: string;
+    accessLevel: 'Admin' | 'Member' | 'Viewer';
+    status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked';
+    plan: 'Starter' | 'Pro Team' | 'Enterprise' | 'N/A';
+    location: string;
+    yearsOfPractice: number;
+    successRate: number;
+    licenseNumber: string;
+    registrationNumber: string;
+    firmName?: string;
+    firmAddress?: string;
+    numEmployees?: number;
+    firmWebsite?: string;
+    stats: {
+        label: string;
+        value: string;
+    }[];
+    specialties: string[];
+};
+
+export const teamMembers: TeamMember[] = [
     {
         id: 10,
         name: 'Super Admin',
@@ -89,6 +116,10 @@ export const teamMembers = [
         successRate: 0,
         licenseNumber: 'N/A',
         registrationNumber: 'N/A',
+        firmName: 'Heru Platform',
+        firmAddress: '123 Cloud St, Internet',
+        numEmployees: 1,
+        firmWebsite: 'https://heru.com',
         stats: [],
         specialties: ['Platform Management']
     },
@@ -108,6 +139,10 @@ export const teamMembers = [
         successRate: 0,
         licenseNumber: 'LSM-E98765',
         registrationNumber: 'CICC-E54321',
+        firmName: 'Innovate Legal',
+        firmAddress: '456 Rue de la Gauchetière, Montréal, QC H2Z 1X5',
+        numEmployees: 12,
+        firmWebsite: 'https://innovatelegal.com',
         stats: [
             { label: 'Clients', value: '0' },
             { label: 'Revenue', value: '$0' },
@@ -132,6 +167,10 @@ export const teamMembers = [
         successRate: 0,
         licenseNumber: 'LSO-T12345',
         registrationNumber: 'CICC-T54321',
+        firmName: 'Test Firm LLP',
+        firmAddress: '1 Test Street, Ottawa, ON',
+        numEmployees: 1,
+        firmWebsite: 'https://testfirm.com',
         stats: [
             { label: 'Clients', value: '0' },
             { label: 'Revenue', value: '$0' },
@@ -144,6 +183,10 @@ export const teamMembers = [
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
         email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
+        firmName: 'Johnson Legal',
+        firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
+        numEmployees: 8,
+        firmWebsite: 'https://johnsonlegal.ca',
         stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$120k' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9/5' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
     },
@@ -151,6 +194,10 @@ export const teamMembers = [
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
         email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Team',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
+        firmName: 'Chen & Associates',
+        firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
+        numEmployees: 5,
+        firmWebsite: 'https://chenassociates.com',
         stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$85k' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7/5' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
     },
@@ -158,6 +205,10 @@ export const teamMembers = [
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
         email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Starter',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
+        firmName: 'Johnson Legal',
+        firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
+        numEmployees: 8,
+        firmWebsite: 'https://johnsonlegal.ca',
         stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$50k' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8/5' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication']
     },
@@ -165,20 +216,26 @@ export const teamMembers = [
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
         email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
+        firmName: 'Rodriguez Immigration Law',
+        firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
+        numEmployees: 3,
+        firmWebsite: 'https://rodriguezlaw.ca',
         stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$75k' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.6/5' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
     },
     {
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
-        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', accessLevel: 'Member', status: 'Active',
+        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
+        stats: [], specialties: []
     },
     {
         id: 6, name: 'Chris Davis', role: 'Marketing Advisor', avatar: 'https://i.pravatar.cc/150?u=chris', type: 'advisor',
-        email: 'chris.d@heru.com', phone: '+1-202-555-0106', accessLevel: 'Member', status: 'Active',
+        email: 'chris.d@heru.com', phone: '+1-202-555-0106', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
+        stats: [], specialties: []
     },
 ];
-
-export type TeamMember = typeof teamMembers[0];
 
 export const tasksData: Task[] = [
     {

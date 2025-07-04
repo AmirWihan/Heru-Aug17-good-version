@@ -93,12 +93,16 @@ export function LawyerOnboarding() {
             phone: data.phone,
             accessLevel: 'Member',
             status: 'Pending Activation',
-            plan: data.selectedPlan,
+            plan: data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise',
             location: 'Unknown',
             yearsOfPractice: 0,
             successRate: 0,
             licenseNumber: data.licenseNumber,
             registrationNumber: data.registrationNumber,
+            firmName: data.firmName,
+            firmAddress: data.firmAddress,
+            numEmployees: data.numEmployees,
+            firmWebsite: data.firmWebsite,
             stats: [
                 { label: 'Clients', value: '0' },
                 { label: 'Revenue', value: '$0' },
@@ -207,7 +211,7 @@ export function LawyerOnboarding() {
                                     )} />
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="numEmployees" render={({ field }) => (
-                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? 0} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="firmWebsite" render={({ field }) => (
                                             <FormItem><FormLabel>Firm Website</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
