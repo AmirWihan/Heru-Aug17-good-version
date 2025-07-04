@@ -6,6 +6,7 @@ import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { useClientDashboard } from "@/context/ClientDashboardContext"
+import { WhatsappIcon } from "../icons/WhatsappIcon"
 
 interface ClientHeaderProps {
   isSidebarOpen: boolean
@@ -31,6 +32,12 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
           <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center space-x-4">
+          <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="icon">
+                <WhatsappIcon className="h-5 w-5 text-green-500" />
+                <span className="sr-only">Contact on WhatsApp</span>
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5 text-foreground" />
             <span className="sr-only">Notifications</span>

@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { useAdminDashboard } from "@/context/AdminDashboardContext"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { WhatsappIcon } from "../icons/WhatsappIcon"
 
 
 interface AdminHeaderProps {
@@ -37,6 +38,12 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input type="search" placeholder="Search users, logs..." className="pl-10" />
           </div>
+           <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="icon">
+                <WhatsappIcon className="h-5 w-5 text-green-500" />
+                <span className="sr-only">Contact Support on WhatsApp</span>
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5 text-foreground" />
             <span className="sr-only">Notifications</span>

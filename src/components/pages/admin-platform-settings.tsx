@@ -13,6 +13,7 @@ import { DynamicLogoIcon } from "../icons/DynamicLogoIcon";
 import { UploadCloud } from "lucide-react";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { WhatsappIcon } from "../icons/WhatsappIcon";
 
 export function PlatformSettingsPage() {
     const { setLogoSrc } = useGlobalData();
@@ -192,6 +193,21 @@ export function PlatformSettingsPage() {
                                     <Button>
                                         <QuickBooksIcon className="mr-2 h-5 w-5" />
                                         Connect to QuickBooks
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center gap-4">
+                                    <WhatsappIcon className="h-10 w-10 text-green-500" />
+                                    <div>
+                                        <CardTitle>WhatsApp Integration</CardTitle>
+                                        <CardDescription>Connect your WhatsApp Business account to send and receive messages directly.</CardDescription>
+                                    </div>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Button>
+                                        <WhatsappIcon className="mr-2 h-5 w-5" />
+                                        Connect to WhatsApp
                                     </Button>
                                 </CardFooter>
                             </Card>

@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { Search, SendHorizontal, Video, Phone, Mail } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { WhatsappIcon } from '../icons/WhatsappIcon';
+import Link from 'next/link';
 
 type Message = {
     id: number;
@@ -148,6 +150,11 @@ export function ClientMessagesPage() {
                             <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="icon" onClick={() => toast({title: "Calling...", description: `Starting a call with ${selectedConversation.name}.`})}><Phone className="h-5 w-5"/></Button>
                                 <Button variant="ghost" size="icon" onClick={() => toast({title: "Starting Video Call...", description: `Starting a video call with ${selectedConversation.name}.`})}><Video className="h-5 w-5"/></Button>
+                                <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer" title={`Chat with ${selectedConversation.name} on WhatsApp`}>
+                                    <Button variant="ghost" size="icon">
+                                        <WhatsappIcon className="h-5 w-5 text-green-500" />
+                                    </Button>
+                                </Link>
                             </div>
                         </CardHeader>
 
