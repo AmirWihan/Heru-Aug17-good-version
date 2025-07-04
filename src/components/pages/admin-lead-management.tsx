@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { leadsData as initialLeadsData, teamMembers, type Lead } from '@/lib/data';
-import { MoreHorizontal, PlusCircle, Search, Users, Target, Check, KanbanSquare, List } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Users, Target, Check, KanbanSquare, List, Upload } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const LeadStatsCard = ({ title, value, icon: Icon, description }: { title: string, value: string, icon: React.ElementType, description: string }) => (
@@ -43,6 +43,7 @@ export function AdminLeadManagementPage() {
     const { toast } = useToast();
     const [leads, setLeads] = useState<Lead[]>(initialLeadsData);
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+    const [isImportDialogOpen, setImportDialogOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [ownerFilter, setOwnerFilter] = useState('all');
@@ -82,10 +83,16 @@ export function AdminLeadManagementPage() {
                         <TabsTrigger value="table"><List className="mr-2 h-4 w-4" />Table View</TabsTrigger>
                         <TabsTrigger value="kanban"><KanbanSquare className="mr-2 h-4 w-4" />Kanban View</TabsTrigger>
                     </TabsList>
-                     <Button onClick={() => setAddDialogOpen(true)}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Lead
-                    </Button>
+                     <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import
+                        </Button>
+                        <Button onClick={() => setAddDialogOpen(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Lead
+                        </Button>
+                    </div>
                 </div>
 
                 <TabsContent value="table">
@@ -218,6 +225,33 @@ export function AdminLeadManagementPage() {
                             toast({ title: 'Lead Added', description: 'The new lead has been added to your pipeline.' });
                             setAddDialogOpen(false);
                         }}>Save Lead</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isImportDialogOpen} onOpenChange={setImportDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import Leads</DialogTitle>
+                        <DialogDescription>
+                            Upload a CSV or Excel file to bulk import leads. Make sure your file has 'name', 'email', 'company', and 'owner' columns.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="import-file">Upload File</Label>
+                            <Input id="import-file" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            <a href="#" className="underline text-primary">Download a sample template</a> to ensure your format is correct.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={() => {
+                            toast({ title: 'Import Started', description: 'Your leads are being imported in the background.' });
+                            setImportDialogOpen(false);
+                        }}>Import Leads</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
