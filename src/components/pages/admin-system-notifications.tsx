@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Bell, Send } from 'lucide-react';
 import { format } from 'date-fns';
+import { Switch } from '@/components/ui/switch';
+import { WhatsappIcon } from '../icons/WhatsappIcon';
 
 const initialNotifications = [
     { id: 1, title: 'Platform Maintenance', message: 'The platform will be down for scheduled maintenance on Sunday at 2 AM EST.', target: 'All Users', date: '2023-07-20T10:00:00Z' },
@@ -22,6 +24,7 @@ export function AdminSystemNotificationsPage() {
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [target, setTarget] = useState('all');
+    const [sendViaWhatsapp, setSendViaWhatsapp] = useState(false);
 
     const handleSendNotification = () => {
         if (!title || !message) {
@@ -38,7 +41,8 @@ export function AdminSystemNotificationsPage() {
         setNotifications([newNotification, ...notifications]);
         setTitle('');
         setMessage('');
-        toast({ title: 'Notification Sent!', description: `Your message has been broadcast to ${newNotification.target}.` });
+        setSendViaWhatsapp(false);
+        toast({ title: 'Notification Sent!', description: `Your message has been broadcast to ${newNotification.target}${sendViaWhatsapp ? ' and via WhatsApp.' : '.'}` });
     };
 
     return (
@@ -70,6 +74,10 @@ export function AdminSystemNotificationsPage() {
                                     <SelectItem value="clients">Clients Only</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                         <div className="flex items-center space-x-2 pt-2">
+                            <Switch id="whatsapp-broadcast" checked={sendViaWhatsapp} onCheckedChange={setSendViaWhatsapp}/>
+                            <Label htmlFor="whatsapp-broadcast" className="flex items-center gap-1.5">Also broadcast via <WhatsappIcon className="h-4 w-4 text-green-500"/> WhatsApp</Label>
                         </div>
                         <Button className="w-full" onClick={handleSendNotification}>
                             <Send className="mr-2 h-4 w-4" /> Send Notification

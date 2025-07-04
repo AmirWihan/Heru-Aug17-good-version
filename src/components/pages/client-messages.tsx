@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { messagesData as initialMessagesData, teamMembers } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { Search, SendHorizontal, Video, Phone, Mail } from 'lucide-react';
+import { Search, SendHorizontal, Video, Phone, Mail, CheckCheck } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsappIcon } from '../icons/WhatsappIcon';
@@ -144,17 +144,15 @@ export function ClientMessagesPage() {
                                 </Avatar>
                                 <div>
                                     <p className="font-bold">{selectedConversation.name}</p>
-                                    <p className="text-xs text-green-500">Online</p>
+                                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <WhatsappIcon className="h-3 w-3 text-green-500" />
+                                        Online on WhatsApp
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="icon" onClick={() => toast({title: "Calling...", description: `Starting a call with ${selectedConversation.name}.`})}><Phone className="h-5 w-5"/></Button>
                                 <Button variant="ghost" size="icon" onClick={() => toast({title: "Starting Video Call...", description: `Starting a video call with ${selectedConversation.name}.`})}><Video className="h-5 w-5"/></Button>
-                                <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer" title={`Chat with ${selectedConversation.name} on WhatsApp`}>
-                                    <Button variant="ghost" size="icon">
-                                        <WhatsappIcon className="h-5 w-5 text-green-500" />
-                                    </Button>
-                                </Link>
                             </div>
                         </CardHeader>
 
@@ -177,6 +175,13 @@ export function ClientMessagesPage() {
                                             )}
                                         >
                                             <p className="text-sm">{msg.text}</p>
+                                            <div className={cn(
+                                                "flex items-center justify-end gap-1 text-xs mt-1",
+                                                msg.sender === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                            )}>
+                                                <span>{msg.timestamp}</span>
+                                                {msg.sender === 'me' && <CheckCheck className="h-4 w-4" />}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -186,7 +191,7 @@ export function ClientMessagesPage() {
                         <CardContent className="p-4 border-t">
                              <div className="relative">
                                 <Input
-                                    placeholder="Type a message..."
+                                    placeholder="Type a message via WhatsApp..."
                                     className="pr-12"
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
@@ -194,7 +199,7 @@ export function ClientMessagesPage() {
                                 />
                                 <Button
                                     size="icon"
-                                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-green-500 text-white hover:bg-green-600"
                                     onClick={handleSendMessage}
                                     disabled={!newMessage.trim()}
                                 >
