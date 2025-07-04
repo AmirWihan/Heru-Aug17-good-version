@@ -28,7 +28,7 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
                 </Avatar>
                 <div>
                     <p className="font-semibold">{`Consultation with ${appointment.name}`}</p>
-                    <p className="text-sm text-muted-foreground">{format(new Date(appointment.dateTime), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
+                    <p suppressHydrationWarning className="text-sm text-muted-foreground">{format(new Date(appointment.dateTime), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
                 </div>
             </div>
             <div className="flex items-center gap-4">

@@ -462,7 +462,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-center">
                                                         <p className="font-semibold">{item.title}</p>
-                                                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
+                                                        <p suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
                                                     </div>
                                                     <p className="text-sm text-muted-foreground">{item.description}</p>
                                                     <Button variant="link" className="p-0 h-auto text-sm">
@@ -619,7 +619,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                             </div>
                                             <div className="flex justify-between items-center mb-1">
                                                 <h4 className="font-medium">{item.title}</h4>
-                                                <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
+                                                <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
                                             </div>
                                             <p className="text-sm text-muted-foreground">{item.description}</p>
                                             {item.teamMember && (
@@ -655,7 +655,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                         <div className="flex-1">
                                             <div className="flex justify-between items-center">
                                                 <p className="font-semibold">{item.title}</p>
-                                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
+                                                <p suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
                                             </div>
                                             <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
                                         </div>

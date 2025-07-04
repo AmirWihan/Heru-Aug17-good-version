@@ -100,7 +100,7 @@ export function AdminSystemNotificationsPage() {
                                             <div className="text-sm text-muted-foreground truncate">{notif.message}</div>
                                         </TableCell>
                                         <TableCell>{notif.target}</TableCell>
-                                        <TableCell>{format(new Date(notif.date), 'PPp')}</TableCell>
+                                        <TableCell suppressHydrationWarning>{format(new Date(notif.date), 'PPp')}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

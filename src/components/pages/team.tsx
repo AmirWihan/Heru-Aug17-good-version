@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -172,7 +171,7 @@ export function TeamPage() {
                                             <div className="flex items-center gap-2">
                                                 <h4 className="font-medium">{activity.type} for {activity.client.name}</h4>
                                             </div>
-                                            <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}</span >
+                                            <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}</span>
                                         </div>
                                         <p className="text-sm text-muted-foreground">{activity.description}</p>
                                         <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">

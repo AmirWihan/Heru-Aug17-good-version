@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,7 +96,7 @@ export function ActivityLogPage() {
                                                 <span>{item.client.name}</span>
                                             </div>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
+                                        <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">{item.description}</p>
                                      <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">

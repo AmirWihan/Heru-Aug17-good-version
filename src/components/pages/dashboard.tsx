@@ -1,4 +1,3 @@
-
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { ti
         <CardContent>
             <div className="text-3xl font-bold font-headline">{value}</div>
             {change && (
-                 <p className={`text-xs text-muted-foreground mt-2 flex items-center ${changeType === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                 <p className={`text-xs mt-2 flex items-center ${changeType === 'up' ? 'text-green-600' : 'text-red-600'}`}>
                     {changeType === 'up' ? <ArrowUp className="h-4 w-4 mr-1" /> : <ArrowDown className="h-4 w-4 mr-1" />}
                     {change}
                 </p>
@@ -183,7 +182,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </div>
                                     <div>
                                         <p className="font-semibold line-clamp-1">{task.title}</p>
-                                        <p className="text-sm text-muted-foreground">Due: {format(new Date(task.dueDate), 'PP')}</p>
+                                        <p className="text-sm text-muted-foreground" suppressHydrationWarning>Due: {format(new Date(task.dueDate), 'PP')}</p>
                                     </div>
                                 </div>
                             ))}

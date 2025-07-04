@@ -146,7 +146,7 @@ export function AdminLeadManagementPage() {
                                                     <span className="text-sm">{lead.owner.name}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{formatDistanceToNow(new Date(lead.lastContacted), { addSuffix: true })}</TableCell>
+                                            <TableCell suppressHydrationWarning>{formatDistanceToNow(new Date(lead.lastContacted), { addSuffix: true })}</TableCell>
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
@@ -181,7 +181,7 @@ export function AdminLeadManagementPage() {
                                             <p className="font-semibold text-sm">{lead.name}</p>
                                             <p className="text-xs text-muted-foreground">{lead.company}</p>
                                             <div className="flex justify-between items-center mt-2">
-                                                <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(lead.createdDate), { addSuffix: true })}</span>
+                                                <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(lead.createdDate), { addSuffix: true })}</span>
                                                 <Avatar className="h-6 w-6"><AvatarImage src={lead.owner.avatar} /><AvatarFallback>{lead.owner.name.charAt(0)}</AvatarFallback></Avatar>
                                             </div>
                                         </Card>
