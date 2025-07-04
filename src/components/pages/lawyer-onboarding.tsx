@@ -188,29 +188,29 @@ export function LawyerOnboarding() {
                                     <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm & Personal Details</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="fullName" render={({ field }) => (
-                                            <FormItem><FormLabel>Your Full Name</FormLabel><FormControl><Input placeholder="e.g., Sarah Johnson" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Your Full Name</FormLabel><FormControl><Input placeholder="e.g., Sarah Johnson" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="email" render={({ field }) => (
-                                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="sarah.j@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="sarah.j@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="phone" render={({ field }) => (
-                                            <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+1-555-0199" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+1-555-0199" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="firmName" render={({ field }) => (
-                                            <FormItem><FormLabel>Firm Name</FormLabel><FormControl><Input placeholder="e.g., Heru Immigration Services" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Firm Name</FormLabel><FormControl><Input placeholder="e.g., Heru Immigration Services" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="firmAddress" render={({ field }) => (
-                                        <FormItem><FormLabel>Firm Address</FormLabel><FormControl><Textarea placeholder="123 Main Street, Suite 400, Toronto, ON M5H 2N2" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Firm Address</FormLabel><FormControl><Textarea placeholder="123 Main Street, Suite 400, Toronto, ON M5H 2N2" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="numEmployees" render={({ field }) => (
-                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="firmWebsite" render={({ field }) => (
-                                            <FormItem><FormLabel>Firm Website</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Firm Website</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
                                 </div>
@@ -221,10 +221,10 @@ export function LawyerOnboarding() {
                                     <p className="text-sm text-muted-foreground">Please provide your professional credentials for verification.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField control={form.control} name="licenseNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>Law Society License #</FormLabel><FormControl><Input placeholder="e.g., LSO-P12345" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Law Society License #</FormLabel><FormControl><Input placeholder="e.g., LSO-P12345" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="registrationNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="governmentId" render={({ field: { onChange, ...rest } }) => (
@@ -296,17 +296,17 @@ export function LawyerOnboarding() {
                                     )} />
                                     <div className="space-y-4 pt-6 border-t">
                                         <FormField control={form.control} name="cardName" render={({ field }) => (
-                                            <FormItem><FormLabel>Name on Card</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Name on Card</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="cardNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>Card Number</FormLabel><FormControl><Input placeholder="•••• •••• •••• ••••" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>Card Number</FormLabel><FormControl><Input placeholder="•••• •••• •••• ••••" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <div className="grid grid-cols-2 gap-4">
                                             <FormField control={form.control} name="expiryDate" render={({ field }) => (
-                                                <FormItem><FormLabel>Expiry Date</FormLabel><FormControl><Input placeholder="MM/YY" {...field} /></FormControl><FormMessage /></FormItem>
+                                                <FormItem><FormLabel>Expiry Date</FormLabel><FormControl><Input placeholder="MM/YY" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                             )} />
                                             <FormField control={form.control} name="cvc" render={({ field }) => (
-                                                <FormItem><FormLabel>CVC</FormLabel><FormControl><Input placeholder="123" {...field} /></FormControl><FormMessage /></FormItem>
+                                                <FormItem><FormLabel>CVC</FormLabel><FormControl><Input placeholder="123" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                             )} />
                                         </div>
                                     </div>
