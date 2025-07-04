@@ -25,22 +25,22 @@ const professionalFeatures = [
 
 const applicantFeatures = [
     {
-        icon: <CheckCircle className="h-6 w-6 text-primary" />,
+        icon: <CheckCircle className="h-6 w-6 text-accent" />,
         title: "Track Your Application Status",
         description: "Get real-time updates on your case progress, from submission to decision.",
     },
     {
-        icon: <FileUp className="h-6 w-6 text-primary" />,
+        icon: <FileUp className="h-6 w-6 text-accent" />,
         title: "Secure Document Uploads",
         description: "Easily upload all your required documents to a secure, centralized portal.",
     },
     {
-        icon: <MessageCircle className="h-6 w-6 text-primary" />,
+        icon: <MessageCircle className="h-6 w-6 text-accent" />,
         title: "Direct Communication",
         description: "Message your lawyer or consultant directly through our secure messaging system.",
     },
     {
-        icon: <CalendarClock className="h-6 w-6 text-primary" />,
+        icon: <CalendarClock className="h-6 w-6 text-accent" />,
         title: "Appointment Scheduling",
         description: "View and schedule appointments with your legal team without the back-and-forth.",
     }
@@ -102,19 +102,19 @@ export default function HomePage() {
           <div className="w-full max-w-4xl space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Link href="/dashboard-select?role=client" className="block">
-                <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-primary hover:shadow-primary/20">
+                <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-accent hover:shadow-accent/20">
                     <h2 className="font-headline text-2xl font-bold">For Applicants</h2>
                     <p className="mt-2 text-muted-foreground">Track your case, communicate with your lawyer, and upload documents with ease.</p>
-                    <div className="mt-4 font-semibold text-primary group-hover:underline">
+                    <div className="mt-4 font-semibold text-accent group-hover:underline">
                         Go to Client Portal <ArrowRight className="ml-1 inline h-4 w-4" />
                     </div>
                 </div>
               </Link>
               <Link href="/dashboard-select?role=lawyer" className="block">
-                <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-accent hover:shadow-accent/20">
+                <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-primary hover:shadow-primary/20">
                   <h2 className="font-headline text-2xl font-bold">For Professionals</h2>
                   <p className="mt-2 text-muted-foreground">Manage your clients, automate tasks, and streamline your entire workflow with AI.</p>
-                   <div className="mt-4 font-semibold text-accent group-hover:underline">
+                   <div className="mt-4 font-semibold text-primary group-hover:underline">
                         Go to Professional CRM <ArrowRight className="ml-1 inline h-4 w-4" />
                     </div>
                 </div>
@@ -153,7 +153,7 @@ export default function HomePage() {
                     <ul className="mt-8 space-y-6">
                         {applicantFeatures.map((feature, index) => (
                             <li key={index} className="flex items-start gap-4">
-                                <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full">
+                                <div className="flex-shrink-0 bg-accent/10 p-3 rounded-full">
                                     {feature.icon}
                                 </div>
                                 <div>
@@ -187,7 +187,7 @@ export default function HomePage() {
                 </p>
                 <div className="mt-8">
                      <Link href="/dashboard-select?role=client" passHref>
-                        <Button size="lg" className="bg-primary hover:bg-primary/90">
+                        <Button size="lg" className="bg-accent hover:bg-accent/90">
                             Start Your Application <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                     </Link>

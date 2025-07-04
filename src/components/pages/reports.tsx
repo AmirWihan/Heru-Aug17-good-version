@@ -1,5 +1,5 @@
 'use client';
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { reportsData, activityLogData, teamMembers } from "@/lib/data";
@@ -147,13 +147,15 @@ export function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfigClientGrowth} className="h-[300px] w-full">
-                            <LineChart data={reportsData.clientGrowth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <CartesianGrid vertical={false} />
-                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis />
-                                <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                                <Line type="monotone" dataKey="clients" stroke="var(--color-clients)" strokeWidth={2} dot={true} />
-                            </LineChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={reportsData.clientGrowth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis />
+                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+                                    <Line type="monotone" dataKey="clients" stroke="var(--color-clients)" strokeWidth={2} dot={true} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -163,16 +165,18 @@ export function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                          <ChartContainer config={chartConfigRevenue} className="h-[300px] w-full">
-                            <BarChart data={reportsData.revenueByCaseType} layout="vertical" margin={{ left: 10, right: 10 }}>
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80}/>
-                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                                <Bar dataKey="value" layout="vertical" radius={5}>
-                                    {reportsData.revenueByCaseType.map((entry) => (
-                                        <Cell key={entry.name} fill={chartConfigRevenue[entry.name as keyof typeof chartConfigRevenue]?.color} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={reportsData.revenueByCaseType} layout="vertical" margin={{ left: 10, right: 10 }}>
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80}/>
+                                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                    <Bar dataKey="value" layout="vertical" radius={5}>
+                                        {reportsData.revenueByCaseType.map((entry) => (
+                                            <Cell key={entry.name} fill={chartConfigRevenue[entry.name as keyof typeof chartConfigRevenue]?.color} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -182,14 +186,16 @@ export function ReportsPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center">
                         <ChartContainer config={chartConfigStatus} className="h-[250px] w-full max-w-[300px]">
-                             <PieChart>
-                                <Tooltip content={<ChartTooltipContent nameKey="name" />} />
-                                <Pie data={reportsData.applicationStatus} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5}>
-                                    {reportsData.applicationStatus.map((entry) => (
-                                        <Cell key={entry.name} fill={entry.fill} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                 <PieChart>
+                                    <Tooltip content={<ChartTooltipContent nameKey="name" />} />
+                                    <Pie data={reportsData.applicationStatus} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5}>
+                                        {reportsData.applicationStatus.map((entry) => (
+                                            <Cell key={entry.name} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>

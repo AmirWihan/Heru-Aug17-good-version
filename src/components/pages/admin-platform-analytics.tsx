@@ -1,5 +1,5 @@
 'use client';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, XAxis, YAxis, Tooltip } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { reportsData, clients } from "@/lib/data";
@@ -86,14 +86,16 @@ export function AdminPlatformAnalyticsPage() {
                     </CardHeader>
                     <CardContent>
                          <ChartContainer config={chartConfigUserGrowth} className="h-[300px] w-full">
-                            <LineChart data={reportsData.userGrowth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <CartesianGrid vertical={false} />
-                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis />
-                                <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                                <Line type="monotone" dataKey="lawyers" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={true} />
-                                <Line type="monotone" dataKey="clients" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={true} />
-                            </LineChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={reportsData.userGrowth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis />
+                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+                                    <Line type="monotone" dataKey="lawyers" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={true} />
+                                    <Line type="monotone" dataKey="clients" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={true} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -104,14 +106,16 @@ export function AdminPlatformAnalyticsPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center">
                          <ChartContainer config={chartConfigCaseStatus} className="h-[300px] w-full">
-                             <PieChart>
-                                <Tooltip content={<ChartTooltipContent nameKey="name" />} />
-                                <Pie data={reportsData.applicationStatus} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} labelLine={false} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                                    {reportsData.applicationStatus.map((entry) => (
-                                        <Cell key={entry.name} fill={entry.fill} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                 <PieChart>
+                                    <Tooltip content={<ChartTooltipContent nameKey="name" />} />
+                                    <Pie data={reportsData.applicationStatus} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} labelLine={false} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                        {reportsData.applicationStatus.map((entry) => (
+                                            <Cell key={entry.name} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -122,17 +126,19 @@ export function AdminPlatformAnalyticsPage() {
                     </CardHeader>
                     <CardContent>
                          <ChartContainer config={chartConfigRevenue} className="h-[300px] w-full">
-                            <BarChart data={reportsData.quarterlyRevenue}>
-                                <CartesianGrid vertical={false} />
-                                <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis />
-                                <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                                <Bar dataKey="revenue" radius={8}>
-                                    {reportsData.quarterlyRevenue.map((entry) => (
-                                        <Cell key={entry.quarter} fill={chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue]?.color} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={reportsData.quarterlyRevenue}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis />
+                                    <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                                    <Bar dataKey="revenue" radius={8}>
+                                        {reportsData.quarterlyRevenue.map((entry) => (
+                                            <Cell key={entry.quarter} fill={chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue]?.color} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
