@@ -194,7 +194,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
-                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, ...rest } }) => (
+                                    <FormField control={form.control} name="governmentId" render={({ field: { onChange, value, ...rest } }) => (
                                         <FormItem>
                                             <FormLabel>Government-Issued ID</FormLabel>
                                             <FormControl>
