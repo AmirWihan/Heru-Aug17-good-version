@@ -1,14 +1,14 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export function ClientMessagesPage() {
+export function ClientSettingsPage() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Messages</CardTitle>
+                <CardTitle>Settings</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-muted-foreground">Messaging page is under construction.</p>
+                <p className="text-muted-foreground">Settings page is under construction.</p>
             </CardContent>
         </Card>
     );

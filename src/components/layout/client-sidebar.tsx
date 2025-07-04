@@ -10,6 +10,7 @@ import {
   Settings,
   X,
   Search,
+  Calendar,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -17,34 +18,34 @@ import { Button } from "../ui/button"
 import { HeruLogoIcon } from "../icons/HeruLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
 
-
 interface ClientSidebarProps {
   isSidebarOpen: boolean
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
-  activePage?: string;
-  setActivePage?: Dispatch<SetStateAction<string>>;
+  page: string;
+  setPage: Dispatch<SetStateAction<string>>;
 }
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'find-lawyer', label: 'Find a Lawyer', icon: Search },
   { id: 'my-lawyers', label: 'My Lawyers', icon: Users },
   { id: 'documents', label: 'My Documents', icon: FileText },
+  { id: 'appointments', label: 'Appointments', icon: Calendar },
   { id: 'messages', label: 'Messages', icon: Mail },
   { id: 'billing', label: 'Billing', icon: FileDigit },
   { id: 'settings', label: 'Settings', icon: Settings },
 ]
 
-export function ClientSidebar({ isSidebarOpen, setSidebarOpen, activePage, setActivePage }: ClientSidebarProps) {
-  const handleNavigation = (page: string) => {
-    setActivePage?.(page);
+export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: ClientSidebarProps) {
+  const handleNavigation = (pageId: string) => {
+    setPage(pageId);
     if (window.innerWidth < 768) {
       setSidebarOpen(false)
     }
   }
 
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = activePage === item.id;
+    const isActive = page === item.id;
     return (
       <li key={item.id}>
         <button
