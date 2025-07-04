@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { HeruLogoIcon } from "../icons/HeruLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
+import { useRouter } from "next/navigation"
 
 interface ClientSidebarProps {
   isSidebarOpen: boolean
@@ -37,8 +38,11 @@ const navItems = [
 ]
 
 export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: ClientSidebarProps) {
+  const router = useRouter();
+
   const handleNavigation = (pageId: string) => {
     setPage(pageId);
+    router.push('/client/dashboard');
     if (window.innerWidth < 768) {
       setSidebarOpen(false)
     }

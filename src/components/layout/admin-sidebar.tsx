@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { HeruLogoIcon } from "../icons/HeruLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface AdminSidebarProps {
   isSidebarOpen: boolean
@@ -42,8 +43,11 @@ const navItems = [
 ]
 
 export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setActivePage }: AdminSidebarProps) {
+  const router = useRouter();
+
   const handleNavigation = (page: string) => {
     setActivePage?.(page)
+    router.push('/admin/dashboard')
     if (window.innerWidth < 768) {
       setSidebarOpen(false)
     }

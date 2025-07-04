@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { HeruLogoIcon } from "../icons/HeruLogoIcon"
+import { useRouter } from "next/navigation"
 
 interface AppSidebarProps {
   activePage: string
@@ -47,8 +48,11 @@ const navItems = [
 ]
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
+  const router = useRouter();
+
   const handleNavigation = (page: string) => {
     setPage(page)
+    router.push('/lawyer/dashboard');
     if (window.innerWidth < 768) {
       setSidebarOpen(false)
     }
