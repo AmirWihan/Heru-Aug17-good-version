@@ -1,8 +1,11 @@
 'use client'
 
-import { Bell, Menu } from "lucide-react"
+import { Bell, LogOut, Menu, Settings } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
+import { useClientDashboard } from "@/context/ClientDashboardContext"
 
 interface ClientHeaderProps {
   isSidebarOpen: boolean
@@ -11,6 +14,7 @@ interface ClientHeaderProps {
 }
 
 export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
+  const { setPage } = useClientDashboard();
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -31,10 +35,29 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
             <Bell className="h-5 w-5 text-foreground" />
             <span className="sr-only">Notifications</span>
           </Button>
-          <Avatar className="h-9 w-9">
-            <AvatarImage src="https://i.pravatar.cc/150?u=client" alt="Client" />
-            <AvatarFallback>C</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="h-9 w-9 cursor-pointer">
+                <AvatarImage src="https://i.pravatar.cc/150?u=client" alt="Client" />
+                <AvatarFallback>C</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setPage('settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <Link href="/" passHref>
+                  <DropdownMenuItem>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

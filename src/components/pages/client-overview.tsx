@@ -26,18 +26,18 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
 
     return (
         <div className="space-y-6">
-            <Card className="bg-primary text-primary-foreground shadow-lg">
+            <Card className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-white shadow-lg">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold">Welcome, {client.name}! 👋</h2>
-                        <p className="text-primary-foreground/80 mt-1">
+                        <p className="text-white/90 mt-1">
                             Your application status is currently: <span className="font-bold">{client.caseSummary.currentStatus}</span>.
                             <br/>
                             Next Step: <span className="font-bold">{client.caseSummary.nextStep}</span>.
                         </p>
                     </div>
                     <Button 
-                        className="bg-white text-primary hover:bg-white/90 w-full md:w-auto"
+                        className="bg-white/90 text-emerald-700 hover:bg-white w-full md:w-auto"
                         onClick={() => setPage('documents')}>
                         View My Documents <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -51,7 +51,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                 </CardHeader>
                 <CardContent>
                     <div className="mb-4">
-                        <Progress value={progressPercentage} className="h-2" />
+                        <Progress value={progressPercentage} className="h-2" indicatorClassName="bg-gradient-to-r from-emerald-400 to-cyan-400" />
                     </div>
                     <div className="flex justify-between">
                         {applicationSteps.map((step, index) => (

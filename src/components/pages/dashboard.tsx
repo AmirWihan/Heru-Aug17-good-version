@@ -56,16 +56,16 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
 
     return (
         <div className="space-y-6">
-            <Card className="bg-primary text-primary-foreground shadow-lg">
+            <Card className="bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold">Welcome back, Sarah! 👋</h2>
-                        <p className="text-primary-foreground/80 mt-1">
+                        <p className="text-white/90 mt-1">
                             You have <span className="font-bold">5 new client applications</span> and <span className="font-bold">3 upcoming appointments</span> needing your attention today.
                         </p>
                     </div>
                     <Button 
-                        className="bg-white text-primary hover:bg-white/90 w-full md:w-auto"
+                        className="bg-white/90 text-green-700 hover:bg-white w-full md:w-auto"
                         onClick={() => setPage('applications')}>
                         View Applications <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
