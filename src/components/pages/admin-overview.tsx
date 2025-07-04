@@ -44,7 +44,7 @@ export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
     const { teamMembers, clients } = useGlobalData();
 
-    const totalUsers = teamMembers.length + clients.length;
+    const totalApplicants = clients.length;
     const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
     const totalRevenue = paymentsData.filter(p => p.status === 'Completed').reduce((acc, p) => acc + p.amount, 0);
 
@@ -87,7 +87,7 @@ export function AdminOverviewPage() {
                 </CardHeader>
             </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Users" value={totalUsers.toLocaleString()} change="All firms and clients" icon={Users} />
+                <StatCard title="Total Applicants" value={totalApplicants.toLocaleString()} change="Total client accounts on the platform" icon={Users} />
                 <StatCard title="Active Firms" value={activeFirms.toLocaleString()} change="Verified legal firms" icon={UserCheck} />
                 <StatCard title="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} change="From all completed payments" icon={DollarSign} />
                 <StatCard title="Action Items" value={totalActionItems.toString()} change="Pending across platform" icon={Bell} changeType="down"/>
