@@ -111,6 +111,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
 
     const [isAddTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [newTaskDescription, setNewTaskDescription] = useState("");
     const [newTaskAssignee, setNewTaskAssignee] = useState("");
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
     const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
@@ -120,6 +121,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
     const [newActivityDate, setNewActivityDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [createFollowUpTask, setCreateFollowUpTask] = useState(false);
     const [followUpTaskTitle, setFollowUpTaskTitle] = useState("");
+    const [followUpTaskDescription, setFollowUpTaskDescription] = useState("");
     const [followUpTaskAssignee, setFollowUpTaskAssignee] = useState("");
     const [followUpTaskDueDate, setFollowUpTaskDueDate] = useState("");
     const [followUpTaskPriority, setFollowUpTaskPriority] = useState<Task['priority']>('Medium');
@@ -223,6 +225,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         const newTask: Task = {
             id: Date.now(),
             title: newTaskTitle,
+            description: newTaskDescription,
             client: { id: client.id, name: client.name, avatar: client.avatar },
             assignedTo: { name: assignee.name, avatar: assignee.avatar },
             dueDate: newTaskDueDate,
@@ -247,6 +250,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         onUpdateClient(updatedClient);
         setAddTaskDialogOpen(false);
         setNewTaskTitle('');
+        setNewTaskDescription('');
         setNewTaskAssignee('');
         setNewTaskDueDate('');
         setNewTaskPriority('Medium');
@@ -307,6 +311,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
             const newTask: Task = {
                 id: Date.now() + 1, // ensure unique id
                 title: followUpTaskTitle,
+                description: followUpTaskDescription,
                 client: { id: client.id, name: client.name, avatar: client.avatar },
                 assignedTo: { name: assignee.name, avatar: assignee.avatar },
                 dueDate: followUpTaskDueDate,
@@ -343,6 +348,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
         setNewActivityDate(format(new Date(), 'yyyy-MM-dd'));
         setCreateFollowUpTask(false);
         setFollowUpTaskTitle("");
+        setFollowUpTaskDescription("");
         setFollowUpTaskAssignee("");
         setFollowUpTaskDueDate("");
         setFollowUpTaskPriority("Medium");
@@ -563,7 +569,10 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                             <TableBody>
                                                 {client.tasks.map((task) => (
                                                     <TableRow key={task.id}>
-                                                        <TableCell className="font-medium">{task.title}</TableCell>
+                                                        <TableCell>
+                                                            <div className="font-medium">{task.title}</div>
+                                                            {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
+                                                        </TableCell>
                                                         <TableCell>
                                                             <div className="flex items-center gap-2">
                                                                 <Avatar className="h-6 w-6">
@@ -745,6 +754,10 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                 <Input id="task-title" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} placeholder="e.g., Follow up on RFE" />
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="task-description">Description (Optional)</Label>
+                                <Textarea id="task-description" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} placeholder="Add more details about the task..." />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="task-assignee">Assign To</Label>
                                 <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
                                     <SelectTrigger id="task-assignee">
@@ -825,6 +838,10 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                      <div className="space-y-2">
                                         <Label htmlFor="follow-up-title">Task Title</Label>
                                         <Input id="follow-up-title" value={followUpTaskTitle} onChange={(e) => setFollowUpTaskTitle(e.target.value)} placeholder="e.g., Follow up on RFE" />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor="follow-up-description">Description (Optional)</Label>
+                                        <Textarea id="follow-up-description" value={followUpTaskDescription} onChange={(e) => setFollowUpTaskDescription(e.target.value)} placeholder="Add more details..." />
                                     </div>
                                      <div className="space-y-2">
                                         <Label htmlFor="follow-up-assignee">Assign To</Label>

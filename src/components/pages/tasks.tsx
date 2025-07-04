@@ -93,7 +93,10 @@ export function TasksPage() {
                         <TableBody>
                             {filteredTasks.map((task) => (
                                 <TableRow key={task.id}>
-                                    <TableCell className="font-medium">{task.title}</TableCell>
+                                    <TableCell>
+                                        <div className="font-medium">{task.title}</div>
+                                        {task.description && <p className="text-sm text-muted-foreground truncate max-w-xs">{task.description}</p>}
+                                    </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar className="h-8 w-8">

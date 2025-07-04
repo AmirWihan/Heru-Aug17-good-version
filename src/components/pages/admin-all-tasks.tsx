@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
+import { Textarea } from '../ui/textarea';
 
 export function AdminAllTasksPage() {
     const { tasks, addTask, clients, teamMembers } = useGlobalData();
@@ -22,6 +23,7 @@ export function AdminAllTasksPage() {
     
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [newTaskDescription, setNewTaskDescription] = useState("");
     const [newTaskClient, setNewTaskClient] = useState("");
     const [newTaskAssignee, setNewTaskAssignee] = useState("");
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
@@ -50,6 +52,7 @@ export function AdminAllTasksPage() {
         const newTask: Task = {
             id: Date.now(),
             title: newTaskTitle,
+            description: newTaskDescription,
             client: { id: client.id, name: client.name, avatar: client.avatar },
             assignedTo: { name: assignee.name, avatar: assignee.avatar },
             dueDate: newTaskDueDate,
@@ -60,6 +63,7 @@ export function AdminAllTasksPage() {
         addTask(newTask);
         setAddDialogOpen(false);
         setNewTaskTitle('');
+        setNewTaskDescription('');
         setNewTaskClient('');
         setNewTaskAssignee('');
         setNewTaskDueDate('');
@@ -160,7 +164,10 @@ export function AdminAllTasksPage() {
                             <TableBody>
                                 {filteredTasks.map((task) => (
                                     <TableRow key={task.id}>
-                                        <TableCell className="font-medium">{task.title}</TableCell>
+                                        <TableCell>
+                                            <div className="font-medium">{task.title}</div>
+                                            {task.description && <p className="text-sm text-muted-foreground truncate max-w-xs">{task.description}</p>}
+                                        </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-8 w-8">
@@ -218,6 +225,10 @@ export function AdminAllTasksPage() {
                         <div className="space-y-2">
                             <Label htmlFor="task-title">Task Title</Label>
                             <Input id="task-title" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} placeholder="e.g., Follow up on RFE" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="task-description">Description (Optional)</Label>
+                            <Textarea id="task-description" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} placeholder="Add more details about the task..." />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="task-client">Client</Label>

@@ -4,6 +4,7 @@ import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, File
 export type Task = {
     id: number;
     title: string;
+    description?: string;
     client: {
         id: number;
         name: string;
@@ -241,6 +242,7 @@ export const tasksData: Task[] = [
     {
         id: 1,
         title: 'Follow up on document submission',
+        description: 'Client Adebola Okonjo has submitted documents. Please review for completeness and accuracy.',
         client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' },
         assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
         dueDate: '2024-07-25',
@@ -250,6 +252,7 @@ export const tasksData: Task[] = [
     {
         id: 2,
         title: 'Prepare for initial consultation',
+        description: 'Gather all preliminary information for the initial consultation with Carlos Mendez.',
         client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
         assignedTo: { name: 'Michael Chen', avatar: 'https://i.pravatar.cc/150?u=michaelchen' },
         dueDate: '2024-07-26',
@@ -259,6 +262,7 @@ export const tasksData: Task[] = [
     {
         id: 3,
         title: 'Review updated offer letter',
+        description: 'The offer letter for Li Wei has been updated by the employer. Review and confirm it meets requirements.',
         client: { id: 3, name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' },
         assignedTo: { name: 'Sophia Williams', avatar: 'https://i.pravatar.cc/150?u=sophia' },
         dueDate: '2024-07-28',
@@ -268,6 +272,7 @@ export const tasksData: Task[] = [
     {
         id: 4,
         title: 'Draft submission cover letter',
+        description: 'Draft the cover letter for James Wilson\'s work permit extension application.',
         client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
         assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
         dueDate: '2024-07-24',
@@ -277,6 +282,7 @@ export const tasksData: Task[] = [
     {
         id: 5,
         title: 'Send pre-arrival checklist',
+        description: 'Carlos Mendez\'s student visa was approved. Send the standard pre-arrival checklist.',
         client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' },
         assignedTo: { name: 'David Rodriguez', avatar: 'https://i.pravatar.cc/150?u=david' },
         dueDate: '2024-07-22',
