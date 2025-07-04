@@ -1,7 +1,7 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus, ShieldAlert, AlertTriangle, Sparkles, Loader2, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -11,6 +11,9 @@ import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+import { useState } from "react";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { analyzeClientRisks, type ClientAlert } from "@/ai/flows/risk-analyzer";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
@@ -65,6 +68,46 @@ const chartConfigRevenue = {
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
+    const { clients } = useGlobalData();
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
+
+    const handleRunAnalysis = async () => {
+        setIsAnalyzing(true);
+        setRiskAlerts(null);
+        try {
+            const activeClients = clients.filter(c => c.status === 'Active');
+            const analysisInput = activeClients.map(c => ({
+                id: c.id,
+                name: c.name,
+                status: c.status,
+                activity: c.activity.map(a => ({ title: a.title, timestamp: a.timestamp })),
+                documents: c.documents.map(d => ({ title: d.title, status: d.status, dateAdded: d.dateAdded })),
+                caseSummary: {
+                    dueDate: c.caseSummary.dueDate,
+                }
+            }));
+
+            const response = await analyzeClientRisks({
+                clients: analysisInput,
+                currentDate: new Date().toISOString().split('T')[0]
+            });
+            setRiskAlerts(response.alerts);
+            toast({
+                title: "Analysis Complete",
+                description: `Found ${response.alerts.length} potential risks.`,
+            });
+        } catch (error) {
+            console.error("Risk analysis failed:", error);
+            toast({
+                title: "Analysis Failed",
+                description: "Could not run the risk analysis at this time. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -90,6 +133,61 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 <StatCard title="Upcoming Appointments" value="7" icon={CalendarCheck} footer="Next: Today at 2:30 PM" />
                 <StatCard title="Revenue This Month" value="$24,580" icon={DollarSign} change="18% from last month" changeType="up" />
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2">
+                        <ShieldAlert className="h-5 w-5 text-primary" />
+                        AI Risk Alerts
+                    </CardTitle>
+                    <CardDescription>
+                        AI-powered analysis to flag files needing attention.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isAnalyzing ? (
+                        <div className="flex items-center justify-center h-40">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <p className="ml-4 text-muted-foreground">Analyzing client files...</p>
+                        </div>
+                    ) : riskAlerts ? (
+                        riskAlerts.length > 0 ? (
+                            <div className="space-y-4 max-h-96 overflow-y-auto">
+                                {riskAlerts.map((alert, index) => (
+                                    <div key={index} className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                                        <div className="bg-destructive/10 p-2 rounded-full mt-1">
+                                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold">{alert.clientName}</p>
+                                            <p className="text-sm text-destructive">{alert.issueSummary}</p>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                <span className="font-medium">Suggested Action:</span> {alert.suggestedAction}
+                                            </p>
+                                        </div>
+                                        <Button size="sm" variant="outline" className="ml-auto" onClick={() => setPage('clients')}>View</Button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-40 text-center">
+                                <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
+                                <p className="font-semibold">All Clear!</p>
+                                <p className="text-muted-foreground">No immediate risks found in active files.</p>
+                                <Button variant="link" onClick={handleRunAnalysis}>Re-run analysis</Button>
+                            </div>
+                        )
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-40 text-center">
+                            <p className="text-muted-foreground mb-4">Click the button to scan all active client files for potential risks like missing documents, approaching deadlines, and stalled cases.</p>
+                            <Button onClick={handleRunAnalysis}>
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                Run AI Risk Analysis
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -182,7 +280,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </div>
                                     <div>
                                         <p className="font-semibold line-clamp-1">{task.title}</p>
-                                        <p className="text-sm text-muted-foreground" suppressHydrationWarning>Due: {format(new Date(task.dueDate), 'PP')}</p>
+                                        <p className="text-sm text-muted-foreground" suppressHydrationWarning>{format(new Date(task.dueDate), 'PP')}</p>
                                     </div>
                                 </div>
                             ))}
