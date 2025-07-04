@@ -14,6 +14,7 @@ import {
   Briefcase,
   CheckSquare,
   Target,
+  LifeBuoy,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -39,6 +40,7 @@ const navItems = [
   { id: 'analytics', label: 'Analytics', icon: LineChart },
   { id: 'payments', label: 'Payments & Subs', icon: CreditCard },
   { id: 'notifications', label: 'System Notifications', icon: Bell },
+  { id: 'support-tickets', label: 'Support Tickets', icon: LifeBuoy },
   { id: 'settings', label: 'Platform Settings', icon: Settings },
 ]
 

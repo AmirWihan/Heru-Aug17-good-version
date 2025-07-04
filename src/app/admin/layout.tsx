@@ -14,6 +14,7 @@ const pageTitles: { [key: string]: string } = {
     'analytics': 'Platform Analytics',
     'payments': 'Payments & Subscriptions',
     'notifications': 'System Notifications',
+    'support-tickets': 'Support Tickets',
     'settings': 'Platform Settings',
 };
 

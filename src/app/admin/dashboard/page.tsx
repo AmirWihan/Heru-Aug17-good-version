@@ -11,6 +11,7 @@ import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-no
 import { AdminTeamManagementPage } from '@/components/pages/admin-team-management';
 import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
 import { AdminLeadManagementPage } from '@/components/pages/admin-lead-management';
+import { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,
         'notifications': AdminSystemNotificationsPage,
+        'support-tickets': AdminSupportTicketsPage,
         'settings': PlatformSettingsPage,
     };
 
