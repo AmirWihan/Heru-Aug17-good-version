@@ -41,7 +41,7 @@ export default function LoginPage() {
     const role = searchParams.get('role') || 'client';
     const router = useRouter();
     const { toast } = useToast();
-    const { teamMembers, clients } = useGlobalData();
+    const { teamMembers, clients, isLoaded } = useGlobalData();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -150,6 +150,13 @@ export default function LoginPage() {
                     <h1 className="mt-4 font-headline text-3xl font-bold">Log in as {roleName}</h1>
                     <p className="mt-2 text-muted-foreground">Your AI-Powered Immigration CRM</p>
                 </div>
+                { !isLoaded ? (
+                    <Card>
+                        <CardContent className="flex justify-center items-center h-[460px]">
+                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </CardContent>
+                    </Card>
+                ) : (
                 <Card>
                     <CardHeader>
                         <CardTitle>Sign In</CardTitle>
@@ -188,6 +195,7 @@ export default function LoginPage() {
                         </form>
                     </CardContent>
                 </Card>
+                )}
                 <div className="text-center text-sm text-muted-foreground">
                      {role !== 'admin' && (
                         <p>New here? <Link href={redirectPath} className="underline">Create an account</Link></p>

@@ -16,6 +16,7 @@ interface GlobalDataContextType {
     addTask: (task: Task) => void;
     logoSrc: string | null;
     setLogoSrc: (src: string | null) => void;
+    isLoaded: boolean;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -82,7 +83,7 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
     }, []);
 
     return (
-        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, logoSrc, setLogoSrc }}>
+        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, logoSrc, setLogoSrc, isLoaded }}>
             {children}
         </GlobalDataContext.Provider>
     );
