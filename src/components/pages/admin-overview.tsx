@@ -174,6 +174,7 @@ export function AdminOverviewPage() {
                              <TableHeader>
                                  <TableRow>
                                      <TableHead>Task</TableHead>
+                                     <TableHead>Assigned To</TableHead>
                                      <TableHead>Client</TableHead>
                                      <TableHead>Due Date</TableHead>
                                  </TableRow>
@@ -182,6 +183,15 @@ export function AdminOverviewPage() {
                                  {tasksData.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
                                      <TableRow key={task.id} className="cursor-pointer" onClick={() => setPage('tasks')}>
                                          <TableCell className="font-medium">{task.title}</TableCell>
+                                         <TableCell>
+                                             <div className="flex items-center gap-2">
+                                                 <Avatar className="h-6 w-6">
+                                                     <AvatarImage src={task.assignedTo.avatar} alt={task.assignedTo.name} />
+                                                     <AvatarFallback>{task.assignedTo.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                 </Avatar>
+                                                 <span className="text-sm">{task.assignedTo.name}</span>
+                                             </div>
+                                         </TableCell>
                                          <TableCell>
                                              <div className="flex items-center gap-2">
                                                  <Avatar className="h-6 w-6">
