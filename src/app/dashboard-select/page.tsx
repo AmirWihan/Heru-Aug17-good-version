@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import type { Client, TeamMember } from '@/lib/data';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -90,52 +91,55 @@ export default function LoginPage() {
             return;
         }
 
+        let user: TeamMember | Client | undefined;
+        let redirectUrl: string | null = null;
+        let nonActiveMessage: string | null = null;
+
         if (role === 'admin') {
-            const user = teamMembers.find(member => 
+            user = teamMembers.find(member => 
                 member.type === 'admin' && 
                 member.email.toLowerCase().trim() === processedEmail
             );
             if (user && user.status === 'Active') {
-                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
-                router.push('/admin/dashboard');
-                return;
+                redirectUrl = '/admin/dashboard';
             }
         } else if (role === 'lawyer') {
-            const user = teamMembers.find(member => 
+            user = teamMembers.find(member => 
                 member.type === 'legal' && 
                 member.email.toLowerCase().trim() === processedEmail
             );
             if (user) {
                 if (user.status === 'Active') {
-                    toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
-                    router.push('/lawyer/dashboard');
-                    return;
+                    redirectUrl = '/lawyer/dashboard';
                 } else {
-                    toast({ 
-                        title: 'Account Not Active', 
-                        description: `Your account status is: ${user.status}. Please wait for activation or contact support.`, 
-                        variant: 'destructive' 
-                    });
-                    setIsLoading(false);
-                    return;
+                     nonActiveMessage = `Your account status is: ${user.status}. Please wait for activation or contact support.`;
                 }
             }
         } else if (role === 'client') {
-            const user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
+            user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
             if (user) {
-                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
-                router.push('/client/dashboard');
-                return;
+                redirectUrl = '/client/dashboard';
             }
         }
-        
-        // If we reach here, no user was found for the selected role.
-        toast({
-            title: 'Login Failed',
-            description: 'Invalid credentials for the selected role.',
-            variant: 'destructive'
-        });
-        setIsLoading(false);
+
+        if (redirectUrl && user) {
+            toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
+            router.push(redirectUrl);
+        } else if (nonActiveMessage) {
+            toast({ 
+                title: 'Account Not Active', 
+                description: nonActiveMessage, 
+                variant: 'destructive' 
+            });
+            setIsLoading(false);
+        } else {
+            toast({
+                title: 'Login Failed',
+                description: 'Invalid credentials for the selected role.',
+                variant: 'destructive'
+            });
+            setIsLoading(false);
+        }
     };
 
     return (
