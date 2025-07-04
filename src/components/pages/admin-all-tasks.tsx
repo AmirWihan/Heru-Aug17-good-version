@@ -31,6 +31,8 @@ export function AdminAllTasksPage() {
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [assigneeFilter, setAssigneeFilter] = useState('all');
 
+    const salesTeam = teamMembers.filter(member => member.type === 'sales' || member.type === 'advisor');
+
     const handleAddTask = () => {
         if (!newTaskTitle || !newTaskClient || !newTaskAssignee || !newTaskDueDate) {
             toast({ title: 'Error', description: 'Please fill out all fields.', variant: 'destructive' });
@@ -227,8 +229,8 @@ export function AdminAllTasksPage() {
                         <div className="space-y-2">
                             <Label htmlFor="task-assignee">Assign To</Label>
                             <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
-                                <SelectTrigger id="task-assignee"><SelectValue placeholder="Select a team member" /></SelectTrigger>
-                                <SelectContent>{teamMembers.map(member => (<SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>))}</SelectContent>
+                                <SelectTrigger id="task-assignee"><SelectValue placeholder="Select a sales team member" /></SelectTrigger>
+                                <SelectContent>{salesTeam.map(member => (<SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>))}</SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">

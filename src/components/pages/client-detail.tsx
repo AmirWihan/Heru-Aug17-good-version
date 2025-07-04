@@ -1,6 +1,7 @@
 
 'use client';
 import { useState, useRef } from "react";
+import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, teamMembers, documents as documentTemplates, activityTypes } from "@/lib/data";
+import { documentCategories, documents as documentTemplates, activityTypes } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -90,6 +92,13 @@ interface ClientDetailSheetProps {
 
 export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient }: ClientDetailSheetProps) {
     const { toast } = useToast();
+    const pathname = usePathname();
+    const { teamMembers: allTeamMembers } = useGlobalData();
+
+    const assignableMembers = pathname.startsWith('/admin')
+        ? allTeamMembers.filter(member => member.type === 'sales' || member.type === 'advisor')
+        : allTeamMembers.filter(member => member.type === 'legal');
+        
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -204,7 +213,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
             return;
         }
 
-        const assignee = teamMembers.find(m => m.id.toString() === newTaskAssignee);
+        const assignee = allTeamMembers.find(m => m.id.toString() === newTaskAssignee);
 
         if (!assignee) {
              toast({ title: 'Error', description: 'Selected assignee not found.', variant: 'destructive' });
@@ -289,7 +298,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                 toast({ title: 'Error', description: 'Please fill out all fields for the follow-up task.', variant: 'destructive' });
                 return;
             }
-            const assignee = teamMembers.find(m => m.id.toString() === followUpTaskAssignee);
+            const assignee = allTeamMembers.find(m => m.id.toString() === followUpTaskAssignee);
             if (!assignee) {
                 toast({ title: 'Error', description: 'Selected assignee not found for task.', variant: 'destructive' });
                 return;
@@ -742,7 +751,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                         <SelectValue placeholder="Select a team member" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {teamMembers.map(member => (
+                                        {assignableMembers.map(member => (
                                             <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -824,7 +833,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                                 <SelectValue placeholder="Select a team member" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {teamMembers.map(member => (
+                                                {assignableMembers.map(member => (
                                                     <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
