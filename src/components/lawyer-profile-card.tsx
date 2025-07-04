@@ -23,6 +23,10 @@ type LawyerProfileCardProps = {
 };
 
 export function LawyerProfileCard({ lawyer, onConnect }: LawyerProfileCardProps) {
+    const displayedStats = lawyer.stats.filter(
+        stat => stat.label === 'Clients' || stat.label === 'Success Rate'
+    );
+
     return (
         <Card className="flex flex-col">
             <CardHeader className="items-center text-center">
@@ -43,7 +47,7 @@ export function LawyerProfileCard({ lawyer, onConnect }: LawyerProfileCardProps)
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                    {lawyer.stats.slice(0, 2).map(stat => (
+                    {displayedStats.map(stat => (
                         <div key={stat.label} className="bg-muted p-2 rounded text-center">
                             <p className="font-bold text-lg">{stat.value}</p>
                             <p className="text-xs text-muted-foreground">{stat.label}</p>

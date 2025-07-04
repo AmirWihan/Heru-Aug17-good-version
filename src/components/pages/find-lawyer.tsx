@@ -24,6 +24,9 @@ export function FindLawyerPage() {
 
     const filteredLawyers = useMemo(() => {
         return teamMembers.filter(lawyer => {
+            if (lawyer.type !== 'legal' || lawyer.status !== 'Active') {
+                return false;
+            }
             const nameMatch = lawyer.name.toLowerCase().includes(searchTerm.toLowerCase());
             const specialtyMatch = specialty === 'all' || lawyer.specialties.includes(specialty);
             const locationMatch = location === 'all' || lawyer.location === location;
@@ -68,7 +71,7 @@ export function FindLawyerPage() {
                         <SelectTrigger><SelectValue placeholder="Filter by Specialty" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Specialties</SelectItem>
-                            {specialties.filter(s => s !== 'all').map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            {specialties.filter(s => s !== 'all' && s !== 'Awaiting Activation').map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                         </SelectContent>
                     </Select>
                      <Select value={location} onValueChange={setLocation}>
