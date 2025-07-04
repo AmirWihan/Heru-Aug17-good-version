@@ -1,4 +1,3 @@
-
 'use client';
 
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
@@ -92,7 +91,7 @@ export default function LoginPage() {
         const processedEmail = email.toLowerCase().trim();
 
         if (role === 'lawyer') {
-            userFound = teamMembers.find(member => member.email.toLowerCase() === processedEmail && member.type === 'legal');
+            userFound = teamMembers.find(member => member.email.toLowerCase().trim() === processedEmail && member.type === 'legal');
             if (userFound && userFound.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/lawyer/dashboard');
@@ -104,7 +103,7 @@ export default function LoginPage() {
                 setIsLoading(false);
             }
         } else if (role === 'admin') {
-            userFound = teamMembers.find(member => member.email.toLowerCase() === processedEmail && member.type === 'admin');
+            userFound = teamMembers.find(member => member.email.toLowerCase().trim() === processedEmail && member.type === 'admin');
             if (userFound && userFound.status === 'Active') {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/admin/dashboard');
@@ -113,7 +112,7 @@ export default function LoginPage() {
                 setIsLoading(false);
             }
         } else if (role === 'client') {
-            userFound = clients.find(client => client.email.toLowerCase() === processedEmail);
+            userFound = clients.find(client => client.email.toLowerCase().trim() === processedEmail);
             if (userFound) {
                 toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
                 router.push('/client/dashboard');
