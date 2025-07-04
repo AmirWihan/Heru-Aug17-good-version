@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft, BarChart, GraduationCap, Users, Briefcase, Languages, PlusCircle, Award } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 
 const crsSchema = z.object({
