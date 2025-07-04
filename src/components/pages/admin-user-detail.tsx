@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const getStatusBadgeVariant = (status: string) => {
         case 'active': return 'success' as const;
         case 'pending activation': return 'warning' as const;
         case 'suspended': return 'destructive' as const;
+        case 'rejected': return 'destructive' as const;
         default: return 'secondary' as const;
     }
 };
@@ -33,16 +34,50 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
     const { toast } = useToast();
     const [status, setStatus] = useState(user.status);
     const [plan, setPlan] = useState(user.plan);
+    
+    useEffect(() => {
+        if (isOpen) {
+            setStatus(user.status);
+            setPlan(user.plan);
+        }
+    }, [isOpen, user]);
 
     const handleSaveChanges = () => {
-        onUpdateUser({ ...user, status, plan });
-        toast({
-            title: 'User Updated',
-            description: `${user.name}'s details have been updated.`,
-        });
-        onOpenChange(false);
-    }
+         onUpdateUser({ ...user, status, plan });
+         toast({
+             title: 'User Updated',
+             description: `${user.name}'s details have been updated.`,
+         });
+         onOpenChange(false);
+     };
     
+     const handleActivate = () => {
+         const isReactivating = user.status === 'Suspended';
+         onUpdateUser({ ...user, status: 'Active', role: user.role === 'Awaiting Verification' ? 'Immigration Lawyer' : user.role });
+         toast({
+             title: isReactivating ? 'Account Re-activated' : 'Account Activated',
+             description: `${user.name}'s account is now active.`,
+         });
+     };
+ 
+     const handleSuspend = () => {
+         onUpdateUser({ ...user, status: 'Suspended' });
+         toast({
+             title: 'Account Suspended',
+             description: `${user.name}'s account has been suspended.`,
+             variant: 'destructive',
+         });
+     };
+ 
+     const handleReject = () => {
+         onUpdateUser({ ...user, status: 'Rejected' });
+         toast({
+             title: 'Account Rejected',
+             description: `The request for ${user.name} has been rejected.`,
+             variant: 'destructive',
+         });
+     };
+ 
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-2xl p-0">
@@ -121,6 +156,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                                 <SelectItem value="Active">Active</SelectItem>
                                                 <SelectItem value="Pending Activation">Pending Activation</SelectItem>
                                                 <SelectItem value="Suspended">Suspended</SelectItem>
+                                                <SelectItem value="Rejected">Rejected</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -145,9 +181,31 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                         </TabsContent>
                     </Tabs>
 
-                    <div className="mt-6 pt-6 border-t flex justify-end">
-                        <Button onClick={handleSaveChanges}>Save Changes</Button>
-                    </div>
+                     <div className="mt-6 pt-6 border-t flex justify-between items-center">
+                         <div>
+                             {user.status === 'Active' && (
+                                 <Button variant="destructive" onClick={handleSuspend}>Suspend Account</Button>
+                             )}
+                             {user.status === 'Suspended' && user.role !== 'Awaiting Verification' && (
+                                 <Button variant="outline" onClick={handleActivate}>Re-activate Account</Button>
+                             )}
+                         </div>
+ 
+                         <div className="flex items-center gap-2">
+                             {user.status === 'Pending Activation' ? (
+                                 <>
+                                     <Button variant="outline" onClick={handleReject}>Reject</Button>
+                                     <Button onClick={handleActivate} className="bg-green-600 hover:bg-green-700">
+                                         <ShieldCheck className="mr-2 h-4 w-4" />
+                                         Activate Account
+                                     </Button>
+                                 </>
+                             ) : (
+                                 (user.status === 'Active' || user.status === 'Suspended' || user.status === 'Rejected') &&
+                                <Button onClick={handleSaveChanges}>Save Changes</Button>
+                             )}
+                         </div>
+                     </div>
                 </div>
             </SheetContent>
         </Sheet>

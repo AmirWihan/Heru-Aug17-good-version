@@ -26,21 +26,11 @@ export function UserManagementPage() {
         switch (status.toLowerCase()) {
             case 'active': return 'success';
             case 'suspended': return 'destructive';
+            case 'rejected': return 'destructive';
             case 'pending verification': return 'warning';
             case 'pending activation': return 'warning';
             case 'blocked': return 'destructive';
             default: return 'secondary';
-        }
-    };
-
-    const handleActivateAccount = (memberId: number) => {
-        const memberToUpdate = teamMembers.find(m => m.id === memberId);
-        if (memberToUpdate) {
-            updateTeamMember({ ...memberToUpdate, status: 'Active', role: 'Immigration Lawyer' });
-            toast({
-                title: "Account Activated",
-                description: "The lawyer's account has been successfully activated.",
-            });
         }
     };
     
@@ -57,6 +47,15 @@ export function UserManagementPage() {
     const handleUpdateClient = (updatedClient: Client) => {
         updateClient(updatedClient);
         setSelectedUser(updatedClient);
+    };
+
+    const handleBlockClient = (client: Client) => {
+        updateClient({ ...client, status: 'Blocked' });
+        toast({
+            title: "Client Blocked",
+            description: `${client.name}'s account has been blocked.`,
+            variant: 'destructive',
+        });
     };
     
     const isTeamMember = (user: any): user is TeamMember => {
@@ -149,25 +148,9 @@ export function UserManagementPage() {
                                                      <Badge variant={getStatusBadgeVariant(member.status)}>{member.status}</Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    {member.status === 'Pending Activation' ? (
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>View Details</Button>
-                                                            <Button size="sm" onClick={() => handleActivateAccount(member.id)}>
-                                                                <ShieldCheck className="mr-2 h-4 w-4" />
-                                                                Activate
-                                                            </Button>
-                                                        </div>
-                                                    ) : (
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent>
-                                                                <DropdownMenuItem onClick={() => handleViewDetails(member)}>View Details</DropdownMenuItem>
-                                                                <DropdownMenuItem className="text-destructive">Suspend Account</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    )}
+                                                     <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>
+                                                         View Details
+                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -219,7 +202,7 @@ export function UserManagementPage() {
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
                                                             <DropdownMenuItem onClick={() => handleViewDetails(client)}>View Details</DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-destructive">Block Account</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive" onClick={() => handleBlockClient(client)}>Block Account</DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>

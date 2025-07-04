@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,10 +46,15 @@ const activityIcons: { [key: string]: React.ElementType } = {
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-        case 'active client': return 'success';
+        case 'active':
+        case 'active client': 
+            return 'success';
         case 'work permit': return 'info';
         case 'pending review': return 'warning';
         case 'high': return 'destructive';
+        case 'on-hold': return 'warning';
+        case 'closed': return 'secondary';
+        case 'blocked': return 'destructive';
         default: return 'secondary';
     }
 };
@@ -93,9 +98,10 @@ interface ClientDetailSheetProps {
 export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient }: ClientDetailSheetProps) {
     const { toast } = useToast();
     const pathname = usePathname();
+    const isAdminView = pathname.startsWith('/admin');
     const { teamMembers: allTeamMembers } = useGlobalData();
 
-    const assignableMembers = pathname.startsWith('/admin')
+    const assignableMembers = isAdminView
         ? allTeamMembers.filter(member => member.type === 'sales' || member.type === 'advisor')
         : allTeamMembers.filter(member => member.type === 'legal');
         
@@ -355,6 +361,11 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
 
         toast({ title: 'Success', description: 'Activity logged successfully.' });
     };
+    
+    const handleStatusChange = (newStatus: Client['status']) => {
+        onUpdateClient({ ...client, status: newStatus });
+        toast({ title: 'Status Updated', description: `${client.name}'s status is now ${newStatus}.` });
+    };
 
 
     return (
@@ -380,8 +391,8 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <h2 className="text-2xl font-bold">{client.name}</h2>
-                                <Badge variant={getStatusBadgeVariant('active client')}>Active Client</Badge>
-                                <Badge variant={getStatusBadgeVariant('work permit')}>{client.caseType}</Badge>
+                                <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
+                                <Badge variant={getStatusBadgeVariant(client.caseType)}>{client.caseType}</Badge>
                             </div>
                             <p className="text-muted-foreground mt-1">{client.email} • {client.phone}</p>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-sm">
@@ -409,6 +420,7 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                 <TabsTrigger value="tasks">Tasks</TabsTrigger>
                                 <TabsTrigger value="timeline">Timeline</TabsTrigger>
                                 <TabsTrigger value="communications">Communications</TabsTrigger>
+                                {isAdminView && <TabsTrigger value="manage">Manage Client</TabsTrigger>}
                             </TabsList>
                             <Button variant="outline" size="sm" onClick={() => setLogActivityDialogOpen(true)}>
                                 <Plus className="mr-2 h-4 w-4" />
@@ -668,6 +680,32 @@ export function ClientDetailSheet({ client, isOpen, onOpenChange, onUpdateClient
                                 </CardContent>
                             </Card>
                         </TabsContent>
+                        {isAdminView && (
+                            <TabsContent value="manage" className="mt-4">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Manage Client</CardTitle>
+                                        <CardDescription>Update client status or block their account.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label>Client Status</Label>
+                                            <Select value={client.status} onValueChange={(value) => handleStatusChange(value as Client['status'])}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Active">Active</SelectItem>
+                                                    <SelectItem value="On-hold">On-hold</SelectItem>
+                                                    <SelectItem value="Closed">Closed</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="border-t pt-4">
+                                        <Button variant="destructive" onClick={() => handleStatusChange('Blocked')}>Block Client Account</Button>
+                                    </CardFooter>
+                                </Card>
+                            </TabsContent>
+                        )}
                     </Tabs>
                 </div>
 

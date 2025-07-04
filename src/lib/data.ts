@@ -25,7 +25,7 @@ export type Client = {
     email: string;
     phone: string;
     caseType: string;
-    status: string;
+    status: 'Active' | 'On-hold' | 'Closed' | 'Blocked';
     lastContact: string;
     avatar: string;
     countryOfOrigin: string;
@@ -82,7 +82,7 @@ export type TeamMember = {
     email: string;
     phone: string;
     accessLevel: 'Admin' | 'Member' | 'Viewer';
-    status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked';
+    status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected';
     plan: 'Starter' | 'Pro Team' | 'Enterprise' | 'N/A';
     location: string;
     yearsOfPractice: number;
