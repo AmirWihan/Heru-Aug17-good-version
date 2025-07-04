@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle, FileUp, MessageCircle, CalendarClock, Wand2, Users, FolderKanban } from 'lucide-react';
+import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
 
 const professionalFeatures = [
     {
@@ -164,14 +165,7 @@ export default function HomePage() {
                     </ul>
                 </div>
                 <div>
-                     <Image 
-                        src="https://placehold.co/800x600.png"
-                        alt="Client Dashboard"
-                        width={800}
-                        height={600}
-                        className="rounded-xl shadow-2xl shadow-primary/10"
-                        data-ai-hint="dashboard user interface"
-                    />
+                     <ClientDashboardScreenshot />
                 </div>
             </div>
         </section>
