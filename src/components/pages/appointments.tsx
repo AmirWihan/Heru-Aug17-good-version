@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,29 +8,55 @@ import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { appointmentsData as initialAppointmentsData, clients } from '@/lib/data';
-import { format } from 'date-fns';
+import { format, isPast, isFuture } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Appointment = typeof initialAppointmentsData[0];
+
+const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
+    return (
+        <li className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-4">
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src={appointment.avatar} />
+                    <AvatarFallback>{appointment.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-semibold">{appointment.name}</p>
+                    <p suppressHydrationWarning className="text-sm text-muted-foreground">{format(new Date(appointment.dateTime), "MMMM d, yyyy 'at' h:mm a")}</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <Badge variant="outline">{appointment.type}</Badge>
+                <Button variant="ghost" size="sm">Details</Button>
+            </div>
+        </li>
+    );
+};
 
 export function AppointmentsPage() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [appointments, setAppointments] = useState(initialAppointmentsData);
-    const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
     const [isScheduling, setIsScheduling] = useState(false);
     const { toast } = useToast();
     
-    useEffect(() => {
+    const { upcomingAppointments, pastAppointments } = useMemo(() => {
         const now = new Date();
         const upcoming = appointments
-            .filter(a => new Date(a.dateTime) >= now)
+            .filter(a => isFuture(new Date(a.dateTime)))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
-        setUpcomingAppointments(upcoming);
+        
+        const past = appointments
+            .filter(a => isPast(new Date(a.dateTime)))
+            .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
+
+        return { upcomingAppointments: upcoming, pastAppointments: past };
     }, [appointments]);
 
     const handleScheduleAppointment = () => {
@@ -112,29 +138,30 @@ export function AppointmentsPage() {
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline">Upcoming Appointments</CardTitle>
+                            <CardTitle className="font-headline">All Appointments</CardTitle>
+                            <CardDescription>View upcoming and past client appointments.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <ul className="space-y-4">
-                                {upcomingAppointments.map(appt => (
-                                    <li key={appt.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                                        <div className="flex items-center gap-4">
-                                            <Avatar>
-                                                <AvatarImage src={appt.avatar} />
-                                                <AvatarFallback>{appt.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-semibold">{appt.name}</p>
-                                                <p className="text-sm text-muted-foreground">{format(new Date(appt.dateTime), "MMMM d, yyyy 'at' h:mm a")}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <Badge variant="outline">{appt.type}</Badge>
-                                            <Button variant="ghost" size="sm">Details</Button>
-                                        </div>
-                                    </li>
-                                ))}
-                             </ul>
+                             <Tabs defaultValue="upcoming" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                                    <TabsTrigger value="past">Past</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="upcoming" className="mt-4 space-y-2">
+                                    {upcomingAppointments.length > 0 ? (
+                                        <ul className="space-y-2">{upcomingAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}</ul>
+                                    ) : (
+                                        <p className="text-muted-foreground p-4 text-center">No upcoming appointments.</p>
+                                    )}
+                                </TabsContent>
+                                <TabsContent value="past" className="mt-4 space-y-2">
+                                    {pastAppointments.length > 0 ? (
+                                        <ul className="space-y-2">{pastAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}</ul>
+                                    ) : (
+                                        <p className="text-muted-foreground p-4 text-center">No past appointments.</p>
+                                    )}
+                                </TabsContent>
+                            </Tabs>
                         </CardContent>
                     </Card>
                 </div>
