@@ -739,3 +739,9 @@ export const teamMembersWithStats = [
       email: 'olivia.m@example.com', phone: '+1-202-555-0107'
   }
 ];
+
+export const plans = [
+    { id: 'starter' as const, name: 'Starter', price: { monthly: 49, annually: 490 }, userLimit: 2, clientLimit: 50, features: ['Basic AI Tools', 'Standard Support'] },
+    { id: 'pro' as const, name: 'Pro Team', price: { monthly: 99, annually: 990 }, userLimit: 10, clientLimit: 500, features: ['Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
+    { id: 'enterprise' as const, name: 'Enterprise', price: 'Custom' as const, userLimit: 'Unlimited' as const, clientLimit: 'Unlimited' as const, features: ['Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
+];

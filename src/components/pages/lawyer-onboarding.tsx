@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import type { TeamMember } from '@/lib/data';
+import { plans, type TeamMember } from '@/lib/data';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
 
@@ -46,12 +46,6 @@ const steps = [
     { name: 'Firm & Personal Details', icon: Building, fields: ['fullName', 'email', 'phone', 'firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
     { name: 'License & Verification', icon: Award, fields: ['licenseNumber', 'registrationNumber', 'governmentId'] as const },
     { name: 'Subscription & Payment', icon: CreditCard, fields: ['selectedPlan', 'billingCycle', 'cardName', 'cardNumber', 'expiryDate', 'cvc'] as const },
-];
-
-const plans = [
-    { id: 'starter', name: 'Starter', price: { monthly: 49, annually: 490 }, userLimit: 2, clientLimit: 50, features: ['Up to 2 users', 'Up to 50 clients', 'Basic AI Tools', 'Standard Support'] },
-    { id: 'pro', name: 'Pro Team', price: { monthly: 99, annually: 990 }, userLimit: 10, clientLimit: 500, features: ['Up to 10 users', 'Up to 500 clients', 'Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
-    { id: 'enterprise', name: 'Enterprise', price: 'Custom', userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Unlimited users & clients', 'Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
 ];
 
 export function LawyerOnboarding() {
@@ -315,6 +309,8 @@ export function LawyerOnboarding() {
                                                                 </CardDescription>
                                                             </CardHeader>
                                                             <CardContent className="flex-grow space-y-2 text-sm text-left">
+                                                                <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /><span>Up to {plan.userLimit} users</span></div>
+                                                                <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /><span>Up to {plan.clientLimit} clients</span></div>
                                                                 {plan.features.map(feature => (
                                                                     <div key={feature} className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /><span>{feature}</span></div>
                                                                 ))}

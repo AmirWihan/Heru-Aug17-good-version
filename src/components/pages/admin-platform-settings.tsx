@@ -14,6 +14,7 @@ import { UploadCloud } from "lucide-react";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhatsappIcon } from "../icons/WhatsappIcon";
+import { plans } from "@/lib/data";
 
 export function PlatformSettingsPage() {
     const { setLogoSrc } = useGlobalData();
@@ -123,45 +124,44 @@ export function PlatformSettingsPage() {
                                     <CardDescription>Manage the pricing and features for each subscription tier.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="grid md:grid-cols-3 gap-6">
-                                    <Card>
-                                        <CardHeader><CardTitle>Starter</CardTitle></CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="starter-price">Price ($/month/user)</Label>
-                                                <Input id="starter-price" type="number" defaultValue="49" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="starter-features">Features (one per line)</Label>
-                                                <Textarea id="starter-features" rows={5} defaultValue={"Up to 2 users\nUp to 50 clients\nBasic AI Tools\nStandard Support"} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader><CardTitle>Pro Team</CardTitle></CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pro-price">Price ($/month/user)</Label>
-                                                <Input id="pro-price" type="number" defaultValue="99" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="pro-features">Features (one per line)</Label>
-                                                <Textarea id="pro-features" rows={5} defaultValue={"Up to 10 users\nUp to 500 clients\nAdvanced AI Tools\nTeam Collaboration Features\nPriority Email Support"} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader><CardTitle>Enterprise</CardTitle></CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="enterprise-price">Price</Label>
-                                                <Input id="enterprise-price" defaultValue="Custom" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="enterprise-features">Features (one per line)</Label>
-                                                <Textarea id="enterprise-features" rows={5} defaultValue={"Unlimited users & clients\nDedicated Support & Onboarding\nCustom Integrations\nAdvanced Security & Compliance"} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                    {plans.map(plan => (
+                                         <Card key={plan.id}>
+                                            <CardHeader><CardTitle>{plan.name}</CardTitle></CardHeader>
+                                            <CardContent className="space-y-4">
+                                                 {typeof plan.price === 'object' ? (
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor={`${plan.id}-price-monthly`}>Monthly ($)</Label>
+                                                            <Input id={`${plan.id}-price-monthly`} type="number" defaultValue={plan.price.monthly} />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor={`${plan.id}-price-annually`}>Annually ($)</Label>
+                                                            <Input id={`${plan.id}-price-annually`} type="number" defaultValue={plan.price.annually} />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        <Label>Price</Label>
+                                                        <Input defaultValue="Custom" disabled />
+                                                    </div>
+                                                )}
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor={`${plan.id}-user-limit`}>User Limit</Label>
+                                                        <Input id={`${plan.id}-user-limit`} defaultValue={plan.userLimit} />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor={`${plan.id}-client-limit`}>Client Limit</Label>
+                                                        <Input id={`${plan.id}-client-limit`} defaultValue={plan.clientLimit} />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor={`${plan.id}-features`}>Features (one per line)</Label>
+                                                    <Textarea id={`${plan.id}-features`} rows={5} defaultValue={plan.features.join('\n')} />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
                                 </CardContent>
                             </Card>
                         </TabsContent>

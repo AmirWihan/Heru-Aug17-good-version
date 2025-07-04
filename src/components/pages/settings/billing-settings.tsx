@@ -9,6 +9,7 @@ import { CheckCircle, XCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { plans } from '@/lib/data';
 
 export function BillingSettings() {
     const { toast } = useToast();
@@ -33,6 +34,14 @@ export function BillingSettings() {
         toast({
             title: "Subscription Re-activated",
             description: "Your plan has been re-activated successfully.",
+        });
+    }
+
+    const handleChangePlan = (planName: string) => {
+        setCurrentPlan(planName);
+        toast({
+            title: "Plan Changed",
+            description: `Your subscription plan has been changed to ${planName}.`,
         });
     }
 
@@ -61,14 +70,19 @@ export function BillingSettings() {
                         </CardContent>
                         <CardFooter className="flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                              <div>
-                                <Select>
+                                <Select onValueChange={handleChangePlan}>
                                     <SelectTrigger className="w-[180px]">
                                         <SelectValue placeholder="Change Plan" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="starter">Starter Plan</SelectItem>
-                                        <SelectItem value="pro">Pro Team Plan</SelectItem>
-                                        <SelectItem value="enterprise">Enterprise Plan</SelectItem>
+                                        {plans.map(plan => (
+                                            <SelectItem key={plan.id} value={plan.name} disabled={plan.name === currentPlan || plan.price === 'Custom'}>
+                                                {plan.name}
+                                            </SelectItem>
+                                        ))}
+                                         <SelectItem value="Enterprise" disabled>
+                                            Enterprise (Contact Us)
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
