@@ -1,13 +1,16 @@
 'use client';
-import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock } from "lucide-react";
+import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock, CheckSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { applicationsData, invoicesData, paymentsData, reportsData } from "@/lib/data";
+import { applicationsData, invoicesData, paymentsData, reportsData, tasksData, dashboardData } from "@/lib/data";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Cell } from "recharts";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
 import { AdminTeamPerformance } from "../admin-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
     <Card>
@@ -156,6 +159,73 @@ export function AdminOverviewPage() {
                         </ChartContainer>
                     </CardContent>
                 </Card>
+            </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <Card>
+                     <CardHeader>
+                         <CardTitle className="flex items-center gap-2">
+                             <CheckSquare className="h-5 w-5 text-primary" />
+                             Platform-wide Tasks
+                         </CardTitle>
+                         <CardDescription>A summary of upcoming tasks across all teams.</CardDescription>
+                     </CardHeader>
+                     <CardContent>
+                         <Table>
+                             <TableHeader>
+                                 <TableRow>
+                                     <TableHead>Task</TableHead>
+                                     <TableHead>Client</TableHead>
+                                     <TableHead>Due Date</TableHead>
+                                 </TableRow>
+                             </TableHeader>
+                             <TableBody>
+                                 {tasksData.filter(t => t.status !== 'Completed').slice(0, 4).map(task => (
+                                     <TableRow key={task.id} className="cursor-pointer" onClick={() => setPage('tasks')}>
+                                         <TableCell className="font-medium">{task.title}</TableCell>
+                                         <TableCell>
+                                             <div className="flex items-center gap-2">
+                                                 <Avatar className="h-6 w-6">
+                                                     <AvatarImage src={task.client.avatar} alt={task.client.name} />
+                                                     <AvatarFallback>{task.client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                 </Avatar>
+                                                 <span className="text-sm">{task.client.name}</span>
+                                             </div>
+                                         </TableCell>
+                                         <TableCell>{format(new Date(task.dueDate), "PP")}</TableCell>
+                                     </TableRow>
+                                 ))}
+                             </TableBody>
+                         </Table>
+                         <Button variant="outline" className="w-full mt-4" onClick={() => setPage('tasks')}>View All Tasks</Button>
+                     </CardContent>
+                 </Card>
+                 <Card>
+                     <CardHeader>
+                         <CardTitle className="flex items-center gap-2">
+                              <Mail className="h-5 w-5 text-primary" />
+                             Recent Messages
+                         </CardTitle>
+                         <CardDescription>Latest messages from clients across the platform.</CardDescription>
+                     </CardHeader>
+                     <CardContent className="space-y-4">
+                         {dashboardData.recentMessages.slice(0, 3).map((message) => (
+                             <div key={message.id} className="flex items-start gap-4 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer" onClick={() => setPage('notifications')}>
+                                 <Avatar className="h-10 w-10 border">
+                                     <AvatarImage src={message.avatar} alt={message.name} />
+                                     <AvatarFallback>{message.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                 </Avatar>
+                                 <div className="flex-1">
+                                     <div className="flex justify-between items-center">
+                                         <p className="font-semibold">{message.name}</p>
+                                         <p className="text-xs text-muted-foreground">{message.time}</p>
+                                     </div>
+                                     <p className="text-sm text-muted-foreground truncate">{message.message}</p>
+                                 </div>
+                             </div>
+                         ))}
+                         <Button variant="outline" className="w-full mt-4" onClick={() => setPage('notifications')}>View System Notifications</Button>
+                     </CardContent>
+                 </Card>
             </div>
              <AdminTeamPerformance />
         </div>
