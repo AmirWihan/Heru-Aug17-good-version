@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import type { TeamMember } from '@/lib/data';
+import { Switch } from '../ui/switch';
+import { Badge } from '../ui/badge';
 
 const onboardingSchema = z.object({
     // Step 0
@@ -32,6 +34,7 @@ const onboardingSchema = z.object({
     governmentId: z.any().refine(file => file instanceof File, "Government ID is required."),
     // Step 2
     selectedPlan: z.enum(['starter', 'pro', 'enterprise']),
+    billingCycle: z.enum(['monthly', 'annually']).default('monthly'),
     cardName: z.string().min(2, "Name on card is required."),
     cardNumber: z.string().refine((val) => /^\d{16}$/.test(val.replace(/\s/g, '')), "Invalid card number."),
     expiryDate: z.string().refine((val) => /^(0[1-9]|1[0-2])\/\d{2}$/.test(val), "Invalid expiry date (MM/YY)."),
@@ -42,12 +45,12 @@ const onboardingSchema = z.object({
 const steps = [
     { name: 'Firm & Personal Details', icon: Building, fields: ['fullName', 'email', 'phone', 'firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
     { name: 'License & Verification', icon: Award, fields: ['licenseNumber', 'registrationNumber', 'governmentId'] as const },
-    { name: 'Subscription & Payment', icon: CreditCard, fields: ['selectedPlan', 'cardName', 'cardNumber', 'expiryDate', 'cvc'] as const },
+    { name: 'Subscription & Payment', icon: CreditCard, fields: ['selectedPlan', 'billingCycle', 'cardName', 'cardNumber', 'expiryDate', 'cvc'] as const },
 ];
 
 const plans = [
-    { id: 'starter', name: 'Starter', price: 49, userLimit: 2, clientLimit: 50, features: ['Up to 2 users', 'Up to 50 clients', 'Basic AI Tools', 'Standard Support'] },
-    { id: 'pro', name: 'Pro Team', price: 99, userLimit: 10, clientLimit: 500, features: ['Up to 10 users', 'Up to 500 clients', 'Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
+    { id: 'starter', name: 'Starter', price: { monthly: 49, annually: 490 }, userLimit: 2, clientLimit: 50, features: ['Up to 2 users', 'Up to 50 clients', 'Basic AI Tools', 'Standard Support'] },
+    { id: 'pro', name: 'Pro Team', price: { monthly: 99, annually: 990 }, userLimit: 10, clientLimit: 500, features: ['Up to 10 users', 'Up to 500 clients', 'Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
     { id: 'enterprise', name: 'Enterprise', price: 'Custom', userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Unlimited users & clients', 'Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
 ];
 
@@ -73,6 +76,7 @@ export function LawyerOnboarding() {
             registrationNumber: "",
             governmentId: undefined,
             selectedPlan: 'pro',
+            billingCycle: 'monthly',
             cardName: "",
             cardNumber: "",
             expiryDate: "",
@@ -81,6 +85,7 @@ export function LawyerOnboarding() {
     });
 
     const selectedPlanId = form.watch('selectedPlan');
+    const billingCycle = form.watch('billingCycle');
 
     async function processSubmit(data: z.infer<typeof onboardingSchema>) {
         const newMember: TeamMember = {
@@ -91,9 +96,10 @@ export function LawyerOnboarding() {
             type: 'legal',
             email: data.email,
             phone: data.phone,
-            accessLevel: 'Member',
+            accessLevel: 'Admin',
             status: 'Pending Activation',
             plan: data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise',
+            billingCycle: data.billingCycle,
             location: 'Unknown',
             yearsOfPractice: 0,
             successRate: 0,
@@ -167,7 +173,7 @@ export function LawyerOnboarding() {
 
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] py-8">
-            <Card className="w-full max-w-3xl">
+            <Card className="w-full max-w-4xl">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Welcome! Let's Set Up Your Account.</CardTitle>
                     <CardDescription>Complete these steps to activate your professional account.</CardDescription>
@@ -186,7 +192,7 @@ export function LawyerOnboarding() {
                 </CardHeader>
                 <Form {...form}>
                     <form>
-                        <CardContent className="min-h-[380px]">
+                        <CardContent className="min-h-[420px]">
                             {currentStep === 0 && (
                                 <div className="space-y-4 animate-fade">
                                     <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm & Personal Details</h3>
@@ -276,7 +282,19 @@ export function LawyerOnboarding() {
                             {currentStep === 2 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription & Payment</h3>
-                                    <p className="text-sm text-muted-foreground">Choose a plan. You will only be charged upon account activation.</p>
+                                     <FormField control={form.control} name="billingCycle" render={({ field }) => (
+                                        <FormItem className="flex items-center justify-center gap-2 pt-2">
+                                            <FormLabel className={cn('transition-colors', field.value === 'monthly' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Monthly</FormLabel>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value === 'annually'}
+                                                    onCheckedChange={(checked) => field.onChange(checked ? 'annually' : 'monthly')}
+                                                />
+                                            </FormControl>
+                                            <FormLabel className={cn('transition-colors', field.value === 'annually' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Annually</FormLabel>
+                                            <Badge variant="success">Save 17%</Badge>
+                                        </FormItem>
+                                    )} />
                                     <FormField control={form.control} name="selectedPlan" render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
@@ -285,10 +303,14 @@ export function LawyerOnboarding() {
                                                         <Card key={plan.id} onClick={() => field.onChange(plan.id)} className={cn('cursor-pointer flex flex-col', selectedPlanId === plan.id ? 'border-primary ring-2 ring-primary' : 'hover:shadow-md')}>
                                                             <CardHeader>
                                                                 <CardTitle>{plan.name}</CardTitle>
-                                                                <CardDescription>
-                                                                    {typeof plan.price === 'number' ?
-                                                                        <><span className="text-3xl font-bold text-foreground">${plan.price}</span> / user / month</> :
-                                                                        <span className="text-3xl font-bold text-foreground">Contact Us</span>
+                                                                <CardDescription className="min-h-[60px]">
+                                                                    {typeof plan.price === 'object' ?
+                                                                        <>
+                                                                            <span className="text-3xl font-bold text-foreground">${billingCycle === 'annually' ? Math.floor(plan.price.annually / 12) : plan.price.monthly}</span>
+                                                                            <span className="text-muted-foreground">/mo</span>
+                                                                            {billingCycle === 'annually' && <p className="text-xs text-primary">Billed as ${plan.price.annually} annually</p>}
+                                                                        </>
+                                                                        : <span className="text-3xl font-bold text-foreground">Contact Us</span>
                                                                     }
                                                                 </CardDescription>
                                                             </CardHeader>
@@ -309,6 +331,7 @@ export function LawyerOnboarding() {
                                         </FormItem>
                                     )} />
                                     <div className="space-y-4 pt-6 border-t">
+                                        <p className="text-sm text-muted-foreground">Your card will only be charged upon account activation. Your subscription will auto-renew.</p>
                                         <FormField control={form.control} name="cardName" render={({ field }) => (
                                             <FormItem><FormLabel>Name on Card</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />

@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { SettingsSidebar } from './settings/settings-sidebar';
@@ -9,6 +10,8 @@ import { TeamSettings } from './settings/team-settings';
 import { GeneralSettings } from './settings/general-settings';
 import { Card, CardContent } from '@/components/ui/card';
 import { IntegrationsSettings } from './settings/integrations-settings';
+import { BillingSettings } from './settings/billing-settings';
+import { DataSettings } from './settings/data-settings';
 
 const PlaceholderSettings = ({ title }: { title: string }) => (
     <Card>
@@ -29,8 +32,9 @@ export function SettingsPage() {
         'notifications': NotificationsSettings,
         'appearance': AppearanceSettings,
         'team': TeamSettings,
+        'billing': BillingSettings,
         'integrations': IntegrationsSettings,
-        'data': () => <PlaceholderSettings title="Data Management" />,
+        'data': DataSettings,
     };
 
     const ActiveComponent = pageComponents[activePage] || GeneralSettings;

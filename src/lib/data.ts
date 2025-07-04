@@ -88,6 +88,7 @@ export type TeamMember = {
     accessLevel: 'Admin' | 'Member' | 'Viewer';
     status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected';
     plan: 'Starter' | 'Pro Team' | 'Enterprise' | 'N/A';
+    billingCycle?: 'monthly' | 'annually';
     location: string;
     yearsOfPractice: number;
     successRate: number;
@@ -139,6 +140,7 @@ export const teamMembers: TeamMember[] = [
         accessLevel: 'Admin',
         status: 'Pending Activation',
         plan: 'Enterprise',
+        billingCycle: 'annually',
         location: 'Montreal, QC',
         yearsOfPractice: 15,
         successRate: 0,
@@ -167,6 +169,7 @@ export const teamMembers: TeamMember[] = [
         accessLevel: 'Member',
         status: 'Pending Activation',
         plan: 'Pro Team',
+        billingCycle: 'monthly',
         location: 'Ottawa, ON',
         yearsOfPractice: 0,
         successRate: 0,
@@ -186,7 +189,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
-        email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
+        email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
@@ -197,7 +200,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
-        email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Team',
+        email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
         firmName: 'Chen & Associates',
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
@@ -208,7 +211,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
-        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Starter',
+        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
@@ -219,7 +222,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
-        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team',
+        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
         firmName: 'Rodriguez Immigration Law',
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',

@@ -1,6 +1,7 @@
+
 'use client';
 import { cn } from "@/lib/utils";
-import { User, Lock, Bell, Palette, Building, Users, Puzzle, Database } from 'lucide-react';
+import { User, Lock, Bell, Palette, Building, Users, Puzzle, Database, CreditCard } from 'lucide-react';
 import type { FC } from "react";
 
 const navGroups = [
@@ -9,6 +10,7 @@ const navGroups = [
         items: [
             { id: 'general', label: 'General', icon: Building },
             { id: 'team', label: 'Users & Teams', icon: Users },
+            { id: 'billing', label: 'Billing', icon: CreditCard },
         ]
     },
     {
