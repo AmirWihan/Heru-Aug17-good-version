@@ -13,6 +13,7 @@ const pageTitles: { [key: string]: string } = {
     'billing': 'Billing & Payments',
     'appointments': 'Appointments',
     'settings': 'Settings',
+    'support': 'Help & Support',
 };
 
 function ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {

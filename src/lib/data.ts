@@ -195,7 +195,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$120k' }, { label: 'Success Rate', value: '96%' }, { label: 'Rating', value: '4.9/5' }],
+        stats: [{ label: 'Clients', value: '72' }, { label: 'Success Rate', value: '96%' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
     },
     {
@@ -206,7 +206,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
         numEmployees: 5,
         firmWebsite: 'https://chenassociates.com',
-        stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$85k' }, { label: 'Success Rate', value: '89%' }, { label: 'Rating', value: '4.7/5' }],
+        stats: [{ label: 'Clients', value: '45' }, { label: 'Success Rate', value: '89%' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
     },
     {
@@ -217,7 +217,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$50k' }, { label: 'Success Rate', value: '92%' }, { label: 'Rating', value: '4.8/5' }],
+        stats: [{ label: 'Clients', value: '38' }, { label: 'Success Rate', value: '92%' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication']
     },
     {
@@ -228,7 +228,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
         numEmployees: 3,
         firmWebsite: 'https://rodriguezlaw.ca',
-        stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$75k' }, { label: 'Success Rate', value: '94%' }, { label: 'Rating', value: '4.6/5' }],
+        stats: [{ label: 'Clients', value: '51' }, { label: 'Success Rate', value: '94%' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
     },
     {
@@ -744,4 +744,10 @@ export const plans = [
     { id: 'starter' as const, name: 'Starter', price: { monthly: 49, annually: 490 }, userLimit: 2, clientLimit: 50, features: ['Basic AI Tools', 'Standard Support'] },
     { id: 'pro' as const, name: 'Pro Team', price: { monthly: 99, annually: 990 }, userLimit: 10, clientLimit: 500, features: ['Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
     { id: 'enterprise' as const, name: 'Enterprise', price: 'Custom' as const, userLimit: 'Unlimited' as const, clientLimit: 'Unlimited' as const, features: ['Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
+];
+
+export const supportTicketsData = [
+    { id: 'TKT-84321', subject: 'Unable to upload passport PDF', topic: 'Technical Issue', status: 'In Progress', lastUpdated: '2024-07-22T10:00:00Z' },
+    { id: 'TKT-84320', subject: 'Question about annual billing', topic: 'Billing & Subscription', status: 'Closed', lastUpdated: '2024-07-18T15:30:00Z' },
+    { id: 'TKT-84319', subject: 'Suggestion for AI Tools page', topic: 'Feature Request', status: 'Open', lastUpdated: '2024-07-23T11:45:00Z' },
 ];

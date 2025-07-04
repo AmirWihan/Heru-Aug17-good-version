@@ -11,6 +11,7 @@ import {
   X,
   Search,
   Calendar,
+  HelpCircle,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ const navItems = [
   { id: 'messages', label: 'Messages', icon: Mail },
   { id: 'billing', label: 'Billing', icon: FileDigit },
   { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'support', label: 'Help & Support', icon: HelpCircle },
 ]
 
 export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: ClientSidebarProps) {

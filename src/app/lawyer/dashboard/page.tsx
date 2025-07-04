@@ -14,6 +14,7 @@ import { ReportsPage } from '@/components/pages/reports';
 import { SettingsPage } from '@/components/pages/settings';
 import { TasksPage } from '@/components/pages/tasks';
 import { ActivityLogPage } from '@/components/pages/activity';
+import { SupportPage } from '@/components/pages/support';
 
 export default function LawyerDashboard() {
   const { page, setPage } = useLawyerDashboard();
@@ -32,6 +33,7 @@ export default function LawyerDashboard() {
     reports: ReportsPage,
     settings: SettingsPage,
     activity: ActivityLogPage,
+    support: SupportPage,
   };
 
   const PageComponent = pageComponents[page] || DashboardPage;

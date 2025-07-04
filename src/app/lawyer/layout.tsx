@@ -20,6 +20,7 @@ const pageTitles: { [key: string]: string } = {
     'reports': 'Reports',
     'settings': 'Settings',
     'activity': 'Activity Log',
+    'support': 'Help & Support',
 };
 
 function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {

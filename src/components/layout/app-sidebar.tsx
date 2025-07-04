@@ -45,6 +45,7 @@ const navItems = [
   { id: 'reports', label: 'Reports', icon: LineChart },
   { id: 'ai-tools', label: 'AI Tools', icon: Wand2 },
   { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'support', label: 'Help & Support', icon: HelpCircle },
 ]
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
@@ -123,13 +124,6 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
             {navItems.map((item) => <NavLink key={item.id} item={item} />)}
           </ul>
         </nav>
-
-        <div className="p-4 border-t">
-          <Link href="#" className="flex items-center p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
-            <HelpCircle className="mr-3 h-5 w-5" />
-            <span>Help & Support</span>
-          </Link>
-        </div>
       </aside>
     </>
   )
