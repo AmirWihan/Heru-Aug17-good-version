@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -11,7 +12,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
-export const SuccessPredictorInputSchema = z.object({
+const SuccessPredictorInputSchema = z.object({
   visaType: z.string().describe('The type of visa or immigration program the client is applying for (e.g., Express Entry, Student Visa).'),
   countryOfOrigin: z.string().describe("The client's country of origin."),
   age: z.number().describe("The client's age in years."),
@@ -19,7 +20,7 @@ export const SuccessPredictorInputSchema = z.object({
 });
 export type SuccessPredictorInput = z.infer<typeof SuccessPredictorInputSchema>;
 
-export const SuccessPredictorOutputSchema = z.object({
+const SuccessPredictorOutputSchema = z.object({
   successProbability: z.number().min(0).max(100).describe('The estimated probability of success for the application, as a percentage.'),
   scoreLabel: z.enum(['Green', 'Yellow', 'Red']).describe('A color-coded score label based on the success probability (Green > 80%, Yellow 50-79%, Red < 50%).'),
   reason: z.string().describe('A brief, 1-2 sentence explanation for the given score, highlighting key positive or negative factors.'),
