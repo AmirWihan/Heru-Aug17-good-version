@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -35,8 +35,9 @@ const FacebookIcon = () => (
     </svg>
 );
 
-export default function LoginPage({ searchParams }: { searchParams: { role?: string } }) {
-    const role = searchParams.role || 'client';
+export default function LoginPage() {
+    const searchParams = useSearchParams();
+    const role = searchParams.get('role') || 'client';
     const router = useRouter();
     const { toast } = useToast();
     const { teamMembers, clients } = useGlobalData();
