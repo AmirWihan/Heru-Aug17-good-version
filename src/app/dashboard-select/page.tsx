@@ -1,3 +1,4 @@
+
 'use client';
 
 import { HeruLogoIcon } from '@/components/icons/HeruLogoIcon';
@@ -77,6 +78,7 @@ export default function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
 
+        const processedEmail = email.toLowerCase().trim();
         if (password !== 'password123') {
             toast({
                 title: 'Login Failed',
@@ -87,40 +89,42 @@ export default function LoginPage() {
             return;
         }
 
-        let userFound = null;
-        const processedEmail = email.toLowerCase().trim();
-
-        if (role === 'lawyer') {
-            userFound = teamMembers.find(member => member.email.toLowerCase().trim() === processedEmail && member.type === 'legal');
-            if (userFound && userFound.status === 'Active') {
-                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
-                router.push('/lawyer/dashboard');
-            } else if (userFound && userFound.status !== 'Active') {
-                toast({ title: 'Account Not Active', description: `Your account status is: ${userFound.status}. Please wait for activation.`, variant: 'destructive' });
-                setIsLoading(false);
-            } else {
-                toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
-                setIsLoading(false);
-            }
-        } else if (role === 'admin') {
-            userFound = teamMembers.find(member => member.email.toLowerCase().trim() === processedEmail && member.type === 'admin');
-            if (userFound && userFound.status === 'Active') {
-                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
+        if (role === 'admin') {
+            const user = teamMembers.find(member => member.type === 'admin' && member.email.toLowerCase().trim() === processedEmail);
+            if (user?.status === 'Active') {
+                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/admin/dashboard');
-            } else {
-                toast({ title: 'Login Failed', description: 'Invalid credentials for Super Admin.', variant: 'destructive' });
-                setIsLoading(false);
+                return;
+            }
+        } else if (role === 'lawyer') {
+            const user = teamMembers.find(member => member.type === 'legal' && member.email.toLowerCase().trim() === processedEmail);
+            if (user) {
+                if (user.status === 'Active') {
+                    toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
+                    router.push('/lawyer/dashboard');
+                    return;
+                } else {
+                    toast({ title: 'Account Not Active', description: `Your account status is: ${user.status}. Please wait for activation.`, variant: 'destructive' });
+                    setIsLoading(false);
+                    return;
+                }
             }
         } else if (role === 'client') {
-            userFound = clients.find(client => client.email.toLowerCase().trim() === processedEmail);
-            if (userFound) {
-                toast({ title: 'Login Successful', description: `Welcome back, ${userFound.name}!` });
+            const user = clients.find(c => c.email.toLowerCase().trim() === processedEmail);
+            if (user) {
+                toast({ title: 'Login Successful', description: `Welcome back, ${user.name}!` });
                 router.push('/client/dashboard');
-            } else {
-                toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
-                setIsLoading(false);
+                return;
             }
         }
+
+        // Generic failure if no successful path was taken
+        toast({
+            title: 'Login Failed',
+            description: 'Invalid credentials for the selected role.',
+            variant: 'destructive'
+        });
+        setIsLoading(false);
     };
 
     return (
