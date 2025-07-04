@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { clients as initialClients, teamMembers as initialTeamMembers } from "@/lib/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, UserPlus } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, ShieldCheck } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -126,20 +126,22 @@ export function UserManagementPage() {
                                                  <Badge variant={getStatusBadgeVariant(member.status)}>{member.status}</Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                        {member.status === 'Pending Activation' ? (
-                                                            <DropdownMenuItem onClick={() => handleActivateAccount(member.id)}>Activate Account</DropdownMenuItem>
-                                                        ) : (
-                                                            <DropdownMenuItem>Verify Account</DropdownMenuItem>
-                                                        )}
-                                                        <DropdownMenuItem className="text-destructive">Suspend Account</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                {member.status === 'Pending Activation' ? (
+                                                    <Button size="sm" onClick={() => handleActivateAccount(member.id)}>
+                                                        <ShieldCheck className="mr-2 h-4 w-4" />
+                                                        Activate
+                                                    </Button>
+                                                ) : (
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuItem>View Details</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive">Suspend Account</DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
