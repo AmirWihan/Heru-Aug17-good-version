@@ -3,7 +3,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Share2, Mail, MessageSquare, Phone, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Share2, Mail, MessageSquare, Phone, Star, Crown } from "lucide-react";
 
 type LawyerProfileCardProps = {
     lawyer: {
@@ -21,16 +22,26 @@ type LawyerProfileCardProps = {
     };
     onConnect: (lawyerId: number) => void;
     onMessage?: () => void;
+    isEnterprise?: boolean;
 };
 
-export function LawyerProfileCard({ lawyer, onConnect, onMessage }: LawyerProfileCardProps) {
+export function LawyerProfileCard({ lawyer, onConnect, onMessage, isEnterprise }: LawyerProfileCardProps) {
     const displayedStats = lawyer.stats.filter(
         stat => stat.label === 'Clients' || stat.label === 'Success Rate'
     );
 
     return (
-        <Card className="flex flex-col">
-            <CardHeader className="items-center text-center">
+        <Card className={cn(
+            "flex flex-col relative",
+            isEnterprise && "border-primary shadow-primary/20"
+        )}>
+            {isEnterprise && (
+                <Badge variant="warning" className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Crown className="mr-1.5 h-3 w-3" />
+                    Enterprise Partner
+                </Badge>
+            )}
+            <CardHeader className="items-center text-center pt-8">
                 <Avatar className="w-24 h-24 mb-4">
                     <AvatarImage src={lawyer.avatar} alt={lawyer.name} />
                     <AvatarFallback>{lawyer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>

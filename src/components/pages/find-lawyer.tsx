@@ -23,7 +23,7 @@ export function FindLawyerPage() {
     const locations = useMemo(() => ['all', ...Array.from(new Set(teamMembers.map(l => l.location)))], []);
 
     const filteredLawyers = useMemo(() => {
-        return teamMembers.filter(lawyer => {
+        const filtered = teamMembers.filter(lawyer => {
             if (lawyer.type !== 'legal' || lawyer.status !== 'Active') {
                 return false;
             }
@@ -35,6 +35,15 @@ export function FindLawyerPage() {
             
             return nameMatch && specialtyMatch && locationMatch && experienceMatch && successRateMatch;
         });
+
+        // Sort to bring Enterprise lawyers to the front
+        return filtered.sort((a, b) => {
+            const aIsEnterprise = a.plan === 'Enterprise';
+            const bIsEnterprise = b.plan === 'Enterprise';
+            if (aIsEnterprise === bIsEnterprise) return 0;
+            return aIsEnterprise ? -1 : 1;
+        });
+
     }, [searchTerm, specialty, location, experience, successRate]);
 
     const handleConnect = (lawyerId: number) => {
@@ -105,7 +114,12 @@ export function FindLawyerPage() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredLawyers.length > 0 ? filteredLawyers.map(lawyer => (
-                    <LawyerProfileCard key={lawyer.id} lawyer={lawyer} onConnect={handleConnect} />
+                    <LawyerProfileCard 
+                        key={lawyer.id} 
+                        lawyer={lawyer} 
+                        onConnect={handleConnect}
+                        isEnterprise={lawyer.plan === 'Enterprise'}
+                    />
                 )) : (
                     <div className="col-span-full text-center py-12 text-muted-foreground">
                         <p className="font-semibold">No professionals match your criteria.</p>
