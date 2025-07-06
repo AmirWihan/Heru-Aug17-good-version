@@ -26,7 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, documents as documentTemplates, activityTypes, invoicesData } from "@/lib/data";
+import { documentCategories, documents as documentTemplates, activityTypes } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
@@ -110,7 +110,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
-    const { teamMembers: allTeamMembers } = useGlobalData();
+    const { teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
 
     const assignableMembers = isAdminView
         ? allTeamMembers.filter(member => member.type === 'sales' || member.type === 'advisor')
@@ -149,7 +149,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<SuccessPredictorOutput | null>(null);
 
-    const communications = client.activity.filter(item => item.title.includes("Message") || item.title.includes("Email"));
+    const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
     const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
     const [isTimelineLoading, setIsTimelineLoading] = useState(true);
@@ -278,7 +278,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             const file = event.target.files[0];
             const updatedClient = {
                 ...client,
-                documents: client.documents.map(doc => 
+                documents: (client.documents || []).map(doc => 
                     doc.id === uploadingDocId 
                     ? { ...doc, status: 'Uploaded' as const, dateAdded: new Date().toISOString().split('T')[0] }
                     : doc
@@ -316,10 +316,13 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             priority: newTaskPriority,
             status: 'To Do',
         };
+        
+        // Update both global tasks and client-specific tasks
+        addTask(newTask);
 
         const updatedClient: Client = {
             ...client,
-            tasks: [...client.tasks, newTask],
+            tasks: [...(client.tasks || []), newTask],
             activity: [
                 {
                     id: Date.now(),
@@ -327,7 +330,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     description: `Task "${newTaskTitle}" assigned to ${assignee.name}.`,
                     timestamp: new Date().toISOString(),
                 },
-                ...client.activity,
+                ...(client.activity || []),
             ],
         };
 
@@ -351,7 +354,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
 
         const updatedClient = {
             ...client,
-            documents: client.documents.filter(doc => doc.id !== deletingDocId),
+            documents: (client.documents || []).filter(doc => doc.id !== deletingDocId),
         };
 
         onUpdateClient(updatedClient);
@@ -403,6 +406,9 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 status: 'To Do',
             };
             
+            // Also add this to global state
+            addTask(newTask);
+            
             const taskActivity = {
                 id: Date.now() + 2,
                 title: 'New Task Created',
@@ -413,14 +419,14 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             
             updatedClient = {
                 ...updatedClient,
-                tasks: [...updatedClient.tasks, newTask],
+                tasks: [...(updatedClient.tasks || []), newTask],
             };
             activitiesToAdd.push(taskActivity);
         }
         
         updatedClient = {
             ...updatedClient,
-            activity: [...activitiesToAdd, ...updatedClient.activity],
+            activity: [...activitiesToAdd, ...(updatedClient.activity || [])],
         };
 
         onUpdateClient(updatedClient);
@@ -591,7 +597,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-6">
-                                        {client.activity.slice(0,2).map((item, index) => {
+                                        {(client.activity || []).slice(0,2).map((item, index) => {
                                             const Icon = activityIcons[item.title] || FileText;
                                             return (
                                                 <div key={index} className="flex items-start gap-4">
@@ -633,7 +639,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            {client.documents && client.documents.length > 0 ? (
+                            {(client.documents || []).length > 0 ? (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -645,7 +651,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {client.documents.map((doc) => (
+                                        {(client.documents || []).map((doc) => (
                                             <TableRow key={doc.id}>
                                                 <TableCell className="font-medium">{doc.title}</TableCell>
                                                 <TableCell>{doc.category}</TableCell>
@@ -713,7 +719,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                                 </TableCell>
                                             </TableRow>
-                                            {agreement.relatedDocuments.map(doc => (
+                                            {(agreement.relatedDocuments || []).map(doc => (
                                                 <TableRow key={doc.id}>
                                                     <TableCell className="font-medium">{doc.title}</TableCell>
                                                     <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
@@ -732,7 +738,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                 <div>
                                     <h4 className="font-semibold text-base mb-2">Linked Invoices</h4>
                                     <div className="space-y-2">
-                                        {agreement.relatedInvoiceIds.length > 0 ? agreement.relatedInvoiceIds.map(invoiceId => {
+                                        {(agreement.relatedInvoiceIds || []).length > 0 ? agreement.relatedInvoiceIds.map(invoiceId => {
                                             const invoice = invoicesData.find(i => i.invoiceNumber === invoiceId);
                                             return invoice ? (
                                                 <div key={invoice.id} className="flex items-center justify-between p-3 rounded-lg border">
@@ -780,7 +786,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            {client.tasks && client.tasks.length > 0 ? (
+                            {(client.tasks || []).length > 0 ? (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -792,7 +798,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {client.tasks.map((task) => (
+                                        {(client.tasks || []).map((task) => (
                                             <TableRow key={task.id}>
                                                 <TableCell>
                                                     <div className="font-medium">{task.title}</div>
@@ -928,7 +934,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     <SelectValue placeholder="Select a category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {documentCategories.filter(c => c.name !== 'All Documents').map(cat => (
+                                    {(documentCategories || []).filter(c => c.name !== 'All Documents').map(cat => (
                                         <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
                                     ))}
                                 </SelectContent>
@@ -961,7 +967,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     <SelectValue placeholder="Select a document template" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {documentTemplates.map(template => (
+                                    {(documentTemplates || []).map(template => (
                                         <SelectItem key={template.id} value={template.id.toString()}>{template.title}</SelectItem>
                                     ))}
                                 </SelectContent>
@@ -1002,7 +1008,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     <SelectValue placeholder="Select a team member" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {assignableMembers.map(member => (
+                                    {(assignableMembers || []).map(member => (
                                         <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
                                     ))}
                                 </SelectContent>
@@ -1051,7 +1057,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {activityTypes.map(type => (
+                                        {(activityTypes || []).map(type => (
                                             <SelectItem key={type.id} value={type.id}>{type.label}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -1088,7 +1094,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                             <SelectValue placeholder="Select a team member" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {assignableMembers.map(member => (
+                                            {(assignableMembers || []).map(member => (
                                                 <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -1130,7 +1136,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the document
-                            "{client.documents.find(d => d.id === deletingDocId)?.title}" from the client's profile.
+                            "{(client.documents || []).find(d => d.id === deletingDocId)?.title}" from the client's profile.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

@@ -297,7 +297,7 @@ export const tasksData: Task[] = [
         id: 4,
         title: 'Draft submission cover letter',
         description: 'Draft the cover letter for James Wilson\'s work permit extension application.',
-        client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
+        client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' },
         assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
         dueDate: '2024-07-24',
         priority: 'High',
@@ -375,9 +375,7 @@ export const clients: Client[] = [
             priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
         },
         activity: [],
-        documents: [
-            { id: 1, title: 'Marriage Certificate', category: 'Sponsorship', dateAdded: '2020-03-01', status: 'Approved' },
-        ],
+        documents: [],
         tasks: [],
         agreements: []
     },
@@ -396,6 +394,7 @@ export const clients: Client[] = [
             { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
             { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
             { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
+            { id: 4, title: 'Proof of Funds', status: 'Requested' as const, date: '2023-06-15', category: 'Financial' },
         ],
         tasks: [tasksData[3]],
         agreements: [
@@ -536,70 +535,33 @@ export const documents: DocumentTemplate[] = [
     { id: 16, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Agreements', format: 'DOCX', size: 'Template' },
 ];
 
-
 export const messagesData = [
     {
       id: 1,
-      name: 'James Wilson',
-      avatar: 'https://i.pravatar.cc/150?u=james',
-      lastMessage: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?',
-      time: '2h ago',
-      unreadCount: 1,
+      name: 'Emma Johnson',
+      avatar: 'https://i.pravatar.cc/150?u=emma',
+      lastMessage: 'Hi James, I just checked the portal. It\'s still showing as "under review". I will follow up with them next week if there\'s no change.',
+      time: '1h ago',
+      unreadCount: 0,
       messages: [
-        { id: 1, sender: 'James Wilson', text: 'Hi Sarah, hope you\'re well.', timestamp: '10:30 AM' },
+        { id: 1, sender: 'James Wilson', text: 'Hi Emma, hope you\'re well.', timestamp: '10:30 AM' },
         { id: 2, sender: 'James Wilson', text: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?', timestamp: '10:32 AM' },
         { id: 3, sender: 'me', text: 'Hi James, I just checked the portal. It\'s still showing as "under review". I will follow up with them next week if there\'s no change.', timestamp: '11:15 AM' },
       ],
     },
     {
       id: 2,
-      name: 'Elena Rodriguez',
-      avatar: 'https://i.pravatar.cc/150?u=elena',
-      lastMessage: 'Thank you for the consultation yesterday! I\'ll gather all the documents you mentioned.',
+      name: 'Michael Chen',
+      avatar: 'https://i.pravatar.cc/150?u=michaelchen',
+      lastMessage: 'Let\'s schedule a call to discuss the documents.',
       time: '5h ago',
-      unreadCount: 0,
+      unreadCount: 1,
       messages: [
-         { id: 1, sender: 'me', text: 'It was a pleasure speaking with you, Elena. Let me know if you have any questions while preparing the documents.', timestamp: 'Yesterday, 4:30 PM' },
-         { id: 2, sender: 'Elena Rodriguez', text: 'Thank you for the consultation yesterday! I\'ll gather all the documents you mentioned.', timestamp: '5h ago' },
+         { id: 1, sender: 'me', text: 'Hi Michael, I\'ve uploaded the documents we discussed.', timestamp: 'Yesterday, 4:30 PM' },
+         { id: 2, sender: 'Michael Chen', text: 'Thanks, James. I see them. Let\'s schedule a call to discuss the documents.', timestamp: '5h ago' },
       ],
     },
-    {
-      id: 3,
-      name: 'Michael Brown',
-      avatar: 'https://i.pravatar.cc/150?u=michael',
-      lastMessage: 'Can we schedule another call to discuss the PNP options? I have some new questions.',
-      time: '1d ago',
-      unreadCount: 0,
-      messages: [
-         { id: 1, sender: 'Michael Brown', text: 'Can we schedule another call to discuss the PNP options? I have some new questions.', timestamp: '1d ago' },
-      ],
-    },
-    {
-      id: 4,
-      name: 'Ananya Sharma',
-      avatar: 'https://i.pravatar.cc/150?u=ananya',
-      lastMessage: 'All documents have been uploaded to the portal.',
-      time: '3d ago',
-      unreadCount: 0,
-      messages: [
-         { id: 1, sender: 'Ananya Sharma', text: 'All documents have been uploaded to the portal.', timestamp: '3d ago' },
-         { id: 2, sender: 'me', text: 'Great, thank you Ananya. I will review them and let you know if anything else is needed.', timestamp: '3d ago' },
-      ],
-    },
-    {
-      id: 5,
-      name: 'Internal - Legal Team',
-      avatar: 'https://i.pravatar.cc/150?u=team',
-      lastMessage: 'Michael: Can someone take a look at the new policy update for spousal sponsorships?',
-      time: '4d ago',
-      unreadCount: 0,
-      isGroup: true,
-      messages: [
-         { id: 1, sender: 'Michael Chen', text: 'Can someone take a look at the new policy update for spousal sponsorships?', timestamp: '4d ago' },
-         { id: 2, sender: 'Emma Johnson', text: 'I\'m on it. Will share a summary by EOD.', timestamp: '4d ago' },
-      ],
-    }
-  ];
+];
 
   export const billingSummary = {
     totalRevenue: 64820,
@@ -615,6 +577,8 @@ export const invoicesData = [
     { id: 2, invoiceNumber: 'INV-2023-0452', service: 'PR Application', client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' }, date: 'Jun 5, 2023', dueDate: 'Jun 19, 2023', amount: 4500, status: 'Paid' },
     { id: 3, invoiceNumber: 'INV-2023-0448', service: 'Visitor Visa', client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' }, date: 'May 28, 2023', dueDate: 'Jun 11, 2023', amount: 1850, status: 'Pending' },
     { id: 4, invoiceNumber: 'INV-2023-0440', service: 'Student Visa', client: { id: 3, name: 'Li Wei', avatar: 'https://i.pravatar.cc/150?u=liwei' }, date: 'May 15, 2023', dueDate: 'May 29, 2023', amount: 2750, status: 'Paid' },
+    { id: 5, invoiceNumber: 'INV-2022-0101', service: 'Initial Retainer', client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, date: 'May 16, 2022', dueDate: 'May 30, 2022', amount: 1500, status: 'Paid' },
+
 ];
 
 export const paymentsData = [
@@ -639,11 +603,11 @@ export const applicationsData = [
 ];
 
 export const appointmentsData = [
-    { id: 1, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
-    { id: 2, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james', status: 'Upcoming' },
-    { id: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },
-    { id: 4, name: 'Michael Brown', dateTime: '2024-07-22T09:00:00', type: 'Initial Meeting', avatar: 'https://i.pravatar.cc/150?u=michael', status: 'Completed' },
-    { id: 5, name: 'Li Wei', dateTime: '2024-07-21T11:00:00', type: 'Strategy Session', avatar: 'https://i.pravatar.cc/150?u=liwei', status: 'Completed' },
+    { id: 1, clientId: 2, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
+    { id: 2, clientId: 5, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', status: 'Upcoming' },
+    { id: 3, clientId: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },
+    { id: 4, clientId: 1, name: 'Michael Brown', dateTime: '2024-07-22T09:00:00', type: 'Initial Meeting', avatar: 'https://i.pravatar.cc/150?u=michael', status: 'Completed' },
+    { id: 5, clientId: 5, name: 'James Wilson', dateTime: '2024-07-21T11:00:00', type: 'Strategy Session', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', status: 'Completed' },
 ];
 
 export const reportsData = {

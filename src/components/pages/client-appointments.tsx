@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { appointmentsData as initialAppointmentsData, teamMembers } from '@/lib/data';
+import { useGlobalData } from '@/context/GlobalDataContext';
 import { format, isFuture, isPast } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,10 @@ import { useToast } from '@/hooks/use-toast';
 import { PlusCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Appointment = typeof initialAppointmentsData[0];
+// Assume the logged-in client is James Wilson, ID 5
+const CURRENT_CLIENT_ID = 5;
+
+type Appointment = ReturnType<typeof useGlobalData>['appointments'][0];
 
 const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
     const { toast } = useToast();
@@ -42,21 +45,24 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
 export function ClientAppointmentsPage() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [isScheduling, setIsScheduling] = useState(false);
-    const [appointments, setAppointments] = useState(initialAppointmentsData);
+    const { appointments, teamMembers } = useGlobalData();
     const { toast } = useToast();
 
+    const clientAppointments = useMemo(() => {
+        return (appointments || []).filter(a => a.clientId === CURRENT_CLIENT_ID);
+    }, [appointments]);
+
     const { upcomingAppointments, pastAppointments } = useMemo(() => {
-        const now = new Date();
-        const upcoming = appointments
+        const upcoming = clientAppointments
             .filter(a => isFuture(new Date(a.dateTime)))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
         
-        const past = appointments
+        const past = clientAppointments
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 
         return { upcomingAppointments: upcoming, pastAppointments: past };
-    }, [appointments]);
+    }, [clientAppointments]);
     
     const handleScheduleAppointment = () => {
         setIsScheduling(false);
@@ -64,7 +70,7 @@ export function ClientAppointmentsPage() {
             title: "Appointment Scheduled!",
             description: "Your appointment has been successfully booked. You will receive a confirmation email shortly.",
         });
-        // Here you would typically add the new appointment to the state
+        // Here you would typically add the new appointment to the global state
     };
 
 
@@ -99,7 +105,7 @@ export function ClientAppointmentsPage() {
                                                 <SelectValue placeholder="Select a lawyer" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {teamMembers.map(lawyer => (
+                                                {(teamMembers || []).map(lawyer => (
                                                     <SelectItem key={lawyer.id} value={lawyer.id.toString()}>{lawyer.name}</SelectItem>
                                                 ))}
                                             </SelectContent>

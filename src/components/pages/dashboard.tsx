@@ -5,7 +5,7 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquar
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData, tasksData, reportsData } from "@/lib/data";
+import { dashboardData, reportsData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
@@ -68,7 +68,7 @@ const chartConfigRevenue = {
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const { clients } = useGlobalData();
+    const { clients, tasks } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
 
@@ -76,13 +76,13 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
         setIsAnalyzing(true);
         setRiskAlerts(null);
         try {
-            const activeClients = clients.filter(c => c.status === 'Active');
+            const activeClients = (clients || []).filter(c => c.status === 'Active');
             const analysisInput = activeClients.map(c => ({
                 id: c.id,
                 name: c.name,
                 status: c.status,
-                activity: c.activity.map(a => ({ title: a.title, timestamp: a.timestamp })),
-                documents: c.documents.map(d => ({ title: d.title, status: d.status, dateAdded: d.dateAdded })),
+                activity: (c.activity || []).map(a => ({ title: a.title, timestamp: a.timestamp })),
+                documents: (c.documents || []).map(d => ({ title: d.title, status: d.status, dateAdded: d.dateAdded })),
                 caseSummary: {
                     dueDate: c.caseSummary.dueDate,
                 }
@@ -153,7 +153,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     ) : riskAlerts ? (
                         riskAlerts.length > 0 ? (
                             <div className="space-y-4 max-h-96 overflow-y-auto">
-                                {riskAlerts.map((alert, index) => (
+                                {(riskAlerts || []).map((alert, index) => (
                                     <div key={index} className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
                                         <div className="bg-destructive/10 p-2 rounded-full mt-1">
                                             <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -207,7 +207,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {dashboardData.recentApplications.map(app => (
+                                    {(dashboardData.recentApplications || []).map(app => (
                                         <TableRow key={app.id} className="cursor-pointer" onClick={() => setPage('applications')}>
                                             <TableCell>
                                                 <div className="font-medium">{app.clientName}</div>
@@ -240,7 +240,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {dashboardData.upcomingAppointments.map((appt) => (
+                                    {(dashboardData.upcomingAppointments || []).map((appt) => (
                                     <TableRow key={appt.id}>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -273,7 +273,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                             <CardTitle className="font-headline text-lg">Upcoming Tasks</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {tasksData.filter(t => t.status !== 'Completed').slice(0, 3).map(task => (
+                            {(tasks || []).filter(t => t.status !== 'Completed').slice(0, 3).map(task => (
                                 <div key={task.id} className="flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-muted cursor-pointer transition-colors" onClick={() => setPage('tasks')}>
                                     <div className="bg-muted p-2 rounded-full mt-1">
                                       <CheckSquare className="h-4 w-4 text-primary" />
@@ -311,7 +311,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                 <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80}/>
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
                                 <Bar dataKey="value" layout="vertical" radius={5}>
-                                    {reportsData.revenueByCaseType.map((entry) => (
+                                    {(reportsData.revenueByCaseType || []).map((entry) => (
                                         <Cell key={entry.name} fill={chartConfigRevenue[entry.name as keyof typeof chartConfigRevenue]?.color} />
                                     ))}
                                 </Bar>

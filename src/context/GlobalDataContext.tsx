@@ -1,9 +1,12 @@
 
 'use client';
 
-import { teamMembers as initialTeamMembers, clients as initialClients, tasksData as initialTasksData, type Client, type TeamMember, type Task } from '@/lib/data';
+import { teamMembers as initialTeamMembers, clients as initialClients, tasksData as initialTasksData, appointmentsData as initialAppointmentsData, invoicesData as initialInvoicesData, type Client, type TeamMember, type Task } from '@/lib/data';
 import type { Dispatch, SetStateAction} from 'react';
 import { createContext, useState, useContext, useCallback, useEffect } from 'react';
+
+type Appointment = typeof initialAppointmentsData[0];
+type Invoice = typeof initialInvoicesData[0];
 
 interface GlobalDataContextType {
     teamMembers: TeamMember[];
@@ -14,6 +17,8 @@ interface GlobalDataContextType {
     updateClient: (updatedClient: Client) => void;
     tasks: Task[];
     addTask: (task: Task) => void;
+    appointments: Appointment[];
+    invoicesData: Invoice[];
     logoSrc: string | null;
     setLogoSrc: (src: string | null) => void;
     isLoaded: boolean;
@@ -26,11 +31,12 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 // A key for localStorage
 const LOCAL_STORAGE_KEY = 'heru-app-data';
 
-
 export function GlobalDataProvider({ children }: { children: React.ReactNode }) {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => initialTeamMembers);
     const [clients, setClients] = useState<Client[]>(() => initialClients);
     const [tasks, setTasks] = useState<Task[]>(() => initialTasksData);
+    const [appointments, setAppointments] = useState<Appointment[]>(() => initialAppointmentsData);
+    const [invoicesData, setInvoicesData] = useState<Invoice[]>(() => initialInvoicesData);
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
     const [theme, setTheme] = useState('red');
     const [isLoaded, setIsLoaded] = useState(false);
@@ -44,6 +50,8 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
                 if (parsedData.teamMembers) setTeamMembers(parsedData.teamMembers);
                 if (parsedData.clients) setClients(parsedData.clients);
                 if (parsedData.tasks) setTasks(parsedData.tasks);
+                if (parsedData.appointments) setAppointments(parsedData.appointments);
+                if (parsedData.invoicesData) setInvoicesData(parsedData.invoicesData);
                 if (parsedData.logoSrc) setLogoSrc(parsedData.logoSrc);
                 if (parsedData.theme) setTheme(parsedData.theme);
             }
@@ -58,13 +66,13 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         if (isLoaded) { 
             try {
-                const dataToStore = JSON.stringify({ teamMembers, clients, tasks, logoSrc, theme });
+                const dataToStore = JSON.stringify({ teamMembers, clients, tasks, appointments, invoicesData, logoSrc, theme });
                 localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
             } catch (error) {
                 console.error("Failed to save data to localStorage", error);
             }
         }
-    }, [teamMembers, clients, tasks, logoSrc, theme, isLoaded]);
+    }, [teamMembers, clients, tasks, appointments, invoicesData, logoSrc, theme, isLoaded]);
 
     const addTeamMember = useCallback((member: TeamMember) => {
         setTeamMembers(prev => [member, ...prev]);
@@ -92,7 +100,7 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
 
 
     return (
-        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, logoSrc, setLogoSrc, isLoaded, theme, setTheme: handleSetTheme }}>
+        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, appointments, invoicesData, logoSrc, setLogoSrc, isLoaded, theme, setTheme: handleSetTheme }}>
             {children}
         </GlobalDataContext.Provider>
     );

@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { Handshake, FileText, Upload, Eye, Download, AlertTriangle } from "lucide-react";
-import { clients, invoicesData } from "@/lib/data";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -33,6 +33,7 @@ const CURRENT_CLIENT_ID = 5;
 
 export function ClientAgreementsPage() {
     const { toast } = useToast();
+    const { clients, invoicesData } = useGlobalData();
     const client = clients.find(c => c.id === CURRENT_CLIENT_ID);
 
     if (!client) {
@@ -67,7 +68,7 @@ export function ClientAgreementsPage() {
                 </div>
             </div>
 
-            {client.agreements.length > 0 ? client.agreements.map((agreement) => (
+            {(client.agreements || []).length > 0 ? (client.agreements || []).map((agreement) => (
                 <Card key={agreement.id}>
                     <CardHeader>
                         <div className="flex justify-between items-start">
@@ -99,7 +100,7 @@ export function ClientAgreementsPage() {
                                                 <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
                                             </TableCell>
                                         </TableRow>
-                                        {agreement.relatedDocuments.map(doc => (
+                                        {(agreement.relatedDocuments || []).map(doc => (
                                             <TableRow key={doc.id}>
                                                 <TableCell className="font-medium">{doc.title}</TableCell>
                                                 <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
@@ -120,7 +121,7 @@ export function ClientAgreementsPage() {
                          <div>
                             <h4 className="font-semibold mb-2">Linked Invoices</h4>
                             <div className="space-y-3">
-                                {agreement.relatedInvoiceIds.length > 0 ? (
+                                {(agreement.relatedInvoiceIds || []).length > 0 ? (
                                     agreement.relatedInvoiceIds.map(invoiceId => {
                                         const invoice = invoicesData.find(inv => inv.invoiceNumber === invoiceId);
                                         return invoice ? (
