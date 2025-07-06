@@ -42,7 +42,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
 
     return (
         <div className="space-y-6">
-            <Card className="bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg">
+            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary to-accent text-primary-foreground shadow-lg">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold">Welcome, {client.name}! 👋</h2>
