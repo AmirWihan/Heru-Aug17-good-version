@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { calculateCrsScore, CrsOutput } from '@/ai/flows/crs-calculator';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, ArrowRight, ArrowLeft, BarChart, GraduationCap, Users, Briefcase, Languages, PlusCircle, Award } from 'lucide-react';
+import { Loader2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
@@ -45,7 +45,7 @@ const crsSchema = z.object({
     }),
     
     spouse: z.object({
-        educationLevel: z.string(),
+        educationLevel: z.string({ required_error: "Spouse's education is required." }),
         canadianWorkExperience: z.coerce.number().min(0).max(10),
         firstLanguageScores: z.object({
             listening: z.coerce.number().min(0).max(9),
@@ -58,6 +58,14 @@ const crsSchema = z.object({
     hasJobOffer: z.enum(['yes', 'no']),
     hasProvincialNomination: z.enum(['yes', 'no']),
     hasSiblingInCanada: z.enum(['yes', 'no']),
+}).refine(data => {
+    if (data.maritalStatus === 'married') {
+        return !!data.spouse;
+    }
+    return true;
+}, {
+    message: 'Spouse details are required when marital status is "Married".',
+    path: ['spouse'],
 });
 
 type CrsFormValues = z.infer<typeof crsSchema>;
@@ -132,14 +140,16 @@ export function ClientOnboarding() {
 
         if (!output) return;
 
-        if (currentStep === steps.length - 1) {
+        let nextStep = currentStep + 1;
+        const maritalStatus = form.getValues('maritalStatus');
+
+        if (steps[currentStep].id === '04' && maritalStatus !== 'married') {
+            nextStep++; // Skip spouse step
+        }
+        
+        if (nextStep >= steps.length) {
             await form.handleSubmit(processForm)();
         } else {
-            let nextStep = currentStep + 1;
-            // Skip spouse step if not applicable
-            if (steps[nextStep].id === '05' && form.getValues('maritalStatus') !== 'married') {
-                nextStep++;
-            }
             setCurrentStep(nextStep);
         }
     };
@@ -147,7 +157,8 @@ export function ClientOnboarding() {
     const prev = () => {
         if (currentStep > 0) {
             let prevStep = currentStep - 1;
-            if (steps[prevStep].id === '05' && form.getValues('maritalStatus') !== 'married') {
+            const maritalStatus = form.getValues('maritalStatus');
+            if (steps[prevStep].id === '05' && maritalStatus !== 'married') {
                 prevStep--;
             }
             setCurrentStep(prevStep);
@@ -166,7 +177,7 @@ export function ClientOnboarding() {
                     <div className="pt-2">
                         <Progress value={progress} className="w-full" />
                         <p className="text-xs text-muted-foreground mt-2">
-                            {result ? 'Calculation Complete' : `Step ${currentStep + 1} of ${steps.length}`}
+                            {result ? 'Calculation Complete' : `Step ${currentStep + 1} of ${steps.filter(s => s.condition ? s.condition(form.getValues()) : true).length}`}
                         </p>
                     </div>
                 </CardHeader>
@@ -225,7 +236,7 @@ export function ClientOnboarding() {
                                     <h3 className="font-semibold text-lg">Work Experience</h3>
                                     <FormField control={form.control} name="canadianWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Years of skilled work experience in Canada</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                            <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                                 <SelectContent>{[0,1,2,3,4,5].map(y => <SelectItem key={y} value={String(y)}>{y}{y===5?'+':''} year{y!==1?'s':''}</SelectItem>)}</SelectContent>
                                             </Select><FormMessage />
@@ -233,7 +244,7 @@ export function ClientOnboarding() {
                                     )} />
                                      <FormField control={form.control} name="foreignWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Years of skilled foreign work experience (outside Canada)</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                            <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                                 <SelectContent>{[0,1,2,3].map(y => <SelectItem key={y} value={String(y)}>{y}{y===3?'+':''} year{y!==1?'s':''}</SelectItem>)}</SelectContent>
                                             </Select><FormMessage />
@@ -293,7 +304,7 @@ export function ClientOnboarding() {
                                     )} />
                                     <FormField control={form.control} name="spouse.canadianWorkExperience" render={({ field }) => (
                                         <FormItem><FormLabel>Spouse's years of skilled work experience in Canada</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                            <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
                                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                                 <SelectContent>{[0,1,2,3,4,5].map(y => <SelectItem key={y} value={String(y)}>{y}{y===5?'+':''} year{y!==1?'s':''}</SelectItem>)}</SelectContent>
                                             </Select><FormMessage />
@@ -353,10 +364,10 @@ export function ClientOnboarding() {
                         </Button>
                         <Button onClick={next} disabled={isLoading}>
                             {isLoading ? (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)
-                               : currentStep === steps.length - 1 ? (<Sparkles className="mr-2 h-4 w-4" />)
+                               : currentStep >= steps.length -1 ? (<Sparkles className="mr-2 h-4 w-4" />)
                                : null}
-                            {isLoading ? 'Calculating...' : currentStep === steps.length - 1 ? 'Calculate My Score' : 'Next Step'}
-                            {currentStep < steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
+                            {isLoading ? 'Calculating...' : currentStep >= steps.length - 1 || (currentStep === steps.length - 2 && watchMaritalStatus !== 'married') ? 'Calculate My Score' : 'Next Step'}
+                            {currentStep < steps.length - 2 && <ArrowRight className="ml-2 h-4 w-4" />}
                         </Button>
                     </CardFooter>
                 )}

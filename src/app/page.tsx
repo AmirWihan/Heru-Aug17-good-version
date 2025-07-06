@@ -82,11 +82,11 @@ export default function HomePage() {
           <span className="text-xl font-bold">Heru</span>
         </Link>
         <div className="flex items-center gap-2">
-            <Link href="/login">
-              <Button variant="ghost">Admin Login</Button>
+            <Link href="/login" passHref>
+              <Button variant="ghost">Login</Button>
             </Link>
-            <Link href="/login">
-              <Button>Lawyer Login</Button>
+            <Link href="/register" passHref>
+              <Button>Sign Up</Button>
             </Link>
         </div>
       </header>
@@ -207,8 +207,8 @@ export default function HomePage() {
                 <span>© 2024 MAAT Technologies. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-4">
-                 <Link href="/login" className="hover:text-primary">Applicant Login</Link>
-                 <Link href="/login" className="hover:text-primary">Professional Login</Link>
+                 <Link href="/login" className="hover:text-primary">Login</Link>
+                 <Link href="/register" className="hover:text-primary">Sign Up</Link>
             </div>
         </div>
       </footer>

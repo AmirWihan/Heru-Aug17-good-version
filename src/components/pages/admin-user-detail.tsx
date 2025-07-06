@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TeamMember } from "@/lib/data";
-import { X, Mail, Phone, Building, Globe, Users, Award, ShieldCheck, CreditCard } from "lucide-react";
-import { format } from "date-fns";
+import { X, Mail, Phone, Building, ShieldCheck, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { plans } from "@/lib/data";
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -33,7 +33,7 @@ interface AdminUserDetailSheetProps {
 export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser }: AdminUserDetailSheetProps) {
     const { toast } = useToast();
     const [status, setStatus] = useState(user.status);
-    const [plan, setPlan] = useState(user.plan);
+    const [plan, setPlan] = useState<TeamMember['plan']>(user.plan);
     
     useEffect(() => {
         if (isOpen) {
@@ -53,11 +53,17 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
     
      const handleActivate = () => {
          const isReactivating = user.status === 'Suspended';
-         onUpdateUser({ ...user, status: 'Active', role: user.role === 'Awaiting Verification' ? 'Immigration Lawyer' : user.role });
+         const updatedUser = { 
+             ...user, 
+             status: 'Active' as const, 
+             role: user.role === 'Awaiting Verification' ? 'Immigration Lawyer' : user.role 
+         };
+         onUpdateUser(updatedUser);
          toast({
              title: isReactivating ? 'Account Re-activated' : 'Account Activated',
              description: `${user.name}'s account is now active.`,
          });
+         onOpenChange(false);
      };
  
      const handleSuspend = () => {
@@ -67,6 +73,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
              description: `${user.name}'s account has been suspended.`,
              variant: 'destructive',
          });
+         onOpenChange(false);
      };
  
      const handleReject = () => {
@@ -76,6 +83,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
              description: `The request for ${user.name} has been rejected.`,
              variant: 'destructive',
          });
+         onOpenChange(false);
      };
  
     return (
@@ -126,13 +134,6 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                 </CardContent>
                             </Card>
                             <Card>
-                                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Award className="h-5 w-5 text-primary" /> License Info</CardTitle></CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                    <p><strong className="text-muted-foreground font-normal">License #:</strong> {user.licenseNumber}</p>
-                                    <p><strong className="text-muted-foreground font-normal">Registration #:</strong> {user.registrationNumber}</p>
-                                </CardContent>
-                            </Card>
-                             <Card>
                                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /> Subscription</CardTitle></CardHeader>
                                 <CardContent className="space-y-2 text-sm">
                                     <p><strong className="text-muted-foreground font-normal">Plan:</strong> {user.plan}</p>
@@ -148,7 +149,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
                                         <Label>Account Status</Label>
-                                        <Select value={status} onValueChange={setStatus}>
+                                        <Select value={status} onValueChange={(value) => setStatus(value as TeamMember['status'])}>
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
@@ -167,44 +168,40 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Starter">Starter</SelectItem>
-                                                <SelectItem value="Pro Team">Pro Team</SelectItem>
-                                                <SelectItem value="Enterprise">Enterprise</SelectItem>
+                                                {plans.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </CardContent>
-                                <CardContent className="border-t pt-4">
+                            </Card>
+                             <Card className="mt-4">
+                                <CardHeader>
+                                    <CardTitle>Danger Zone</CardTitle>
+                                </CardHeader>
+                                <CardContent>
                                      <Button variant="destructive">Delete User Account</Button>
+                                     <p className="text-xs text-muted-foreground mt-2">This action is permanent and cannot be undone.</p>
                                 </CardContent>
                             </Card>
                         </TabsContent>
                     </Tabs>
 
-                     <div className="mt-6 pt-6 border-t flex justify-between items-center">
-                         <div>
-                             {user.status === 'Active' && (
-                                 <Button variant="destructive" onClick={handleSuspend}>Suspend Account</Button>
-                             )}
-                             {user.status === 'Suspended' && user.role !== 'Awaiting Verification' && (
-                                 <Button variant="outline" onClick={handleActivate}>Re-activate Account</Button>
-                             )}
-                         </div>
- 
-                         <div className="flex items-center gap-2">
-                             {user.status === 'Pending Activation' ? (
-                                 <>
-                                     <Button variant="outline" onClick={handleReject}>Reject</Button>
-                                     <Button onClick={handleActivate} className="bg-green-600 hover:bg-green-700">
-                                         <ShieldCheck className="mr-2 h-4 w-4" />
-                                         Activate Account
-                                     </Button>
-                                 </>
-                             ) : (
-                                 (user.status === 'Active' || user.status === 'Suspended' || user.status === 'Rejected') &&
+                     <div className="mt-6 pt-6 border-t flex justify-end items-center gap-2">
+                        {user.status === 'Pending Activation' ? (
+                             <>
+                                 <Button variant="outline" onClick={handleReject}>Reject</Button>
+                                 <Button onClick={handleActivate} className="bg-green-600 hover:bg-green-700">
+                                     <ShieldCheck className="mr-2 h-4 w-4" />
+                                     Activate Account
+                                 </Button>
+                             </>
+                         ) : (
+                             <>
+                                {user.status === 'Active' && <Button variant="destructive" onClick={handleSuspend}>Suspend Account</Button>}
+                                {user.status === 'Suspended' && <Button variant="outline" onClick={handleActivate}>Re-activate Account</Button>}
                                 <Button onClick={handleSaveChanges}>Save Changes</Button>
-                             )}
-                         </div>
+                             </>
+                         )}
                      </div>
                 </div>
             </SheetContent>

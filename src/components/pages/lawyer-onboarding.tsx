@@ -31,7 +31,7 @@ const onboardingSchema = z.object({
     // Step 1
     licenseNumber: z.string().min(5, "A valid license number is required."),
     registrationNumber: z.string().min(5, "A valid registration number is required."),
-    governmentId: z.any().refine(file => file instanceof File, "Government ID is required."),
+    governmentId: z.any().refine(file => file != null, "Government ID is required."),
     // Step 2
     selectedPlan: z.enum(['starter', 'pro', 'enterprise']),
     billingCycle: z.enum(['monthly', 'annually']).default('monthly'),

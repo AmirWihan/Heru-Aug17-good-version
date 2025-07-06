@@ -432,8 +432,8 @@ export function ClientIntakeFormPage() {
                                         <FormLabel className="flex items-center">Have you previously applied for any Canadian visa?<HelpButtons fieldName="Previous Applications" onFlag={() => handleFlagQuestion('immigrationHistory.previouslyApplied')} isFlagged={flaggedQuestions.includes('immigrationHistory.previouslyApplied')}/></FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="pa-yes" /><Label htmlFor="pa-yes">Yes</Label></div>
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="pa-no" /><Label htmlFor="pa-no">No</Label></div>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" id="pa-yes" /></FormControl><Label htmlFor="pa-yes">Yes</Label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" id="pa-no" /></FormControl><Label htmlFor="pa-no">No</Label></FormItem>
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
@@ -446,8 +446,8 @@ export function ClientIntakeFormPage() {
                                         <FormLabel className="flex items-center">Have you ever been refused a visa for Canada or any other country?<HelpButtons fieldName="Visa Refusals" onFlag={() => handleFlagQuestion('immigrationHistory.wasRefused')} isFlagged={flaggedQuestions.includes('immigrationHistory.wasRefused')}/></FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                 <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="wr-yes" /><Label htmlFor="wr-yes">Yes</Label></div>
-                                                 <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="wr-no" /><Label htmlFor="wr-no">No</Label></div>
+                                                 <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" id="wr-yes" /></FormControl><Label htmlFor="wr-yes">Yes</Label></FormItem>
+                                                 <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" id="wr-no" /></FormControl><Label htmlFor="wr-no">No</Label></FormItem>
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
@@ -464,8 +464,8 @@ export function ClientIntakeFormPage() {
                                         <FormLabel className="flex items-center">Have you ever been arrested for, or convicted of, any criminal offence in any country?<HelpButtons fieldName="Criminal Record" onFlag={() => handleFlagQuestion('admissibility.hasCriminalRecord')} isFlagged={flaggedQuestions.includes('admissibility.hasCriminalRecord')}/></FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="cr-yes" /><Label htmlFor="cr-yes">Yes</Label></div>
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="cr-no" /><Label htmlFor="cr-no">No</Label></div>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" id="cr-yes" /></FormControl><Label htmlFor="cr-yes">Yes</Label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" id="cr-no" /></FormControl><Label htmlFor="cr-no">No</Label></FormItem>
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
@@ -478,8 +478,8 @@ export function ClientIntakeFormPage() {
                                         <FormLabel className="flex items-center">Have you had any serious medical conditions?<HelpButtons fieldName="Medical Issues" onFlag={() => handleFlagQuestion('admissibility.hasMedicalIssues')} isFlagged={flaggedQuestions.includes('admissibility.hasMedicalIssues')}/></FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="mi-yes" /><Label htmlFor="mi-yes">Yes</Label></div>
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="mi-no" /><Label htmlFor="mi-no">No</Label></div>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" id="mi-yes" /></FormControl><Label htmlFor="mi-yes">Yes</Label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" id="mi-no" /></FormControl><Label htmlFor="mi-no">No</Label></FormItem>
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
@@ -492,8 +492,8 @@ export function ClientIntakeFormPage() {
                                         <FormLabel className="flex items-center">Have you ever overstayed your visa status in any country?<HelpButtons fieldName="Visa Overstay" onFlag={() => handleFlagQuestion('admissibility.hasOverstayed')} isFlagged={flaggedQuestions.includes('admissibility.hasOverstayed')}/></FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="os-yes" /><Label htmlFor="os-yes">Yes</Label></div>
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="os-no" /><Label htmlFor="os-no">No</Label></div>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" id="os-yes" /></FormControl><Label htmlFor="os-yes">Yes</Label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" id="os-no" /></FormControl><Label htmlFor="os-no">No</Label></FormItem>
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />

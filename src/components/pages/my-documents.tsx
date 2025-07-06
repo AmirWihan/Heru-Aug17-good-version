@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGlobalData } from "@/context/GlobalDataContext";
+import type { Client } from '@/lib/data';
 
 // For this demo, we'll hardcode the client ID to 5 (James Wilson) to simulate a logged-in user
 const CURRENT_CLIENT_ID = 5;

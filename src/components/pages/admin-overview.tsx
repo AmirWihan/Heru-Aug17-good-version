@@ -1,9 +1,9 @@
 
 'use client';
-import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock, CheckSquare, Mail } from "lucide-react";
+import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { applicationsData, invoicesData, paymentsData, dashboardData } from "@/lib/data";
+import { dashboardData } from "@/lib/data";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
 import { AdminTeamPerformance } from "../admin-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
@@ -26,11 +26,11 @@ const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { tit
 
 export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
-    const { teamMembers, clients, tasks } = useGlobalData();
+    const { teamMembers, clients, tasks, invoicesData } = useGlobalData();
 
     const totalApplicants = clients.length;
     const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
-    const totalRevenue = paymentsData.filter(p => p.status === 'Completed').reduce((acc, p) => acc + p.amount, 0);
+    const totalRevenue = invoicesData.filter(p => p.status === 'Paid').reduce((acc, p) => acc + p.amount, 0);
 
     const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
     const overdueInvoices = invoicesData.filter(i => i.status === 'Overdue').length;
@@ -56,7 +56,7 @@ export function AdminOverviewPage() {
 
     return (
         <div className="space-y-6">
-            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-accent/80 to-primary/80 text-primary-foreground border-0">
+            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-yellow-300 via-primary to-primary/90 text-primary-foreground border-0">
                 <CardHeader>
                     <CardTitle className="text-2xl">Welcome, Super Admin!</CardTitle>
                     <CardDescription className="text-primary-foreground/80">Here's your platform summary and urgent tasks for today.</CardDescription>
