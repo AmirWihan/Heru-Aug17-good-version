@@ -4,43 +4,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useGlobalData } from '@/context/GlobalDataContext';
 
 export default function DashboardSelectPage() {
     const router = useRouter();
-    const { user, userProfile, loading } = useGlobalData();
 
     useEffect(() => {
-        if (loading) {
-            // Wait until user profile is loaded
-            return;
-        }
-
-        if (!user) {
-            // Not logged in, go to login
-            router.replace('/login');
-            return;
-        }
-
-        if (userProfile) {
-            // User profile is loaded, redirect based on role
-            switch (userProfile.role) {
-                case 'admin':
-                    router.replace('/admin/dashboard');
-                    break;
-                case 'lawyer':
-                    router.replace('/lawyer/dashboard');
-                    break;
-                case 'client':
-                    router.replace('/client/dashboard');
-                    break;
-                default:
-                    // Fallback, maybe to login or an error page
-                    router.replace('/login');
-                    break;
-            }
-        }
-    }, [user, userProfile, loading, router]);
+        // Bypassing auth: default to lawyer dashboard for development.
+        router.replace('/lawyer/dashboard');
+    }, [router]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
