@@ -1,5 +1,4 @@
 
-
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 
@@ -394,7 +393,7 @@ export const clients: Client[] = [
             { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
             { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
             { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
-            { id: 4, title: 'Proof of Funds', status: 'Requested' as const, date: '2023-06-15', category: 'Financial' },
+            { id: 4, title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
         ],
         tasks: [tasksData[3]],
         agreements: [
@@ -625,7 +624,7 @@ export const reportsData = {
         { month: 'Mar', lawyers: 2, clients: 5 },
         { month: 'Apr', lawyers: 2, clients: 7 },
         { month: 'May', lawyers: 3, clients: 6 },
-        { month: 'Jun', lawyers: 4, clients: 8 },
+        { month: 'Jun', lawyers: 8, clients: 8 },
     ],
     revenueByCaseType: [
         { name: 'PR', value: 40000 },
@@ -663,8 +662,8 @@ export const salesPerformanceData = {
         { title: "Marketing Engagement", value: "32%", change: "+5%", icon: Target },
     ],
     topPerformers: [
-        { id: 5, name: "Jessica Miller", avatar: "https://i.pravatar.cc/150?u=jessica", performance: "35 leads • 18% conversion", isTop: true },
-        { id: 6, name: "Chris Davis", avatar: "https://i.pravatar.cc/150?u=chris", performance: "28 leads • 14% conversion", isTop: false },
+        { id: 5, name: "Jessica Miller", avatar: 'https://i.pravatar.cc/150?u=jessica', performance: "35 leads • 18% conversion", isTop: true },
+        { id: 6, name: "Chris Davis", avatar: 'https://i.pravatar.cc/150?u=chris', performance: "28 leads • 14% conversion", isTop: false },
     ]
 };
 
@@ -761,9 +760,7 @@ export const themes = [
     { name: 'Heru Green', id: 'green', colors: { primary: 'hsl(142.1 76.2% 36.3%)', accent: 'hsl(262.1 83.3% 57.8%)' } },
     { name: 'Ocean Blue', id: 'blue', colors: { primary: 'hsl(217.2 91.2% 59.8%)', accent: 'hsl(197.8 91.2% 59.8%)' } },
     { name: 'Graphite', id: 'graphite', colors: { primary: 'hsl(221.2 83.2% 53.3%)', accent: 'hsl(215 27.9% 46.9%)' } },
-    { name: 'Sunset Orange', id: 'orange', colors: { primary: 'hsl(24.6 95% 53.1%)', accent: 'hsl(47.9 95.8% 53.1%)' } },
-    { name: 'Royal Purple', id: 'purple', colors: { primary: 'hsl(262.1 83.3% 57.8%)', accent: 'hsl(314.5 93.3% 57.8%)' } },
-    { name: 'Cool Sky', id: 'sky', colors: { primary: 'hsl(217 92% 79%)', accent: 'hsl(244 45% 45%)' } },
-    { name: 'Warm Coral', id: 'coral', colors: { primary: 'hsl(15 96% 80%)', accent: 'hsl(356 97% 79%)' } },
-    { name: 'Vivid Synth', id: 'synth', colors: { primary: 'hsl(333 94% 57%)', accent: 'hsl(279 89% 38%)' } },
+    { name: 'Cool Sky', id: 'sky', colors: { primary: 'hsl(243 43% 45%)', accent: 'hsl(46 93% 70%)' } },
+    { name: 'Warm Coral', id: 'coral', colors: { primary: 'hsl(357 98% 79%)', accent: 'hsl(14 98% 79%)' } },
+    { name: 'Vivid Synth', id: 'synth', colors: { primary: 'hsl(333 94% 57%)', accent: 'hsl(279 89% 60%)' } },
 ];
