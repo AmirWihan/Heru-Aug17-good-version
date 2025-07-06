@@ -90,6 +90,8 @@ export function LawyerOnboarding() {
             type: 'legal',
             email: data.email,
             phone: data.phone,
+            password: 'password123', // In a real app, this comes from the registration form
+            uid: `static-${Date.now()}`,
             accessLevel: 'Admin',
             status: 'Pending Activation',
             plan: data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise',
@@ -156,8 +158,8 @@ export function LawyerOnboarding() {
                         </p>
                     </CardContent>
                     <CardFooter>
-                         <Button className="w-full" onClick={() => router.push('/')}>
-                            Back to Homepage
+                         <Button className="w-full" onClick={() => router.push('/login')}>
+                            Back to Login
                         </Button>
                     </CardFooter>
                 </Card>

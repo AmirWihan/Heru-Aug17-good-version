@@ -8,8 +8,7 @@ import { useRouter } from "next/navigation"
 import { useClientDashboard } from "@/context/ClientDashboardContext"
 import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
-import { auth } from "@/lib/firebase"
-import { signOut } from "firebase/auth"
+
 
 interface ClientHeaderProps {
   isSidebarOpen: boolean
@@ -19,11 +18,11 @@ interface ClientHeaderProps {
 
 export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
   const { setPage } = useClientDashboard();
-  const { userProfile } = useGlobalData();
+  const { userProfile, logout } = useGlobalData();
   const router = useRouter();
 
-  const handleSignOut = async () => {
-    await signOut(auth);
+  const handleSignOut = () => {
+    logout();
     router.push('/login');
   };
 
@@ -56,12 +55,12 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
-                <AvatarImage src={userProfile?.uid ? `https://i.pravatar.cc/150?u=${userProfile.uid}` : undefined} alt={userProfile?.fullName} />
-                <AvatarFallback>{userProfile?.fullName ? userProfile.fullName.split(' ').map(n => n[0]).join('') : 'JA'}</AvatarFallback>
+                <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+                <AvatarFallback>{userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('') : 'JA'}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{userProfile?.fullName || 'My Account'}</DropdownMenuLabel>
+                <DropdownMenuLabel>{userProfile?.name || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setPage('settings')}>
                   <Settings className="mr-2 h-4 w-4" />

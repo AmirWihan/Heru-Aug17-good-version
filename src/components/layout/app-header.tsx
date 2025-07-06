@@ -10,8 +10,6 @@ import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { plans } from "@/lib/data"
 import { Progress } from "../ui/progress"
-import { auth } from "@/lib/firebase"
-import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 
 interface AppHeaderProps {
@@ -22,7 +20,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const { setPage } = useLawyerDashboard();
-  const { teamMembers, userProfile } = useGlobalData();
+  const { teamMembers, userProfile, logout } = useGlobalData();
   const router = useRouter();
 
   // For demo, assume logged-in user is from "Johnson Legal" firm
@@ -35,8 +33,8 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const userLimit = planDetails?.userLimit || 10;
   const usagePercentage = typeof userLimit === 'number' ? (userCount / userLimit) * 100 : 0;
 
-  const handleSignOut = async () => {
-    await signOut(auth);
+  const handleSignOut = () => {
+    logout();
     router.push('/login');
   };
 
@@ -102,12 +100,12 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
-                <AvatarImage src={userProfile?.uid ? `https://i.pravatar.cc/150?u=${userProfile.uid}` : undefined} alt={userProfile?.fullName} />
-                <AvatarFallback>{userProfile?.fullName ? userProfile.fullName.split(' ').map(n => n[0]).join('') : 'SJ'}</AvatarFallback>
+                <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+                <AvatarFallback>{userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('') : 'SJ'}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{userProfile?.fullName || 'My Account'}</DropdownMenuLabel>
+              <DropdownMenuLabel>{userProfile?.name || 'My Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setPage('settings')}>
                 <Settings className="mr-2 h-4 w-4" />

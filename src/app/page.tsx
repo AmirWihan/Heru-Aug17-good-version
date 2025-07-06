@@ -9,8 +9,7 @@ export default function HomePage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Bypassing auth & landing page: default to lawyer dashboard for development.
-        router.replace('/lawyer/dashboard');
+        router.replace('/login');
     }, [router]);
 
     return (
@@ -18,7 +17,7 @@ export default function HomePage() {
              <Card>
                 <CardContent className="flex flex-col justify-center items-center h-[200px] w-[300px] gap-4">
                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                     <p className="text-muted-foreground">Redirecting to dashboard...</p>
+                     <p className="text-muted-foreground">Redirecting...</p>
                 </CardContent>
             </Card>
         </div>

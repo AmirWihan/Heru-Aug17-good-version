@@ -4,18 +4,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 const registerSchema = z.object({
   role: z.enum(['lawyer', 'client'], { required_error: 'Please select your role.' }),
@@ -27,6 +25,7 @@ const registerSchema = z.object({
 export function RegisterPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const { register } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof registerSchema>>({
@@ -37,17 +36,11 @@ export function RegisterPage() {
     const onSubmit = async (values: z.infer<typeof registerSchema>) => {
         setIsLoading(true);
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-            const user = userCredential.user;
+            const newUser = await register(values);
 
-            // Create a user document in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                uid: user.uid,
-                email: values.email,
-                fullName: values.fullName,
-                role: values.role,
-                createdAt: new Date().toISOString(),
-            });
+            if (!newUser) {
+                 throw new Error("This email might already be in use.");
+            }
 
             toast({
                 title: 'Account Created!',
@@ -64,7 +57,7 @@ export function RegisterPage() {
         } catch (error: any) {
             toast({
                 title: 'Registration Failed',
-                description: "This email might already be in use.",
+                description: error.message || "An unknown error occurred.",
                 variant: 'destructive',
             });
             setIsLoading(false);

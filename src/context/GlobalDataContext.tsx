@@ -1,10 +1,6 @@
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollection, useDocumentData } from 'react-firebase-hooks/firestore';
-import { collection, doc, addDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 import { 
     clients as staticClients, 
     teamMembers as staticTeamMembers, 
@@ -14,18 +10,14 @@ import {
     type Client, type TeamMember, type Task, type Invoice, type Appointment 
 } from '@/lib/data';
 
-interface UserProfile {
-    uid: string;
-    email: string;
-    fullName: string;
-    role: 'admin' | 'lawyer' | 'client';
-    createdAt: string;
-}
+type UserProfile = (Client | TeamMember) & { role: 'admin' | 'lawyer' | 'client' };
 
 interface GlobalDataContextType {
-    user: typeof auth.currentUser | null;
     userProfile: UserProfile | null;
     loading: boolean;
+    login: (email: string, pass: string) => Promise<UserProfile | null>;
+    logout: () => void;
+    register: (details: Partial<UserProfile>) => Promise<UserProfile | null>;
     teamMembers: TeamMember[];
     clients: Client[];
     tasks: Task[];
@@ -46,8 +38,9 @@ interface GlobalDataContextType {
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
+const AUTH_STORAGE_KEY = 'heru-auth-user';
 
-// This provider uses the static data from data.ts as a fallback
+// This provider uses the static data from data.ts and simulates auth
 const StaticDataProvider = ({ children }: { children: ReactNode }) => {
     const [clients, setClients] = useState<Client[]>(staticClients);
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>(staticTeamMembers);
@@ -59,6 +52,9 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
     const [theme, setTheme] = useState('red');
     const [isLoaded, setIsLoaded] = useState(false);
     
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         if (isLoaded) {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ logoSrc, theme }));
@@ -73,11 +69,95 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
                 if (logoSrc) setLogoSrc(logoSrc);
                 if (theme) setTheme(theme);
             }
+            const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+            if (storedUser) {
+                setUserProfile(JSON.parse(storedUser));
+            }
         } finally {
             setIsLoaded(true);
+            setLoading(false);
         }
     }, []);
 
+    const login = async (email: string, pass: string): Promise<UserProfile | null> => {
+        const allUsers = [...teamMembers, ...clients];
+        const foundUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+
+        if (foundUser) {
+            const role = 'caseType' in foundUser ? 'client' : (foundUser.type === 'admin' ? 'admin' : 'lawyer');
+            const profile = { ...foundUser, role };
+            setUserProfile(profile);
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
+            return profile;
+        }
+        return null;
+    };
+
+    const logout = () => {
+        setUserProfile(null);
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+    };
+
+    const register = async (details: Partial<UserProfile> & { role: 'client' | 'lawyer', password?: string }): Promise<UserProfile | null> => {
+        const allUsers = [...teamMembers, ...clients];
+        if (allUsers.some(u => u.email.toLowerCase() === details.email?.toLowerCase())) {
+            return null; // User already exists
+        }
+
+        if (details.role === 'client') {
+            const newClient: Client = {
+                id: Date.now(),
+                name: details.name || '',
+                email: details.email || '',
+                password: details.password || '',
+                uid: `static-${Date.now()}`,
+                phone: '',
+                caseType: 'Unassigned',
+                status: 'Active',
+                lastContact: new Date().toISOString().split('T')[0],
+                avatar: `https://i.pravatar.cc/150?u=${details.email}`,
+                countryOfOrigin: 'Unknown',
+                currentLocation: 'Unknown',
+                joined: new Date().toISOString().split('T')[0],
+                age: 0,
+                educationLevel: 'Unknown',
+                caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
+                activity: [],
+                documents: [],
+                tasks: [],
+                agreements: [],
+                intakeForm: { status: 'not_started' },
+            };
+            setClients(prev => [...prev, newClient]);
+            return { ...newClient, role: 'client' };
+        }
+        // For lawyers, the full profile is created in the onboarding flow.
+        // The register function here just creates the initial user record.
+        const newLawyer: TeamMember = {
+            id: Date.now(),
+            name: details.name || '',
+            email: details.email || '',
+            password: details.password || '',
+            uid: `static-${Date.now()}`,
+            role: 'Awaiting Onboarding',
+            avatar: `https://i.pravatar.cc/150?u=${details.email}`,
+            type: 'legal',
+            phone: '',
+            accessLevel: 'Admin',
+            status: 'Pending Activation',
+            plan: 'Pro Team',
+            location: '',
+            yearsOfPractice: 0,
+            successRate: 0,
+            licenseNumber: '',
+            registrationNumber: '',
+            stats: [],
+            specialties: [],
+        };
+        setTeamMembers(prev => [...prev, newLawyer]);
+        return { ...newLawyer, role: 'lawyer' };
+    };
+    
     const updateClient = async (updatedClient: Client) => {
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
     };
@@ -98,12 +178,12 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
 
     const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
         const newMember = { ...member, id: Date.now() } as TeamMember;
-        setTeamMembers(prev => [...prev, newMember]);
+        setTeamMembers(prev => prev.map(m => m.email === newMember.email ? newMember : m));
     };
 
     return (
         <GlobalDataContext.Provider value={{
-            user: null, userProfile: null, loading: false,
+            userProfile, loading, login, logout, register,
             teamMembers, clients, tasks, appointments, invoicesData,
             addTeamMember, updateTeamMember, addClient, updateClient, addTask,
             logoSrc, setLogoSrc, isLoaded, theme, setTheme,
@@ -113,76 +193,9 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-// This provider uses Firebase for live data
-const FirebaseDataProvider = ({ children }: { children: ReactNode }) => {
-    const [user, authLoading] = useAuthState(auth!);
-    const [userProfile, profileLoading] = useDocumentData(user ? doc(db!, 'users', user.uid) : null);
-
-    const [clientsCollection, clientsLoading] = useCollection(collection(db!, 'clients'));
-    const [teamMembersCollection, teamMembersLoading] = useCollection(collection(db!, 'teamMembers'));
-    const [tasksCollection, tasksLoading] = useCollection(collection(db!, 'tasks'));
-    const [appointmentsCollection, appointmentsLoading] = useCollection(collection(db!, 'appointments'));
-    const [invoicesDataCollection, invoicesLoading] = useCollection(collection(db!, 'invoices'));
-
-    const [logoSrc, setLogoSrc] = useState<string | null>(null);
-    const [theme, setTheme] = useState('red');
-    const [isLoaded, setIsLoaded] = useState(false);
-    
-    useEffect(() => {
-        if (isLoaded) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ logoSrc, theme }));
-        }
-    }, [logoSrc, theme, isLoaded]);
-    
-    useEffect(() => {
-        try {
-            const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (storedPrefs) {
-                const { logoSrc: storedLogo, theme: storedTheme } = JSON.parse(storedPrefs);
-                if (storedLogo) setLogoSrc(storedLogo);
-                if (storedTheme) setTheme(storedTheme);
-            }
-        } finally {
-            setIsLoaded(true);
-        }
-    }, []);
-
-    const addTeamMember = useCallback(async (member: Omit<TeamMember, 'id'>) => { await addDoc(collection(db!, 'teamMembers'), member); }, []);
-    const updateTeamMember = useCallback(async (updatedData: TeamMember) => { const { id, ...data } = updatedData; await updateDoc(doc(db!, 'teamMembers', String(id)), data); }, []);
-    const addClient = useCallback(async (client: Omit<Client, 'id'>) => { await addDoc(collection(db!, 'clients'), client); }, []);
-    const updateClient = useCallback(async (updatedData: Client) => { const { id, ...data } = updatedData; await updateDoc(doc(db!, 'clients', String(id)), data); }, []);
-    const addTask = useCallback(async (task: Omit<Task, 'id'>) => { await addDoc(collection(db!, 'tasks'), task); }, []);
-    
-    const mappedClients = clientsCollection?.docs.map(d => ({ id: d.id, ...d.data() } as Client)) || [];
-    const mappedTeamMembers = teamMembersCollection?.docs.map(d => ({ id: d.id, ...d.data() } as TeamMember)) || [];
-    const mappedTasks = tasksCollection?.docs.map(d => ({ id: d.id, ...d.data() } as Task)) || [];
-    const mappedAppointments = appointmentsCollection?.docs.map(d => ({ id: d.id, ...d.data() } as Appointment)) || [];
-    const mappedInvoices = invoicesDataCollection?.docs.map(d => ({ id: d.id, ...d.data() } as Invoice)) || [];
-    
-    return (
-        <GlobalDataContext.Provider value={{
-            user,
-            userProfile: userProfile as UserProfile || null,
-            loading: authLoading || profileLoading || clientsLoading || teamMembersLoading || tasksLoading || appointmentsLoading || invoicesLoading,
-            teamMembers: mappedTeamMembers,
-            clients: mappedClients,
-            tasks: mappedTasks,
-            appointments: mappedAppointments,
-            invoicesData: mappedInvoices,
-            addTeamMember, updateTeamMember, addClient, updateClient, addTask,
-            logoSrc, setLogoSrc, isLoaded, theme, setTheme,
-        }}>
-            {children}
-        </GlobalDataContext.Provider>
-    );
-};
 
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
-    // If Firebase is configured, use the live data provider.
-    if (isFirebaseEnabled) {
-        return <FirebaseDataProvider>{children}</FirebaseDataProvider>;
-    }
-    // Otherwise, fall back to the static data provider for a seamless dev experience.
+    // For this prototype, we are forcing the StaticDataProvider with simulated auth.
     return <StaticDataProvider>{children}</StaticDataProvider>;
 }
 

@@ -8,8 +8,6 @@ import { useAdminDashboard } from "@/context/AdminDashboardContext"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
-import { auth } from "@/lib/firebase"
-import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 
 
@@ -21,11 +19,11 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
   const { setPage } = useAdminDashboard();
-  const { userProfile } = useGlobalData();
+  const { userProfile, logout } = useGlobalData();
   const router = useRouter();
 
-  const handleSignOut = async () => {
-    await signOut(auth);
+  const handleSignOut = () => {
+    logout();
     router.push('/login');
   };
 
@@ -62,12 +60,12 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
-                <AvatarImage src="https://i.pravatar.cc/150?u=admin" alt="Admin" />
-                <AvatarFallback>SA</AvatarFallback>
+                <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+                <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'SA'}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{userProfile?.fullName || 'My Account'}</DropdownMenuLabel>
+              <DropdownMenuLabel>{userProfile?.name || 'My Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setPage('settings')}>
                 <Settings className="mr-2 h-4 w-4" />

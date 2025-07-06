@@ -4,17 +4,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { GmailIcon } from '../icons/GmailIcon';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 const loginSchema = z.object({
   email: z.string().email("A valid email is required."),
@@ -24,21 +23,22 @@ const loginSchema = z.object({
 export function LoginPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const { login } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { email: "test.lawyer@example.com", password: "password123" },
+        defaultValues: { email: "emma.j@heru.com", password: "password123" },
     });
 
     const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {
         setIsLoading(true);
-        try {
-            await signInWithEmailAndPassword(auth, values.email, values.password);
+        const user = await login(values.email, values.password);
+        if (user) {
             toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
             router.push('/dashboard-select');
-        } catch (error: any) {
-            toast({
+        } else {
+             toast({
                 title: 'Login Failed',
                 description: "Please check your credentials and try again.",
                 variant: 'destructive',
@@ -48,20 +48,10 @@ export function LoginPage() {
     };
 
     const handleGoogleLogin = async () => {
-        setIsLoading(true);
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-            toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
-            router.push('/dashboard-select');
-        } catch (error: any) {
-            toast({
-                title: 'Google Login Failed',
-                description: error.message,
-                variant: 'destructive',
-            });
-            setIsLoading(false);
-        }
+        toast({
+            title: 'Feature not available',
+            description: "Google sign-in is not enabled in this demo.",
+        });
     };
 
     return (

@@ -164,7 +164,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
 
     useEffect(() => {
         setAnalysisResult(client.analysis || null);
-    }, [client]);
+    }, [client.analysis]);
 
     useEffect(() => {
         async function fetchTimeline() {
@@ -191,7 +191,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             }
         }
         fetchTimeline();
-    }, [client, toast]);
+    }, [client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
 
     useEffect(() => {
         if (isLogActivityDialogOpen) {
