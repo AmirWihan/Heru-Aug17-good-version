@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -172,10 +173,31 @@ export function ClientIntakeFormPage() {
                             </div>
                         )}
                          {currentStep === 1 && (
-                            <div className="space-y-4 animate-fade">
+                            <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Family Details</h3>
                                 <FormField name="family.maritalStatus" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Marital Status<HelpDialog fieldName="Marital Status"/></FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>} />
-                                <FormField name="family.hasChildren" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Do you have children?<HelpDialog fieldName="Children"/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" /> Yes</FormControl></FormItem><FormItem><FormControl><RadioGroupItem value="no" /> No</FormControl></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>} />
+                                <FormField control={form.control} name="family.hasChildren" render={({ field }) => (
+                                    <FormItem className="space-y-3">
+                                        <FormLabel className="flex items-center">Do you have children?<HelpDialog fieldName="Children"/></FormLabel>
+                                        <FormControl>
+                                            <RadioGroup
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                className="flex flex-row space-x-4"
+                                            >
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                                </FormItem>
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="no" /></FormControl>
+                                                    <FormLabel className="font-normal">No</FormLabel>
+                                                </FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
                             </div>
                         )}
                         {currentStep === 2 && (
@@ -211,10 +233,44 @@ export function ClientIntakeFormPage() {
                             </div>
                         )}
                          {currentStep === 4 && (
-                            <div className="space-y-4 animate-fade">
+                            <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Admissibility</h3>
-                                <FormField name="admissibility.hasCriminalRecord" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Have you ever been arrested for, or convicted of, any criminal offence in any country?<HelpDialog fieldName="Criminal Record"/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" /> Yes</FormControl></FormItem><FormItem><FormControl><RadioGroupItem value="no" /> No</FormControl></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>} />
-                                <FormField name="admissibility.hasMedicalIssues" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Have you had any serious medical conditions?<HelpDialog fieldName="Medical Issues"/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem><FormControl><RadioGroupItem value="yes" /> Yes</FormControl></FormItem><FormItem><FormControl><RadioGroupItem value="no" /> No</FormControl></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>} />
+                                <FormField control={form.control} name="admissibility.hasCriminalRecord" render={({ field }) => (
+                                    <FormItem className="space-y-3">
+                                        <FormLabel className="flex items-center">Have you ever been arrested for, or convicted of, any criminal offence in any country?<HelpDialog fieldName="Criminal Record"/></FormLabel>
+                                        <FormControl>
+                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                                </FormItem>
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="no" /></FormControl>
+                                                    <FormLabel className="font-normal">No</FormLabel>
+                                                </FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="admissibility.hasMedicalIssues" render={({ field }) => (
+                                    <FormItem className="space-y-3">
+                                        <FormLabel className="flex items-center">Have you had any serious medical conditions?<HelpDialog fieldName="Medical Issues"/></FormLabel>
+                                        <FormControl>
+                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                                </FormItem>
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="no" /></FormControl>
+                                                    <FormLabel className="font-normal">No</FormLabel>
+                                                </FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
                             </div>
                         )}
                     </CardContent>
