@@ -95,6 +95,7 @@ export function ClientsPage() {
             activity: [],
             documents: [],
             tasks: [],
+            agreements: [],
         };
         addClient(newClient);
         setAddClientDialogOpen(false);

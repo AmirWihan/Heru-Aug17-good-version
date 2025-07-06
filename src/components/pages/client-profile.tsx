@@ -680,7 +680,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     </Card>
                 </TabsContent>
                 <TabsContent value="agreements" className="mt-4">
-                    {client.agreements.map(agreement => (
+                    {(client.agreements || []).map(agreement => (
                         <Card key={agreement.id}>
                             <CardHeader>
                                 <div className="flex justify-between items-start">
@@ -757,7 +757,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             </CardFooter>
                         </Card>
                     ))}
-                    {client.agreements.length === 0 && (
+                    {(!client.agreements || client.agreements.length === 0) && (
                          <Card>
                             <CardContent className="text-center py-12 text-muted-foreground">
                                 <Handshake className="mx-auto h-8 w-8 mb-2" />
