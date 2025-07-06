@@ -799,4 +799,7 @@ export const themes = [
     { name: 'Graphite', id: 'graphite', colors: { primary: 'hsl(221.2 83.2% 53.3%)', accent: 'hsl(215 27.9% 46.9%)' } },
     { name: 'Sunset Orange', id: 'orange', colors: { primary: 'hsl(24.6 95% 53.1%)', accent: 'hsl(47.9 95.8% 53.1%)' } },
     { name: 'Royal Purple', id: 'purple', colors: { primary: 'hsl(262.1 83.3% 57.8%)', accent: 'hsl(314.5 93.3% 57.8%)' } },
+    { name: 'Cool Sky', id: 'sky', colors: { primary: 'hsl(217 92% 79%)', accent: 'hsl(244 45% 45%)' } },
+    { name: 'Warm Coral', id: 'coral', colors: { primary: 'hsl(15 96% 80%)', accent: 'hsl(356 97% 79%)' } },
+    { name: 'Vivid Synth', id: 'synth', colors: { primary: 'hsl(333 94% 57%)', accent: 'hsl(279 89% 38%)' } },
 ];

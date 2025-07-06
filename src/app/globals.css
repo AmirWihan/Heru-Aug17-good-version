@@ -121,6 +121,42 @@ body {
     --ring: 262.1 83.3% 57.8%;
     --accent: 314.5 93.3% 57.8%;
   }
+
+  /* Theme: Cool Sky */
+  .theme-sky {
+    --primary: 217 92% 79%;
+    --ring: 217 92% 79%;
+    --accent: 244 45% 45%;
+  }
+  .dark.theme-sky {
+    --primary: 217 92% 79%;
+    --ring: 217 92% 79%;
+    --accent: 244 45% 45%;
+  }
+
+  /* Theme: Warm Coral */
+  .theme-coral {
+    --primary: 15 96% 80%;
+    --ring: 15 96% 80%;
+    --accent: 356 97% 79%;
+  }
+  .dark.theme-coral {
+    --primary: 15 96% 80%;
+    --ring: 15 96% 80%;
+    --accent: 356 97% 79%;
+  }
+
+  /* Theme: Vivid Synth */
+  .theme-synth {
+    --primary: 333 94% 57%;
+    --ring: 333 94% 57%;
+    --accent: 279 89% 38%;
+  }
+  .dark.theme-synth {
+    --primary: 333 94% 57%;
+    --ring: 333 94% 57%;
+    --accent: 279 89% 38%;
+  }
 }
 
 @layer base {
