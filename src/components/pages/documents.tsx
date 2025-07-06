@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { documentCategories, documents as allDocumentTemplates, clients, type DocumentTemplate } from "@/lib/data";
-import { FileText, PlusCircle, UserPlus, FilePlus2, Edit, Trash2 } from "lucide-react";
+import { FileText, UserPlus, FilePlus2, Edit, Trash2, DownloadCloud } from "lucide-react";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
+import Link from 'next/link';
 
 export function DocumentsPage() {
     const { clients, updateClient } = useGlobalData();
@@ -86,7 +87,7 @@ export function DocumentsPage() {
             toast({ title: 'Template Updated', description: `"${newTemplateTitle}" has been updated.` });
         } else {
             // Create new template
-            const newTemplate = {
+            const newTemplate: DocumentTemplate = {
                 id: Date.now(),
                 title: newTemplateTitle,
                 description: newTemplateDescription,
@@ -199,6 +200,13 @@ export function DocumentsPage() {
                                                 <p className="text-sm text-muted-foreground">{doc.description}</p>
                                             </div>
                                             <div className="flex items-center gap-1">
+                                                {doc.sourceUrl && (
+                                                    <Link href={doc.sourceUrl} target="_blank" rel="noopener noreferrer">
+                                                        <Button variant="outline" size="icon">
+                                                            <DownloadCloud className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                )}
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenEditTemplateDialog(doc)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>

@@ -472,31 +472,33 @@ export type DocumentTemplate = {
     category: string;
     format: string;
     size: string;
+    sourceUrl?: string;
 };
 
 export const documents: DocumentTemplate[] = [
     // PR
     { id: 1, title: 'Express Entry Profile Submission', description: 'Confirmation of profile submission.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
     { id: 7, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
-    { id: 8, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
-    { id: 9, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 8, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/education-assessed.html' },
+    { id: 9, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/police-certificates.html' },
     // Work Permits
-    { id: 2, title: 'Work Permit Application (IMM 1295)', description: 'Main application form for temporary work permits.', category: 'Work Permits', format: 'PDF', size: 'Template' },
+    { id: 2, title: 'Application for Work Permit (IMM 1295)', description: 'Main application form for temporary work permits.', category: 'Work Permits', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-work-permit-outside-canada.html' },
     { id: 10, title: 'Job Offer Letter', description: 'A formal job offer from a Canadian employer.', category: 'Work Permits', format: 'PDF', size: 'Template' },
     { id: 11, title: 'LMIA (if applicable)', description: 'Labour Market Impact Assessment document.', category: 'Work Permits', format: 'PDF', size: 'Template' },
     // Student Visas
-    { id: 3, title: 'Student Visa Application (IMM 1294)', description: 'Main application form for study permits.', category: 'Student Visas', format: 'PDF', size: 'Template' },
+    { id: 3, title: 'Application for Study Permit (IMM 1294)', description: 'Main application form for study permits.', category: 'Student Visas', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-study-permit-outside-canada.html' },
     { id: 12, title: 'Letter of Acceptance (LOA)', description: 'Official acceptance letter from a Designated Learning Institution (DLI).', category: 'Student Visas', format: 'PDF', size: 'Template' },
     { id: 13, title: 'Guaranteed Investment Certificate (GIC)', description: 'Proof of funds for students, often required for SDS stream.', category: 'Student Visas', format: 'PDF', size: 'Template' },
     // Visitor Visas
-    { id: 4, title: 'Invitation Letter Template', description: 'For temporary resident visa applications.', category: 'Visitor Visas', format: 'DOCX', size: 'Template' },
+    { id: 4, title: 'Application for Visitor Visa (IMM 5257)', description: 'For temporary resident visa applications.', category: 'Visitor Visas', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-visitor-visa.html' },
     { id: 14, title: 'Proof of Ties to Home Country', description: 'Documents showing intent to return, e.g., property, job.', category: 'Visitor Visas', format: 'PDF', size: 'Template' },
     // Citizenship
-    { id: 5, title: 'Citizenship Application (CIT 0002)', description: 'Form CIT 0002 for adult applications.', category: 'Citizenship', format: 'PDF', size: 'Template' },
-    { id: 15, title: 'Residency Calculation', description: 'Physical presence calculation for citizenship.', category: 'Citizenship', format: 'PDF', size: 'Template' },
+    { id: 5, title: 'Application for Canadian Citizenship (CIT 0002)', description: 'Form CIT 0002 for adult applications.', category: 'Citizenship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-canadian-citizenship-adults.html' },
+    { id: 15, title: 'Residency Calculation', description: 'Physical presence calculation for citizenship.', category: 'Citizenship', format: 'PDF', size: 'Template', sourceUrl: 'https://eservices.cic.gc.ca/rescalc/resCalcStartNew.do' },
     // Health
     { id: 6, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Health', format: 'PDF', size: 'Template' },
 ];
+
 
 export const messagesData = [
     {
