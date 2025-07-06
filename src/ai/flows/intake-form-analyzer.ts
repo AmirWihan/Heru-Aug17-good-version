@@ -17,24 +17,47 @@ const IntakeFormInputSchema = z.object({
     dateOfBirth: z.string(),
     countryOfBirth: z.string(),
     countryOfCitizenship: z.string(),
+    passportNumber: z.string(),
+    passportExpiry: z.string(),
   }),
   family: z.object({
     maritalStatus: z.string(),
     hasChildren: z.boolean(),
+    childrenCount: z.number().optional(),
   }),
   education: z.array(z.object({
     institution: z.string(),
     degree: z.string(),
     yearCompleted: z.string(),
+    countryOfStudy: z.string(),
   })),
   workHistory: z.array(z.object({
     company: z.string(),
     position: z.string(),
     duration: z.string(),
+    country: z.string(),
   })),
+  languageProficiency: z.object({
+    englishScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
+    frenchScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
+  }),
+  travelHistory: z.array(z.object({
+    country: z.string(),
+    purpose: z.string(),
+    duration: z.string(),
+    year: z.string(),
+  })),
+  immigrationHistory: z.object({
+    previouslyApplied: z.boolean(),
+    previousApplicationDetails: z.string().optional(),
+    wasRefused: z.boolean(),
+    refusalDetails: z.string().optional(),
+  }),
   admissibility: z.object({
     hasCriminalRecord: z.boolean(),
+    criminalRecordDetails: z.string().optional(),
     hasMedicalIssues: z.boolean(),
+    medicalIssuesDetails: z.string().optional(),
   }),
 });
 export type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;
@@ -67,10 +90,12 @@ const prompt = ai.definePrompt({
   \`\`\`
 
   Your analysis should focus on:
-  1.  **Inconsistencies:** Check for contradictions within the provided data.
-  2.  **Inadmissibility:** Flag any answers that could lead to medical or criminal inadmissibility (e.g., hasCriminalRecord: true).
-  3.  **Missing Information:** Identify areas that are incomplete or may require more detail for a successful application.
-  4.  **Strengths & Weaknesses:** Briefly mention strong points (e.g., high education) or potential weak points (e.g., limited work experience).
+  1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline).
+  2.  **Inadmissibility:** Flag any answers that could lead to medical or criminal inadmissibility (e.g., hasCriminalRecord: true). Give these a 'high' severity.
+  3.  **Immigration History:** Pay close attention to previous applications and refusals. A past refusal is a significant flag that requires detailed explanation.
+  4.  **Gaps in History:** Look for unexplained gaps in work or travel history.
+  5.  **Missing Information:** Identify areas that are incomplete or may require more detail for a successful application (e.g., details of a criminal record are missing).
+  6.  **Strengths & Weaknesses:** Briefly mention strong points (e.g., high education, Canadian work experience) or potential weak points (e.g., limited work experience, low language scores).
 
   Create a flag for each issue you identify. For each flag, specify the severity, the related field/section, and a clear message for the lawyer.
   

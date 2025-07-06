@@ -505,9 +505,11 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         setGeneratingDocs(true);
         setTimeout(() => {
             setGeneratedDocs([
-                'IMM 1295 - Application for Work Permit',
-                'IMM 5257 - Application for Visitor Visa',
-                'IMM 5707 - Family Information',
+                'Generic Application Form for Canada (IMM 0008)',
+                'Additional Dependants/Declaration (IMM 0008DEP)',
+                'Schedule A – Background/Declaration (IMM 5669)',
+                'Additional Family Information (IMM 5406)',
+                'Use of a Representative (IMM 5476)',
             ]);
             onUpdateClient({ ...client, intakeForm: { ...client.intakeForm!, status: 'reviewed' } });
             setGeneratingDocs(false);
@@ -862,7 +864,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                         <h3 className="font-semibold text-lg mb-2">AI Analysis</h3>
                                         <Card className="bg-muted/50">
                                             <CardContent className="p-4 space-y-4">
-                                                <p><span className="font-semibold">Summary:</span> {client.intakeForm.analysis?.summary}</p>
+                                                <p><span className="font-semibold">Summary:</span> {(client.intakeForm.analysis?.summary || '')}</p>
                                                 {(client.intakeForm.analysis?.flags || []).length > 0 ? (
                                                      <div>
                                                         <h4 className="font-semibold">Flags:</h4>

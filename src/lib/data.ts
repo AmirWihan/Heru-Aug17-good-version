@@ -41,26 +41,49 @@ export type IntakeFormData = {
     dateOfBirth: string;
     countryOfBirth: string;
     countryOfCitizenship: string;
+    passportNumber: string;
+    passportExpiry: string;
   };
   family: {
-    maritalStatus: string;
+    maritalStatus: 'Single' | 'Married' | 'Common-Law' | 'Divorced' | 'Widowed';
     hasChildren: 'yes' | 'no';
+    childrenCount?: number;
   };
   education: Array<{
     institution: string;
     degree: string;
     yearCompleted: string;
+    countryOfStudy: string;
   }>;
   workHistory: Array<{
     company: string;
     position: string;
     duration: string;
+    country: string;
   }>;
+  languageProficiency: {
+    englishScores?: { listening: number; reading: number; writing: number; speaking: number; };
+    frenchScores?: { listening: number; reading: number; writing: number; speaking: number; };
+  };
+  travelHistory: Array<{
+    country: string;
+    purpose: string;
+    duration: string;
+    year: string;
+  }>;
+  immigrationHistory: {
+    previouslyApplied: 'yes' | 'no';
+    previousApplicationDetails?: string;
+    wasRefused: 'yes' | 'no';
+    refusalDetails?: string;
+  };
   admissibility: {
     hasCriminalRecord: 'yes' | 'no';
+    criminalRecordDetails?: string;
     hasMedicalIssues: 'yes' | 'no';
+    medicalIssuesDetails?: string;
   };
-}
+};
 
 export type IntakeForm = {
     status: 'not_started' | 'in_progress' | 'submitted' | 'reviewed';
