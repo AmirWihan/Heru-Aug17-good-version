@@ -93,7 +93,7 @@ export default function HomePage() {
 
       <main className="flex-1">
         <section className="container mx-auto flex flex-col items-center justify-center space-y-8 px-4 py-16 text-center md:py-24">
-          <h1 className="bg-gradient-to-br from-primary via-purple-500 to-accent bg-clip-text font-headline text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-7xl">
+          <h1 className="bg-gradient-to-br from-primary to-accent bg-clip-text font-headline text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-7xl">
             The Future of Immigration Services
           </h1>
           <p className="max-w-2xl text-lg text-muted-foreground md:text-xl">
