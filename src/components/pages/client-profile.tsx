@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task, Agreement } from "@/lib/data";
 import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit } from "lucide-react";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -537,7 +537,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             <p className="font-medium">{client.age}</p>
                         </div>
                         <div>
-                            <p className="text-muted-foreground">Joined</p>
+                            <p suppressHydrationWarning className="text-muted-foreground">Joined</p>
                             <p suppressHydrationWarning className="font-medium">{format(new Date(client.joined), 'PP')}</p>
                         </div>
                     </div>
