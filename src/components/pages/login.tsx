@@ -11,7 +11,6 @@ import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { GmailIcon } from '../icons/GmailIcon';
@@ -28,7 +27,7 @@ export function LoginPage() {
 
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { email: "", password: "" },
+        defaultValues: { email: "test.lawyer@example.com", password: "password123" },
     });
 
     const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {
