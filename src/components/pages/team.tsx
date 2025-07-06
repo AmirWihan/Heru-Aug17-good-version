@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { activityLogData, activityTypes } from "@/lib/data";
+import { activityLogData, activityTypes, type TeamMember } from "@/lib/data";
 import { PlusCircle, Phone, Mail, LineChart } from "lucide-react";
 import {
     Dialog,
@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { TeamPerformance } from '../sales-team-performance';
 import { useGlobalData } from '@/context/GlobalDataContext';
+import { useRouter } from 'next/navigation';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -34,6 +35,7 @@ export function TeamPage() {
     const { teamMembers, addTeamMember } = useGlobalData();
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof memberFormSchema>>({
         resolver: zodResolver(memberFormSchema),
@@ -80,18 +82,15 @@ export function TeamPage() {
         });
     }
 
-    const handleActionClick = (action: string, memberName: string, contact?: string) => {
-        if (action === 'call' && contact) {
-            window.location.href = `tel:${contact}`;
-            toast({ title: `Calling ${memberName}` });
-        } else if (action === 'email' && contact) {
-            window.location.href = `mailto:${contact}`;
-            toast({ title: `Emailing ${memberName}` });
+    const handleActionClick = (action: string, member: TeamMember) => {
+        if (action === 'call' && member.phone) {
+            window.location.href = `tel:${member.phone}`;
+            toast({ title: `Calling ${member.name}` });
+        } else if (action === 'email' && member.email) {
+            window.location.href = `mailto:${member.email}`;
+            toast({ title: `Emailing ${member.name}` });
         } else if (action === 'stats') {
-            toast({
-                title: `Viewing Stats for ${memberName}`,
-                description: 'Detailed performance analytics would be shown here.',
-            });
+            router.push(`/lawyer/team/${member.id}`);
         }
     };
     
@@ -141,9 +140,9 @@ export function TeamPage() {
                                             ))}
                                         </CardContent>
                                         <CardFooter className="flex justify-around">
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('call', member.name, member.phone)}><Phone className="mr-1 h-4 w-4" />Call</Button>
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('email', member.name, member.email)}><Mail className="mr-1 h-4 w-4" />Email</Button>
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('stats', member.name)}><LineChart className="mr-1 h-4 w-4" />Stats</Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('call', member)}><Phone className="mr-1 h-4 w-4" />Call</Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('email', member)}><Mail className="mr-1 h-4 w-4" />Email</Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('stats', member)}><LineChart className="mr-1 h-4 w-4" />Stats</Button>
                                         </CardFooter>
                                     </Card>
                                 ))}
