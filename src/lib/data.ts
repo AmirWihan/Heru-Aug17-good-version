@@ -1,6 +1,6 @@
-
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
+import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
 export type Task = {
     id: number;
@@ -34,6 +34,39 @@ export type Agreement = {
     }[];
     relatedInvoiceIds: string[];
 }
+
+export type IntakeFormData = {
+  personal: {
+    fullName: string;
+    dateOfBirth: string;
+    countryOfBirth: string;
+    countryOfCitizenship: string;
+  };
+  family: {
+    maritalStatus: string;
+    hasChildren: 'yes' | 'no';
+  };
+  education: Array<{
+    institution: string;
+    degree: string;
+    yearCompleted: string;
+  }>;
+  workHistory: Array<{
+    company: string;
+    position: string;
+    duration: string;
+  }>;
+  admissibility: {
+    hasCriminalRecord: 'yes' | 'no';
+    hasMedicalIssues: 'yes' | 'no';
+  };
+}
+
+export type IntakeForm = {
+    status: 'not_started' | 'in_progress' | 'submitted' | 'reviewed';
+    data?: IntakeFormData;
+    analysis?: IntakeFormAnalysis;
+};
 
 export type Client = {
     id: number;
@@ -73,6 +106,7 @@ export type Client = {
     tasks: Task[];
     analysis?: SuccessPredictorOutput;
     agreements: Agreement[];
+    intakeForm?: IntakeForm;
 };
 
 export const dashboardData = {
@@ -332,7 +366,8 @@ export const clients: Client[] = [
             { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
         ],
         tasks: [tasksData[0]],
-        agreements: []
+        agreements: [],
+        intakeForm: { status: 'not_started' },
     },
     { 
         id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
@@ -349,7 +384,8 @@ export const clients: Client[] = [
             { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
         ],
         tasks: [tasksData[1], tasksData[4]],
-        agreements: []
+        agreements: [],
+        intakeForm: { status: 'not_started' },
     },
     { 
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
@@ -365,7 +401,8 @@ export const clients: Client[] = [
             { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
         ],
         tasks: [tasksData[2]],
-        agreements: []
+        agreements: [],
+        intakeForm: { status: 'not_started' },
     },
     { 
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
@@ -376,7 +413,8 @@ export const clients: Client[] = [
         activity: [],
         documents: [],
         tasks: [],
-        agreements: []
+        agreements: [],
+        intakeForm: { status: 'not_started' },
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
@@ -409,6 +447,7 @@ export const clients: Client[] = [
                 relatedInvoiceIds: ['INV-2023-0456']
             }
         ],
+        intakeForm: { status: 'not_started' },
     },
 ];
 

@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Task, Agreement } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit } from "lucide-react";
+import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis } from "@/lib/data";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -143,13 +143,14 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const [followUpTaskDueDate, setFollowUpTaskDueDate] = useState("");
     const [followUpTaskPriority, setFollowUpTaskPriority] = useState<Task['priority']>('Medium');
     
-    // State for Agreements
     const [isAgreementDialogOpen, setAgreementDialogOpen] = useState(false);
     const [editingAgreement, setEditingAgreement] = useState<Agreement | null>(null);
     const [agreementTitle, setAgreementTitle] = useState('');
     const [agreementStatus, setAgreementStatus] = useState<Agreement['status']>('Active');
     const [agreementDate, setAgreementDate] = useState('');
 
+    const [generatingDocs, setGeneratingDocs] = useState(false);
+    const [generatedDocs, setGeneratedDocs] = useState<string[]>([]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
@@ -192,7 +193,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             }
         }
         fetchTimeline();
-    }, [client.id, client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
+    }, [client, toast]);
 
     useEffect(() => {
         if (isLogActivityDialogOpen) {
@@ -325,7 +326,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             status: 'To Do',
         };
         
-        // Update both global tasks and client-specific tasks
         addTask(newTask);
 
         const updatedClient: Client = {
@@ -380,7 +380,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         let updatedClient = { ...client };
         const activitiesToAdd = [];
 
-        // Create main activity
         const activityTimestamp = new Date(newActivityDate).toISOString();
         const newActivity = {
             id: Date.now(),
@@ -391,7 +390,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         };
         activitiesToAdd.push(newActivity);
 
-        // Handle follow-up task creation
         if (createFollowUpTask) {
             if (!followUpTaskTitle || !followUpTaskAssignee || !followUpTaskDueDate) {
                 toast({ title: 'Error', description: 'Please fill out all fields for the follow-up task.', variant: 'destructive' });
@@ -404,7 +402,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             }
 
             const newTask: Task = {
-                id: Date.now() + 1, // ensure unique id
+                id: Date.now() + 1,
                 title: followUpTaskTitle,
                 description: followUpTaskDescription,
                 client: { id: client.id, name: client.name, avatar: client.avatar },
@@ -414,7 +412,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 status: 'To Do',
             };
             
-            // Also add this to global state
             addTask(newTask);
             
             const taskActivity = {
@@ -439,7 +436,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
 
         onUpdateClient(updatedClient);
         
-        // Reset state and close dialog
         setLogActivityDialogOpen(false);
         setNewActivityType("");
         setNewActivityNotes("");
@@ -481,7 +477,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
 
         let updatedAgreements;
         if (editingAgreement) {
-            // Editing existing agreement
             updatedAgreements = (client.agreements || []).map(a =>
                 a.id === editingAgreement.id
                     ? { ...a, title: agreementTitle, status: agreementStatus, dateSigned: agreementDate }
@@ -489,7 +484,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             );
             toast({ title: 'Agreement Updated', description: `Agreement "${agreementTitle}" has been updated.` });
         } else {
-            // Adding new agreement
             const newAgreement: Agreement = {
                 id: Date.now(),
                 title: agreementTitle,
@@ -506,6 +500,21 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         setAgreementDialogOpen(false);
         setEditingAgreement(null);
     };
+
+    const handleAcceptAndGenerate = () => {
+        setGeneratingDocs(true);
+        setTimeout(() => {
+            setGeneratedDocs([
+                'IMM 1295 - Application for Work Permit',
+                'IMM 5257 - Application for Visitor Visa',
+                'IMM 5707 - Family Information',
+            ]);
+            onUpdateClient({ ...client, intakeForm: { ...client.intakeForm!, status: 'reviewed' } });
+            setGeneratingDocs(false);
+            toast({ title: 'Documents Generated!', description: 'The official forms have been filled and are ready for review.' });
+        }, 2000);
+    };
+
 
     return (
         <>
@@ -550,6 +559,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="documents">Documents</TabsTrigger>
                         <TabsTrigger value="agreements">Agreements</TabsTrigger>
+                        <TabsTrigger value="intake-form">Intake Form</TabsTrigger>
                         <TabsTrigger value="tasks">Tasks</TabsTrigger>
                         <TabsTrigger value="timeline">Timeline</TabsTrigger>
                         <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -780,7 +790,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                                         <TableHeader>
                                                             <TableRow>
                                                                 <TableHead>Document</TableHead>
-                                                                <TableHead>Actions</TableHead>
+                                                                <TableHead className="text-right">Actions</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -831,6 +841,71 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                 <div className="text-center py-12 text-muted-foreground">
                                     <Handshake className="mx-auto h-8 w-8 mb-2" />
                                     <p>No agreements found for this client.</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="intake-form" className="mt-4">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><FileHeart className="h-5 w-5 text-primary" />Client Intake Form</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {!client.intakeForm || client.intakeForm.status === 'not_started' ? (
+                                <div className="text-center py-12 text-muted-foreground">
+                                    <p>The client has not yet started their intake form.</p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="mb-6">
+                                        <h3 className="font-semibold text-lg mb-2">AI Analysis</h3>
+                                        <Card className="bg-muted/50">
+                                            <CardContent className="p-4 space-y-4">
+                                                <p><span className="font-semibold">Summary:</span> {client.intakeForm.analysis?.summary}</p>
+                                                {(client.intakeForm.analysis?.flags || []).length > 0 ? (
+                                                     <div>
+                                                        <h4 className="font-semibold">Flags:</h4>
+                                                        <div className="space-y-2 mt-2">
+                                                        {(client.intakeForm.analysis?.flags || []).map((flag, i) => (
+                                                            <div key={i} className="flex items-start gap-3 p-2 border-l-4 rounded-r-md bg-background" style={{ borderColor: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning))' : 'hsl(var(--info))' }}>
+                                                                <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning))' : 'hsl(var(--info))' }}/>
+                                                                <div>
+                                                                    <p className="font-semibold text-sm">{flag.field}</p>
+                                                                    <p className="text-sm text-muted-foreground">{flag.message}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        </div>
+                                                    </div>
+                                                ) : <p className="text-sm text-green-600">No flags identified by AI.</p>}
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+
+                                    {client.intakeForm.status !== 'reviewed' ? (
+                                        <div className="text-center border-t pt-6">
+                                            <Button size="lg" onClick={handleAcceptAndGenerate} disabled={generatingDocs}>
+                                                {generatingDocs ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Generating...</> : <><Sparkles className="mr-2 h-4 w-4"/>Accept & Generate Documents</>}
+                                            </Button>
+                                            <p className="text-xs text-muted-foreground mt-2">This will simulate filling official forms with the client's data.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="border-t pt-6">
+                                            <h3 className="font-semibold text-lg mb-2">Generated Documents</h3>
+                                            <div className="space-y-2">
+                                                {generatedDocs.map((docName, i) => (
+                                                    <div key={i} className="flex justify-between items-center p-3 border rounded-md">
+                                                        <p className="font-medium">{docName}.pdf</p>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="outline" size="sm">Review</Button>
+                                                            <Button variant="secondary" size="sm">Send for Signature</Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </CardContent>
@@ -979,7 +1054,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 )}
             </Tabs>
 
-            {/* Ad-hoc Upload Dialog */}
             <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -1016,7 +1090,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Assign Document Dialog */}
             <Dialog open={isAssignDialogOpen} onOpenChange={setAssignDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -1049,7 +1122,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Add/Edit Agreement Dialog */}
             <Dialog open={isAgreementDialogOpen} onOpenChange={setAgreementDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -1088,7 +1160,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Add Task Dialog */}
             <Dialog open={isAddTaskDialogOpen} onOpenChange={setAddTaskDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -1144,7 +1215,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Log Activity Dialog */}
             <Dialog open={isLogActivityDialogOpen} onOpenChange={setLogActivityDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
@@ -1232,7 +1302,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Delete Confirmation Dialog */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>

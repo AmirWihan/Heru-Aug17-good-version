@@ -10,12 +10,14 @@ import { ClientMessagesPage } from '@/components/pages/client-messages';
 import { ClientSettingsPage } from '@/components/pages/client-settings';
 import { SupportPage } from '@/components/pages/support';
 import { ClientAgreementsPage } from '@/components/pages/client-agreements';
+import { ClientIntakeFormPage } from '@/components/pages/client-intake-form';
 
 export default function ClientDashboardPage() {
     const { page, setPage } = useClientDashboard();
 
     const pageComponents: { [key: string]: React.ComponentType<any> } = {
         'overview': ClientOverviewPage,
+        'intake-form': ClientIntakeFormPage,
         'find-lawyer': FindLawyerPage,
         'my-lawyers': MyLawyersPage,
         'documents': MyDocumentsPage,
