@@ -17,6 +17,8 @@ import { WhatsappIcon } from "../icons/WhatsappIcon";
 import { plans, themes } from "@/lib/data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { GmailIcon } from "@/components/icons/GmailIcon";
+import { OutlookIcon } from "@/components/icons/OutlookIcon";
 
 export function PlatformSettingsPage() {
     const { setLogoSrc, theme, setTheme } = useGlobalData();
@@ -204,9 +206,10 @@ export function PlatformSettingsPage() {
                          <TabsContent value="integrations" className="mt-6 space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>API Keys</CardTitle>
+                                    <CardTitle>API Keys & Platform Connections</CardTitle>
+                                    <CardDescription>Manage global API keys and third-party service connections for the entire platform.</CardDescription>
                                 </CardHeader>
-                                 <CardContent className="space-y-4">
+                                 <CardContent className="space-y-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="google-api-key">Google Cloud API Key</Label>
                                         <Input id="google-api-key" type="password" defaultValue="......." />
@@ -229,6 +232,36 @@ export function PlatformSettingsPage() {
                                     <Button>
                                         <QuickBooksIcon className="mr-2 h-5 w-5" />
                                         Connect to QuickBooks
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center gap-4">
+                                    <GmailIcon className="h-10 w-10" />
+                                    <div>
+                                        <CardTitle>Google Workspace</CardTitle>
+                                        <CardDescription>Connect a master Google account to handle system-wide emails.</CardDescription>
+                                    </div>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Button>
+                                        <GmailIcon className="mr-2 h-5 w-5" />
+                                        Connect to Google
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center gap-4">
+                                    <OutlookIcon className="h-10 w-10" />
+                                    <div>
+                                        <CardTitle>Microsoft 365</CardTitle>
+                                        <CardDescription>Connect a master Outlook account for platform notifications.</CardDescription>
+                                    </div>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Button>
+                                        <OutlookIcon className="mr-2 h-5 w-5" />
+                                        Connect to Microsoft
                                     </Button>
                                 </CardFooter>
                             </Card>
