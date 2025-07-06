@@ -9,6 +9,7 @@ import { ClientBillingPage } from '@/components/pages/client-billing';
 import { ClientMessagesPage } from '@/components/pages/client-messages';
 import { ClientSettingsPage } from '@/components/pages/client-settings';
 import { SupportPage } from '@/components/pages/support';
+import { ClientAgreementsPage } from '@/components/pages/client-agreements';
 
 export default function ClientDashboardPage() {
     const { page, setPage } = useClientDashboard();
@@ -19,6 +20,7 @@ export default function ClientDashboardPage() {
         'my-lawyers': MyLawyersPage,
         'documents': MyDocumentsPage,
         'appointments': ClientAppointmentsPage,
+        'agreements': ClientAgreementsPage,
         'billing': ClientBillingPage,
         'messages': ClientMessagesPage,
         'settings': ClientSettingsPage,

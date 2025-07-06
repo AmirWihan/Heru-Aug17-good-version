@@ -1,5 +1,6 @@
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target } from "lucide-react";
+
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 
 export type Task = {
@@ -19,6 +20,21 @@ export type Task = {
     priority: 'High' | 'Medium' | 'Low';
     status: 'To Do' | 'In Progress' | 'Completed';
 };
+
+export type Agreement = {
+    id: number;
+    title: string;
+    status: 'Active' | 'Completed' | 'Terminated';
+    dateSigned: string;
+    documentUrl?: string; // Main agreement document
+    relatedDocuments: {
+        id: number;
+        title: string;
+        dateAdded: string;
+        url?: string;
+    }[];
+    relatedInvoiceIds: string[];
+}
 
 export type Client = {
     id: number;
@@ -57,6 +73,7 @@ export type Client = {
     }[];
     tasks: Task[];
     analysis?: SuccessPredictorOutput;
+    agreements: Agreement[];
 };
 
 export const dashboardData = {
@@ -315,7 +332,8 @@ export const clients: Client[] = [
             { id: 2, title: 'Proof of Funds', category: 'Financial', dateAdded: '2023-06-01', status: 'Pending Review' },
             { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
         ],
-        tasks: [tasksData[0]]
+        tasks: [tasksData[0]],
+        agreements: []
     },
     { 
         id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
@@ -331,7 +349,8 @@ export const clients: Client[] = [
             { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
             { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
         ],
-        tasks: [tasksData[1], tasksData[4]]
+        tasks: [tasksData[1], tasksData[4]],
+        agreements: []
     },
     { 
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
@@ -346,7 +365,8 @@ export const clients: Client[] = [
             { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
             { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
         ],
-        tasks: [tasksData[2]]
+        tasks: [tasksData[2]],
+        agreements: []
     },
     { 
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
@@ -358,7 +378,8 @@ export const clients: Client[] = [
         documents: [
             { id: 1, title: 'Marriage Certificate', category: 'Sponsorship', dateAdded: '2020-03-01', status: 'Approved' },
         ],
-        tasks: []
+        tasks: [],
+        agreements: []
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
@@ -376,7 +397,20 @@ export const clients: Client[] = [
             { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
             { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
         ],
-        tasks: [tasksData[3]]
+        tasks: [tasksData[3]],
+        agreements: [
+            {
+                id: 1,
+                title: 'Retainer Agreement - Work Permit Extension',
+                status: 'Active',
+                dateSigned: '2022-05-15',
+                documentUrl: '#',
+                relatedDocuments: [
+                    { id: 1, title: 'Proof of Initial Payment', dateAdded: '2022-05-16', url: '#' }
+                ],
+                relatedInvoiceIds: ['INV-2023-0456']
+            }
+        ],
     },
 ];
 
@@ -463,6 +497,7 @@ export const documentCategories = [
     { name: 'Employment', icon: Briefcase },
     { name: 'Sponsorship', icon: Users },
     { name: 'Immigration', icon: FileType },
+    { name: 'Agreements', icon: Handshake },
 ];
 
 export type DocumentTemplate = {
@@ -497,6 +532,8 @@ export const documents: DocumentTemplate[] = [
     { id: 15, title: 'Residency Calculation', description: 'Physical presence calculation for citizenship.', category: 'Citizenship', format: 'PDF', size: 'Template', sourceUrl: 'https://eservices.cic.gc.ca/rescalc/resCalcStartNew.do' },
     // Health
     { id: 6, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Health', format: 'PDF', size: 'Template' },
+    // Agreements
+    { id: 16, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Agreements', format: 'DOCX', size: 'Template' },
 ];
 
 

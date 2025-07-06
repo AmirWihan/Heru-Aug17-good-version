@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
@@ -9,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -25,7 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, documents as documentTemplates, activityTypes } from "@/lib/data";
+import { documentCategories, documents as documentTemplates, activityTypes, invoicesData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
@@ -88,6 +89,15 @@ const getTaskStatusBadgeVariant = (status: string) => {
         case 'in progress': return 'info' as const;
         case 'to do': return 'warning' as const;
         default: return 'secondary' as const;
+    }
+};
+
+const getInvoiceStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'paid': return 'success';
+        case 'overdue': return 'destructive';
+        case 'pending': return 'warning';
+        default: return 'secondary';
     }
 };
 
@@ -477,6 +487,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     <TabsList>
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="documents">Documents</TabsTrigger>
+                        <TabsTrigger value="agreements">Agreements</TabsTrigger>
                         <TabsTrigger value="tasks">Tasks</TabsTrigger>
                         <TabsTrigger value="timeline">Timeline</TabsTrigger>
                         <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -667,6 +678,93 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             )}
                         </CardContent>
                     </Card>
+                </TabsContent>
+                <TabsContent value="agreements" className="mt-4">
+                    {client.agreements.map(agreement => (
+                        <Card key={agreement.id}>
+                            <CardHeader>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <CardTitle className="text-lg flex items-center gap-2"><Handshake className="h-5 w-5 text-primary" /> {agreement.title}</CardTitle>
+                                        <CardDescription>Signed on {format(new Date(agreement.dateSigned), 'PP')}</CardDescription>
+                                    </div>
+                                     <Badge variant={getStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div>
+                                    <h4 className="font-semibold text-base mb-2">Related Documents</h4>
+                                    <div className="rounded-md border">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Document</TableHead>
+                                                <TableHead>Date Added</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell className="font-medium">Signed Agreement</TableCell>
+                                                <TableCell>{format(new Date(agreement.dateSigned), 'PP')}</TableCell>
+                                                <TableCell className="text-right space-x-1">
+                                                    <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                                </TableCell>
+                                            </TableRow>
+                                            {agreement.relatedDocuments.map(doc => (
+                                                <TableRow key={doc.id}>
+                                                    <TableCell className="font-medium">{doc.title}</TableCell>
+                                                    <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
+                                                    <TableCell className="text-right space-x-1">
+                                                        <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                        <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    </div>
+                                    <Button variant="outline" className="w-full mt-4"><Upload className="mr-2 h-4 w-4"/> Upload Supporting Document</Button>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-base mb-2">Linked Invoices</h4>
+                                    <div className="space-y-2">
+                                        {agreement.relatedInvoiceIds.length > 0 ? agreement.relatedInvoiceIds.map(invoiceId => {
+                                            const invoice = invoicesData.find(i => i.invoiceNumber === invoiceId);
+                                            return invoice ? (
+                                                <div key={invoice.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                                    <div>
+                                                        <p className="font-medium">Invoice {invoice.invoiceNumber} - ${invoice.amount.toLocaleString()}</p>
+                                                        <p className="text-sm text-muted-foreground">Due: {invoice.dueDate}</p>
+                                                    </div>
+                                                    <Badge variant={getInvoiceStatusBadgeVariant(invoice.status)}>{invoice.status}</Badge>
+                                                </div>
+                                            ) : null
+                                        }) : (
+                                            <p className="text-center text-sm text-muted-foreground py-4">No invoices linked to this agreement.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button>
+                                    <FilePlus className="mr-2 h-4 w-4" />
+                                    Add New Agreement
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                    {client.agreements.length === 0 && (
+                         <Card>
+                            <CardContent className="text-center py-12 text-muted-foreground">
+                                <Handshake className="mx-auto h-8 w-8 mb-2" />
+                                <p>No agreements found for this client.</p>
+                            </CardContent>
+                         </Card>
+                    )}
                 </TabsContent>
                 <TabsContent value="tasks" className="mt-4">
                     <Card>

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Link from "next/link"
 import {
@@ -12,6 +12,7 @@ import {
   Search,
   Calendar,
   HelpCircle,
+  Handshake
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -33,6 +34,7 @@ const navItems = [
   { id: 'my-lawyers', label: 'My Lawyers', icon: Users },
   { id: 'documents', label: 'My Documents', icon: FileText },
   { id: 'appointments', label: 'Appointments', icon: Calendar },
+  { id: 'agreements', label: 'My Agreements', icon: Handshake },
   { id: 'messages', label: 'Messages', icon: Mail },
   { id: 'billing', label: 'Billing', icon: FileDigit },
   { id: 'settings', label: 'Settings', icon: Settings },

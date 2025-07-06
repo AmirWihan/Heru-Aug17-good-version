@@ -9,6 +9,7 @@ const pageTitles: { [key: string]: string } = {
     'find-lawyer': 'Find a Lawyer',
     'my-lawyers': 'My Lawyers',
     'documents': 'My Documents',
+    'agreements': 'My Agreements',
     'messages': 'Messages',
     'billing': 'Billing & Payments',
     'appointments': 'Appointments',
