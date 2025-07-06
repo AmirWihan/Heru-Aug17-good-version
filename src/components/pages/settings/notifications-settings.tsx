@@ -1,8 +1,13 @@
+
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 export function NotificationsSettings() {
+    const { toast } = useToast();
     return (
         <Card>
             <CardHeader>
@@ -40,7 +45,7 @@ export function NotificationsSettings() {
                 </div>
             </CardContent>
             <CardFooter className="border-t pt-6">
-                <Button>Save Preferences</Button>
+                <Button onClick={() => toast({ title: "Preferences Saved", description: "Your notification settings have been updated." })}>Save Preferences</Button>
             </CardFooter>
         </Card>
     );

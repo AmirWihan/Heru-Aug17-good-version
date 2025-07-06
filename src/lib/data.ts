@@ -760,4 +760,6 @@ export const themes = [
     { name: 'Heru Green', id: 'green', colors: { primary: 'hsl(142.1 76.2% 36.3%)', accent: 'hsl(262.1 83.3% 57.8%)' } },
     { name: 'Ocean Blue', id: 'blue', colors: { primary: 'hsl(217.2 91.2% 59.8%)', accent: 'hsl(197.8 91.2% 59.8%)' } },
     { name: 'Graphite', id: 'graphite', colors: { primary: 'hsl(221.2 83.2% 53.3%)', accent: 'hsl(215 27.9% 46.9%)' } },
+    { name: 'Sunset Orange', id: 'orange', colors: { primary: 'hsl(24.6 95% 53.1%)', accent: 'hsl(47.9 95.8% 53.1%)' } },
+    { name: 'Royal Purple', id: 'purple', colors: { primary: 'hsl(262.1 83.3% 57.8%)', accent: 'hsl(314.5 93.3% 57.8%)' } },
 ];

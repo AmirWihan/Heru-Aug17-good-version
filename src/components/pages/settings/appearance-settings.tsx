@@ -8,10 +8,19 @@ import { themes } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 
 export function AppearanceSettings() {
     const { theme, setTheme } = useGlobalData();
+    const { toast } = useToast();
+
+    const handleSave = () => {
+        toast({
+            title: "Settings Saved",
+            description: "Your appearance settings have been updated.",
+        });
+    };
 
     return (
         <Card>
@@ -59,7 +68,7 @@ export function AppearanceSettings() {
                 </div>
             </CardContent>
             <CardFooter className="border-t pt-6">
-                <Button>Save Changes</Button>
+                <Button onClick={handleSave}>Save Changes</Button>
             </CardFooter>
         </Card>
     );

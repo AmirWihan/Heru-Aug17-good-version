@@ -50,6 +50,13 @@ export function PlatformSettingsPage() {
         }
     };
 
+    const handleSaveAll = () => {
+        toast({
+            title: "Settings Saved",
+            description: "Platform settings have been updated.",
+        });
+    };
+
     return (
         <div className="space-y-6">
              <Card>
@@ -244,7 +251,7 @@ export function PlatformSettingsPage() {
                     </Tabs>
                 </CardContent>
                 <CardFooter className="border-t pt-6 flex justify-end">
-                    <Button>Save All Settings</Button>
+                    <Button onClick={handleSaveAll}>Save All Settings</Button>
                 </CardFooter>
             </Card>
         </div>

@@ -1,11 +1,16 @@
+
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HeruLogoIcon } from "@/components/icons/HeruLogoIcon";
 import { UploadCloud } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function GeneralSettings() {
+    const { toast } = useToast();
     return (
         <Card>
             <CardHeader>
@@ -32,7 +37,7 @@ export function GeneralSettings() {
                 </div>
             </CardContent>
             <CardFooter className="border-t pt-6">
-                <Button>Save Changes</Button>
+                <Button onClick={() => toast({ title: "Settings Saved", description: "General settings have been updated." })}>Save Changes</Button>
             </CardFooter>
         </Card>
     );

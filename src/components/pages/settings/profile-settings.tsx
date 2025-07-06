@@ -1,10 +1,15 @@
+
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 export function ProfileSettings() {
+    const { toast } = useToast();
     return (
         <Card>
             <CardHeader>
@@ -33,7 +38,7 @@ export function ProfileSettings() {
                 </div>
             </CardContent>
              <CardFooter className="border-t pt-6">
-                <Button>Save Changes</Button>
+                <Button onClick={() => toast({ title: "Profile Updated", description: "Your profile information has been saved." })}>Save Changes</Button>
             </CardFooter>
         </Card>
     );

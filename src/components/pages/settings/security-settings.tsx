@@ -1,10 +1,15 @@
+
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 export function SecuritySettings() {
+    const { toast } = useToast();
     return (
          <Card>
             <CardHeader>
@@ -33,7 +38,7 @@ export function SecuritySettings() {
                 </div>
             </CardContent>
             <CardFooter className="border-t pt-6">
-                <Button>Update Password</Button>
+                <Button onClick={() => toast({ title: "Password Updated", description: "Your password has been changed successfully." })}>Update Password</Button>
             </CardFooter>
         </Card>
     )

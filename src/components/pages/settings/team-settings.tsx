@@ -1,3 +1,6 @@
+
+'use client';
+
 import { teamMembers } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,8 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function TeamSettings() {
+    const { toast } = useToast();
     return (
         <Card>
             <CardHeader className="flex flex-row justify-between items-center">
@@ -62,7 +67,7 @@ export function TeamSettings() {
                 </Table>
             </CardContent>
              <CardFooter className="border-t pt-6 flex justify-end">
-                <Button>Save Changes</Button>
+                <Button onClick={() => toast({ title: "Changes Saved", description: "User roles and permissions have been updated." })}>Save Changes</Button>
             </CardFooter>
         </Card>
     )
