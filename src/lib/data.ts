@@ -472,7 +472,7 @@ export const clients: Client[] = [
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
         countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15', age: 31, educationLevel: "Two or more post-secondary credentials",
         caseSummary: {
-            priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: 'June 15, 2023',
+            priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: '2023-06-15',
         },
         activity: [
             { id: 7, title: 'Application Submitted', description: 'Work permit extension application was submitted to IRCC', timestamp: '2024-07-23T10:00:00.000Z', teamMember: teamMembers[0] },

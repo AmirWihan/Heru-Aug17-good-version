@@ -1,4 +1,4 @@
-# **App Name**: ImmiAssist CRM
+# **App Name**: VisaFor CRM
 
 ## Core Features:
 
