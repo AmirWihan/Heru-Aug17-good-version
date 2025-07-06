@@ -35,6 +35,15 @@ export type Agreement = {
     relatedInvoiceIds: string[];
 }
 
+type FamilyMember = {
+    fullName: string;
+    relationship: string;
+    dateOfBirth: string;
+    countryOfBirth: string;
+    currentAddress: string;
+    occupation: string;
+};
+
 export type IntakeFormData = {
   personal: {
     fullName: string;
@@ -43,11 +52,21 @@ export type IntakeFormData = {
     countryOfCitizenship: string;
     passportNumber: string;
     passportExpiry: string;
+    height: string;
+    eyeColor: string;
+    contact: {
+        email: string;
+        phone: string;
+        address: string;
+    }
   };
   family: {
     maritalStatus: 'Single' | 'Married' | 'Common-Law' | 'Divorced' | 'Widowed';
-    hasChildren: 'yes' | 'no';
-    childrenCount?: number;
+    spouse?: FamilyMember;
+    mother?: FamilyMember;
+    father?: FamilyMember;
+    children?: FamilyMember[];
+    siblings?: FamilyMember[];
   };
   education: Array<{
     institution: string;
@@ -55,6 +74,13 @@ export type IntakeFormData = {
     yearCompleted: string;
     countryOfStudy: string;
   }>;
+  studyDetails?: {
+    schoolName: string;
+    programName: string;
+    dliNumber: string;
+    tuitionFee: string;
+    livingExpenses: string;
+  };
   workHistory: Array<{
     company: string;
     position: string;
@@ -82,6 +108,8 @@ export type IntakeFormData = {
     criminalRecordDetails?: string;
     hasMedicalIssues: 'yes' | 'no';
     medicalIssuesDetails?: string;
+    hasOverstayed: 'yes' | 'no';
+    overstayDetails?: string;
   };
 };
 
@@ -89,6 +117,7 @@ export type IntakeForm = {
     status: 'not_started' | 'in_progress' | 'submitted' | 'reviewed';
     data?: IntakeFormData;
     analysis?: IntakeFormAnalysis;
+    flaggedQuestions?: string[];
 };
 
 export type Client = {
@@ -390,7 +419,7 @@ export const clients: Client[] = [
         ],
         tasks: [tasksData[0]],
         agreements: [],
-        intakeForm: { status: 'not_started' },
+        intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
         id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
@@ -408,7 +437,7 @@ export const clients: Client[] = [
         ],
         tasks: [tasksData[1], tasksData[4]],
         agreements: [],
-        intakeForm: { status: 'not_started' },
+        intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
@@ -425,7 +454,7 @@ export const clients: Client[] = [
         ],
         tasks: [tasksData[2]],
         agreements: [],
-        intakeForm: { status: 'not_started' },
+        intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
@@ -437,7 +466,7 @@ export const clients: Client[] = [
         documents: [],
         tasks: [],
         agreements: [],
-        intakeForm: { status: 'not_started' },
+        intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
@@ -470,7 +499,7 @@ export const clients: Client[] = [
                 relatedInvoiceIds: ['INV-2023-0456']
             }
         ],
-        intakeForm: { status: 'not_started' },
+        intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
 ];
 

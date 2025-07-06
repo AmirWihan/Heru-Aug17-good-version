@@ -11,6 +11,15 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
+const FamilyMemberSchema = z.object({
+    fullName: z.string(),
+    relationship: z.string(),
+    dateOfBirth: z.string(),
+    countryOfBirth: z.string(),
+    currentAddress: z.string(),
+    occupation: z.string(),
+});
+
 const IntakeFormInputSchema = z.object({
   personal: z.object({
     fullName: z.string(),
@@ -19,11 +28,21 @@ const IntakeFormInputSchema = z.object({
     countryOfCitizenship: z.string(),
     passportNumber: z.string(),
     passportExpiry: z.string(),
+    height: z.string(),
+    eyeColor: z.string(),
+    contact: z.object({
+        email: z.string(),
+        phone: z.string(),
+        address: z.string(),
+    }),
   }),
   family: z.object({
     maritalStatus: z.string(),
-    hasChildren: z.boolean(),
-    childrenCount: z.number().optional(),
+    spouse: FamilyMemberSchema.optional(),
+    mother: FamilyMemberSchema.optional(),
+    father: FamilyMemberSchema.optional(),
+    children: z.array(FamilyMemberSchema).optional(),
+    siblings: z.array(FamilyMemberSchema).optional(),
   }),
   education: z.array(z.object({
     institution: z.string(),
@@ -31,6 +50,13 @@ const IntakeFormInputSchema = z.object({
     yearCompleted: z.string(),
     countryOfStudy: z.string(),
   })),
+   studyDetails: z.object({
+    schoolName: z.string(),
+    programName: z.string(),
+    dliNumber: z.string(),
+    tuitionFee: z.string(),
+    livingExpenses: z.string(),
+  }).optional(),
   workHistory: z.array(z.object({
     company: z.string(),
     position: z.string(),
@@ -58,6 +84,8 @@ const IntakeFormInputSchema = z.object({
     criminalRecordDetails: z.string().optional(),
     hasMedicalIssues: z.boolean(),
     medicalIssuesDetails: z.string().optional(),
+    hasOverstayed: z.boolean().optional(),
+    overstayDetails: z.string().optional(),
   }),
 });
 export type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;
@@ -71,6 +99,10 @@ const FlagSchema = z.object({
 const IntakeFormAnalysisSchema = z.object({
   summary: z.string().describe("A brief, overall summary of the AI's findings from the form review."),
   flags: z.array(FlagSchema).describe("An array of potential issues, inconsistencies, or red flags found in the form."),
+  educationAnalysis: z.object({
+    equivalencySuggestion: z.string().describe("Suggest the Canadian education equivalency level (e.g., 'Bachelor's degree', 'Two or more certificates') based on the degrees provided."),
+    notes: z.string().describe("Any brief notes or observations about the client's education history."),
+  }).optional(),
 });
 export type IntakeFormAnalysis = z.infer<typeof IntakeFormAnalysisSchema>;
 
@@ -90,12 +122,13 @@ const prompt = ai.definePrompt({
   \`\`\`
 
   Your analysis should focus on:
-  1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline).
-  2.  **Inadmissibility:** Flag any answers that could lead to medical or criminal inadmissibility (e.g., hasCriminalRecord: true). Give these a 'high' severity.
+  1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline, family composition mismatch).
+  2.  **Inadmissibility:** Flag any answers that could lead to medical, criminal, or other inadmissibility. Give these a 'high' severity. Pay close attention to the 'admissibility' section.
   3.  **Immigration History:** Pay close attention to previous applications and refusals. A past refusal is a significant flag that requires detailed explanation.
   4.  **Gaps in History:** Look for unexplained gaps in work or travel history.
-  5.  **Missing Information:** Identify areas that are incomplete or may require more detail for a successful application (e.g., details of a criminal record are missing).
+  5.  **Completeness:** Identify areas that are incomplete or may require more detail for a successful application.
   6.  **Strengths & Weaknesses:** Briefly mention strong points (e.g., high education, Canadian work experience) or potential weak points (e.g., limited work experience, low language scores).
+  7.  **Educational Equivalency:** Based on the provided education history, suggest a Canadian equivalency level and add any relevant notes. This is for the 'educationAnalysis' output field.
 
   Create a flag for each issue you identify. For each flag, specify the severity, the related field/section, and a clear message for the lawyer.
   

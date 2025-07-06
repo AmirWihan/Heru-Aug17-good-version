@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
@@ -10,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle } from "lucide-react";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle, Flag } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -848,7 +846,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         </CardContent>
                     </Card>
                 </TabsContent>
-                <TabsContent value="intake-form" className="mt-4">
+                 <TabsContent value="intake-form" className="mt-4">
                      <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><FileHeart className="h-5 w-5 text-primary" />Client Intake Form</CardTitle>
@@ -859,19 +857,40 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     <p>The client has not yet started their intake form.</p>
                                 </div>
                             ) : (
-                                <div>
-                                    <div className="mb-6">
+                                <div className="space-y-6">
+                                     { (client.intakeForm.flaggedQuestions?.length || 0) > 0 && (
+                                        <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950/50">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
+                                                    <Flag className="h-5 w-5"/> Client-Flagged Questions
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <ul className="list-disc pl-5 space-y-1 text-sm text-yellow-800 dark:text-yellow-300">
+                                                    {client.intakeForm.flaggedQuestions?.map(q => <li key={q}>The client flagged the question: <strong>{q}</strong></li>)}
+                                                </ul>
+                                            </CardContent>
+                                        </Card>
+                                     )}
+                                    <div>
                                         <h3 className="font-semibold text-lg mb-2">AI Analysis</h3>
                                         <Card className="bg-muted/50">
                                             <CardContent className="p-4 space-y-4">
                                                 <p><span className="font-semibold">Summary:</span> {(client.intakeForm.analysis?.summary || '')}</p>
+                                                {client.intakeForm.analysis?.educationAnalysis && (
+                                                    <div className="p-3 bg-background rounded-md border">
+                                                        <h4 className="font-semibold text-sm">Education Equivalency Suggestion</h4>
+                                                        <p className="text-primary font-bold text-base">{client.intakeForm.analysis.educationAnalysis.equivalencySuggestion}</p>
+                                                        <p className="text-xs text-muted-foreground">{client.intakeForm.analysis.educationAnalysis.notes}</p>
+                                                    </div>
+                                                )}
                                                 {(client.intakeForm.analysis?.flags || []).length > 0 ? (
                                                      <div>
                                                         <h4 className="font-semibold">Flags:</h4>
                                                         <div className="space-y-2 mt-2">
                                                         {(client.intakeForm.analysis?.flags || []).map((flag, i) => (
-                                                            <div key={i} className="flex items-start gap-3 p-2 border-l-4 rounded-r-md bg-background" style={{ borderColor: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning))' : 'hsl(var(--info))' }}>
-                                                                <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning))' : 'hsl(var(--info))' }}/>
+                                                            <div key={i} className="flex items-start gap-3 p-2 border-l-4 rounded-r-md bg-background" style={{ borderColor: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning-color))' : 'hsl(var(--info-color))' }}>
+                                                                <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: flag.severity === 'high' ? 'hsl(var(--destructive))' : flag.severity === 'medium' ? 'hsl(var(--warning-color))' : 'hsl(var(--info-color))' }}/>
                                                                 <div>
                                                                     <p className="font-semibold text-sm">{flag.field}</p>
                                                                     <p className="text-sm text-muted-foreground">{flag.message}</p>

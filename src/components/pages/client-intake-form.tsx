@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -13,13 +12,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { analyzeIntakeForm, type IntakeFormInput } from '@/ai/flows/intake-form-analyzer';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { cn } from '@/lib/utils';
 
 const CURRENT_CLIENT_ID = 5;
+
+const familyMemberSchema = z.object({
+    fullName: z.string().min(2, "Full name is required."),
+    relationship: z.string(),
+    dateOfBirth: z.string().nonempty("Date of birth is required."),
+    countryOfBirth: z.string().min(2, "Country of birth is required."),
+    currentAddress: z.string().min(5, "Address is required."),
+    occupation: z.string().min(2, "Occupation is required."),
+});
 
 const intakeFormSchema = z.object({
   personal: z.object({
@@ -29,14 +38,21 @@ const intakeFormSchema = z.object({
     countryOfCitizenship: z.string().min(2, "Country of citizenship is required."),
     passportNumber: z.string().min(6, "Valid passport number is required."),
     passportExpiry: z.string().nonempty("Passport expiry date is required."),
+    height: z.string().min(2, "Height is required (e.g., 175cm or 5'9'')."),
+    eyeColor: z.string().min(3, "Eye color is required."),
+    contact: z.object({
+      email: z.string().email("A valid email is required."),
+      phone: z.string().min(10, "A valid phone number is required."),
+      address: z.string().min(10, "A valid address is required."),
+    }),
   }),
   family: z.object({
     maritalStatus: z.enum(['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed']),
-    hasChildren: z.enum(['yes', 'no']),
-    childrenCount: z.coerce.number().optional(),
-  }).refine(data => data.hasChildren === 'no' || (data.hasChildren === 'yes' && data.childrenCount !== undefined && data.childrenCount > 0), {
-    message: "Please specify the number of children.",
-    path: ["childrenCount"],
+    spouse: familyMemberSchema.optional(),
+    mother: familyMemberSchema.optional(),
+    father: familyMemberSchema.optional(),
+    children: z.array(familyMemberSchema).optional(),
+    siblings: z.array(familyMemberSchema).optional(),
   }),
   education: z.array(z.object({
     institution: z.string().min(2, "Institution name is required."),
@@ -44,6 +60,13 @@ const intakeFormSchema = z.object({
     yearCompleted: z.string().min(4, "Year must be 4 digits.").max(4),
     countryOfStudy: z.string().min(2, "Country of study is required."),
   })).min(1, "At least one education entry is required."),
+  studyDetails: z.object({
+    schoolName: z.string(),
+    programName: z.string(),
+    dliNumber: z.string(),
+    tuitionFee: z.string(),
+    livingExpenses: z.string(),
+  }).optional(),
   workHistory: z.array(z.object({
     company: z.string().min(2, "Company name is required."),
     position: z.string().min(2, "Position is required."),
@@ -85,46 +108,58 @@ const intakeFormSchema = z.object({
     criminalRecordDetails: z.string().optional(),
     hasMedicalIssues: z.enum(['yes', 'no']),
     medicalIssuesDetails: z.string().optional(),
+    hasOverstayed: z.enum(['yes', 'no']),
+    overstayDetails: z.string().optional(),
   }).refine(data => data.hasCriminalRecord === 'no' || (data.hasCriminalRecord === 'yes' && data.criminalRecordDetails), {
     message: "Please provide details of your criminal record.", path: ["criminalRecordDetails"]
   }).refine(data => data.hasMedicalIssues === 'no' || (data.hasMedicalIssues === 'yes' && data.medicalIssuesDetails), {
     message: "Please provide details of your medical issues.", path: ["medicalIssuesDetails"]
+  }).refine(data => data.hasOverstayed === 'no' || (data.hasOverstayed === 'yes' && data.overstayDetails), {
+    message: "Please provide details of your overstay.", path: ["overstayDetails"]
   }),
 });
+
 
 type IntakeFormValues = z.infer<typeof intakeFormSchema>;
 
 const steps = [
-    { name: 'Personal Details', fields: ['personal'] },
-    { name: 'Family Details', fields: ['family'] },
-    { name: 'Education History', fields: ['education'] },
-    { name: 'Work History', fields: ['workHistory'] },
-    { name: 'Language Proficiency', fields: ['languageProficiency'] },
-    { name: 'Travel History', fields: ['travelHistory'] },
-    { name: 'Immigration History', fields: ['immigrationHistory'] },
-    { name: 'Admissibility', fields: ['admissibility'] },
+    { id: 'personal', name: 'Personal Details', fields: ['personal'] },
+    { id: 'family', name: 'Family Details', fields: ['family'] },
+    { id: 'education', name: 'Education History', fields: ['education'] },
+    { id: 'study', name: 'Details of Intended Study', fields: ['studyDetails'] },
+    { id: 'work', name: 'Work History', fields: ['workHistory'] },
+    { id: 'language', name: 'Language Proficiency', fields: ['languageProficiency'] },
+    { id: 'travel', name: 'Travel History', fields: ['travelHistory'] },
+    { id: 'immigration', name: 'Immigration History', fields: ['immigrationHistory'] },
+    { id: 'admissibility', name: 'Admissibility', fields: ['admissibility'] },
 ];
 
-const HelpDialog = ({ fieldName }: { fieldName: string }) => {
+const HelpButtons = ({ fieldName, onFlag, isFlagged }: { fieldName: string; onFlag: () => void; isFlagged: boolean; }) => {
     const { toast } = useToast();
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 text-muted-foreground"><HelpCircle className="h-4 w-4" /></Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Ask a Question</DialogTitle>
-                    <DialogDescription>Your question about "{fieldName}" will be sent to your lawyer.</DialogDescription>
-                </DialogHeader>
-                <Textarea placeholder="Type your question here..." />
-                <DialogFooter>
-                    <Button onClick={() => toast({ title: 'Question Sent!', description: 'Your lawyer has been notified of your question.' })}><Send className="mr-2 h-4 w-4" /> Send</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <div className="flex items-center">
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 text-muted-foreground"><HelpCircle className="h-4 w-4" /></Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ask a Question</DialogTitle>
+                        <DialogDescription>Your question about "{fieldName}" will be sent to your lawyer.</DialogDescription>
+                    </DialogHeader>
+                    <Textarea placeholder="Type your question here..." />
+                    <DialogFooter>
+                        <Button onClick={() => toast({ title: 'Question Sent!', description: 'Your lawyer has been notified of your question.' })}><Send className="mr-2 h-4 w-4" /> Send</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={onFlag}>
+                <Flag className={cn("h-4 w-4", isFlagged && "text-yellow-500 fill-current")} />
+            </Button>
+        </div>
     );
 };
+
 
 export function ClientIntakeFormPage() {
     const { toast } = useToast();
@@ -132,24 +167,35 @@ export function ClientIntakeFormPage() {
     const client = clients.find(c => c.id === CURRENT_CLIENT_ID);
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
+    const [applicationType, setApplicationType] = useState<string>('work');
 
     const form = useForm<IntakeFormValues>({
         resolver: zodResolver(intakeFormSchema),
         defaultValues: client?.intakeForm?.data || {
-            personal: { fullName: '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '' },
-            family: { maritalStatus: 'Single', hasChildren: 'no' },
+            personal: { fullName: '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: '', phone: '', address: '' } },
+            family: { maritalStatus: 'Single' },
             education: [{ institution: '', degree: '', yearCompleted: '', countryOfStudy: '' }],
+            studyDetails: { schoolName: '', programName: '', dliNumber: '', tuitionFee: '', livingExpenses: '' },
             workHistory: [{ company: '', position: '', duration: '', country: '' }],
             languageProficiency: { englishScores: { listening: 0, reading: 0, writing: 0, speaking: 0 }, frenchScores: { listening: 0, reading: 0, writing: 0, speaking: 0 } },
             travelHistory: [],
             immigrationHistory: { previouslyApplied: 'no', wasRefused: 'no' },
-            admissibility: { hasCriminalRecord: 'no', hasMedicalIssues: 'no' },
+            admissibility: { hasCriminalRecord: 'no', hasMedicalIssues: 'no', hasOverstayed: 'no' },
         },
     });
-    
+
     const { fields: eduFields, append: appendEdu, remove: removeEdu } = useFieldArray({ control: form.control, name: "education" });
     const { fields: workFields, append: appendWork, remove: removeWork } = useFieldArray({ control: form.control, name: "workHistory" });
     const { fields: travelFields, append: appendTravel, remove: removeTravel } = useFieldArray({ control: form.control, name: "travelHistory" });
+    const { fields: childrenFields, append: appendChild, remove: removeChild } = useFieldArray({ control: form.control, name: "family.children" });
+    const { fields: siblingFields, append: appendSibling, remove: removeSibling } = useFieldArray({ control: form.control, name: "family.siblings" });
+    
+    const handleFlagQuestion = (fieldName: string) => {
+        setFlaggedQuestions(prev => 
+            prev.includes(fieldName) ? prev.filter(f => f !== fieldName) : [...prev, fieldName]
+        );
+    };
 
     const processForm = async (data: IntakeFormValues) => {
         if (!client) return;
@@ -157,24 +203,20 @@ export function ClientIntakeFormPage() {
         try {
             const apiInput: IntakeFormInput = {
               ...data,
-              family: {
-                  ...data.family,
-                  hasChildren: data.family.hasChildren === 'yes',
+              admissibility: {
+                ...data.admissibility,
+                hasCriminalRecord: data.admissibility.hasCriminalRecord === 'yes',
+                hasMedicalIssues: data.admissibility.hasMedicalIssues === 'yes',
+                hasOverstayed: data.admissibility.hasOverstayed === 'yes',
               },
               immigrationHistory: {
                   ...data.immigrationHistory,
                   previouslyApplied: data.immigrationHistory.previouslyApplied === 'yes',
                   wasRefused: data.immigrationHistory.wasRefused === 'yes',
               },
-              admissibility: {
-                hasCriminalRecord: data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: data.admissibility.hasMedicalIssues === 'yes',
-                criminalRecordDetails: data.admissibility.criminalRecordDetails,
-                medicalIssuesDetails: data.admissibility.medicalIssuesDetails,
-              },
             };
             const analysis = await analyzeIntakeForm(apiInput);
-            updateClient({ ...client, intakeForm: { status: 'submitted', data, analysis } });
+            updateClient({ ...client, intakeForm: { status: 'submitted', data, analysis, flaggedQuestions } });
             toast({ title: "Form Submitted!", description: "Your intake form has been submitted for review." });
         } catch (error) {
             console.error(error);
@@ -185,15 +227,39 @@ export function ClientIntakeFormPage() {
     };
     
     const next = async () => {
-        const fields = steps[currentStep].fields as (keyof IntakeFormValues)[];
-        const output = await form.trigger(fields, { shouldFocus: true });
+        const stepId = steps[currentStep].id;
+        let fieldsToValidate = steps[currentStep].fields;
+
+        // Conditional validation
+        if (stepId === 'family' && form.getValues('family.maritalStatus') !== 'Married' && form.getValues('family.maritalStatus') !== 'Common-Law') {
+            // @ts-ignore
+            fieldsToValidate = fieldsToValidate.filter(f => f !== 'family.spouse');
+        }
+
+        const output = await form.trigger(fieldsToValidate as any, { shouldFocus: true });
         if (!output) return;
-        if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
-        else await form.handleSubmit(processForm)();
+
+        if (currentStep >= steps.length - 1) {
+            await form.handleSubmit(processForm)();
+        } else {
+            let nextStepIndex = currentStep + 1;
+            // Skip study details if not a student
+            if (steps[nextStepIndex].id === 'study' && applicationType !== 'student') {
+                nextStepIndex++;
+            }
+            setCurrentStep(nextStepIndex);
+        }
     };
 
     const prev = () => {
-        if (currentStep > 0) setCurrentStep(currentStep - 1);
+        if (currentStep > 0) {
+            let prevStepIndex = currentStep - 1;
+             // Skip study details if not a student
+            if (steps[prevStepIndex].id === 'study' && applicationType !== 'student') {
+                prevStepIndex--;
+            }
+            setCurrentStep(prevStepIndex);
+        }
     };
 
     if (!client) return <p>Loading...</p>;
@@ -214,11 +280,12 @@ export function ClientIntakeFormPage() {
     }
 
     const progress = ((currentStep + 1) / steps.length) * 100;
-    const watchHasChildren = form.watch('family.hasChildren');
+    const watchMaritalStatus = form.watch('family.maritalStatus');
     const watchPreviouslyApplied = form.watch('immigrationHistory.previouslyApplied');
     const watchWasRefused = form.watch('immigrationHistory.wasRefused');
     const watchHasCriminalRecord = form.watch('admissibility.hasCriminalRecord');
     const watchHasMedicalIssues = form.watch('admissibility.hasMedicalIssues');
+    const watchHasOverstayed = form.watch('admissibility.hasOverstayed');
 
     return (
         <Card className="w-full max-w-4xl">
@@ -236,45 +303,46 @@ export function ClientIntakeFormPage() {
                         {currentStep === 0 && (
                             <div className="space-y-4 animate-fade">
                                 <h3 className="font-semibold">Personal Details</h3>
-                                <FormField name="personal.fullName" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Full Name (as it appears on your passport) <HelpDialog fieldName="Full Name"/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                <FormField name="personal.fullName" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Full Name (as on passport) <HelpButtons fieldName="Full Name" onFlag={() => handleFlagQuestion('personal.fullName')} isFlagged={flaggedQuestions.includes('personal.fullName')}/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField name="personal.dateOfBirth" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Date of Birth <HelpDialog fieldName="Date of Birth"/></FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
-                                    <FormField name="personal.countryOfBirth" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Country of Birth <HelpDialog fieldName="Country of Birth"/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.dateOfBirth" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Date of Birth <HelpButtons fieldName="Date of Birth" onFlag={() => handleFlagQuestion('personal.dateOfBirth')} isFlagged={flaggedQuestions.includes('personal.dateOfBirth')}/></FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.countryOfBirth" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Country of Birth <HelpButtons fieldName="Country of Birth" onFlag={() => handleFlagQuestion('personal.countryOfBirth')} isFlagged={flaggedQuestions.includes('personal.countryOfBirth')}/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField name="personal.countryOfCitizenship" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Country of Citizenship <HelpButtons fieldName="Country of Citizenship" onFlag={() => handleFlagQuestion('personal.countryOfCitizenship')} isFlagged={flaggedQuestions.includes('personal.countryOfCitizenship')}/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.passportNumber" control={form.control} render={({ field }) => <FormItem><FormLabel>Passport Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <FormField name="personal.countryOfCitizenship" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Country of Citizenship <HelpDialog fieldName="Country of Citizenship"/></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                                    <FormField name="personal.passportNumber" control={form.control} render={({ field }) => <FormItem><FormLabel>Passport Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                                    <FormField name="personal.passportExpiry" control={form.control} render={({ field }) => <FormItem><FormLabel>Passport Expiry Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.passportExpiry" control={form.control} render={({ field }) => <FormItem><FormLabel>Passport Expiry</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.height" control={form.control} render={({ field }) => <FormItem><FormLabel>Height</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="personal.eyeColor" control={form.control} render={({ field }) => <FormItem><FormLabel>Eye Color</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                 </div>
+                                <h3 className="font-semibold pt-4 border-t">Contact Information</h3>
+                                <FormField name="personal.contact.email" control={form.control} render={({ field }) => <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                <FormField name="personal.contact.phone" control={form.control} render={({ field }) => <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormMessage></FormItem>} />
+                                <FormField name="personal.contact.address" control={form.control} render={({ field }) => <FormItem><FormLabel>Full Residential Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormMessage></FormItem>} />
                             </div>
                         )}
-                         {currentStep === 1 && (
+                        {currentStep === 1 && (
                             <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Family Details</h3>
-                                <FormField name="family.maritalStatus" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Marital Status<HelpDialog fieldName="Marital Status"/></FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>} />
-                                <FormField control={form.control} name="family.hasChildren" render={({ field }) => (
-                                    <FormItem className="space-y-3">
-                                        <FormLabel className="flex items-center">Do you have children?<HelpDialog fieldName="Children"/></FormLabel>
-                                        <FormControl>
-                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                                <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                                <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                            </RadioGroup>
-                                        </FormControl><FormMessage />
-                                    </FormItem>
-                                )} />
-                                {watchHasChildren === 'yes' && (
-                                     <FormField name="family.childrenCount" control={form.control} render={({ field }) => <FormItem><FormLabel>Number of children</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
-                                )}
+                                <FormField name="family.maritalStatus" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Marital Status<HelpButtons fieldName="Marital Status" onFlag={() => handleFlagQuestion('family.maritalStatus')} isFlagged={flaggedQuestions.includes('family.maritalStatus')}/></FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>} />
+                                
+                                { (watchMaritalStatus === "Married" || watchMaritalStatus === "Common-Law") && <FamilyMemberForm section="spouse" title="Spouse / Common-Law Partner" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions} />}
+                                <FamilyMemberForm section="mother" title="Mother" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                <FamilyMemberForm section="father" title="Father" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                
+                                <FieldArrayForm section="children" title="Children" fields={childrenFields} append={appendChild} remove={removeChild} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                <FieldArrayForm section="siblings" title="Siblings" fields={siblingFields} append={appendSibling} remove={removeSibling} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
                             </div>
                         )}
-                        {currentStep === 2 && (
+                         {currentStep === 2 && (
                             <div className="space-y-4 animate-fade">
                                 <h3 className="font-semibold">Education History</h3>
                                 {eduFields.map((field, index) => (
                                     <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => <FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                            <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Institution <HelpButtons fieldName={`Education ${index+1} Institution`} onFlag={() => handleFlagQuestion(`education.${index}.institution`)} isFlagged={flaggedQuestions.includes(`education.${index}.institution`)} /></FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                             <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => <FormItem><FormLabel>Degree/Diploma</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                             <FormField name={`education.${index}.countryOfStudy`} control={form.control} render={({ field }) => <FormItem><FormLabel>Country of Study</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
                                             <FormField name={`education.${index}.yearCompleted`} control={form.control} render={({ field }) => <FormItem><FormLabel>Year Completed</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
@@ -285,7 +353,19 @@ export function ClientIntakeFormPage() {
                                 <Button type="button" variant="outline" onClick={() => appendEdu({ institution: '', degree: '', yearCompleted: '', countryOfStudy: '' })}><PlusCircle className="mr-2 h-4 w-4"/>Add Education</Button>
                             </div>
                         )}
-                        {currentStep === 3 && (
+                        {currentStep === 3 && applicationType === 'student' && (
+                             <div className="space-y-4 animate-fade">
+                                <h3 className="font-semibold">Details of Intended Study in Canada</h3>
+                                <FormField name="studyDetails.schoolName" control={form.control} render={({ field }) => <FormItem><FormLabel>Name of School</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                <FormField name="studyDetails.programName" control={form.control} render={({ field }) => <FormItem><FormLabel>Program / Level of Study</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                <FormField name="studyDetails.dliNumber" control={form.control} render={({ field }) => <FormItem><FormLabel>Designated Learning Institution (DLI) #</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField name="studyDetails.tuitionFee" control={form.control} render={({ field }) => <FormItem><FormLabel>Tuition Fee ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    <FormField name="studyDetails.livingExpenses" control={form.control} render={({ field }) => <FormItem><FormLabel>Living Expenses ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                </div>
+                            </div>
+                        )}
+                        {currentStep === 4 && (
                              <div className="space-y-4 animate-fade">
                                 <h3 className="font-semibold">Work History</h3>
                                 {workFields.map((field, index) => (
@@ -302,7 +382,7 @@ export function ClientIntakeFormPage() {
                                 <Button type="button" variant="outline" onClick={() => appendWork({ company: '', position: '', duration: '', country: '' })}><PlusCircle className="mr-2 h-4 w-4"/>Add Work Experience</Button>
                             </div>
                         )}
-                        {currentStep === 4 && (
+                        {currentStep === 5 && (
                             <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Language Proficiency</h3>
                                 <div className="p-4 border rounded-lg space-y-4">
@@ -325,7 +405,7 @@ export function ClientIntakeFormPage() {
                                 </div>
                             </div>
                         )}
-                        {currentStep === 5 && (
+                        {currentStep === 6 && (
                             <div className="space-y-4 animate-fade">
                                 <h3 className="font-semibold">Travel History (Last 10 Years)</h3>
                                 {travelFields.map((field, index) => (
@@ -342,54 +422,54 @@ export function ClientIntakeFormPage() {
                                 <Button type="button" variant="outline" onClick={() => appendTravel({ country: '', purpose: '', duration: '', year: '' })}><PlusCircle className="mr-2 h-4 w-4"/>Add Travel</Button>
                             </div>
                         )}
-                         {currentStep === 6 && (
+                         {currentStep === 7 && (
                             <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Immigration History</h3>
                                 <FormField control={form.control} name="immigrationHistory.previouslyApplied" render={({ field }) => (
-                                    <FormItem className="space-y-3">
-                                        <FormLabel className="flex items-center">Have you previously applied to come to Canada?<HelpDialog fieldName="Previous Applications"/></FormLabel>
-                                        <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                        </RadioGroup></FormControl><FormMessage />
+                                    <FormItem className="space-y-3"><FormLabel className="flex items-center">Have you previously applied for any Canadian visa?<HelpButtons fieldName="Previous Applications" onFlag={() => handleFlagQuestion('immigrationHistory.previouslyApplied')} isFlagged={flaggedQuestions.includes('immigrationHistory.previouslyApplied')}/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup></FormControl><FormMessage />
                                     </FormItem>
                                 )}/>
                                 {watchPreviouslyApplied === 'yes' && <FormField name="immigrationHistory.previousApplicationDetails" control={form.control} render={({ field }) => <FormItem><FormLabel>Please provide details (type of application, year, etc.)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />}
                                 <FormField control={form.control} name="immigrationHistory.wasRefused" render={({ field }) => (
-                                    <FormItem className="space-y-3">
-                                        <FormLabel className="flex items-center">Have you ever been refused a visa or permit for Canada or any other country?<HelpDialog fieldName="Visa Refusals"/></FormLabel>
-                                        <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                        </RadioGroup></FormControl><FormMessage />
+                                    <FormItem className="space-y-3"><FormLabel className="flex items-center">Have you ever been refused a visa for Canada or any other country?<HelpButtons fieldName="Visa Refusals" onFlag={() => handleFlagQuestion('immigrationHistory.wasRefused')} isFlagged={flaggedQuestions.includes('immigrationHistory.wasRefused')}/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup></FormControl><FormMessage />
                                     </FormItem>
                                 )}/>
                                 {watchWasRefused === 'yes' && <FormField name="immigrationHistory.refusalDetails" control={form.control} render={({ field }) => <FormItem><FormLabel>Please provide details of the refusal</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />}
                             </div>
                         )}
-                         {currentStep === 7 && (
+                         {currentStep === 8 && (
                             <div className="space-y-6 animate-fade">
                                 <h3 className="font-semibold">Admissibility</h3>
                                 <FormField control={form.control} name="admissibility.hasCriminalRecord" render={({ field }) => (
-                                    <FormItem className="space-y-3">
-                                        <FormLabel className="flex items-center">Have you ever been arrested for, or convicted of, any criminal offence in any country?<HelpDialog fieldName="Criminal Record"/></FormLabel>
-                                        <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                        </RadioGroup></FormControl><FormMessage />
+                                    <FormItem className="space-y-3"><FormLabel className="flex items-center">Have you ever been arrested for, or convicted of, any criminal offence in any country?<HelpButtons fieldName="Criminal Record" onFlag={() => handleFlagQuestion('admissibility.hasCriminalRecord')} isFlagged={flaggedQuestions.includes('admissibility.hasCriminalRecord')}/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup></FormControl><FormMessage />
                                     </FormItem>
                                 )}/>
                                 {watchHasCriminalRecord === 'yes' && <FormField name="admissibility.criminalRecordDetails" control={form.control} render={({ field }) => <FormItem><FormLabel>Please provide details</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />}
                                 <FormField control={form.control} name="admissibility.hasMedicalIssues" render={({ field }) => (
-                                    <FormItem className="space-y-3">
-                                        <FormLabel className="flex items-center">Have you had any serious medical conditions?<HelpDialog fieldName="Medical Issues"/></FormLabel>
-                                        <FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                        </RadioGroup></FormControl><FormMessage />
+                                    <FormItem className="space-y-3"><FormLabel className="flex items-center">Have you had any serious medical conditions?<HelpButtons fieldName="Medical Issues" onFlag={() => handleFlagQuestion('admissibility.hasMedicalIssues')} isFlagged={flaggedQuestions.includes('admissibility.hasMedicalIssues')}/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup></FormControl><FormMessage />
                                     </FormItem>
                                 )}/>
                                 {watchHasMedicalIssues === 'yes' && <FormField name="admissibility.medicalIssuesDetails" control={form.control} render={({ field }) => <FormItem><FormLabel>Please provide details</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />}
+                                <FormField control={form.control} name="admissibility.hasOverstayed" render={({ field }) => (
+                                    <FormItem className="space-y-3"><FormLabel className="flex items-center">Have you ever overstayed your visa status in any country?<HelpButtons fieldName="Visa Overstay" onFlag={() => handleFlagQuestion('admissibility.hasOverstayed')} isFlagged={flaggedQuestions.includes('admissibility.hasOverstayed')}/></FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-row space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup></FormControl><FormMessage />
+                                    </FormItem>
+                                )}/>
+                                {watchHasOverstayed === 'yes' && <FormField name="admissibility.overstayDetails" control={form.control} render={({ field }) => <FormItem><FormLabel>Please provide details</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />}
                             </div>
                         )}
                     </CardContent>
@@ -397,7 +477,7 @@ export function ClientIntakeFormPage() {
                         <Button variant="ghost" onClick={prev} disabled={currentStep === 0} type="button"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
                         <Button onClick={next} disabled={isLoading} type="button">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {currentStep === steps.length - 1 ? <><Sparkles className="mr-2 h-4 w-4"/>Submit for Review</> : <>Next Step <ArrowRight className="ml-2 h-4 w-4" /></>}
+                            {currentStep >= steps.length - 1 ? <><Sparkles className="mr-2 h-4 w-4"/>Submit for Review</> : <>Next Step <ArrowRight className="ml-2 h-4 w-4" /></>}
                         </Button>
                     </CardFooter>
                 </form>
@@ -405,3 +485,42 @@ export function ClientIntakeFormPage() {
         </Card>
     );
 }
+
+const FamilyMemberForm = ({ section, title, control, onFlag, flaggedQuestions }: { section: 'family.spouse' | 'family.mother' | 'family.father', title: string, control: any, onFlag: (name: string) => void, flaggedQuestions: string[] }) => (
+    <div className="p-4 border rounded-lg space-y-4">
+        <h4 className="font-medium flex items-center">{title} <HelpButtons fieldName={title} onFlag={() => onFlag(section)} isFlagged={flaggedQuestions.includes(section)} /></h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField name={`${section}.fullName`} control={control} render={({ field }) => <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+            <FormField name={`${section}.dateOfBirth`} control={control} render={({ field }) => <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField name={`${section}.countryOfBirth`} control={control} render={({ field }) => <FormItem><FormLabel>Country of Birth</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+            <FormField name={`${section}.occupation`} control={control} render={({ field }) => <FormItem><FormLabel>Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+        </div>
+        <FormField name={`${section}.currentAddress`} control={control} render={({ field }) => <FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />
+    </div>
+);
+
+const FieldArrayForm = ({ section, title, fields, append, remove, control, onFlag, flaggedQuestions }: { section: 'family.children' | 'family.siblings', title: string, fields: any[], append: (obj: any) => void, remove: (index: number) => void, control: any, onFlag: (name: string) => void, flaggedQuestions: string[] }) => (
+    <div className="space-y-4">
+        <h3 className="font-semibold">{title}</h3>
+        {fields.map((field, index) => (
+            <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                 <h4 className="font-medium flex items-center">{title.slice(0,-1)} #{index + 1} <HelpButtons fieldName={`${title.slice(0,-1)} #${index + 1}`} onFlag={() => onFlag(`${section}.${index}`)} isFlagged={flaggedQuestions.includes(`${section}.${index}`)} /></h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField name={`${section}.${index}.fullName`} control={control} render={({ field }) => <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField name={`${section}.${index}.dateOfBirth`} control={control} render={({ field }) => <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>} />
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField name={`${section}.${index}.countryOfBirth`} control={control} render={({ field }) => <FormItem><FormLabel>Country of Birth</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField name={`${section}.${index}.occupation`} control={control} render={({ field }) => <FormItem><FormLabel>Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                </div>
+                 <FormField name={`${section}.${index}.currentAddress`} control={control} render={({ field }) => <FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>} />
+                <Button type="button" variant="destructive" size="sm" className="absolute top-2 right-2" onClick={() => remove(index)}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+        ))}
+        <Button type="button" variant="outline" onClick={() => append({ fullName: '', relationship: title.slice(0,-1), dateOfBirth: '', countryOfBirth: '', currentAddress: '', occupation: '' })}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add {title.slice(0,-1)}
+        </Button>
+    </div>
+);
