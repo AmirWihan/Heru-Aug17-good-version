@@ -5,9 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { useAdminDashboard } from "@/context/AdminDashboardContext"
-import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { WhatsappIcon } from "../icons/WhatsappIcon"
+import { useGlobalData } from "@/context/GlobalDataContext"
+import { auth } from "@/lib/firebase"
+import { signOut } from "firebase/auth"
+import { useRouter } from "next/navigation"
 
 
 interface AdminHeaderProps {
@@ -18,6 +21,14 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
   const { setPage } = useAdminDashboard();
+  const { userProfile } = useGlobalData();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -38,12 +49,12 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input type="search" placeholder="Search users, logs..." className="pl-10" />
           </div>
-           <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
+           <a href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
             <Button variant="ghost" size="icon">
                 <WhatsappIcon className="h-5 w-5 text-green-500" />
                 <span className="sr-only">Contact Support on WhatsApp</span>
             </Button>
-          </Link>
+          </a>
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5 text-foreground" />
             <span className="sr-only">Notifications</span>
@@ -56,19 +67,17 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{userProfile?.fullName || 'My Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setPage('settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Platform Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link href="/" passHref>
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign Out</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

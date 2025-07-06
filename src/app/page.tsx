@@ -70,8 +70,8 @@ export default function HomePage() {
                     y2="474.645"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop stopColor="hsl(var(--primary))" />
-                    <stop offset={1} stopColor="hsl(var(--accent))" />
+                    <stop stopColor="hsl(var(--accent))" />
+                    <stop offset={1} stopColor="hsl(var(--primary))" />
                 </linearGradient>
                 </defs>
             </svg>
@@ -82,10 +82,10 @@ export default function HomePage() {
           <span className="text-xl font-bold">Heru</span>
         </Link>
         <div className="flex items-center gap-2">
-            <Link href="/admin/dashboard">
+            <Link href="/login">
               <Button variant="ghost">Admin Login</Button>
             </Link>
-            <Link href="/lawyer/dashboard">
+            <Link href="/login">
               <Button>Lawyer Login</Button>
             </Link>
         </div>
@@ -101,7 +101,7 @@ export default function HomePage() {
           </p>
           <div className="w-full max-w-4xl space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Link href="/client/dashboard" className="block">
+              <Link href="/login" className="block">
                 <div className="group rounded-xl border-2 border-transparent bg-card p-8 shadow-lg transition-all hover:border-accent hover:shadow-accent/20">
                     <h2 className="font-headline text-2xl font-bold">For Applicants</h2>
                     <p className="mt-2 text-muted-foreground">Track your case, communicate with your lawyer, and upload documents with ease.</p>
@@ -114,10 +114,10 @@ export default function HomePage() {
                   <h2 className="font-headline text-2xl font-bold">For Professionals</h2>
                   <p className="mt-2 flex-grow text-muted-foreground">Manage your clients, automate tasks, and streamline your entire workflow with AI.</p>
                    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <Link href="/lawyer/register" passHref>
+                        <Link href="/register" passHref>
                            <Button className="w-full">Create an Account</Button>
                         </Link>
-                        <Link href="/lawyer/dashboard" passHref>
+                        <Link href="/login" passHref>
                             <Button variant="outline" className="w-full">Log In</Button>
                         </Link>
                     </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
                     Whether you are an applicant starting your immigration process or a legal professional seeking to optimize your practice, Heru is your trusted partner.
                 </p>
                 <div className="mt-8">
-                     <Link href="/client/onboarding" passHref>
+                     <Link href="/register" passHref>
                         <Button size="lg" className="bg-accent hover:bg-accent/90">
                             Start Your Application <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
@@ -207,8 +207,8 @@ export default function HomePage() {
                 <span>© 2024 MAAT Technologies. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-4">
-                 <Link href="/client/dashboard" className="hover:text-primary">Applicant Login</Link>
-                 <Link href="/lawyer/dashboard" className="hover:text-primary">Professional Login</Link>
+                 <Link href="/login" className="hover:text-primary">Applicant Login</Link>
+                 <Link href="/login" className="hover:text-primary">Professional Login</Link>
             </div>
         </div>
       </footer>

@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useLawyerDashboard } from "@/context/LawyerDashboardContext"
-import Link from "next/link"
 import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { plans } from "@/lib/data"
 import { Progress } from "../ui/progress"
+import { auth } from "@/lib/firebase"
+import { signOut } from "firebase/auth"
+import { useRouter } from "next/navigation"
 
 interface AppHeaderProps {
   pageTitle: string
@@ -20,7 +22,8 @@ interface AppHeaderProps {
 
 export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const { setPage } = useLawyerDashboard();
-  const { teamMembers } = useGlobalData();
+  const { teamMembers, userProfile } = useGlobalData();
+  const router = useRouter();
 
   // For demo, assume logged-in user is from "Johnson Legal" firm
   const currentFirmName = "Johnson Legal";
@@ -31,6 +34,11 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const userCount = currentFirmMembers.length;
   const userLimit = planDetails?.userLimit || 10;
   const usagePercentage = typeof userLimit === 'number' ? (userCount / userLimit) * 100 : 0;
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm shadow-sm">
@@ -81,12 +89,12 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Link href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
             <Button variant="ghost" size="icon">
                 <WhatsappIcon className="h-5 w-5 text-green-500" />
                 <span className="sr-only">Contact on WhatsApp</span>
             </Button>
-          </Link>
+          </a>
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5 text-foreground" />
             <span className="sr-only">Notifications</span>
@@ -94,24 +102,22 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
-                <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Sarah J." />
-                <AvatarFallback>SJ</AvatarFallback>
+                <AvatarImage src={userProfile?.uid ? `https://i.pravatar.cc/150?u=${userProfile.uid}` : undefined} alt={userProfile?.fullName} />
+                <AvatarFallback>{userProfile?.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{userProfile?.fullName || 'My Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setPage('settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link href="/" passHref>
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign Out</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

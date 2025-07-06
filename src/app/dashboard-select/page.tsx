@@ -1,33 +1,44 @@
-
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
-export default function RedirectPage() {
+export default function DashboardSelectPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const role = searchParams.get('role');
+    const { user, userProfile, loading } = useGlobalData();
 
     useEffect(() => {
-        let path = '/';
-        switch (role) {
-            case 'client':
-                path = '/client/dashboard';
-                break;
-            case 'lawyer':
-                path = '/lawyer/dashboard';
-                break;
-            case 'admin':
-                path = '/admin/dashboard';
-                break;
-            default:
-                path = '/'; // Fallback to homepage
+        if (loading) {
+            return; // Wait for auth and profile to load
         }
-        router.replace(path);
-    }, [role, router]);
+
+        if (!user) {
+            router.replace('/login');
+            return;
+        }
+
+        if (userProfile) {
+            let path = '/';
+            switch (userProfile.role) {
+                case 'client':
+                    path = '/client/dashboard';
+                    break;
+                case 'lawyer':
+                    path = '/lawyer/dashboard';
+                    break;
+                case 'admin':
+                    path = '/admin/dashboard';
+                    break;
+                default:
+                    path = '/login'; // Fallback if role is unknown
+            }
+            router.replace(path);
+        }
+
+    }, [user, userProfile, loading, router]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
