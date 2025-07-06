@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -111,7 +112,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
 
     return (
         <div className="space-y-6">
-            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary to-accent text-primary-foreground shadow-lg border-0">
+            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-accent to-primary text-primary-foreground shadow-lg border-0">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold">Welcome back, Sarah! 👋</h2>

@@ -1,3 +1,4 @@
+
 'use client';
 import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileWarning, FileClock, CheckSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -55,7 +56,7 @@ export function AdminOverviewPage() {
 
     return (
         <div className="space-y-6">
-            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/80 to-accent/80 text-primary-foreground border-0">
+            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-accent/80 to-primary/80 text-primary-foreground border-0">
                 <CardHeader>
                     <CardTitle className="text-2xl">Welcome, Super Admin!</CardTitle>
                     <CardDescription className="text-primary-foreground/80">Here's your platform summary and urgent tasks for today.</CardDescription>
