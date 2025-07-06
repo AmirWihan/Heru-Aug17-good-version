@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Task } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import type { Client, Task, Agreement } from "@/lib/data";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit } from "lucide-react";
+import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -142,6 +142,14 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const [followUpTaskAssignee, setFollowUpTaskAssignee] = useState("");
     const [followUpTaskDueDate, setFollowUpTaskDueDate] = useState("");
     const [followUpTaskPriority, setFollowUpTaskPriority] = useState<Task['priority']>('Medium');
+    
+    // State for Agreements
+    const [isAgreementDialogOpen, setAgreementDialogOpen] = useState(false);
+    const [editingAgreement, setEditingAgreement] = useState<Agreement | null>(null);
+    const [agreementTitle, setAgreementTitle] = useState('');
+    const [agreementStatus, setAgreementStatus] = useState<Agreement['status']>('Active');
+    const [agreementDate, setAgreementDate] = useState('');
+
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
@@ -451,6 +459,54 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         toast({ title: 'Status Updated', description: `${client.name}'s status is now ${newStatus}.` });
     };
 
+    const handleOpenAgreementDialog = (agreement: Agreement | null) => {
+        setEditingAgreement(agreement);
+        if (agreement) {
+            setAgreementTitle(agreement.title);
+            setAgreementStatus(agreement.status);
+            setAgreementDate(format(new Date(agreement.dateSigned), 'yyyy-MM-dd'));
+        } else {
+            setAgreementTitle('');
+            setAgreementStatus('Active');
+            setAgreementDate(format(new Date(), 'yyyy-MM-dd'));
+        }
+        setAgreementDialogOpen(true);
+    };
+
+    const handleSaveAgreement = () => {
+        if (!agreementTitle || !agreementDate) {
+            toast({ title: 'Error', description: 'Title and date are required.', variant: 'destructive' });
+            return;
+        }
+
+        let updatedAgreements;
+        if (editingAgreement) {
+            // Editing existing agreement
+            updatedAgreements = (client.agreements || []).map(a =>
+                a.id === editingAgreement.id
+                    ? { ...a, title: agreementTitle, status: agreementStatus, dateSigned: agreementDate }
+                    : a
+            );
+            toast({ title: 'Agreement Updated', description: `Agreement "${agreementTitle}" has been updated.` });
+        } else {
+            // Adding new agreement
+            const newAgreement: Agreement = {
+                id: Date.now(),
+                title: agreementTitle,
+                status: agreementStatus,
+                dateSigned: agreementDate,
+                relatedDocuments: [],
+                relatedInvoiceIds: [],
+            };
+            updatedAgreements = [...(client.agreements || []), newAgreement];
+            toast({ title: 'Agreement Added', description: `New agreement "${agreementTitle}" has been added.` });
+        }
+
+        onUpdateClient({ ...client, agreements: updatedAgreements });
+        setAgreementDialogOpen(false);
+        setEditingAgreement(null);
+    };
+
     return (
         <>
             <input type="file" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
@@ -686,91 +742,99 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     </Card>
                 </TabsContent>
                 <TabsContent value="agreements" className="mt-4">
-                    {(client.agreements || []).map(agreement => (
-                        <Card key={agreement.id}>
-                            <CardHeader>
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <CardTitle className="text-lg flex items-center gap-2"><Handshake className="h-5 w-5 text-primary" /> {agreement.title}</CardTitle>
-                                        <CardDescription>Signed on {format(new Date(agreement.dateSigned), 'PP')}</CardDescription>
-                                    </div>
-                                     <Badge variant={getStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div>
-                                    <h4 className="font-semibold text-base mb-2">Related Documents</h4>
-                                    <div className="rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Document</TableHead>
-                                                <TableHead>Date Added</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            <TableRow>
-                                                <TableCell className="font-medium">Signed Agreement</TableCell>
-                                                <TableCell>{format(new Date(agreement.dateSigned), 'PP')}</TableCell>
-                                                <TableCell className="text-right space-x-1">
-                                                    <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
-                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                                                </TableCell>
-                                            </TableRow>
-                                            {(agreement.relatedDocuments || []).map(doc => (
-                                                <TableRow key={doc.id}>
-                                                    <TableCell className="font-medium">{doc.title}</TableCell>
-                                                    <TableCell>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
-                                                    <TableCell className="text-right space-x-1">
-                                                        <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                                        <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
-                                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    </div>
-                                    <Button variant="outline" className="w-full mt-4"><Upload className="mr-2 h-4 w-4"/> Upload Supporting Document</Button>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-base mb-2">Linked Invoices</h4>
-                                    <div className="space-y-2">
-                                        {(agreement.relatedInvoiceIds || []).length > 0 ? agreement.relatedInvoiceIds.map(invoiceId => {
-                                            const invoice = invoicesData.find(i => i.invoiceNumber === invoiceId);
-                                            return invoice ? (
-                                                <div key={invoice.id} className="flex items-center justify-between p-3 rounded-lg border">
-                                                    <div>
-                                                        <p className="font-medium">Invoice {invoice.invoiceNumber} - ${invoice.amount.toLocaleString()}</p>
-                                                        <p className="text-sm text-muted-foreground">Due: {invoice.dueDate}</p>
-                                                    </div>
-                                                    <Badge variant={getInvoiceStatusBadgeVariant(invoice.status)}>{invoice.status}</Badge>
+                     <Card>
+                        <CardHeader className="flex-row justify-between items-center">
+                            <div>
+                                <CardTitle>Client Agreements</CardTitle>
+                                <CardDescription>Manage retainer agreements and linked documents.</CardDescription>
+                            </div>
+                            <Button onClick={() => handleOpenAgreementDialog(null)}>
+                                <FilePlus className="mr-2 h-4 w-4" />
+                                Add New Agreement
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {(client.agreements || []).length > 0 ? (
+                                (client.agreements || []).map(agreement => (
+                                    <Card key={agreement.id} className="overflow-hidden">
+                                        <CardHeader className="bg-muted/50 flex-row justify-between items-center py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                                <Handshake className="h-5 w-5 text-primary" />
+                                                <div>
+                                                    <h3 className="font-semibold">{agreement.title}</h3>
+                                                    <p className="text-xs text-muted-foreground">Signed on {format(new Date(agreement.dateSigned), 'PP')}</p>
                                                 </div>
-                                            ) : null
-                                        }) : (
-                                            <p className="text-center text-sm text-muted-foreground py-4">No invoices linked to this agreement.</p>
-                                        )}
-                                    </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant={getStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
+                                                <Button variant="ghost" size="icon" onClick={() => handleOpenAgreementDialog(agreement)}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-4 space-y-4">
+                                             <div>
+                                                <h4 className="font-semibold text-sm mb-2">Related Documents</h4>
+                                                <div className="rounded-md border">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow>
+                                                                <TableHead>Document</TableHead>
+                                                                <TableHead>Actions</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            <TableRow>
+                                                                <TableCell className="font-medium">Signed Agreement</TableCell>
+                                                                <TableCell className="text-right space-x-1">
+                                                                    <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                            {(agreement.relatedDocuments || []).map(doc => (
+                                                                <TableRow key={doc.id}>
+                                                                    <TableCell className="font-medium">{doc.title}</TableCell>
+                                                                    <TableCell className="text-right space-x-1">
+                                                                        <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+                                                                        <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                                                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </div>
+                                                <Button variant="outline" className="w-full mt-2"><Upload className="mr-2 h-4 w-4"/> Upload Supporting Document</Button>
+                                            </div>
+                                             <div>
+                                                <h4 className="font-semibold text-sm mb-2">Linked Invoices</h4>
+                                                <div className="space-y-2">
+                                                    {(agreement.relatedInvoiceIds || []).length > 0 ? agreement.relatedInvoiceIds.map(invoiceId => {
+                                                        const invoice = invoicesData.find(i => i.invoiceNumber === invoiceId);
+                                                        return invoice ? (
+                                                            <div key={invoice.id} className="flex items-center justify-between p-2 rounded-lg border">
+                                                                <div>
+                                                                    <p className="font-medium text-sm">Invoice {invoice.invoiceNumber} - ${invoice.amount.toLocaleString()}</p>
+                                                                </div>
+                                                                <Badge variant={getInvoiceStatusBadgeVariant(invoice.status)}>{invoice.status}</Badge>
+                                                            </div>
+                                                        ) : null
+                                                    }) : (
+                                                        <p className="text-center text-xs text-muted-foreground py-2">No invoices linked.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            ) : (
+                                <div className="text-center py-12 text-muted-foreground">
+                                    <Handshake className="mx-auto h-8 w-8 mb-2" />
+                                    <p>No agreements found for this client.</p>
                                 </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button>
-                                    <FilePlus className="mr-2 h-4 w-4" />
-                                    Add New Agreement
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                    {(!client.agreements || client.agreements.length === 0) && (
-                         <Card>
-                            <CardContent className="text-center py-12 text-muted-foreground">
-                                <Handshake className="mx-auto h-8 w-8 mb-2" />
-                                <p>No agreements found for this client.</p>
-                            </CardContent>
-                         </Card>
-                    )}
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
                 <TabsContent value="tasks" className="mt-4">
                     <Card>
@@ -981,6 +1045,45 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
                         <Button onClick={handleAssignDocument}>Assign & Request</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Add/Edit Agreement Dialog */}
+            <Dialog open={isAgreementDialogOpen} onOpenChange={setAgreementDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingAgreement ? 'Edit Agreement' : 'Add New Agreement'}</DialogTitle>
+                        <DialogDescription>
+                            {editingAgreement ? `Update details for "${editingAgreement.title}".` : `Create a new agreement for ${client.name}.`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="agreement-title">Agreement Title</Label>
+                            <Input id="agreement-title" value={agreementTitle} onChange={(e) => setAgreementTitle(e.target.value)} placeholder="e.g., Retainer for Express Entry" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="agreement-status">Status</Label>
+                                <Select value={agreementStatus} onValueChange={(value: Agreement['status']) => setAgreementStatus(value)}>
+                                    <SelectTrigger id="agreement-status"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Active">Active</SelectItem>
+                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        <SelectItem value="Terminated">Terminated</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="agreement-date">Date Signed</Label>
+                                <Input id="agreement-date" type="date" value={agreementDate} onChange={(e) => setAgreementDate(e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setAgreementDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleSaveAgreement}>Save Agreement</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
