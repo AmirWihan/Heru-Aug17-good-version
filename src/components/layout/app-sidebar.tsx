@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import { useRouter } from "next/navigation"
+import { useGlobalData } from "@/context/GlobalDataContext"
 
 interface AppSidebarProps {
   activePage: string
@@ -50,6 +51,7 @@ const navItems = [
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
   const router = useRouter();
+  const { userProfile } = useGlobalData();
 
   const handleNavigation = (page: string) => {
     setPage(page)
@@ -110,12 +112,12 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
 
         <div className="p-4 flex items-center border-b">
           <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Sarah Johnson" />
-            <AvatarFallback>SJ</AvatarFallback>
+            <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+            <AvatarFallback>{userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('') : 'U'}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-foreground">Sarah Johnson</p>
-            <p className="text-xs text-muted-foreground">Immigration Lawyer</p>
+            <p className="font-semibold text-foreground">{userProfile?.name}</p>
+            <p className="text-xs text-muted-foreground">{userProfile?.role}</p>
           </div>
         </div>
 

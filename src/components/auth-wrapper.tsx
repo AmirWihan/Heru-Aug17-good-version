@@ -22,14 +22,14 @@ export function AuthWrapper({ children, requiredRole }: AuthWrapperProps) {
             return;
         }
 
-        if (userProfile.role !== requiredRole) {
+        if (userProfile.authRole !== requiredRole) {
             // If roles don't match, redirect them to their correct dashboard
             router.replace('/dashboard-select');
         }
 
     }, [userProfile, requiredRole, router, loading]);
 
-    if (loading || !userProfile || userProfile.role !== requiredRole) {
+    if (loading || !userProfile || userProfile.authRole !== requiredRole) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-muted/40">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />

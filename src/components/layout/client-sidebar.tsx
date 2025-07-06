@@ -21,6 +21,7 @@ import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from "next/navigation"
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 interface ClientSidebarProps {
   isSidebarOpen: boolean
@@ -45,6 +46,7 @@ const navItems = [
 
 export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: ClientSidebarProps) {
   const router = useRouter();
+  const { userProfile } = useGlobalData();
 
   const handleNavigation = (pageId: string) => {
     setPage(pageId);
@@ -100,11 +102,11 @@ export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: 
 
         <div className="p-4 flex items-center border-b">
           <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src="https://i.pravatar.cc/150?u=client" alt="John Applicant" />
-            <AvatarFallback>JA</AvatarFallback>
+            <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+            <AvatarFallback>{userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('') : 'U'}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-foreground">John Applicant</p>
+            <p className="font-semibold text-foreground">{userProfile?.name}</p>
             <p className="text-xs text-muted-foreground">Client</p>
           </div>
         </div>

@@ -10,14 +10,14 @@ import {
     type Client, type TeamMember, type Task, type Invoice, type Appointment 
 } from '@/lib/data';
 
-type UserProfile = (Client | TeamMember) & { role: 'admin' | 'lawyer' | 'client' };
+type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
 
 interface GlobalDataContextType {
     userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, pass: string) => Promise<UserProfile | null>;
     logout: () => void;
-    register: (details: Partial<UserProfile>) => Promise<UserProfile | null>;
+    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string }) => Promise<UserProfile | null>;
     teamMembers: TeamMember[];
     clients: Client[];
     tasks: Task[];
@@ -84,8 +84,8 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
         const foundUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
 
         if (foundUser) {
-            const role = 'caseType' in foundUser ? 'client' : (foundUser.type === 'admin' ? 'admin' : 'lawyer');
-            const profile = { ...foundUser, role };
+            const authRole = 'caseType' in foundUser ? 'client' : (foundUser.type === 'admin' ? 'admin' : 'lawyer');
+            const profile = { ...foundUser, authRole };
             setUserProfile(profile);
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
             return profile;
@@ -98,7 +98,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem(AUTH_STORAGE_KEY);
     };
 
-    const register = async (details: Partial<UserProfile> & { role: 'client' | 'lawyer', password?: string }): Promise<UserProfile | null> => {
+    const register = async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string }): Promise<UserProfile | null> => {
         const allUsers = [...teamMembers, ...clients];
         if (allUsers.some(u => u.email.toLowerCase() === details.email?.toLowerCase())) {
             return null; // User already exists
@@ -129,7 +129,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
                 intakeForm: { status: 'not_started' },
             };
             setClients(prev => [...prev, newClient]);
-            return { ...newClient, role: 'client' };
+            return { ...newClient, authRole: 'client' };
         }
         // For lawyers, the full profile is created in the onboarding flow.
         // The register function here just creates the initial user record.
@@ -155,7 +155,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
             specialties: [],
         };
         setTeamMembers(prev => [...prev, newLawyer]);
-        return { ...newLawyer, role: 'lawyer' };
+        return { ...newLawyer, authRole: 'lawyer' };
     };
     
     const updateClient = async (updatedClient: Client) => {

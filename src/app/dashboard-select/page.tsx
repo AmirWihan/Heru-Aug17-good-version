@@ -12,7 +12,7 @@ export default function DashboardSelectPage() {
 
     useEffect(() => {
         if (userProfile) {
-            switch (userProfile.role) {
+            switch (userProfile.authRole) {
                 case 'admin':
                     router.replace('/admin/dashboard');
                     break;

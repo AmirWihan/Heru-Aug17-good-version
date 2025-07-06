@@ -22,6 +22,7 @@ import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
+import { useGlobalData } from "@/context/GlobalDataContext"
 
 interface AdminSidebarProps {
   isSidebarOpen: boolean
@@ -45,6 +46,7 @@ const navItems = [
 
 export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setActivePage }: AdminSidebarProps) {
   const router = useRouter();
+  const { userProfile } = useGlobalData();
 
   const handleNavigation = (page: string) => {
     setActivePage?.(page)
@@ -100,11 +102,11 @@ export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setAct
 
         <div className="p-4 flex items-center border-b">
           <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src="https://i.pravatar.cc/150?u=admin" alt="Super Admin" />
-            <AvatarFallback>SA</AvatarFallback>
+            <AvatarImage src={userProfile?.avatar} alt={userProfile?.name} />
+            <AvatarFallback>{userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('') : 'SA'}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-foreground">Super Admin</p>
+            <p className="font-semibold text-foreground">{userProfile?.name}</p>
             <p className="text-xs text-muted-foreground">Full Access</p>
           </div>
         </div>
