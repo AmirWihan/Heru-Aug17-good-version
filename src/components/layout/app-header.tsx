@@ -103,7 +103,7 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
                 <AvatarImage src={userProfile?.uid ? `https://i.pravatar.cc/150?u=${userProfile.uid}` : undefined} alt={userProfile?.fullName} />
-                <AvatarFallback>{userProfile?.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarFallback>{userProfile?.fullName ? userProfile.fullName.split(' ').map(n => n[0]).join('') : 'SJ'}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
