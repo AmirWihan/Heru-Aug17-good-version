@@ -17,6 +17,8 @@ interface GlobalDataContextType {
     logoSrc: string | null;
     setLogoSrc: (src: string | null) => void;
     isLoaded: boolean;
+    theme: string;
+    setTheme: (themeId: string) => void;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
     const [clients, setClients] = useState<Client[]>(() => initialClients);
     const [tasks, setTasks] = useState<Task[]>(() => initialTasksData);
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
+    const [theme, setTheme] = useState('red');
     const [isLoaded, setIsLoaded] = useState(false);
 
     // Load state from localStorage on initial client-side render
@@ -42,6 +45,7 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
                 if (parsedData.clients) setClients(parsedData.clients);
                 if (parsedData.tasks) setTasks(parsedData.tasks);
                 if (parsedData.logoSrc) setLogoSrc(parsedData.logoSrc);
+                if (parsedData.theme) setTheme(parsedData.theme);
             }
         } catch (error) {
             console.error("Failed to parse data from localStorage", error);
@@ -54,13 +58,13 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         if (isLoaded) { 
             try {
-                const dataToStore = JSON.stringify({ teamMembers, clients, tasks, logoSrc });
+                const dataToStore = JSON.stringify({ teamMembers, clients, tasks, logoSrc, theme });
                 localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
             } catch (error) {
                 console.error("Failed to save data to localStorage", error);
             }
         }
-    }, [teamMembers, clients, tasks, logoSrc, isLoaded]);
+    }, [teamMembers, clients, tasks, logoSrc, theme, isLoaded]);
 
     const addTeamMember = useCallback((member: TeamMember) => {
         setTeamMembers(prev => [member, ...prev]);
@@ -82,8 +86,13 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
         setTasks(prev => [task, ...prev]);
     }, []);
 
+    const handleSetTheme = useCallback((themeId: string) => {
+        setTheme(themeId);
+    }, []);
+
+
     return (
-        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, logoSrc, setLogoSrc, isLoaded }}>
+        <GlobalDataContext.Provider value={{ teamMembers, addTeamMember, updateTeamMember, clients, addClient, updateClient, tasks, addTask, logoSrc, setLogoSrc, isLoaded, theme, setTheme: handleSetTheme }}>
             {children}
         </GlobalDataContext.Provider>
     );

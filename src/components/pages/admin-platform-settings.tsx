@@ -10,14 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuickBooksIcon } from "@/components/icons/QuickBooksIcon";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon";
-import { UploadCloud } from "lucide-react";
+import { Check, UploadCloud } from "lucide-react";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhatsappIcon } from "../icons/WhatsappIcon";
-import { plans } from "@/lib/data";
+import { plans, themes } from "@/lib/data";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export function PlatformSettingsPage() {
-    const { setLogoSrc } = useGlobalData();
+    const { setLogoSrc, theme, setTheme } = useGlobalData();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -92,6 +94,33 @@ export function PlatformSettingsPage() {
                                             />
                                         </div>
                                          <p className="text-xs text-muted-foreground">Recommended: SVG, PNG, or JPG. Max 2MB.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Theme Color</Label>
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {themes.map((t) => (
+                                                <TooltipProvider key={t.id}>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <button
+                                                                onClick={() => setTheme(t.id)}
+                                                                className={cn(
+                                                                    "h-8 w-8 rounded-full border-2 flex items-center justify-center",
+                                                                    theme === t.id ? 'border-primary' : 'border-muted'
+                                                                )}
+                                                                style={{ backgroundColor: t.colors.primary }}
+                                                            >
+                                                                {theme === t.id && <Check className="h-4 w-4 text-primary-foreground" />}
+                                                                <span className="sr-only">{t.name}</span>
+                                                            </button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>{t.name}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            ))}
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>

@@ -754,3 +754,10 @@ export const supportTicketsData = [
     { id: 'TKT-84319', user: teamMembers[0], userType: 'Lawyer' as const, subject: 'Suggestion for AI Tools page', topic: 'Feature Request', status: 'Open' as const, lastUpdated: '2024-07-23T11:45:00Z', description: 'It would be great if the AI Application Checker could also check for specific formatting required by different visa offices. For example, some require dates in DD-MM-YYYY format.' },
     { id: 'TKT-84318', user: clients[2], userType: 'Client' as const, subject: 'Cannot access messages', topic: 'Technical Issue', status: 'Open' as const, lastUpdated: '2024-07-24T09:00:00Z', description: 'When I click on the messages tab in my dashboard, it shows a blank page. I have tried clearing my cache and using a different browser. My lawyer is Michael Chen.' },
 ];
+
+export const themes = [
+    { name: 'Canada Red', id: 'red', colors: { primary: 'hsl(0 84.2% 60.2%)', accent: 'hsl(215.4 16.3% 46.9%)' } },
+    { name: 'Heru Green', id: 'green', colors: { primary: 'hsl(142.1 76.2% 36.3%)', accent: 'hsl(262.1 83.3% 57.8%)' } },
+    { name: 'Ocean Blue', id: 'blue', colors: { primary: 'hsl(217.2 91.2% 59.8%)', accent: 'hsl(197.8 91.2% 59.8%)' } },
+    { name: 'Graphite', id: 'graphite', colors: { primary: 'hsl(221.2 83.2% 53.3%)', accent: 'hsl(215 27.9% 46.9%)' } },
+];
