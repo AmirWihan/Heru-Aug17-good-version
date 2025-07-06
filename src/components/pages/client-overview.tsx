@@ -42,18 +42,18 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
 
     return (
         <div className="space-y-6">
-            <Card className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-white shadow-lg">
+            <Card className="bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold">Welcome, {client.name}! 👋</h2>
-                        <p className="text-white/90 mt-1">
+                        <p className="text-primary-foreground/90 mt-1">
                             Your application status is currently: <span className="font-bold">{client.caseSummary.currentStatus}</span>.
                             <br/>
                             Next Step: <span className="font-bold">{client.caseSummary.nextStep}</span>.
                         </p>
                     </div>
                     <Button 
-                        className="bg-white/90 text-emerald-700 hover:bg-white w-full md:w-auto"
+                        className="bg-primary-foreground/90 text-primary hover:bg-primary-foreground w-full md:w-auto"
                         onClick={() => setPage('documents')}>
                         View My Documents <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
