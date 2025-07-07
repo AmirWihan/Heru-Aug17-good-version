@@ -8,6 +8,7 @@ import { Check, Star } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import Link from 'next/link';
+import { Badge } from './ui/badge';
 
 export function PricingTable() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('annually');
