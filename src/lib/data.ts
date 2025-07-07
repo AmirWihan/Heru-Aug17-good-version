@@ -20,6 +20,23 @@ export type Task = {
     status: 'To Do' | 'In Progress' | 'Completed';
 };
 
+export type ClientDocument = {
+    id: number;
+    title: string;
+    category: string;
+    dateAdded: string;
+    status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected' | 'Requested' | 'Pending Client Review';
+    type: 'form' | 'supporting';
+    isAiFilled?: boolean;
+    comments?: {
+        id: number;
+        author: string;
+        text: string;
+        timestamp: string;
+        avatar?: string;
+    }[];
+};
+
 export type Agreement = {
     id: number;
     title: string;
@@ -148,13 +165,7 @@ export type Client = {
         timestamp: string;
         teamMember?: { name: string; avatar: string; };
     }[];
-    documents: {
-        id: number;
-        title: string;
-        category: string;
-        dateAdded: string;
-        status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected' | 'Requested';
-    }[];
+    documents: ClientDocument[];
     tasks: Task[];
     analysis?: SuccessPredictorOutput;
     agreements: Agreement[];
@@ -428,11 +439,7 @@ export const clients: Client[] = [
             { id: 2, title: 'Appointment Completed', description: 'Initial consultation and strategy session.', timestamp: '2024-07-18T12:00:00.000Z', teamMember: teamMembers[0] },
             { id: 3, title: 'Application Submitted', description: 'PNP application submitted.', timestamp: '2024-07-13T12:00:00.000Z', teamMember: teamMembers[2] },
         ],
-        documents: [
-            { id: 1, title: 'Passport Scan', category: 'Identification', dateAdded: '2022-08-25', status: 'Approved' },
-            { id: 2, title: 'Proof of Funds', category: 'Financial', dateAdded: '2023-06-01', status: 'Pending Review' },
-            { id: 3, title: 'IELTS Results', category: 'Language Test', dateAdded: '2023-05-15', status: 'Approved' },
-        ],
+        documents: [],
         tasks: [tasksData[0]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
@@ -447,10 +454,7 @@ export const clients: Client[] = [
             { id: 4, title: 'Application Submitted', description: 'Student visa application submitted to IRCC portal.', timestamp: '2024-07-13T12:00:00.000Z', teamMember: teamMembers[1] },
             { id: 5, title: 'Email Sent', description: 'Sent pre-arrival checklist to client.', timestamp: '2024-07-21T12:00:00.000Z', teamMember: teamMembers[3] },
         ],
-        documents: [
-            { id: 1, title: 'Letter of Acceptance', category: 'Education', dateAdded: '2023-01-15', status: 'Approved' },
-            { id: 2, title: 'Tuition Fee Receipt', category: 'Financial', dateAdded: '2023-01-20', status: 'Approved' },
-        ],
+        documents: [],
         tasks: [tasksData[1], tasksData[4]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
@@ -464,10 +468,7 @@ export const clients: Client[] = [
         activity: [
              { id: 6, title: 'New Message', description: 'Client requested to put case on hold.', timestamp: '2024-07-11T12:00:00.000Z', teamMember: teamMembers[2] },
         ],
-        documents: [
-            { id: 1, title: 'Current Work Permit', category: 'Immigration', dateAdded: '2021-11-10', status: 'Approved' },
-            { id: 2, title: 'Updated Offer Letter', category: 'Employment', dateAdded: '2023-05-20', status: 'Pending Review' },
-        ],
+        documents: [],
         tasks: [tasksData[2]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
@@ -496,10 +497,12 @@ export const clients: Client[] = [
             { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[1] },
         ],
         documents: [
-            { id: 1, title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
-            { id: 2, title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
-            { id: 3, title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected' },
-            { id: 4, title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
+            { id: 101, type: 'form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Emma Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 102, type: 'form', title: 'Family Information Form (IMM 5707)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true },
+            { id: 103, type: 'supporting', title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
+            { id: 104, type: 'supporting', title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
+            { id: 105, type: 'supporting', title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected', comments: [{id: 2, author: 'Emma Johnson', text: 'Hi James, the submitted pay stubs were for the wrong period. Please upload stubs for March, April, and May 2023.', timestamp: '1d ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 106, type: 'supporting', title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
         ],
         tasks: [tasksData[3]],
         agreements: [
@@ -678,7 +681,18 @@ export const messagesData = [
     avgPayment: 1250,
 };
 
-export const invoicesData = [
+export type Invoice = {
+    id: number;
+    invoiceNumber: string;
+    service: string;
+    client: { id: number; name: string; avatar: string; };
+    date: string;
+    dueDate: string;
+    amount: number;
+    status: 'Paid' | 'Overdue' | 'Pending' | 'Draft';
+};
+
+export const invoicesData: Invoice[] = [
     { id: 1, invoiceNumber: 'INV-2023-0456', service: 'Work Permit', client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' }, date: 'Jun 10, 2023', dueDate: 'Jun 24, 2023', amount: 3250, status: 'Overdue' },
     { id: 2, invoiceNumber: 'INV-2023-0452', service: 'PR Application', client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' }, date: 'Jun 5, 2023', dueDate: 'Jun 19, 2023', amount: 4500, status: 'Paid' },
     { id: 3, invoiceNumber: 'INV-2023-0448', service: 'Visitor Visa', client: { id: 2, name: 'Carlos Mendez', avatar: 'https://i.pravatar.cc/150?u=carlos' }, date: 'May 28, 2023', dueDate: 'Jun 11, 2023', amount: 1850, status: 'Pending' },
@@ -708,7 +722,17 @@ export const applicationsData = [
     { id: 6, client: { name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, type: 'Student Visa', status: 'Approved', submitted: '2023-04-15', priority: 'Low', assignedTo: teamMembers[1] },
 ];
 
-export const appointmentsData = [
+export type Appointment = {
+    id: number;
+    clientId: number;
+    name: string;
+    dateTime: string;
+    type: string;
+    avatar: string;
+    status: 'Upcoming' | 'Completed';
+}
+
+export const appointmentsData: Appointment[] = [
     { id: 1, clientId: 2, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena', status: 'Upcoming' },
     { id: 2, clientId: 5, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', status: 'Upcoming' },
     { id: 3, clientId: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia', status: 'Upcoming' },

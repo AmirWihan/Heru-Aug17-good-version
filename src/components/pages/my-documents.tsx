@@ -3,189 +3,185 @@ import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Upload, Eye, Edit, Trash2, FileText, AlertTriangle } from "lucide-react";
-import { format } from 'date-fns';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Upload, Eye, Download, FileText, Sparkles, MessageSquare, Send, X, CheckCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useGlobalData } from "@/context/GlobalDataContext";
-import type { Client } from '@/lib/data';
+import type { Client, ClientDocument } from '@/lib/data';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ScrollArea } from "../ui/scroll-area";
 
 // For this demo, we'll hardcode the client ID to 5 (James Wilson) to simulate a logged-in user
 const CURRENT_CLIENT_ID = 5;
 
-type DocumentStatus = 'Approved' | 'Uploaded' | 'Pending Review' | 'Requested' | 'Rejected';
-type ClientDocument = { id: number; title: string; status: DocumentStatus; date: string; category: string; };
-
-const getStatusBadgeVariant = (status: DocumentStatus) => {
+const getStatusBadgeVariant = (status: ClientDocument['status']) => {
     switch (status) {
         case 'Approved': return 'success' as const;
         case 'Uploaded': return 'info' as const;
         case 'Pending Review': return 'secondary' as const;
+        case 'Pending Client Review': return 'info' as const;
         case 'Requested': return 'warning' as const;
         case 'Rejected': return 'destructive' as const;
         default: return 'secondary' as const;
     }
 };
 
-export function MyDocumentsPage() {
+const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSelect: () => void, isSelected: boolean }) => {
     const { toast } = useToast();
-    const { clients, updateClient } = useGlobalData();
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
 
+    return (
+        <>
+            <div
+                onClick={onSelect}
+                className={cn(
+                    "flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all",
+                    isSelected ? "bg-muted ring-2 ring-primary" : "hover:bg-muted/50"
+                )}
+            >
+                <FileText className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                    <p className="font-semibold">{doc.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
+                        {doc.isAiFilled && (
+                            <Badge variant="outline" className="text-primary border-primary/50">
+                                <Sparkles className="h-3 w-3 mr-1.5" />
+                                AI Pre-filled
+                            </Badge>
+                        )}
+                    </div>
+                </div>
+                <div className="flex items-center gap-1">
+                    {(doc.status === 'Uploaded' || doc.status === 'Pending Review' || doc.status === 'Approved' || doc.status === 'Pending Client Review') && (
+                        <Button variant="ghost" size="icon" onClick={() => setIsEditorOpen(true)}><Eye className="h-4 w-4" /></Button>
+                    )}
+                    {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={() => toast({ title: "Downloading...", description: `${doc.title}.pdf` })}><Download className="h-4 w-4" /></Button>}
+                    {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
+                </div>
+            </div>
+            <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
+                <DialogContent className="max-w-4xl h-[90vh]">
+                    <DialogHeader>
+                        <DialogTitle>Editing: {doc.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 bg-muted/50 rounded-lg flex items-center justify-center text-muted-foreground">
+                        <p>Online document editor/viewer placeholder.</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}
+
+export function MyDocumentsPage() {
+    const { clients } = useGlobalData();
     const client = clients.find(c => c.id === CURRENT_CLIENT_ID);
-    const [documents, setDocuments] = useState<ClientDocument[]>([]);
+    
+    const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
 
     useEffect(() => {
-        if (client) {
-            const clientDocs = (client.documents || []).map(doc => ({ ...doc, date: doc.dateAdded }));
-            setDocuments(clientDocs);
+        if (client?.documents && client.documents.length > 0) {
+            setSelectedDocument(client.documents[0]);
         }
     }, [client]);
-
-    const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
-    const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-    const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
-    const [editedTitle, setEditedTitle] = useState("");
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [uploadTargetDocId, setUploadTargetDocId] = useState<number | null>(null);
-
-    const handleUploadClick = (docId: number) => {
-        setUploadTargetDocId(docId);
-        fileInputRef.current?.click();
-    };
-    
-    const updateClientDocuments = (newDocs: Client['documents']) => {
-        if (client) {
-            updateClient({ ...client, documents: newDocs });
-        }
-    };
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0] && uploadTargetDocId !== null) {
-            toast({
-                title: 'File Selected',
-                description: `${event.target.files[0].name} is ready for upload.`,
-            });
-            const updatedDocs = (client?.documents || []).map(doc => 
-                doc.id === uploadTargetDocId 
-                ? { ...doc, status: 'Uploaded' as const, dateAdded: new Date().toISOString().split('T')[0] } 
-                : doc
-            );
-            updateClientDocuments(updatedDocs);
-        }
-        setUploadTargetDocId(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
-
-    const handleEditClick = (doc: ClientDocument) => {
-        setSelectedDocument(doc);
-        setEditedTitle(doc.title);
-        setEditDialogOpen(true);
-    };
-
-    const handleSaveEdit = () => {
-        if (selectedDocument && editedTitle.trim()) {
-            const updatedDocs = (client?.documents || []).map(doc =>
-                doc.id === selectedDocument.id ? { ...doc, title: editedTitle } : doc
-            );
-            updateClientDocuments(updatedDocs);
-            toast({ title: 'Success', description: 'Document title updated.' });
-            setEditDialogOpen(false);
-            setSelectedDocument(null);
-        }
-    };
-
-    const handleDeleteClick = (doc: ClientDocument) => {
-        setSelectedDocument(doc);
-        setDeleteAlertOpen(true);
-    };
-
-    const handleConfirmDelete = () => {
-        if (selectedDocument) {
-            const updatedDocs = (client?.documents || []).filter(doc => doc.id !== selectedDocument.id);
-            updateClientDocuments(updatedDocs);
-            toast({ title: 'Success', description: 'Document deleted.' });
-            setDeleteAlertOpen(false);
-            setSelectedDocument(null);
-        }
-    };
 
     if (!client) {
         return <Card><CardContent className="p-6">Error: Client data not found.</CardContent></Card>;
     }
 
+    const officialForms = client.documents?.filter(d => d.type === 'form') || [];
+    const supportingDocs = client.documents?.filter(d => d.type === 'supporting') || [];
+
     return (
-        <>
-            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-            <Card>
-                <CardHeader>
-                    <CardTitle>My Documents</CardTitle>
-                    <CardDescription>Manage and track your application documents. Please upload all requested items.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {documents.length > 0 ? (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Document Name</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Last Updated</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {documents.map(doc => (
-                                    <TableRow key={doc.id}>
-                                        <TableCell className="font-medium">{doc.title}</TableCell>
-                                        <TableCell><Badge variant="outline">{doc.category}</Badge></TableCell>
-                                        <TableCell>
-                                            <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
-                                        </TableCell>
-                                        <TableCell suppressHydrationWarning>{format(new Date(doc.date), 'PP')}</TableCell>
-                                        <TableCell className="text-right space-x-1">
-                                            {doc.status === 'Requested' && <Button size="sm" onClick={() => handleUploadClick(doc.id)}><Upload className="mr-2 h-4 w-4" />Upload</Button>}
-                                            {doc.status === 'Rejected' && <Button size="sm" variant="destructive" onClick={() => handleUploadClick(doc.id)}><Upload className="mr-2 h-4 w-4" />Re-upload</Button>}
-                                            {doc.status !== 'Requested' && doc.status !== 'Rejected' && <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>}
-                                            {doc.status !== 'Approved' && doc.status !== 'Requested' && (
-                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(doc)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+                <Card className="h-full">
+                    <CardHeader>
+                        <CardTitle>My Documents</CardTitle>
+                        <CardDescription>Manage and track your application documents.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="forms">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="forms">Official Forms</TabsTrigger>
+                                <TabsTrigger value="supporting">Supporting Documents</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="forms" className="mt-4 space-y-3">
+                                {officialForms.map(doc => (
+                                    <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} />
                                 ))}
-                            </TableBody>
-                        </Table>
+                            </TabsContent>
+                            <TabsContent value="supporting" className="mt-4 space-y-3">
+                                 {supportingDocs.map(doc => (
+                                    <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} />
+                                ))}
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="lg:col-span-1">
+                <Card className="sticky top-20 h-[calc(100vh-11rem)] flex flex-col">
+                    <CardHeader className="flex-row items-center gap-2 border-b">
+                        <MessageSquare className="h-5 w-5 text-primary" />
+                        <div>
+                            <CardTitle className="text-lg">Comments</CardTitle>
+                            <CardDescription className="truncate max-w-xs">{selectedDocument?.title || "Select a document"}</CardDescription>
+                        </div>
+                    </CardHeader>
+                    {selectedDocument ? (
+                         <>
+                            <ScrollArea className="flex-1 p-4 bg-muted/20">
+                                <div className="space-y-4">
+                                    {(selectedDocument.comments || []).map((comment) => (
+                                        <div
+                                            key={comment.id}
+                                            className={cn(
+                                                'flex items-end gap-2 max-w-[90%]',
+                                                comment.author === client.name ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                                            )}
+                                        >
+                                            <Avatar className="h-6 w-6">
+                                                <AvatarImage src={comment.avatar} />
+                                                <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className={cn('p-2 rounded-lg',
+                                                comment.author === client.name
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'bg-background border'
+                                            )}>
+                                                <p className="text-sm">{comment.text}</p>
+                                                <div className={cn("flex items-center justify-end gap-1 text-xs mt-1",
+                                                    comment.author === client.name ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                                )}>
+                                                    <span>{comment.timestamp}</span>
+                                                    {comment.author === client.name && <CheckCheck className="h-3 w-3" />}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollArea>
+                            <CardContent className="p-4 border-t">
+                                <div className="relative">
+                                    <Input placeholder="Type a comment..." className="pr-10" />
+                                    <Button size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                                        <Send className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </>
                     ) : (
-                        <div className="text-center py-12 text-muted-foreground">
-                             <FileText className="mx-auto h-12 w-12 mb-4" />
-                            <h3 className="text-lg font-semibold">No Documents Found</h3>
-                            <p>You have no documents requested or uploaded at this time.</p>
+                        <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
+                            <p>Select a document to view comments.</p>
                         </div>
                     )}
-                </CardContent>
-            </Card>
-            
-            <AlertDialog open={isDeleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the document "{selectedDocument?.title}".
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setSelectedDocument(null)}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
+                </Card>
+            </div>
+        </div>
     );
 }
