@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { applicationsData, activityLogData, type TeamMember } from "@/lib/data";
 import { ArrowLeft, CheckCircle, DollarSign, Users, LineChart, Mail, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { format, formatDistanceToNow } from "date-fns";
 
