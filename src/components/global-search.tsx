@@ -13,14 +13,89 @@ interface GlobalSearchProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
-    const { userProfile, clients, teamMembers } = useGlobalData();
+const LawyerCommands = ({ runCommand }: { runCommand: (fn: () => void) => void }) => {
+    const { clients, teamMembers } = useGlobalData();
     const router = useRouter();
-    
-    // Non-throwing way to get contexts
     const lawyerContext = useLawyerDashboard();
+
+    return (
+        <>
+            <CommandGroup heading="Clients">
+                {clients.map(client => (
+                    <CommandItem value={client.name + " " + client.email} key={`client-${client.id}`} onSelect={() => runCommand(() => router.push(`/lawyer/clients/${client.id}`))}>
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>{client.name}</span>
+                    </CommandItem>
+                ))}
+            </CommandGroup>
+            <CommandGroup heading="Team">
+                {teamMembers.filter(m => m.type === 'legal').map(member => (
+                    <CommandItem value={member.name + " " + member.email} key={`team-${member.id}`} onSelect={() => runCommand(() => router.push(`/lawyer/team/${member.id}`))}>
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>{member.name}</span>
+                    </CommandItem>
+                ))}
+            </CommandGroup>
+             <CommandGroup heading="Navigation">
+                <CommandItem value="Dashboard" onSelect={() => runCommand(() => lawyerContext.setPage('dashboard'))}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                </CommandItem>
+                 <CommandItem value="AI Tools" onSelect={() => runCommand(() => lawyerContext.setPage('ai-tools'))}>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    AI Tools
+                </CommandItem>
+                <CommandItem value="Billing" onSelect={() => runCommand(() => lawyerContext.setPage('billing'))}>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Billing
+                </CommandItem>
+            </CommandGroup>
+        </>
+    );
+};
+
+const AdminCommands = ({ runCommand }: { runCommand: (fn: () => void) => void }) => {
+    const { clients, teamMembers } = useGlobalData();
+    const router = useRouter();
     const adminContext = useAdminDashboard();
     
+    return (
+         <>
+             <CommandGroup heading="Users">
+                {clients.map(client => (
+                    <CommandItem value={client.name + " " + client.email} key={`admin-client-${client.id}`} onSelect={() => runCommand(() => router.push(`/admin/clients/${client.id}`))}>
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>{client.name} (Client)</span>
+                    </CommandItem>
+                ))}
+                 {teamMembers.map(member => (
+                    <CommandItem value={member.name + " " + member.email + " " + member.role} key={`admin-team-${member.id}`} onSelect={() => runCommand(() => adminContext.setPage('team'))}>
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>{member.name} ({member.role})</span>
+                    </CommandItem>
+                ))}
+            </CommandGroup>
+             <CommandGroup heading="Admin Navigation">
+                 <CommandItem value="Admin Overview" onSelect={() => runCommand(() => adminContext.setPage('overview'))}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Overview
+                </CommandItem>
+                 <CommandItem value="User Management" onSelect={() => runCommand(() => adminContext.setPage('users'))}>
+                    <Users className="mr-2 h-4 w-4" />
+                    User Management
+                </CommandItem>
+                <CommandItem value="Platform Settings" onSelect={() => runCommand(() => adminContext.setPage('settings'))}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Platform Settings
+                </CommandItem>
+            </CommandGroup>
+        </>
+    );
+};
+
+export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
+    const { userProfile } = useGlobalData();
+
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
             if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -45,74 +120,8 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
             <CommandInput placeholder="Type a command or search..." />
             <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
-                
-                {isLawyer && (
-                    <>
-                        <CommandGroup heading="Clients">
-                            {clients.map(client => (
-                                <CommandItem value={client.name + " " + client.email} key={`client-${client.id}`} onSelect={() => runCommand(() => router.push(`/lawyer/clients/${client.id}`))}>
-                                    <Users className="mr-2 h-4 w-4" />
-                                    <span>{client.name}</span>
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
-                        <CommandGroup heading="Team">
-                            {teamMembers.filter(m => m.type === 'legal').map(member => (
-                                <CommandItem value={member.name + " " + member.email} key={`team-${member.id}`} onSelect={() => runCommand(() => router.push(`/lawyer/team/${member.id}`))}>
-                                    <Briefcase className="mr-2 h-4 w-4" />
-                                    <span>{member.name}</span>
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
-                         <CommandGroup heading="Navigation">
-                            <CommandItem value="Dashboard" onSelect={() => runCommand(() => lawyerContext.setPage('dashboard'))}>
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                Dashboard
-                            </CommandItem>
-                             <CommandItem value="AI Tools" onSelect={() => runCommand(() => lawyerContext.setPage('ai-tools'))}>
-                                <Wand2 className="mr-2 h-4 w-4" />
-                                AI Tools
-                            </CommandItem>
-                            <CommandItem value="Billing" onSelect={() => runCommand(() => lawyerContext.setPage('billing'))}>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Billing
-                            </CommandItem>
-                        </CommandGroup>
-                    </>
-                )}
-                
-                {isAdmin && (
-                    <>
-                         <CommandGroup heading="Users">
-                            {clients.map(client => (
-                                <CommandItem value={client.name + " " + client.email} key={`admin-client-${client.id}`} onSelect={() => runCommand(() => router.push(`/admin/clients/${client.id}`))}>
-                                    <Users className="mr-2 h-4 w-4" />
-                                    <span>{client.name} (Client)</span>
-                                </CommandItem>
-                            ))}
-                             {teamMembers.map(member => (
-                                <CommandItem value={member.name + " " + member.email + " " + member.role} key={`admin-team-${member.id}`} onSelect={() => runCommand(() => adminContext.setPage('team'))}>
-                                    <Shield className="mr-2 h-4 w-4" />
-                                    <span>{member.name} ({member.role})</span>
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
-                         <CommandGroup heading="Admin Navigation">
-                             <CommandItem value="Admin Overview" onSelect={() => runCommand(() => adminContext.setPage('overview'))}>
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                Overview
-                            </CommandItem>
-                             <CommandItem value="User Management" onSelect={() => runCommand(() => adminContext.setPage('users'))}>
-                                <Users className="mr-2 h-4 w-4" />
-                                User Management
-                            </CommandItem>
-                            <CommandItem value="Platform Settings" onSelect={() => runCommand(() => adminContext.setPage('settings'))}>
-                                <Settings className="mr-2 h-4 w-4" />
-                                Platform Settings
-                            </CommandItem>
-                        </CommandGroup>
-                    </>
-                )}
+                {isLawyer && <LawyerCommands runCommand={runCommand} />}
+                {isAdmin && <AdminCommands runCommand={runCommand} />}
             </CommandList>
         </CommandDialog>
     );
