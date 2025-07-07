@@ -33,6 +33,7 @@ import { predictSuccess, SuccessPredictorOutput } from '@/ai/flows/success-predi
 import { cn } from "@/lib/utils";
 import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
+import { analyzeDocument, DocumentAnalysisOutput } from "@/ai/flows/document-analyzer";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -104,7 +105,7 @@ interface ClientProfileProps {
     onUpdateClient: (updatedClient: Client) => void;
 }
 
-const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onActionClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onActionClick: (action: 'view' | 're-upload' | 'delete', docId: number) => void }) => {
+const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onActionClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onActionClick: (action: 'view' | 're-upload' | 'delete', docId: number) => void }) => {
     if (documents.length === 0) return null;
     return (
         <div className="space-y-3">
@@ -124,6 +125,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                                 <TableCell className="font-medium">{doc.title}</TableCell>
                                 <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
                                 <TableCell className="text-right space-x-1">
+                                    <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
                                     <Button variant="ghost" size="icon" title="Approve" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Approved')}}><CheckCircle className="h-4 w-4 text-green-600" /></Button>
                                     <Button variant="ghost" size="icon" title="Reject" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Rejected')}}><XCircle className="h-4 w-4 text-red-600" /></Button>
                                     <Button variant="ghost" size="icon" title="Request Re-upload" onClick={(e) => { e.stopPropagation(); onActionClick('re-upload', doc.id) }}><Upload className="h-4 w-4" /></Button>
@@ -189,8 +191,13 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocId, setUploadingDocId] = useState<number | null>(null);
 
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isProfileAnalyzing, setIsProfileAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<SuccessPredictorOutput | null>(null);
+
+    const [isDocAnalyzing, setIsDocAnalyzing] = useState(false);
+    const [docAnalysisResult, setDocAnalysisResult] = useState<DocumentAnalysisOutput | null>(null);
+    const [analyzedDocTitle, setAnalyzedDocTitle] = useState('');
+    const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false);
 
     const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
@@ -239,7 +246,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             }
         }
         fetchTimeline();
-    }, [client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
+    }, [client, toast]);
 
     useEffect(() => {
         if (isLogActivityDialogOpen) {
@@ -247,8 +254,8 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         }
     }, [isLogActivityDialogOpen]);
     
-    const handleAnalyze = async () => {
-        setIsAnalyzing(true);
+    const handleProfileAnalyze = async () => {
+        setIsProfileAnalyzing(true);
         setAnalysisResult(null);
         try {
             const result = await predictSuccess({
@@ -267,8 +274,30 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 variant: "destructive",
             });
         }
-        setIsAnalyzing(false);
+        setIsProfileAnalyzing(false);
     };
+
+    const handleAnalyzeDocument = async (doc: ClientDocument) => {
+        setIsDocAnalyzing(true);
+        setDocAnalysisResult(null);
+        setAnalyzedDocTitle(doc.title);
+        setIsAnalysisDialogOpen(true);
+        try {
+            const result = await analyzeDocument({ title: doc.title, category: doc.category });
+            setDocAnalysisResult(result);
+        } catch (error) {
+            console.error("Document analysis failed:", error);
+            toast({
+                title: "Analysis Failed",
+                description: "Could not analyze the document at this time.",
+                variant: "destructive",
+            });
+            setIsAnalysisDialogOpen(false);
+        } finally {
+            setIsDocAnalyzing(false);
+        }
+    };
+
 
     const handleAdHocUpload = () => {
         if (!newDocTitle || !newDocCategory) {
@@ -675,7 +704,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    {isAnalyzing ? (
+                                    {isProfileAnalyzing ? (
                                         <div className="flex items-center justify-center h-24">
                                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                             <p className="ml-4 text-muted-foreground">Analyzing profile...</p>
@@ -709,7 +738,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     ) : (
                                         <div className="text-center">
                                             <p className="text-muted-foreground mb-4">Click to run an AI analysis on the client's profile to predict the application outcome.</p>
-                                            <Button onClick={handleAnalyze}>
+                                            <Button onClick={handleProfileAnalyze}>
                                                 <Sparkles className="mr-2 h-4 w-4" />
                                                 Analyze Success Probability
                                             </Button>
@@ -768,6 +797,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
                                     onActionClick={(action, docId) => console.log(action, docId)}
+                                    onAnalyze={handleAnalyzeDocument}
                                 />
                                  <DocumentSection
                                     title="Supporting Documents"
@@ -776,6 +806,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
                                     onActionClick={(action, docId) => console.log(action, docId)}
+                                    onAnalyze={handleAnalyzeDocument}
                                 />
                                  <DocumentSection
                                     title="Additional Documents"
@@ -784,6 +815,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
                                     onActionClick={(action, docId) => console.log(action, docId)}
+                                    onAnalyze={handleAnalyzeDocument}
                                 />
                             </div>
                              <div className="lg:col-span-1">
@@ -1390,6 +1422,36 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+             <AlertDialog open={isAnalysisDialogOpen} onOpenChange={setIsAnalysisDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            AI Analysis for "{analyzedDocTitle}"
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                           Here are the key items to check for this document based on standard immigration procedures.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {isDocAnalyzing ? (
+                        <div className="flex items-center justify-center p-8">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : (
+                        <div className="py-4 text-sm">
+                            <ul className="space-y-2 list-disc pl-5">
+                                {docAnalysisResult?.checklist.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Close</AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
