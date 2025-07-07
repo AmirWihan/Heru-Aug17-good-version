@@ -4,14 +4,13 @@ import { teamMembers } from "@/lib/data";
 import { Search, X } from "lucide-react";
 import { LawyerProfileCard } from "@/components/lawyer-profile-card";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function FindLawyerPage() {
-    const { toast } = useToast();
-    const [connectedLawyers, setConnectedLawyers] = useState<number[]>([]);
+    const router = useRouter();
     
     const [searchTerm, setSearchTerm] = useState("");
     const [specialty, setSpecialty] = useState("all");
@@ -46,19 +45,16 @@ export function FindLawyerPage() {
 
     }, [searchTerm, specialty, location, experience, successRate]);
 
-    const handleConnect = (lawyerId: number) => {
-        if (!connectedLawyers.includes(lawyerId)) {
-            setConnectedLawyers([...connectedLawyers, lawyerId]);
-            toast({ title: "Successfully Connected!", description: `You are now connected with ${teamMembers.find(l => l.id === lawyerId)?.name}.` });
-        }
-    };
-    
     const resetFilters = () => {
         setSearchTerm("");
         setSpecialty("all");
         setLocation("all");
         setExperience("all");
         setSuccessRate("all");
+    };
+
+    const handleViewProfile = (lawyerId: number) => {
+        router.push(`/client/lawyer/${lawyerId}`);
     };
     
     return (
@@ -112,12 +108,12 @@ export function FindLawyerPage() {
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredLawyers.length > 0 ? filteredLawyers.map(lawyer => (
                     <LawyerProfileCard 
                         key={lawyer.id} 
                         lawyer={lawyer} 
-                        onConnect={handleConnect}
+                        onViewProfile={() => handleViewProfile(lawyer.id)}
                         isEnterprise={lawyer.plan === 'Enterprise'}
                     />
                 )) : (

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Share2, Mail, MessageSquare, Phone, Star, Crown } from "lucide-react";
+import { ArrowRight, Crown } from "lucide-react";
 
 type LawyerProfileCardProps = {
     lawyer: {
@@ -12,84 +12,44 @@ type LawyerProfileCardProps = {
         name: string;
         role: string;
         avatar: string;
-        email: string;
-        phone: string;
-        stats: {
-            label: string;
-            value: string;
-        }[];
         specialties: string[];
     };
-    onConnect: (lawyerId: number) => void;
-    onMessage?: () => void;
+    onViewProfile: (lawyerId: number) => void;
     isEnterprise?: boolean;
 };
 
-export function LawyerProfileCard({ lawyer, onConnect, onMessage, isEnterprise }: LawyerProfileCardProps) {
-    const displayedStats = lawyer.stats.filter(
-        stat => stat.label === 'Clients' || stat.label === 'Success Rate'
-    );
+export function LawyerProfileCard({ lawyer, onViewProfile, isEnterprise }: LawyerProfileCardProps) {
 
     return (
         <Card className={cn(
-            "flex flex-col relative",
+            "flex flex-col relative hover:shadow-lg transition-shadow duration-300",
             isEnterprise && "border-primary shadow-primary/20"
         )}>
             {isEnterprise && (
-                <Badge variant="warning" className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge variant="warning" className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                     <Crown className="mr-1.5 h-3 w-3" />
                     Enterprise Partner
                 </Badge>
             )}
             <CardHeader className="items-center text-center pt-8">
-                <Avatar className="w-24 h-24 mb-4">
+                <Avatar className="w-20 h-20 mb-3">
                     <AvatarImage src={lawyer.avatar} alt={lawyer.name} />
                     <AvatarFallback>{lawyer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
-                <h3 className="text-xl font-bold">{lawyer.name}</h3>
-                <p className="text-muted-foreground">{lawyer.role}</p>
-                <div className="flex items-center gap-1 text-yellow-500 mt-1">
-                    <Star size={16} fill="currentColor" />
-                    <Star size={16} fill="currentColor" />
-                    <Star size={16} fill="currentColor" />
-                    <Star size={16} fill="currentColor" />
-                    <Star size={16} />
-                    <span className="text-xs text-muted-foreground ml-1">(4.8)</span>
-                </div>
+                <h3 className="text-lg font-bold">{lawyer.name}</h3>
+                <p className="text-sm text-muted-foreground">{lawyer.role}</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                    {displayedStats.map(stat => (
-                        <div key={stat.label} className="bg-muted p-2 rounded text-center">
-                            <p className="font-bold text-lg">{stat.value}</p>
-                            <p className="text-xs text-muted-foreground">{stat.label}</p>
-                        </div>
+                 <div className="flex flex-wrap gap-1 justify-center min-h-[44px]">
+                    {lawyer.specialties.slice(0, 3).map(spec => (
+                        <Badge key={spec} variant="secondary">{spec}</Badge>
                     ))}
-                </div>
-                <div>
-                    <h4 className="font-semibold text-sm mb-2">Specialties</h4>
-                    <div className="flex flex-wrap gap-2">
-                        {lawyer.specialties.map(spec => (
-                            <Badge key={spec} variant="secondary">{spec}</Badge>
-                        ))}
-                    </div>
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
-                <Button className="w-full" onClick={() => onConnect(lawyer.id)}>
-                    <Share2 className="mr-2 h-4 w-4" /> Share Info & Connect
+                <Button className="w-full" onClick={() => onViewProfile(lawyer.id)}>
+                    View Profile <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <div className="flex w-full gap-2">
-                    <Button variant="outline" className="flex-1" onClick={onMessage} disabled={!onMessage}>
-                        <MessageSquare className="mr-2 h-4 w-4" /> Message
-                    </Button>
-                     <Button variant="outline" size="icon">
-                        <Phone className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon">
-                        <Mail className="h-4 w-4" />
-                    </Button>
-                </div>
             </CardFooter>
         </Card>
     );
