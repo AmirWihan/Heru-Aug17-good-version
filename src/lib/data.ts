@@ -205,6 +205,12 @@ export type TeamMember = {
         value: string;
     }[];
     specialties: string[];
+    gallery?: {
+        id: number;
+        src: string;
+        alt: string;
+        dataAiHint: string;
+    }[];
 };
 
 export const teamMembers: TeamMember[] = [
@@ -298,7 +304,13 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
         stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$340k' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }],
-        specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation']
+        specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
+        gallery: [
+            { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
+            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'team conference' },
+            { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'client celebration' },
+            { id: 4, src: 'https://placehold.co/600x400.png', alt: 'Charity run event', dataAiHint: 'charity event' },
+        ]
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
@@ -331,7 +343,11 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 3,
         firmWebsite: 'https://rodriguezlaw.ca',
         stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$280k' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }],
-        specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration']
+        specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration', 'Court Representation'],
+        gallery: [
+            { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Networking event', dataAiHint: 'networking event' },
+            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Legal seminar', dataAiHint: 'legal seminar' },
+        ]
     },
     {
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',

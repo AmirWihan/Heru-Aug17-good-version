@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { TeamMember } from "@/lib/data";
-import { Mail, MessageSquare, Phone, Share2, Star, Crown, ArrowLeft } from "lucide-react";
+import { Mail, MessageSquare, Phone, Share2, Star, Crown, ArrowLeft, Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
 export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
     const { toast } = useToast();
@@ -70,6 +71,40 @@ export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
                                 ))}
                             </CardContent>
                         </Card>
+                         <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg">Additional Services & Community Engagement</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="mb-6">
+                                    <h4 className="font-semibold mb-2">Service Highlights</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {lawyer.specialties?.includes('Post-Landing Services') && <Badge variant="outline">Post-Landing Services</Badge>}
+                                        {lawyer.specialties?.includes('Court Representation') && <Badge variant="outline">Court Representation</Badge>}
+                                        {lawyer.specialties?.includes('Legal Aid') && <Badge variant="outline">Legal Aid</Badge>}
+                                    </div>
+                                </div>
+                                {(lawyer.gallery || []).length > 0 &&
+                                    <div>
+                                        <h4 className="font-semibold mb-2">Firm Gallery</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {(lawyer.gallery || []).map((photo) => (
+                                                <div key={photo.id} className="relative aspect-[3/2] overflow-hidden rounded-lg">
+                                                    <Image
+                                                        src={photo.src}
+                                                        alt={photo.alt}
+                                                        fill
+                                                        sizes="(max-width: 768px) 50vw, 33vw"
+                                                        className="object-cover"
+                                                        data-ai-hint={photo.dataAiHint}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                }
+                            </CardContent>
+                        </Card>
                     </div>
                     <div className="md:col-span-1 space-y-6">
                          <Card>
@@ -96,6 +131,13 @@ export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
                                 <Button variant="outline" className="w-full">
                                     <MessageSquare className="mr-2 h-4 w-4" /> Message
                                 </Button>
+                                 {lawyer.firmWebsite && (
+                                    <a href={lawyer.firmWebsite} target="_blank" rel="noopener noreferrer">
+                                        <Button variant="outline" className="w-full">
+                                            <Globe className="mr-2 h-4 w-4" /> Visit Website
+                                        </Button>
+                                    </a>
+                                )}
                                  <div className="flex w-full gap-2 pt-2">
                                     <Button variant="outline" size="icon" className="flex-1">
                                         <Phone className="h-4 w-4" />
