@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useLawyerDashboard } from "@/context/LawyerDashboardContext"
-import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { plans } from "@/lib/data"
 import { Progress } from "../ui/progress"
@@ -99,12 +98,6 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <a href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon">
-                  <WhatsappIcon className="h-5 w-5 text-green-500" />
-                  <span className="sr-only">Contact on WhatsApp</span>
-              </Button>
-            </a>
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5 text-foreground" />
               <span className="sr-only">Notifications</span>

@@ -16,6 +16,7 @@ const pageTitles: { [key: string]: string } = {
     'appointments': 'Appointments',
     'settings': 'Settings',
     'support': 'Help & Support',
+    'career-tools': 'Career Tools',
 };
 
 function ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {

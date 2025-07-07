@@ -10,3 +10,4 @@ import '@/ai/flows/risk-analyzer.ts';
 import '@/ai/flows/case-timeline-flow.ts';
 import '@/ai/flows/intake-form-analyzer.ts';
 import '@/ai/flows/ircc-chat-flow.ts';
+import '@/ai/flows/resume-builder-flow.ts';

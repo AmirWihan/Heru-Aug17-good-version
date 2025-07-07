@@ -4,6 +4,7 @@
  * @fileOverview An AI agent that analyzes a client's intake form for potential issues.
  *
  * - analyzeIntakeForm - A function that handles the intake form analysis.
+ * - IntakeFormInputSchema - The Zod schema for the input.
  * - IntakeFormInput - The input type for the analyzeIntakeForm function.
  * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.
  */
@@ -20,7 +21,7 @@ const FamilyMemberSchema = z.object({
     occupation: z.string(),
 });
 
-const IntakeFormInputSchema = z.object({
+export const IntakeFormInputSchema = z.object({
   personal: z.object({
     fullName: z.string(),
     dateOfBirth: z.string(),

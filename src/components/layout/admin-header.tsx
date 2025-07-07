@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
 import { useAdminDashboard } from "@/context/AdminDashboardContext"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { WhatsappIcon } from "../icons/WhatsappIcon"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -58,12 +57,6 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
-            <a href="https://wa.me/15550123456" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon">
-                  <WhatsappIcon className="h-5 w-5 text-green-500" />
-                  <span className="sr-only">Contact Support on WhatsApp</span>
-              </Button>
-            </a>
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5 text-foreground" />
               <span className="sr-only">Notifications</span>

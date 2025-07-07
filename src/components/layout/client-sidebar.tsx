@@ -13,7 +13,8 @@ import {
   Calendar,
   HelpCircle,
   Handshake,
-  FileHeart
+  FileHeart,
+  Briefcase
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -33,9 +34,10 @@ interface ClientSidebarProps {
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'intake-form', label: 'Intake Form', icon: FileHeart },
+  { id: 'documents', label: 'My Documents', icon: FileText },
+  { id: 'career-tools', label: 'Career Tools', icon: Briefcase },
   { id: 'find-lawyer', label: 'Find a Lawyer', icon: Search },
   { id: 'my-lawyers', label: 'My Lawyers', icon: Users },
-  { id: 'documents', label: 'My Documents', icon: FileText },
   { id: 'appointments', label: 'Appointments', icon: Calendar },
   { id: 'agreements', label: 'My Agreements', icon: Handshake },
   { id: 'messages', label: 'Messages', icon: Mail },

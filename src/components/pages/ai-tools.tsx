@@ -13,7 +13,10 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { applicationChecker, ApplicationCheckerOutput } from '@/ai/flows/application-checker';
 import { summarizeDocument, SummarizeDocumentOutput } from '@/ai/flows/document-summarization';
 import { composeMessage, ComposeMessageOutput } from '@/ai/flows/ai-assisted-messaging';
+import { buildResume, BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
 import { useToast } from '@/hooks/use-toast';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import type { IntakeFormInput } from '@/ai/flows/intake-form-analyzer';
 
 function ApplicationChecker() {
     const [documentText, setDocumentText] = useState('');
@@ -223,6 +226,84 @@ function MessageComposer() {
     )
 }
 
+function ResumeBuilder() {
+    const { clients } = useGlobalData();
+    const { toast } = useToast();
+    const [selectedClientId, setSelectedClientId] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [result, setResult] = useState<BuildResumeOutput | null>(null);
+
+    const handleGenerate = async () => {
+        const client = clients.find(c => c.id.toString() === selectedClientId);
+        if (!client || !client.intakeForm?.data) {
+            toast({ title: 'Error', description: 'Selected client has not completed their intake form.', variant: 'destructive' });
+            return;
+        }
+
+        setIsLoading(true);
+        setResult(null);
+
+        try {
+            const apiInput: IntakeFormInput = {
+              ...client.intakeForm.data,
+              admissibility: {
+                ...client.intakeForm.data.admissibility,
+                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
+                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
+                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
+              },
+              immigrationHistory: {
+                  ...client.intakeForm.data.immigrationHistory,
+                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
+                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
+              },
+            };
+            const response = await buildResume(apiInput);
+            setResult(response);
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to generate the resume. Please try again.', variant: 'destructive' });
+        }
+        setIsLoading(false);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline">Canadian Resume Builder</CardTitle>
+                <CardDescription>Generate a resume for a client based on their intake form information, formatted for the Canadian job market.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="client-select-resume">Select Client</Label>
+                    <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                        <SelectTrigger id="client-select-resume">
+                            <SelectValue placeholder="Select a client to generate a resume for" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {clients.map(client => (
+                                <SelectItem key={client.id} value={client.id.toString()} disabled={!client.intakeForm?.data}>
+                                    {client.name} {!client.intakeForm?.data && '(No intake form)'}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <Button onClick={handleGenerate} disabled={isLoading || !selectedClientId}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Generate Resume
+                </Button>
+                {result && (
+                    <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
+                        <h4 className="font-bold">Generated Resume (Markdown):</h4>
+                        <Textarea readOnly value={result.resumeText} rows={15} className="bg-white font-mono text-xs" />
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 export function AIToolsPage() {
     return (
         <div className="space-y-6">
@@ -236,6 +317,7 @@ export function AIToolsPage() {
                 </div>
             </div>
             <div className="space-y-6">
+                <ResumeBuilder />
                 <DocumentSummarizer />
                 <ApplicationChecker />
                 <MessageComposer />
