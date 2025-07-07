@@ -16,9 +16,6 @@ import {
     type BuildCoverLetterOutput 
 } from '@/ai/schemas/cover-letter-schema';
 
-export type { BuildCoverLetterInput, BuildCoverLetterOutput };
-
-
 export async function buildCoverLetter(input: BuildCoverLetterInput): Promise<BuildCoverLetterOutput> {
   return coverLetterBuilderFlow(input);
 }

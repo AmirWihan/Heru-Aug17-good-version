@@ -13,8 +13,10 @@ import { Loader2, Sparkles, Wand2, Briefcase, FileText, PencilRuler } from 'luci
 import { applicationChecker, ApplicationCheckerOutput } from '@/ai/flows/application-checker';
 import { summarizeDocument, SummarizeDocumentOutput } from '@/ai/flows/document-summarization';
 import { composeMessage, ComposeMessageOutput } from '@/ai/flows/ai-assisted-messaging';
-import { buildResume, BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
-import { buildCoverLetter, BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { buildResume } from '@/ai/flows/resume-builder-flow';
+import type { BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
+import { buildCoverLetter } from '@/ai/flows/cover-letter-flow';
+import type { BuildCoverLetterOutput } from '@/ai/schemas/cover-letter-schema';
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
