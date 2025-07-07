@@ -2,6 +2,9 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
+  # Automatically scale up to 20 instances in response to increased traffic.
+  # Min instances set to 1 for faster responses to initial traffic.
+  minInstances: 1
+  maxInstances: 20
+  # Set a higher concurrency to allow each instance to handle more requests.
+  concurrency: 100

@@ -15,7 +15,7 @@ export function AuthWrapper({ children, requiredRole }: AuthWrapperProps) {
     const router = useRouter();
 
     useEffect(() => {
-        if (loading) return; // Wait until user data is loaded
+        if (loading) return; // Wait until auth state is confirmed
 
         if (!userProfile) {
             router.replace('/login');
@@ -29,9 +29,10 @@ export function AuthWrapper({ children, requiredRole }: AuthWrapperProps) {
 
     }, [userProfile, requiredRole, router, loading]);
 
+    // Show a loader while auth state is being determined, or if the user is not the correct role yet
     if (loading || !userProfile || userProfile.authRole !== requiredRole) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-muted/40">
+            <div className="flex min-h-screen items-center justify-center bg-background">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );

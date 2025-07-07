@@ -2,37 +2,32 @@
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
-import { 
-    clients as staticClients, 
-    teamMembers as staticTeamMembers, 
-    tasksData as staticTasks, 
-    appointmentsData as staticAppointments, 
-    invoicesData as staticInvoices,
-    notifications as staticNotifications,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification,
-} from '@/lib/data';
+import { isFirebaseEnabled, auth, db } from '@/lib/firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, type User as FirebaseAuthUser } from 'firebase/auth';
+import { collection, doc, getDoc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc, writeBatch, Unsubscribe } from 'firebase/firestore';
 
+import type { Client, TeamMember, Task, Invoice, Appointment, Notification } from '@/lib/data';
+
+// Define a unified UserProfile type
 type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
 
 interface GlobalDataContextType {
     userProfile: UserProfile | null;
     loading: boolean;
-    login: (email: string, pass: string) => Promise<UserProfile | null>;
-    logout: () => void;
-    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string }) => Promise<UserProfile | null>;
+    login: (email: string, pass: string) => Promise<FirebaseAuthUser | null>;
+    logout: () => Promise<void>;
+    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }) => Promise<FirebaseAuthUser | null>;
     teamMembers: TeamMember[];
     clients: Client[];
     tasks: Task[];
     appointments: Appointment[];
-    invoicesData: Invoice[];
     notifications: Notification[];
-    addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
     updateTeamMember: (updatedMember: TeamMember) => Promise<void>;
-    addClient: (client: Omit<Client, 'id'>) => Promise<void>;
+    addClient: (client: Omit<Client, 'id' | 'password' | 'uid' | 'avatar'>) => Promise<void>;
     updateClient: (updatedClient: Client) => Promise<void>;
     addTask: (task: Omit<Task, 'id'>) => Promise<void>;
     addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
-    updateNotification: (id: number, updates: Partial<Notification>) => void;
+    updateNotification: (id: number | string, updates: Partial<Notification>) => Promise<void>;
     logoSrc: string | null;
     setLogoSrc: (src: string | null) => void;
     isLoaded: boolean;
@@ -43,80 +38,129 @@ interface GlobalDataContextType {
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
-const AUTH_STORAGE_KEY = 'heru-auth-user';
 
-// This provider uses the static data from data.ts and simulates auth
-const StaticDataProvider = ({ children }: { children: ReactNode }) => {
-    const [clients, setClients] = useState<Client[]>(staticClients);
-    const [teamMembers, setTeamMembers] = useState<TeamMember[]>(staticTeamMembers);
-    const [tasks, setTasks] = useState<Task[]>(staticTasks);
-    const [appointments, setAppointments] = useState<Appointment[]>(staticAppointments);
-    const [invoicesData] = useState<Invoice[]>(staticInvoices);
-    const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
-    
-    const [logoSrc, setLogoSrc] = useState<string | null>(null);
-    const [theme, setTheme] = useState('sky');
-    const [isLoaded, setIsLoaded] = useState(false);
-    
+const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (isLoaded) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ logoSrc, theme }));
-        }
-    }, [logoSrc, theme, isLoaded]);
-    
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+
+    const [logoSrc, setLogoSrc] = useState<string | null>(null);
+    const [theme, setThemeState] = useState('sky');
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    const setTheme = useCallback((themeId: string) => {
+        setThemeState(themeId);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme: themeId }));
+    }, []);
+
     useEffect(() => {
         try {
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
-                const { logoSrc: storedLogo, theme: storedTheme } = JSON.parse(storedPrefs);
-                if (storedLogo) setLogoSrc(storedLogo);
-                if (storedTheme) setTheme(storedTheme);
-            }
-            const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
-            if (storedUser) {
-                setUserProfile(JSON.parse(storedUser));
+                const { theme: storedTheme } = JSON.parse(storedPrefs);
+                if (storedTheme) setThemeState(storedTheme);
             }
         } finally {
             setIsLoaded(true);
-            setLoading(false);
         }
     }, []);
 
-    const login = async (email: string, pass: string): Promise<UserProfile | null> => {
-        const allUsers = [...teamMembers, ...clients];
-        const foundUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
-
-        if (foundUser) {
-            const authRole = 'caseType' in foundUser ? 'client' : (foundUser.type === 'admin' ? 'admin' : 'lawyer');
-            const profile = { ...foundUser, authRole };
-            setUserProfile(profile);
-            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
-            return profile;
+    useEffect(() => {
+        if (!isFirebaseEnabled) {
+            setLoading(false);
+            console.error("Firebase is not configured. App will not function correctly.");
+            return;
         }
-        return null;
+
+        const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const authRole = userData.role as 'admin' | 'lawyer' | 'client';
+                    
+                    let profileCollectionName = '';
+                    if (authRole === 'admin' || authRole === 'lawyer') {
+                        profileCollectionName = 'teamMembers';
+                    } else {
+                        profileCollectionName = 'clients';
+                    }
+
+                    const profileDocRef = doc(db, profileCollectionName, user.uid);
+                    const profileDoc = await getDoc(profileDocRef);
+
+                    if(profileDoc.exists()) {
+                         setUserProfile({ ...profileDoc.data() as any, authRole, uid: user.uid });
+                    } else {
+                        // Handle case where user exists in auth but not in profile collections
+                        setUserProfile(null);
+                    }
+                } else {
+                     setUserProfile(null);
+                }
+            } else {
+                setUserProfile(null);
+            }
+            setLoading(false);
+        });
+        
+        const unsubscribers: Unsubscribe[] = [];
+        if(isFirebaseEnabled) {
+            unsubscribers.push(onSnapshot(collection(db, 'teamMembers'), snapshot => setTeamMembers(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeamMember)))));
+            unsubscribers.push(onSnapshot(collection(db, 'clients'), snapshot => setClients(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Client)))));
+            unsubscribers.push(onSnapshot(collection(db, 'tasks'), snapshot => setTasks(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Task)))));
+            unsubscribers.push(onSnapshot(collection(db, 'appointments'), snapshot => setAppointments(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Appointment)))));
+            unsubscribers.push(onSnapshot(collection(db, 'notifications'), snapshot => setNotifications(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Notification)))));
+        }
+
+        return () => {
+            authUnsubscribe();
+            unsubscribers.forEach(unsub => unsub());
+        };
+    }, []);
+
+    const login = async (email: string, pass: string) => {
+        if (!isFirebaseEnabled) return null;
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        return userCredential.user;
     };
 
-    const logout = () => {
+    const logout = async () => {
+        if (!isFirebaseEnabled) return;
+        await signOut(auth);
         setUserProfile(null);
-        localStorage.removeItem(AUTH_STORAGE_KEY);
     };
 
-    const register = async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string }): Promise<UserProfile | null> => {
-        const allUsers = [...teamMembers, ...clients];
-        if (allUsers.some(u => u.email.toLowerCase() === details.email?.toLowerCase())) {
-            return null; // User already exists
-        }
+    const register = async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }) => {
+        if (!isFirebaseEnabled || !details.email || !details.password || !details.fullName) return null;
+        
+        const userCredential = await createUserWithEmailAndPassword(auth, details.email, details.password);
+        const user = userCredential.user;
+        
+        const batch = writeBatch(db);
 
+        // Create base user document
+        const userDocRef = doc(db, "users", user.uid);
+        batch.set(userDocRef, {
+            uid: user.uid,
+            email: details.email,
+            fullName: details.fullName,
+            role: details.role
+        });
+
+        // Create role-specific profile document
         if (details.role === 'client') {
-            const newClient: Client = {
-                id: Date.now(),
-                name: details.name || '',
-                email: details.email || '',
-                password: details.password || '',
-                uid: `static-${Date.now()}`,
+            const clientDocRef = doc(db, "clients", user.uid);
+            const newClient: Omit<Client, 'id'> = {
+                uid: user.uid,
+                name: details.fullName,
+                email: details.email,
                 phone: '',
                 caseType: 'Unassigned',
                 status: 'Active',
@@ -128,79 +172,77 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
                 age: 0,
                 educationLevel: 'Unknown',
                 caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
-                activity: [],
-                documents: [],
-                tasks: [],
-                agreements: [],
+                activity: [], documents: [], tasks: [], agreements: [],
                 intakeForm: { status: 'not_started' },
             };
-            setClients(prev => [...prev, newClient]);
-            return { ...newClient, authRole: 'client' };
+            batch.set(clientDocRef, newClient);
+        } else { // lawyer
+            const lawyerDocRef = doc(db, "teamMembers", user.uid);
+            const newLawyer: Omit<TeamMember, 'id'> = {
+                uid: user.uid,
+                name: details.fullName,
+                email: details.email,
+                role: 'Awaiting Onboarding',
+                avatar: `https://i.pravatar.cc/150?u=${details.email}`,
+                type: 'legal',
+                phone: '',
+                accessLevel: 'Admin',
+                status: 'Pending Activation',
+                plan: 'Pro Team',
+                location: '',
+                yearsOfPractice: 0,
+                successRate: 0,
+                licenseNumber: '',
+                registrationNumber: '',
+                stats: [],
+                specialties: [],
+            };
+             batch.set(lawyerDocRef, newLawyer);
         }
-        // For lawyers, the full profile is created in the onboarding flow.
-        // The register function here just creates the initial user record.
-        const newLawyer: TeamMember = {
-            id: Date.now(),
-            name: details.name || '',
-            email: details.email || '',
-            password: details.password || '',
-            uid: `static-${Date.now()}`,
-            role: 'Awaiting Onboarding',
-            avatar: `https://i.pravatar.cc/150?u=${details.email}`,
-            type: 'legal',
-            phone: '',
-            accessLevel: 'Admin',
-            status: 'Pending Activation',
-            plan: 'Pro Team',
-            location: '',
-            yearsOfPractice: 0,
-            successRate: 0,
-            licenseNumber: '',
-            registrationNumber: '',
-            stats: [],
-            specialties: [],
-        };
-        setTeamMembers(prev => [...prev, newLawyer]);
-        return { ...newLawyer, authRole: 'lawyer' };
+        
+        await batch.commit();
+        return user;
     };
     
     const updateClient = async (updatedClient: Client) => {
-        setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
+        if (!isFirebaseEnabled) return;
+        const clientRef = doc(db, 'clients', updatedClient.uid as string);
+        await updateDoc(clientRef, { ...updatedClient });
     };
 
     const updateTeamMember = async (updatedMember: TeamMember) => {
-        setTeamMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
+        if (!isFirebaseEnabled) return;
+        const memberRef = doc(db, 'teamMembers', updatedMember.uid as string);
+        await updateDoc(memberRef, { ...updatedMember });
     };
     
     const addTask = async (task: Omit<Task, 'id'>) => {
-        const newTask = { ...task, id: Date.now() } as Task;
-        setTasks(prev => [...prev, newTask]);
+        if (!isFirebaseEnabled) return;
+        await addDoc(collection(db, 'tasks'), task);
     };
     
-    const addClient = async (client: Omit<Client, 'id'>) => {
-        const newClient = { ...client, id: Date.now() } as Client;
-        setClients(prev => [...prev, newClient]);
-    };
-
-    const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
-        const newMember = { ...member, id: Date.now() } as TeamMember;
-        setTeamMembers(prev => [...prev, newMember]);
+    const addClient = async (client: Omit<Client, 'id' | 'password' | 'uid' | 'avatar'>) => {
+        if (!isFirebaseEnabled) return;
+        await addDoc(collection(db, 'clients'), client);
     };
 
     const addNotification = async (notification: Omit<Notification, 'id'>) => {
-        const newNotification = { ...notification, id: Date.now() } as Notification;
-        setNotifications(prev => [newNotification, ...prev]);
+        if (!isFirebaseEnabled) return;
+        await addDoc(collection(db, 'notifications'), notification);
     };
 
-    const updateNotification = (id: number, updates: Partial<Notification>) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
+    const updateNotification = async (id: number | string, updates: Partial<Notification>) => {
+        if (!isFirebaseEnabled) return;
+        const notifRef = doc(db, 'notifications', id.toString());
+        await updateDoc(notifRef, updates);
     };
+
 
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register,
-            teamMembers, clients, tasks, appointments, invoicesData, notifications,
-            addTeamMember, updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
+            teamMembers, clients, tasks, appointments, notifications,
+            updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc, isLoaded, theme, setTheme,
         }}>
             {children}
@@ -210,8 +252,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
 
 
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
-    // For this prototype, we are forcing the StaticDataProvider with simulated auth.
-    return <StaticDataProvider>{children}</StaticDataProvider>;
+    return <FirebaseProvider>{children}</FirebaseProvider>;
 }
 
 export function useGlobalData() {
