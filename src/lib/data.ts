@@ -20,6 +20,16 @@ export type Task = {
     status: 'To Do' | 'In Progress' | 'Completed';
 };
 
+export type Notification = {
+    id: number;
+    date: string;
+    title: string;
+    message: string;
+    target: 'All Users' | 'Lawyers' | 'Clients';
+    isRead: boolean;
+    isDeleted?: boolean;
+};
+
 export type ClientDocument = {
     id: number;
     title: string;
@@ -143,6 +153,8 @@ export type Client = {
     name: string;
     email: string;
     phone: string;
+    password?: string;
+    uid?: string;
     caseType: string;
     status: 'Active' | 'On-hold' | 'Closed' | 'Blocked';
     lastContact: string;
@@ -198,6 +210,8 @@ export type TeamMember = {
     avatar: string;
     type: 'legal' | 'sales' | 'advisor' | 'admin';
     email: string;
+    password?: string;
+    uid?: string;
     phone: string;
     accessLevel: 'Admin' | 'Member' | 'Viewer';
     status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected';
@@ -234,6 +248,8 @@ export const teamMembers: TeamMember[] = [
         type: 'admin',
         email: 'admin@heru.com',
         phone: '+1-555-0100',
+        password: 'password123',
+        uid: 'static-superadmin',
         accessLevel: 'Admin',
         status: 'Active',
         plan: 'Enterprise',
@@ -256,6 +272,8 @@ export const teamMembers: TeamMember[] = [
         avatar: 'https://i.pravatar.cc/150?u=evelynreed',
         type: 'legal',
         email: 'e.reed@innovatelegal.com',
+        password: 'password123',
+        uid: 'static-ereed',
         phone: '+1-555-0123',
         accessLevel: 'Admin',
         status: 'Pending Activation',
@@ -285,6 +303,8 @@ export const teamMembers: TeamMember[] = [
         avatar: 'https://i.pravatar.cc/150?u=testlawyer',
         type: 'legal',
         email: 'test.lawyer@example.com',
+        password: 'password123',
+        uid: 'static-testlawyer',
         phone: '+1-555-0199',
         accessLevel: 'Member',
         status: 'Pending Activation',
@@ -309,7 +329,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
-        email: 'emma.j@heru.com', phone: '+1-202-555-0101', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
+        email: 'emma.j@heru.com', phone: '+1-202-555-0101', password: 'password123', uid: 'static-emma', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
@@ -326,7 +346,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
-        email: 'michael.c@heru.com', phone: '+1-202-555-0102', accessLevel: 'Member', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
+        email: 'michael.c@heru.com', phone: '+1-202-555-0102', password: 'password123', uid: 'static-michael', accessLevel: 'Member', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
         firmName: 'Chen & Associates',
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
@@ -337,7 +357,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
-        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', accessLevel: 'Member', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
+        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', password: 'password123', uid: 'static-sophia', accessLevel: 'Member', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
@@ -348,7 +368,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
-        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Enterprise', billingCycle: 'annually',
+        email: 'david.r@heru.com', phone: '+1-202-555-0104', password: 'password123', uid: 'static-david', accessLevel: 'Admin', status: 'Active', plan: 'Enterprise', billingCycle: 'annually',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
         firmName: 'Rodriguez Immigration Law',
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
@@ -363,13 +383,13 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
-        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', password: 'password123', uid: 'static-jessica', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
         stats: [], specialties: []
     },
     {
         id: 6, name: 'Chris Davis', role: 'Marketing Advisor', avatar: 'https://i.pravatar.cc/150?u=chris', type: 'advisor',
-        email: 'chris.d@heru.com', phone: '+1-202-555-0106', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        email: 'chris.d@heru.com', phone: '+1-202-555-0106', password: 'password123', uid: 'static-chris', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
         stats: [], specialties: []
     },
@@ -430,7 +450,7 @@ export const tasksData: Task[] = [
 
 export const clients: Client[] = [
     { 
-        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
+        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', password: 'password123', uid: 'static-adebola', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
         countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20', age: 29, educationLevel: "Master's degree",
         caseSummary: {
             priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
@@ -446,7 +466,7 @@ export const clients: Client[] = [
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
-        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
+        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', password: 'password123', uid: 'static-carlos', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
         countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10', age: 22, educationLevel: "Bachelor's degree",
         caseSummary: {
             priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
@@ -461,7 +481,7 @@ export const clients: Client[] = [
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
-        id: 3, name: 'Li Wei', email: 'li.wei@example.com', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
+        id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
         countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05', age: 35, educationLevel: "PhD",
         caseSummary: {
             priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
@@ -475,7 +495,7 @@ export const clients: Client[] = [
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
-        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
+        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
         countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18', age: 42, educationLevel: "Bachelor's degree",
         caseSummary: {
             priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
@@ -487,7 +507,7 @@ export const clients: Client[] = [
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
     },
     { 
-        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', password: 'password123', uid: 'static-james', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
         countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15', age: 31, educationLevel: "Two or more post-secondary credentials",
         caseSummary: {
             priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: '2023-06-15',
@@ -895,4 +915,31 @@ export const themes = [
     { name: 'Cool Sky', id: 'sky', colors: { primary: 'hsl(243 43% 45%)', accent: 'hsl(46 93% 70%)' } },
     { name: 'Warm Coral', id: 'coral', colors: { primary: 'hsl(357 98% 79%)', accent: 'hsl(14 98% 79%)' } },
     { name: 'Vivid Synth', id: 'synth', colors: { primary: 'hsl(333 94% 57%)', accent: 'hsl(279 89% 60%)' } },
+];
+
+export const notifications: Notification[] = [
+    {
+        id: 1,
+        date: '2024-07-23T10:00:00Z',
+        title: 'Platform Maintenance',
+        message: 'The platform will be undergoing scheduled maintenance on July 25th from 2 AM to 3 AM EST. Access may be intermittent.',
+        target: 'All Users',
+        isRead: false,
+    },
+    {
+        id: 2,
+        date: '2024-07-22T14:00:00Z',
+        title: 'New Feature: AI Assist',
+        message: 'We have launched a new AI Assist page for clients to help with resume and cover letter generation. Check it out!',
+        target: 'Clients',
+        isRead: false,
+    },
+    {
+        id: 3,
+        date: '2024-07-21T09:00:00Z',
+        title: 'Policy Update: PNP Processing',
+        message: 'Please be aware of recent updates to the Provincial Nominee Program processing guidelines. See internal docs for details.',
+        target: 'Lawyers',
+        isRead: true,
+    }
 ];
