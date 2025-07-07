@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight, Crown, MapPin, Award, Users } from "lucide-react";
 
 type LawyerProfileCardProps = {
     lawyer: {
@@ -12,7 +12,9 @@ type LawyerProfileCardProps = {
         name: string;
         role: string;
         avatar: string;
-        specialties: string[];
+        location: string;
+        registrationNumber: string;
+        numEmployees?: number;
     };
     onViewProfile: (lawyerId: number) => void;
     isEnterprise?: boolean;
@@ -39,14 +41,23 @@ export function LawyerProfileCard({ lawyer, onViewProfile, isEnterprise }: Lawye
                 <h3 className="text-lg font-bold">{lawyer.name}</h3>
                 <p className="text-sm text-muted-foreground">{lawyer.role}</p>
             </CardHeader>
-            <CardContent className="flex-grow space-y-4">
-                 <div className="flex flex-wrap gap-1 justify-center min-h-[44px]">
-                    {lawyer.specialties.slice(0, 3).map(spec => (
-                        <Badge key={spec} variant="secondary">{spec}</Badge>
-                    ))}
+            <CardContent className="flex-grow space-y-2 text-sm text-muted-foreground px-4">
+                <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    <span>{lawyer.location}</span>
                 </div>
+                 <div className="flex items-center gap-2">
+                    <Award className="h-4 w-4 shrink-0" />
+                    <span>Reg #: {lawyer.registrationNumber}</span>
+                </div>
+                 {lawyer.numEmployees && (
+                    <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 shrink-0" />
+                        <span>Team of {lawyer.numEmployees}</span>
+                    </div>
+                )}
             </CardContent>
-            <CardFooter className="flex flex-col gap-2">
+            <CardFooter className="flex flex-col gap-2 pt-4">
                 <Button className="w-full" onClick={() => onViewProfile(lawyer.id)}>
                     View Profile <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

@@ -297,8 +297,8 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '72' }, { label: 'Success Rate', value: '96%' }],
-        specialties: ['Express Entry', 'PNP', 'Family Sponsorship']
+        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$340k' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }],
+        specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation']
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
@@ -308,8 +308,8 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
         numEmployees: 5,
         firmWebsite: 'https://chenassociates.com',
-        stats: [{ label: 'Clients', value: '45' }, { label: 'Success Rate', value: '89%' }],
-        specialties: ['Student Visas', 'Work Permits', 'Visitor Visas']
+        stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$210k' }, { label: 'Success Rate', value: '89%' }, { label: 'Active Cases', value: '11' }],
+        specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services']
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
@@ -319,19 +319,19 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '38' }, { label: 'Success Rate', value: '92%' }],
-        specialties: ['Document Review', 'Application Filing', 'Client Communication']
+        stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$95k' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }],
+        specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid']
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
-        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
+        email: 'david.r@heru.com', phone: '+1-202-555-0104', accessLevel: 'Admin', status: 'Active', plan: 'Enterprise', billingCycle: 'annually',
         location: 'Calgary, AB', yearsOfPractice: 7, successRate: 94, licenseNumber: 'LSA-P12345', registrationNumber: 'ICCRC-R54321',
         firmName: 'Rodriguez Immigration Law',
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
         numEmployees: 3,
         firmWebsite: 'https://rodriguezlaw.ca',
-        stats: [{ label: 'Clients', value: '51' }, { label: 'Success Rate', value: '94%' }],
-        specialties: ['Case Management', 'Client Onboarding', 'Task Coordination']
+        stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$280k' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }],
+        specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration']
     },
     {
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
