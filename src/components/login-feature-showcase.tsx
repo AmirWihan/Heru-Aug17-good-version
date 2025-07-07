@@ -1,60 +1,57 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
+import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
+import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
 import { ClientDashboardScreenshot } from './client-dashboard-screenshot';
-import { LawyerDashboardScreenshot } from './lawyer-dashboard-screenshot';
-import { DocumentManagementScreenshot } from './document-management-screenshot';
-import { Bot, GanttChartSquare, FolderKanban } from 'lucide-react';
 
 const features = [
     {
-        icon: Bot,
-        title: "AI-Powered Risk Alerts",
-        description: "Proactively identify at-risk cases with AI that scans for approaching deadlines, missing documents, and stale files.",
-        visual: <LawyerDashboardScreenshot />,
+        icon: ShieldAlert,
+        title: "Proactive Risk Alerts",
+        description: "Our AI scans active cases for approaching deadlines and missing documents, giving you actionable alerts before they become problems.",
+        visual: <LawyerDashboardScreenshot />
     },
     {
-        icon: GanttChartSquare,
-        title: "Automated Client Timelines",
-        description: "Give your clients peace of mind with personalized, AI-generated timelines of their entire immigration journey.",
-        visual: <ClientDashboardScreenshot />,
-    },
-    {
-        icon: FolderKanban,
+        icon: FileStack,
         title: "Streamlined Document Management",
-        description: "A centralized hub for all case documents. AI pre-fills forms, and clients can upload required files directly, saving you hours of manual work.",
-        visual: <DocumentManagementScreenshot />,
+        description: "A centralized hub for all case documents. AI can pre-fill forms, and clients can upload required files directly, saving you hours.",
+        visual: <DocumentManagementScreenshot />
+    },
+    {
+        icon: Wand2,
+        title: "AI-Powered Case Timelines",
+        description: "No more guessing games. Our AI provides a personalized, estimated roadmap of your client's entire immigration journey.",
+        visual: <ClientDashboardScreenshot />
     }
 ];
 
-
 export function LoginFeatureShowcase() {
-    const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
+    const [featureIndex, setFeatureIndex] = useState(0);
 
-    // Use useEffect to set a random feature index on mount to avoid hydration mismatch
     useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * features.length);
-        setCurrentFeatureIndex(randomIndex);
+        // Choose a random feature on component mount
+        setFeatureIndex(Math.floor(Math.random() * features.length));
     }, []);
 
-    const currentFeature = features[currentFeatureIndex];
+    const currentFeature = features[featureIndex];
+    const Icon = currentFeature.icon;
 
     return (
-        <div className="flex flex-col h-full p-8 md:p-12 bg-muted justify-center">
-            <div className="w-full max-w-2xl mx-auto space-y-8 animate-fade">
-                <div className="space-y-4">
-                    <div className="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-full">
-                        <currentFeature.icon className="w-6 h-6" />
+        <div className="w-full h-full bg-muted p-12 flex flex-col justify-center items-center">
+            <div className="w-full max-w-2xl animate-fade">
+                <div className="mb-8 text-center">
+                    <div className="inline-block bg-primary/10 text-primary p-4 rounded-full mb-4">
+                        <Icon className="h-8 w-8" />
                     </div>
-                    <h2 className="font-headline text-3xl md:text-4xl font-bold text-foreground">
-                        {currentFeature.title}
-                    </h2>
-                    <p className="text-muted-foreground md:text-lg">
-                        {currentFeature.description}
-                    </p>
+                    <h2 className="text-3xl font-bold font-headline">{currentFeature.title}</h2>
+                    <p className="text-muted-foreground mt-2 max-w-lg mx-auto">{currentFeature.description}</p>
                 </div>
-
-                <div className="relative aspect-[4/3] transition-all duration-500 ease-in-out">
-                    {currentFeature.visual}
+                <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-xl blur-2xl opacity-20"></div>
+                     <div className="relative">
+                        {currentFeature.visual}
+                    </div>
                 </div>
             </div>
         </div>
