@@ -34,12 +34,6 @@ export function LoginFeatureShowcase() {
     useEffect(() => {
         const randomIndex = Math.floor(Math.random() * features.length);
         setCurrentFeatureIndex(randomIndex);
-
-        const interval = setInterval(() => {
-            setCurrentFeatureIndex(prevIndex => (prevIndex + 1) % features.length);
-        }, 5000); // Change feature every 5 seconds
-
-        return () => clearInterval(interval);
     }, []);
 
     const currentFeature = features[currentFeatureIndex];
