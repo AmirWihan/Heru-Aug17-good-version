@@ -31,7 +31,7 @@ export default function ForClientsPage() {
                         Your Clearest Path to Canada.
                     </h1>
                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                        The immigration process is complex. ImmiAssist simplifies it. Connect with verified legal experts, track your application with an AI-powered timeline, and manage your documents securely in one place.
+                        The immigration process is complex. Heru simplifies it. Connect with verified legal experts, track your application with an AI-powered timeline, and manage your documents securely in one place.
                     </p>
                     <div className="mt-8">
                         <Link href="/register">

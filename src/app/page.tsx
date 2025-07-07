@@ -12,10 +12,10 @@ export default function LandingPage() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-4xl md:text-6xl font-bold font-headline">
-            The Smartest Way to Manage Immigration Cases.
+            The Intelligent CRM for Immigration Professionals.
           </h1>
           <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            ImmiAssist is the all-in-one platform connecting applicants with legal professionals and empowering firms with AI-driven tools to streamline case management.
+            Heru is the all-in-one platform connecting applicants with legal professionals and empowering firms with AI-driven tools to streamline case management.
           </p>
           <p className="mt-8 font-semibold text-lg">Who are you?</p>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">

@@ -11,7 +11,7 @@ export function MarketingHeader() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <DynamicLogoIcon className="h-8 w-8" />
-          <span className="font-bold font-headline text-xl">ImmiAssist</span>
+          <span className="font-bold font-headline text-xl">Heru</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/for-lawyers" className="transition-colors hover:text-foreground/80 text-foreground/60">

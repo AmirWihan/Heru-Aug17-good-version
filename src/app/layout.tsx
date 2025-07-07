@@ -6,7 +6,7 @@ import { GlobalDataProvider } from '@/context/GlobalDataContext';
 import { ThemeManager } from '@/components/theme-manager';
 
 export const metadata: Metadata = {
-  title: 'Heru CRM',
+  title: 'Heru | AI-Powered Immigration CRM',
   description: 'Your AI-powered CRM for Immigration Professionals.',
 };
 

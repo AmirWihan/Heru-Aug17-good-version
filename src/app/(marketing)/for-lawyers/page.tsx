@@ -21,7 +21,7 @@ export default function ForLawyersPage() {
             <span className="text-primary">Not the Paperwork.</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            ImmiAssist is the AI-powered practice management software designed
+            Heru is the AI-powered practice management software designed
             exclusively for immigration professionals. Automate workflows, manage
             clients effortlessly, and mitigate risks—all in one secure platform.
           </p>
@@ -99,7 +99,7 @@ export default function ForLawyersPage() {
               Your All-in-One Command Center
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              ImmiAssist brings everything you need into one intelligent
+              Heru brings everything you need into one intelligent
               platform, designed to supercharge your practice.
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function ForLawyersPage() {
             Ready to Revolutionize Your Practice?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Join hundreds of legal professionals who trust ImmiAssist to grow
+            Join hundreds of legal professionals who trust Heru to grow
             their firm.
           </p>
           <div className="mt-6">
