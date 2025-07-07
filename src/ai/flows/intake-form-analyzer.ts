@@ -4,92 +4,13 @@
  * @fileOverview An AI agent that analyzes a client's intake form for potential issues.
  *
  * - analyzeIntakeForm - A function that handles the intake form analysis.
- * - IntakeFormInputSchema - The Zod schema for the input.
- * - IntakeFormInput - The input type for the analyzeIntakeForm function.
  * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { IntakeFormInputSchema, type IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 
-const FamilyMemberSchema = z.object({
-    fullName: z.string(),
-    relationship: z.string(),
-    dateOfBirth: z.string(),
-    countryOfBirth: z.string(),
-    currentAddress: z.string(),
-    occupation: z.string(),
-});
-
-export const IntakeFormInputSchema = z.object({
-  personal: z.object({
-    fullName: z.string(),
-    dateOfBirth: z.string(),
-    countryOfBirth: z.string(),
-    countryOfCitizenship: z.string(),
-    passportNumber: z.string(),
-    passportExpiry: z.string(),
-    height: z.string(),
-    eyeColor: z.string(),
-    contact: z.object({
-        email: z.string(),
-        phone: z.string(),
-        address: z.string(),
-    }),
-  }),
-  family: z.object({
-    maritalStatus: z.string(),
-    spouse: FamilyMemberSchema.optional(),
-    mother: FamilyMemberSchema.optional(),
-    father: FamilyMemberSchema.optional(),
-    children: z.array(FamilyMemberSchema).optional(),
-    siblings: z.array(FamilyMemberSchema).optional(),
-  }),
-  education: z.array(z.object({
-    institution: z.string(),
-    degree: z.string(),
-    yearCompleted: z.string(),
-    countryOfStudy: z.string(),
-  })),
-   studyDetails: z.object({
-    schoolName: z.string(),
-    programName: z.string(),
-    dliNumber: z.string(),
-    tuitionFee: z.string(),
-    livingExpenses: z.string(),
-  }).optional(),
-  workHistory: z.array(z.object({
-    company: z.string(),
-    position: z.string(),
-    duration: z.string(),
-    country: z.string(),
-  })),
-  languageProficiency: z.object({
-    englishScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
-    frenchScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
-  }),
-  travelHistory: z.array(z.object({
-    country: z.string(),
-    purpose: z.string(),
-    duration: z.string(),
-    year: z.string(),
-  })),
-  immigrationHistory: z.object({
-    previouslyApplied: z.boolean(),
-    previousApplicationDetails: z.string().optional(),
-    wasRefused: z.boolean(),
-    refusalDetails: z.string().optional(),
-  }),
-  admissibility: z.object({
-    hasCriminalRecord: z.boolean(),
-    criminalRecordDetails: z.string().optional(),
-    hasMedicalIssues: z.boolean(),
-    medicalIssuesDetails: z.string().optional(),
-    hasOverstayed: z.boolean().optional(),
-    overstayDetails: z.string().optional(),
-  }),
-});
-export type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;
 
 const FlagSchema = z.object({
   severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),

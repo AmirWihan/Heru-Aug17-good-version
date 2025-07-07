@@ -10,7 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { type IntakeFormInput, IntakeFormInputSchema } from './intake-form-analyzer';
+import { type IntakeFormInput, IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
 export type BuildResumeInput = IntakeFormInput;
 
