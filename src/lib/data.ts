@@ -895,9 +895,47 @@ export const teamMembersWithStats = [
 ];
 
 export const plans = [
-    { id: 'starter' as const, name: 'Starter', price: { monthly: 49, annually: 490 }, userLimit: 2, clientLimit: 50, features: ['Basic AI Tools', 'Standard Support'] },
-    { id: 'pro' as const, name: 'Pro Team', price: { monthly: 99, annually: 990 }, userLimit: 10, clientLimit: 500, features: ['Advanced AI Tools', 'Team Collaboration Features', 'Priority Email Support'] },
-    { id: 'enterprise' as const, name: 'Enterprise', price: 'Custom' as const, userLimit: 'Unlimited' as const, clientLimit: 'Unlimited' as const, features: ['Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance'] }
+    { id: 'starter' as const, name: 'Starter', description: "For solo practitioners and small teams getting started.", price: { monthly: 49, annually: 490 }, userLimit: '2', clientLimit: '50', features: ['Basic AI Tools', 'Standard Support', 'Client Portal'] },
+    { id: 'pro' as const, name: 'Pro Team', description: "For growing firms that need more power and collaboration.", price: { monthly: 99, annually: 990 }, userLimit: '10', clientLimit: '500', features: ['Advanced AI Tools', 'Team Collaboration Features', 'Reporting & Analytics', 'Priority Email Support'] },
+    { id: 'enterprise' as const, name: 'Enterprise', description: "For large firms with complex needs and compliance requirements.", price: 'Custom' as const, userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance', 'API Access'] }
+];
+
+export const testimonials = [
+    {
+        role: 'lawyer',
+        quote: "ImmiAssist has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
+        name: 'Sarah Johnson',
+        avatar: 'https://i.pravatar.cc/150?u=emma',
+    },
+    {
+        role: 'client',
+        quote: "The entire immigration process felt overwhelming until I used this platform. The AI timeline showed me exactly what to expect, and being able to securely share documents with my lawyer gave me complete peace of mind.",
+        name: 'James Wilson',
+        avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+    }
+];
+
+export const faqs = [
+    {
+        for: 'lawyer',
+        question: "Is my client data secure?",
+        answer: "Yes, security is our top priority. All data is encrypted in transit and at rest. Our platform is built with industry-standard security practices to ensure your firm's and your clients' data is always protected."
+    },
+    {
+        for: 'lawyer',
+        question: "Can I import my existing client data?",
+        answer: "Absolutely. We offer data import tools to help you migrate from your existing spreadsheets or other CRM software. You can find this in the Settings -> Data Management section of your dashboard."
+    },
+    {
+        for: 'lawyer',
+        question: "How does the AI work?",
+        answer: "Our AI is powered by leading large language models. It's trained to understand the context of immigration case management, allowing it to assist with tasks like summarizing legal documents, checking applications for errors, and drafting professional communications."
+    },
+    {
+        for: 'lawyer',
+        question: "What kind of support do you offer?",
+        answer: "All plans come with email support. Our Pro Team plan includes priority email support, and our Enterprise plan includes a dedicated account manager and onboarding assistance."
+    },
 ];
 
 export const supportTicketsData = [

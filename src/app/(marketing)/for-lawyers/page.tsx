@@ -1,84 +1,214 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, ShieldAlert } from 'lucide-react';
+import { ArrowRight, BarChart, ShieldAlert, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
-import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
+import { PricingTable } from '@/components/pricing-table';
+import { Faq } from '@/components/faq';
+import { TestimonialCard } from '@/components/testimonial-card';
+import { faqs, testimonials } from '@/lib/data';
+
+const lawyerTestimonial = testimonials.find((t) => t.role === 'lawyer');
 
 export default function ForLawyersPage() {
-    return (
-        <div className="bg-background text-foreground">
-            {/* Hero Section */}
-            <section className="py-20 md:py-32">
-                <div className="container mx-auto px-4 text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold font-headline">
-                        Stop Drowning in Paperwork.
-                        <br />
-                        <span className="text-primary">Start Winning Cases.</span>
-                    </h1>
-                    <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                        ImmiAssist is the AI-powered CRM built for modern immigration firms. Centralize client data, automate tasks, and mitigate risks with our intelligent platform, so you can focus on what matters most: your clients.
-                    </p>
-                    <div className="mt-8 flex justify-center gap-4">
-                        <Link href="/register">
-                            <Button size="lg">Get Started for Free</Button>
-                        </Link>
-                        <Link href="/login">
-                            <Button size="lg" variant="outline">Request a Demo</Button>
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            {/* Feature 1: AI Risk Alerts */}
-            <section className="py-16 bg-muted/50">
-                <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-4">
-                        <div className="inline-block bg-primary/10 text-primary p-3 rounded-full">
-                            <ShieldAlert className="h-8 w-8" />
-                        </div>
-                        <h2 className="text-3xl font-bold font-headline">Proactively Mitigate Risk</h2>
-                        <p className="text-lg text-muted-foreground">
-                            Our AI system scans your active cases for approaching deadlines, missing documents, and stale files, providing you with actionable alerts before they become problems.
-                        </p>
-                        <ul className="space-y-2 pt-2">
-                            <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Automated Deadline Tracking</span></li>
-                            <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Missing Document Flags</span></li>
-                            <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Stale Case Identification</span></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <LawyerDashboardScreenshot />
-                    </div>
-                </div>
-            </section>
-
-            {/* Feature 2: Document Management */}
-            <section className="py-16">
-                <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-                    <div className="md:order-2 space-y-4">
-                        <h2 className="text-3xl font-bold font-headline">Streamline Document Management</h2>
-                        <p className="text-lg text-muted-foreground">
-                            A centralized hub for all case documents. AI can pre-fill forms, and clients can upload required files directly, saving you hours of manual work and back-and-forth emails.
-                        </p>
-                    </div>
-                    <div className="md:order-1">
-                        <DocumentManagementScreenshot />
-                    </div>
-                </div>
-            </section>
-
-            {/* Final CTA */}
-            <section className="py-20 border-t">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Ready to Transform Your Practice?</h2>
-                    <p className="mt-4 text-lg text-muted-foreground">Join hundreds of legal professionals who trust ImmiAssist.</p>
-                    <div className="mt-6">
-                        <Link href="/register">
-                            <Button size="lg">Sign Up Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
-                        </Link>
-                    </div>
-                </div>
-            </section>
+  return (
+    <div className="bg-background text-foreground">
+      {/* Hero Section */}
+      <section className="py-20 md:py-32 bg-muted/30">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold font-headline">
+            Focus on Your Clients,
+            <br />
+            <span className="text-primary">Not the Paperwork.</span>
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            ImmiAssist is the AI-powered practice management software designed
+            exclusively for immigration professionals. Automate workflows, manage
+            clients effortlessly, and mitigate risks—all in one secure platform.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Link href="/register">
+              <Button size="lg">Start Your Free Trial</Button>
+            </Link>
+            <Link href="/login">
+              <Button size="lg" variant="outline">
+                Request a Demo
+              </Button>
+            </Link>
+          </div>
         </div>
-    );
+      </section>
+
+      {/* Problem Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold font-headline">
+              The Old Way is Broken
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Managing an immigration practice involves navigating a maze of
+              documents, deadlines, and constant client communication. It's easy
+              to get bogged down.
+            </p>
+          </div>
+          <div className="mt-12 grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="inline-block bg-destructive/10 text-destructive p-3 rounded-full mb-4">
+                <Users className="h-8 w-8" />
+              </div>
+              <h3 className="font-semibold text-lg">Disorganized Cases</h3>
+              <p className="text-muted-foreground mt-2">
+                Juggling client data across spreadsheets, emails, and physical
+                files leads to costly errors and inefficiencies.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="inline-block bg-destructive/10 text-destructive p-3 rounded-full mb-4">
+                <ShieldAlert className="h-8 w-8" />
+              </div>
+              <h3 className="font-semibold text-lg">Compliance & Risk</h3>
+              <p className="text-muted-foreground mt-2">
+                Manually tracking deadlines and document versions is a huge
+                compliance risk. One missed date can jeopardize a client's
+                entire case.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="inline-block bg-destructive/10 text-destructive p-3 rounded-full mb-4">
+                <BarChart className="h-8 w-8" />
+              </div>
+              <h3 className="font-semibold text-lg">No Clear Overview</h3>
+              <p className="text-muted-foreground mt-2">
+                Without a centralized dashboard, it's impossible to get a
+                real-time view of your firm's performance, revenue, and case
+                pipeline.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution/Feature Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
+              <Zap className="h-8 w-8" />
+            </div>
+            <h2 className="text-3xl font-bold font-headline">
+              Your All-in-One Command Center
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              ImmiAssist brings everything you need into one intelligent
+              platform, designed to supercharge your practice.
+            </p>
+          </div>
+          <div className="mt-12">
+            <LawyerDashboardScreenshot />
+          </div>
+          <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="space-y-1">
+              <h3 className="font-semibold">Centralized Client Management</h3>
+              <p className="text-muted-foreground">
+                Manage every client profile, document, task, and communication
+                from a single, unified view.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold">AI-Powered Risk Analysis</h3>
+              <p className="text-muted-foreground">
+                Our AI proactively scans your caseload for approaching
+                deadlines, missing documents, and stale cases.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold">Automated Document Checklists</h3>
+              <p className="text-muted-foreground">
+                Assign pre-built or custom document checklists to clients and
+                track submission status in real-time.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold">Secure Client Portal</h3>
+              <p className="text-muted-foreground">
+                Give clients a secure, branded portal to upload documents, view
+                case progress, and communicate with your team.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold">AI-Assisted Communication</h3>
+              <p className="text-muted-foreground">
+                Generate professional client emails and case summaries in
+                seconds, tailored to the specific context.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold">Advanced Reporting</h3>
+              <p className="text-muted-foreground">
+                Get instant insights into your firm's revenue, client
+                acquisition, and team performance with visual reports.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold font-headline">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Choose the plan that's right for your firm's size and needs. No
+              hidden fees.
+            </p>
+          </div>
+          <PricingTable />
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      {lawyerTestimonial && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <TestimonialCard testimonial={lawyerTestimonial} />
+          </div>
+        </section>
+      )}
+
+      {/* FAQ Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold font-headline">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <Faq faqs={faqs.filter((f) => f.for === 'lawyer')} />
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 border-t">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold font-headline">
+            Ready to Revolutionize Your Practice?
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Join hundreds of legal professionals who trust ImmiAssist to grow
+            their firm.
+          </p>
+          <div className="mt-6">
+            <Link href="/register">
+              <Button size="lg">
+                Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }
