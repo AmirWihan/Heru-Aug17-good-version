@@ -1,14 +1,22 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
 import { LawyerProfileCard } from '@/components/lawyer-profile-card';
+import { useRouter } from 'next/navigation';
 
 export default function ForClientsPage() {
+    const router = useRouter();
     const dummyLawyer = {
         id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
         location: 'Toronto, ON', registrationNumber: 'ICCRC-R45678', numEmployees: 8
     };
+
+    const handleViewProfile = (id: number) => {
+        router.push(`/client/lawyer/${id}`);
+    }
 
     return (
         <div className="bg-background text-foreground">
@@ -50,7 +58,7 @@ export default function ForClientsPage() {
                     </div>
                     <div className="flex justify-center">
                         <div className="w-full max-w-xs">
-                             <LawyerProfileCard lawyer={dummyLawyer} onViewProfile={() => {}} isEnterprise />
+                             <LawyerProfileCard lawyer={dummyLawyer} onViewProfile={handleViewProfile} isEnterprise />
                         </div>
                     </div>
                 </div>
