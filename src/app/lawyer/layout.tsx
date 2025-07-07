@@ -6,6 +6,7 @@ import { LawyerDashboardProvider, useLawyerDashboard } from '@/context/LawyerDas
 import { Button } from '@/components/ui/button';
 import { Rocket, X } from 'lucide-react';
 import { AuthWrapper } from '@/components/auth-wrapper';
+import { IrccChatbot } from '@/components/ircc-chatbot';
 
 const pageTitles: { [key: string]: string } = {
     'dashboard': 'Dashboard',
@@ -82,6 +83,7 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                             </div>
                         </div>
                     )}
+                    <IrccChatbot />
                 </div>
             </div>
         </AuthWrapper>

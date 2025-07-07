@@ -9,3 +9,4 @@ import '@/ai/flows/success-predictor.ts';
 import '@/ai/flows/risk-analyzer.ts';
 import '@/ai/flows/case-timeline-flow.ts';
 import '@/ai/flows/intake-form-analyzer.ts';
+import '@/ai/flows/ircc-chat-flow.ts';
