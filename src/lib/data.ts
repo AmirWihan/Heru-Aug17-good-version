@@ -27,6 +27,7 @@ export type ClientDocument = {
     dateAdded: string;
     status: 'Uploaded' | 'Pending Review' | 'Approved' | 'Rejected' | 'Requested' | 'Pending Client Review';
     type: 'form' | 'supporting';
+    submissionGroup?: 'Main Form' | 'Supporting Document' | 'Additional Document';
     isAiFilled?: boolean;
     comments?: {
         id: number;
@@ -497,14 +498,14 @@ export const clients: Client[] = [
             { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[1] },
         ],
         documents: [
-            { id: 101, type: 'form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Emma Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
-            { id: 102, type: 'form', title: 'Family Information Form (IMM 5707)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true },
-            { id: 103, type: 'supporting', title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
-            { id: 104, type: 'supporting', title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
-            { id: 105, type: 'supporting', title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected', comments: [{id: 2, author: 'Emma Johnson', text: 'Hi James, the submitted pay stubs were for the wrong period. Please upload stubs for March, April, and May 2023.', timestamp: '1d ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
-            { id: 106, type: 'supporting', title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
+            { id: 101, type: 'form', submissionGroup: 'Main Form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Emma Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 102, type: 'form', submissionGroup: 'Main Form', title: 'Family Information Form (IMM 5707)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true },
+            { id: 103, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
+            { id: 104, type: 'supporting', submissionGroup: 'Supporting Document', title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
+            { id: 105, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected', comments: [{id: 2, author: 'Emma Johnson', text: 'Hi James, the submitted pay stubs were for the wrong period. Please upload stubs for March, April, and May 2023.', timestamp: '1d ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 106, type: 'supporting', submissionGroup: 'Additional Document', title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
         ],
-        tasks: [tasksData[3]],
+        tasks: [tasksData[3], {id: 6, title: 'Review LMIA Application', client: {id: 5, name: 'James Wilson', avatar: '...'}, assignedTo: {name: 'Emma Johnson', avatar: '...'}, dueDate: '2024-07-30', priority: 'High', status: 'To Do'}],
         agreements: [
             {
                 id: 1,

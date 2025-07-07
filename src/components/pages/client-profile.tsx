@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis } from "@/lib/data";
-import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle, Flag } from "lucide-react";
+import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis, ClientDocument } from "@/lib/data";
+import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle, Flag, Package, CheckCircle, XCircle, FileDown, UserCheck } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -104,11 +104,47 @@ interface ClientProfileProps {
     onUpdateClient: (updatedClient: Client) => void;
 }
 
+const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onActionClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onActionClick: (action: 'view' | 're-upload' | 'delete', docId: number) => void }) => {
+    if (documents.length === 0) return null;
+    return (
+        <div className="space-y-3">
+            <h4 className="font-semibold">{title}</h4>
+            <div className="border rounded-lg">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Document</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {documents.map(doc => (
+                            <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
+                                <TableCell className="font-medium">{doc.title}</TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
+                                <TableCell className="text-right space-x-1">
+                                    <Button variant="ghost" size="icon" title="Approve" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Approved')}}><CheckCircle className="h-4 w-4 text-green-600" /></Button>
+                                    <Button variant="ghost" size="icon" title="Reject" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Rejected')}}><XCircle className="h-4 w-4 text-red-600" /></Button>
+                                    <Button variant="ghost" size="icon" title="Request Re-upload" onClick={(e) => { e.stopPropagation(); onActionClick('re-upload', doc.id) }}><Upload className="h-4 w-4" /></Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
+};
+
+
 export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
     const { teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
+    const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
+    const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
 
     const assignableMembers = isAdminView
         ? allTeamMembers.filter(member => member.type === 'sales' || member.type === 'advisor')
@@ -165,6 +201,18 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     useEffect(() => {
         setAnalysisResult(client.analysis || null);
     }, [client.analysis]);
+    
+    useEffect(() => {
+        if (!selectedDocument) {
+            setRelatedTasks([]);
+            return;
+        }
+        const relevantTasks = (client.tasks || []).filter(task =>
+            task.title.toLowerCase().includes(selectedDocument.title.toLowerCase()) ||
+            selectedDocument.title.toLowerCase().includes(task.title.toLowerCase())
+        );
+        setRelatedTasks(relevantTasks);
+    }, [selectedDocument, client.tasks]);
 
     useEffect(() => {
         async function fetchTimeline() {
@@ -353,6 +401,18 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const handleDeleteClick = (docId: number) => {
         setDeletingDocId(docId);
         setDeleteDialogOpen(true);
+    };
+    
+    const handleDocumentStatusChange = (docId: number, status: ClientDocument['status']) => {
+        const docTitle = client.documents.find(d => d.id === docId)?.title;
+        const updatedClient = {
+            ...client,
+            documents: (client.documents || []).map(doc =>
+                doc.id === docId ? { ...doc, status } : doc
+            ),
+        };
+        onUpdateClient(updatedClient);
+        toast({ title: `Document "${docTitle}" status updated to ${status}.` });
     };
 
     const handleConfirmDelete = () => {
@@ -688,66 +748,74 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 </TabsContent>
                 <TabsContent value="documents" className="mt-4">
                     <Card>
-                        <CardHeader>
+                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <div>
                                     <CardTitle className="text-lg">Client Documents</CardTitle>
-                                    <CardDescription>All documents uploaded by or for the client.</CardDescription>
+                                    <CardDescription>Review, approve, and manage all documents for submission.</CardDescription>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" onClick={() => setAssignDialogOpen(true)}>
-                                        <FilePlus className="mr-2 h-4 w-4" /> Assign Document
-                                    </Button>
-                                    <Button onClick={() => setUploadDialogOpen(true)}>
-                                        <Upload className="mr-2 h-4 w-4" /> Upload Document
-                                    </Button>
-                                </div>
+                                <Button onClick={() => toast({ title: "Simulating Export...", description: "All approved documents would be zipped and downloaded."})}>
+                                    <FileDown className="mr-2 h-4 w-4" /> Export for Submission
+                                </Button>
                             </div>
                         </CardHeader>
-                        <CardContent>
-                            {(client.documents || []).length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Document Title</TableHead>
-                                            <TableHead>Category</TableHead>
-                                            <TableHead>Date Added</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {(client.documents || []).map((doc) => (
-                                            <TableRow key={doc.id}>
-                                                <TableCell className="font-medium">{doc.title}</TableCell>
-                                                <TableCell>{doc.category}</TableCell>
-                                                <TableCell suppressHydrationWarning>{format(new Date(doc.dateAdded), 'PP')}</TableCell>
-                                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
-                                                <TableCell className="text-right space-x-1">
-                                                        {doc.status === 'Requested' ? (
-                                                        <Button size="sm" onClick={() => handleUploadActionClick(doc.id)}>
-                                                            <Upload className="mr-2 h-4 w-4" /> Upload
-                                                        </Button>
-                                                    ) : (
-                                                        <>
-                                                            <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                                            <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
-                                                        </>
-                                                    )}
-                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteClick(doc.id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <FileText className="mx-auto h-8 w-8 mb-2" />
-                                    <p>No documents uploaded yet.</p>
-                                </div>
-                            )}
+                        <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="lg:col-span-2 space-y-6">
+                                <DocumentSection
+                                    title="Main Forms"
+                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Main Form')}
+                                    selectedDocId={selectedDocument?.id || null}
+                                    onSelect={setSelectedDocument}
+                                    onStatusChange={handleDocumentStatusChange}
+                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                />
+                                 <DocumentSection
+                                    title="Supporting Documents"
+                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Supporting Document')}
+                                    selectedDocId={selectedDocument?.id || null}
+                                    onSelect={setSelectedDocument}
+                                    onStatusChange={handleDocumentStatusChange}
+                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                />
+                                 <DocumentSection
+                                    title="Additional Documents"
+                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Additional Document')}
+                                    selectedDocId={selectedDocument?.id || null}
+                                    onSelect={setSelectedDocument}
+                                    onStatusChange={handleDocumentStatusChange}
+                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                />
+                            </div>
+                             <div className="lg:col-span-1">
+                                <Card className="sticky top-24">
+                                    <CardHeader className="flex-row gap-2 items-center">
+                                        <CheckSquare className="h-5 w-5 text-primary"/>
+                                        <div>
+                                            <CardTitle className="text-lg">Related Tasks</CardTitle>
+                                            <CardDescription className="text-xs">Tasks for the selected document.</CardDescription>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {selectedDocument ? (
+                                            relatedTasks.length > 0 ? (
+                                                relatedTasks.map(task => (
+                                                    <div key={task.id} className="p-3 bg-muted/50 rounded-lg">
+                                                        <p className="font-semibold">{task.title}</p>
+                                                        <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
+                                                            <span>Due: {format(new Date(task.dueDate), 'PP')}</span>
+                                                            <Badge variant={getTaskStatusBadgeVariant(task.status)}>{task.status}</Badge>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-center text-sm text-muted-foreground py-4">No tasks related to "{selectedDocument.title}".</p>
+                                            )
+                                        ) : (
+                                            <p className="text-center text-sm text-muted-foreground py-4">Select a document to see related tasks.</p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
