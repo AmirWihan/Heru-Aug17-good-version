@@ -10,17 +10,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-
-export const WritingAssistantInputSchema = z.object({
-  textToImprove: z.string().describe("The original text to be modified."),
-  instruction: z.string().describe("The instruction on how to modify the text (e.g., 'make it more professional', 'shorten it', 'check grammar')."),
-});
-export type WritingAssistantInput = z.infer<typeof WritingAssistantInputSchema>;
-
-const WritingAssistantOutputSchema = z.object({
-  improvedText: z.string().describe('The resulting text after applying the instruction.'),
-});
-export type WritingAssistantOutput = z.infer<typeof WritingAssistantOutputSchema>;
+import { 
+    WritingAssistantInputSchema, 
+    WritingAssistantOutputSchema, 
+    type WritingAssistantInput, 
+    type WritingAssistantOutput 
+} from '@/ai/schemas/writing-assistant-schema';
 
 export async function assistWithWriting(input: WritingAssistantInput): Promise<WritingAssistantOutput> {
   return writingAssistantFlow(input);

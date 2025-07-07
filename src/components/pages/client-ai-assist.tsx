@@ -15,7 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // AI Flows
 import { buildResume, BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
 import { buildCoverLetter, BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
-import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
+import { assistWithWriting } from '@/ai/flows/writing-assistant-flow';
+import type { WritingAssistantOutput } from '@/ai/schemas/writing-assistant-schema';
 import { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 
 const CURRENT_CLIENT_ID = 5;
