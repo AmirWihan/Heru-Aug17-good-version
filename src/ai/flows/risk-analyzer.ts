@@ -13,7 +13,7 @@ import {z} from 'zod';
 // Simplified schema for what the AI needs.
 const DocumentSchema = z.object({
   title: z.string(),
-  status: z.enum(['Uploaded', 'Pending Review', 'Approved', 'Rejected', 'Requested']),
+  status: z.enum(['Uploaded', 'Pending Review', 'Approved', 'Rejected', 'Requested', 'Pending Client Review']),
   dateAdded: z.string().describe('The date the document was added (YYYY-MM-DD).'),
 });
 
