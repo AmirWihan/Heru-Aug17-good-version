@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { AppSidebar } from '@/components/layout/app-sidebar';
@@ -60,8 +61,13 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                 <AppSidebar activePage={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
                 <div className="flex min-h-screen flex-col md:ml-64">
                     <AppHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
-                    <main className="flex-grow p-4 md:p-6 mb-16">
-                        {children}
+                    <main className="flex flex-col flex-grow p-4 md:p-6 mb-16">
+                        <div className="flex-grow">
+                            {children}
+                        </div>
+                        <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by Heru
+                        </footer>
                     </main>
                     {isBannerOpen && (
                         <div className="fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-sm text-primary-foreground p-3 shadow-lg z-40 border-t border-primary/50 transition-all md:left-64">

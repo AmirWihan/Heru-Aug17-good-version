@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -49,7 +50,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
     const [invoicesData] = useState<Invoice[]>(staticInvoices);
     
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
-    const [theme, setTheme] = useState('red');
+    const [theme, setTheme] = useState('sky');
     const [isLoaded, setIsLoaded] = useState(false);
     
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -65,9 +66,9 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
         try {
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
-                const { logoSrc, theme } = JSON.parse(storedPrefs);
-                if (logoSrc) setLogoSrc(logoSrc);
-                if (theme) setTheme(theme);
+                const { logoSrc: storedLogo, theme: storedTheme } = JSON.parse(storedPrefs);
+                if (storedLogo) setLogoSrc(storedLogo);
+                if (storedTheme) setTheme(storedTheme);
             }
             const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
             if (storedUser) {

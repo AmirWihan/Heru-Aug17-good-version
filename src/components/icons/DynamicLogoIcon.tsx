@@ -20,7 +20,7 @@ export function DynamicLogoIcon({ className }: DynamicLogoIconProps) {
         <div className={cn('relative', className)}>
             <Image 
                 src={logoSrc} 
-                alt="Platform Logo" 
+                alt="Workspace Logo" 
                 fill
                 sizes="48px" // Provide a hint for optimization
                 className="object-contain"

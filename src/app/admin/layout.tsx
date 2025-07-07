@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
@@ -27,10 +28,13 @@ function AdminDashboardLayoutContent({ children }: { children: React.ReactNode }
                 <AdminSidebar activePage={page} setActivePage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
                 <div className="flex min-h-screen flex-col md:ml-64">
                     <AdminHeader pageTitle={pageTitles[page] || 'Super Admin'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
-                    <main className="flex-grow p-4 md:p-6">
-                        <div className="animate-fade">
+                    <main className="flex-grow p-4 md:p-6 flex flex-col">
+                        <div className="animate-fade flex-grow">
                             {children}
                         </div>
+                         <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by Heru
+                        </footer>
                     </main>
                 </div>
             </div>

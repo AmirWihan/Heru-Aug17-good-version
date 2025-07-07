@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { ClientSidebar } from '@/components/layout/client-sidebar';
@@ -28,10 +29,13 @@ function ClientDashboardLayoutContent({ children }: { children: React.ReactNode 
                 <ClientSidebar page={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
                 <div className="flex min-h-screen flex-col md:ml-64">
                     <ClientHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
-                    <main className="flex-grow p-4 md:p-6">
-                        <div className="animate-fade">
+                    <main className="flex-grow p-4 md:p-6 flex flex-col">
+                        <div className="animate-fade flex-grow">
                             {children}
                         </div>
+                        <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by Heru
+                        </footer>
                     </main>
                 </div>
             </div>
