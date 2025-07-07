@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, FileHeart, Search, Users } from 'lucide-react';
+import { ArrowRight, Briefcase, CheckCircle, FileHeart, FileText, Search, Users, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
 import { LawyerProfileCard } from '@/components/lawyer-profile-card';
@@ -13,14 +13,6 @@ const clientTestimonial = testimonials.find(t => t.role === 'client');
 
 export default function ForClientsPage() {
     const router = useRouter();
-    const dummyLawyer = {
-        id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma',
-        location: 'Toronto, ON', registrationNumber: 'ICCRC-R45678', numEmployees: 8
-    };
-
-    const handleViewProfile = (id: number) => {
-        router.push(`/client/lawyer/${id}`);
-    }
 
     return (
         <div className="bg-background text-foreground">
@@ -90,6 +82,40 @@ export default function ForClientsPage() {
                     </div>
                     <div className="md:order-1">
                         <ClientDashboardScreenshot />
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature 2: AI Career Tools */}
+            <section className="py-16">
+                 <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+                     <div className="space-y-4">
+                        <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
+                            <Wand2 className="h-8 w-8" />
+                        </div>
+                        <h2 className="text-3xl font-bold font-headline">AI-Powered Career Tools</h2>
+                        <p className="text-lg text-muted-foreground">
+                           Heru helps you prepare for your new life in Canada. Our AI tools can generate professional resumes and cover letters tailored to the Canadian job market, based on the information you provide.
+                        </p>
+                        <ul className="space-y-2 pt-2">
+                            <li className="flex items-center gap-2"><Briefcase className="h-5 w-5 text-green-500" /><span>Canadian-Format Resume Builder</span></li>
+                            <li className="flex items-center gap-2"><FileText className="h-5 w-5 text-green-500" /><span>Tailored Cover Letter Generator</span></li>
+                            <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>One-Time Information Entry</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                         <div className="p-8 bg-muted rounded-lg">
+                            <div className="space-y-4">
+                               <div className="p-4 bg-background rounded-md shadow">
+                                    <h4 className="font-semibold">Generated Resume</h4>
+                                    <p className="text-sm text-muted-foreground">Your profile has been formatted into a professional Canadian-style resume.</p>
+                               </div>
+                                <div className="p-4 bg-background rounded-md shadow">
+                                    <h4 className="font-semibold">Tailored Cover Letter</h4>
+                                    <p className="text-sm text-muted-foreground">AI has drafted a cover letter for the "Project Manager" role at Shopify.</p>
+                               </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

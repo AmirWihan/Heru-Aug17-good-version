@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart, ShieldAlert, Users, Zap } from 'lucide-react';
+import { ArrowRight, BarChart, FileStack, ShieldAlert, Users, Wand2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
 import { PricingTable } from '@/components/pricing-table';
@@ -107,6 +107,12 @@ export default function ForLawyersPage() {
                 from a single, unified view.
               </p>
             </div>
+             <div className="space-y-1">
+              <h3 className="font-semibold">AI-Powered Document Generation</h3>
+              <p className="text-muted-foreground">
+                Leverage AI to automatically pre-fill complex immigration forms from a single client intake. Save hours of manual data entry.
+              </p>
+            </div>
             <div className="space-y-1">
               <h3 className="font-semibold">AI-Powered Risk Analysis</h3>
               <p className="text-muted-foreground">
@@ -126,13 +132,6 @@ export default function ForLawyersPage() {
               <p className="text-muted-foreground">
                 Give clients a secure, branded portal to upload documents, view
                 case progress, and communicate with your team.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold">AI-Assisted Communication</h3>
-              <p className="text-muted-foreground">
-                Generate professional client emails and case summaries in
-                seconds, tailored to the specific context.
               </p>
             </div>
             <div className="space-y-1">

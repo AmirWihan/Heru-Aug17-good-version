@@ -18,6 +18,7 @@ const pageTitles: { [key: string]: string } = {
     'settings': 'Settings',
     'support': 'Help & Support',
     'ai-assist': 'AI Assist',
+    'intake-form': 'Intake Form'
 };
 
 function ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {

@@ -293,7 +293,7 @@ export function ClientIntakeFormPage() {
         <Card className="w-full max-w-4xl">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">Smart Intake Form</CardTitle>
-                <CardDescription>Please complete all sections accurately. This information will be used to prepare your official immigration forms.</CardDescription>
+                <CardDescription>Please complete all sections accurately. The information you provide will be used to automatically generate resumes, cover letters, and official application forms, saving you valuable time.</CardDescription>
                 <div className="pt-2">
                     <Progress value={progress} className="w-full" />
                     <p className="text-xs text-muted-foreground mt-2">Step {currentStep + 1} of {steps.length}: {steps[currentStep].name}</p>
