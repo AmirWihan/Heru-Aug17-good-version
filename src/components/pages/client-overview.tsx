@@ -3,43 +3,51 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { clients } from "@/lib/data";
 import { ArrowRight, FileText, MessageSquare, Search, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import type { Client } from "@/lib/data";
 
 export function ClientOverviewPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const client = clients[0];
+    const { userProfile, loading } = useGlobalData();
+    const client = userProfile as Client;
     
     const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchTimeline() {
-            try {
-                const response = await getCaseTimeline({
-                    visaType: client.caseSummary.caseType,
-                    currentStage: client.caseSummary.currentStatus,
-                    countryOfOrigin: client.countryOfOrigin,
-                });
-                setTimelineData(response.timeline);
-            } catch (err) {
-                console.error("Failed to fetch timeline:", err);
-                setError("Could not generate your personalized timeline at this moment. Please try again later.");
-                toast({
-                    title: "Timeline Error",
-                    description: "Failed to generate the case timeline.",
-                    variant: "destructive",
-                });
-            } finally {
-                setIsLoading(false);
+        if (client && client.authRole === 'client') {
+            async function fetchTimeline() {
+                try {
+                    const response = await getCaseTimeline({
+                        visaType: client.caseSummary.caseType,
+                        currentStage: client.caseSummary.currentStatus,
+                        countryOfOrigin: client.countryOfOrigin,
+                    });
+                    setTimelineData(response.timeline);
+                } catch (err) {
+                    console.error("Failed to fetch timeline:", err);
+                    setError("Could not generate your personalized timeline at this moment. Please try again later.");
+                    toast({
+                        title: "Timeline Error",
+                        description: "Failed to generate the case timeline.",
+                        variant: "destructive",
+                    });
+                } finally {
+                    setIsLoading(false);
+                }
             }
+            fetchTimeline();
         }
-        fetchTimeline();
-    }, [client.caseSummary.caseType, client.caseSummary.currentStatus, client.countryOfOrigin, toast]);
+    }, [client, toast]);
+    
+    if (loading || !client || client.authRole !== 'client') {
+        return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    }
 
     return (
         <div className="space-y-6">

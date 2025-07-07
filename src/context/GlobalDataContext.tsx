@@ -8,7 +8,8 @@ import {
     tasksData as staticTasks, 
     appointmentsData as staticAppointments, 
     invoicesData as staticInvoices,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment 
+    notifications as staticNotifications,
+    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification,
 } from '@/lib/data';
 
 type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
@@ -24,11 +25,14 @@ interface GlobalDataContextType {
     tasks: Task[];
     appointments: Appointment[];
     invoicesData: Invoice[];
+    notifications: Notification[];
     addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
     updateTeamMember: (updatedMember: TeamMember) => Promise<void>;
     addClient: (client: Omit<Client, 'id'>) => Promise<void>;
     updateClient: (updatedClient: Client) => Promise<void>;
     addTask: (task: Omit<Task, 'id'>) => Promise<void>;
+    addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
+    updateNotification: (id: number, updates: Partial<Notification>) => void;
     logoSrc: string | null;
     setLogoSrc: (src: string | null) => void;
     isLoaded: boolean;
@@ -48,6 +52,7 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
     const [tasks, setTasks] = useState<Task[]>(staticTasks);
     const [appointments, setAppointments] = useState<Appointment[]>(staticAppointments);
     const [invoicesData] = useState<Invoice[]>(staticInvoices);
+    const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
     
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
     const [theme, setTheme] = useState('sky');
@@ -179,14 +184,23 @@ const StaticDataProvider = ({ children }: { children: ReactNode }) => {
 
     const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
         const newMember = { ...member, id: Date.now() } as TeamMember;
-        setTeamMembers(prev => prev.map(m => m.email === newMember.email ? newMember : m));
+        setTeamMembers(prev => [...prev, newMember]);
+    };
+
+    const addNotification = async (notification: Omit<Notification, 'id'>) => {
+        const newNotification = { ...notification, id: Date.now() } as Notification;
+        setNotifications(prev => [newNotification, ...prev]);
+    };
+
+    const updateNotification = (id: number, updates: Partial<Notification>) => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
     };
 
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register,
-            teamMembers, clients, tasks, appointments, invoicesData,
-            addTeamMember, updateTeamMember, addClient, updateClient, addTask,
+            teamMembers, clients, tasks, appointments, invoicesData, notifications,
+            addTeamMember, updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc, isLoaded, theme, setTheme,
         }}>
             {children}

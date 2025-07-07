@@ -29,6 +29,8 @@ export function AdminSystemNotificationsPage() {
             return;
         }
         addNotification({
+            id: Date.now(),
+            date: new Date().toISOString(),
             title,
             message,
             target: target === 'all' ? 'All Users' : (target === 'lawyers' ? 'Lawyers' : 'Clients'),

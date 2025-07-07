@@ -1,3 +1,4 @@
+
 'use client';
 import { useLawyerDashboard } from '@/context/LawyerDashboardContext';
 import type { FC } from 'react';
@@ -15,6 +16,7 @@ import { SettingsPage } from '@/components/pages/settings';
 import { TasksPage } from '@/components/pages/tasks';
 import { ActivityLogPage } from '@/components/pages/activity';
 import { SupportPage } from '@/components/pages/support';
+import { NotificationsPage } from '@/components/pages/notifications';
 
 export default function LawyerDashboard() {
   const { page, setPage } = useLawyerDashboard();
@@ -34,6 +36,7 @@ export default function LawyerDashboard() {
     settings: SettingsPage,
     activity: ActivityLogPage,
     support: SupportPage,
+    notifications: NotificationsPage,
   };
 
   const PageComponent = pageComponents[page] || DashboardPage;

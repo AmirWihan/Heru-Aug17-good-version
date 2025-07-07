@@ -1,3 +1,4 @@
+
 'use client';
 import { useClientDashboard } from '@/context/ClientDashboardContext';
 import { ClientOverviewPage } from '@/components/pages/client-overview';
@@ -12,6 +13,7 @@ import { SupportPage } from '@/components/pages/support';
 import { ClientAgreementsPage } from '@/components/pages/client-agreements';
 import { ClientIntakeFormPage } from '@/components/pages/client-intake-form';
 import { ClientAiAssistPage } from '@/components/pages/client-ai-assist';
+import { NotificationsPage } from '@/components/pages/notifications';
 
 export default function ClientDashboardPage() {
     const { page, setPage } = useClientDashboard();
@@ -26,6 +28,7 @@ export default function ClientDashboardPage() {
         'agreements': ClientAgreementsPage,
         'billing': ClientBillingPage,
         'messages': ClientMessagesPage,
+        'notifications': NotificationsPage,
         'settings': ClientSettingsPage,
         'support': SupportPage,
         'ai-assist': ClientAiAssistPage,

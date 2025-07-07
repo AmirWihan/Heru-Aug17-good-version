@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis, ClientDocument } from "@/lib/data";
+import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis, ClientDocument, TeamMember } from "@/lib/data";
 import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle, Flag, Package, CheckCircle, XCircle, FileDown, UserCheck } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -144,13 +145,14 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
-    const { teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
+    const { userProfile, teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
     const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
     const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
-
-    const assignableMembers = isAdminView
-        ? allTeamMembers.filter(member => member.type === 'sales' || member.type === 'advisor')
-        : allTeamMembers.filter(member => member.type === 'legal');
+    
+    const lawyerProfile = userProfile as TeamMember;
+    const assignableMembers = lawyerProfile?.firmName 
+        ? allTeamMembers.filter(member => member.firmName === lawyerProfile.firmName)
+        : allTeamMembers.filter(member => member.type === 'legal' || member.type === 'admin');
         
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [isAssignDialogOpen, setAssignDialogOpen] = useState(false);

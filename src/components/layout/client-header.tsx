@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Bell, LogOut, Menu, Settings } from "lucide-react"
@@ -7,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useRouter } from "next/navigation"
 import { useClientDashboard } from "@/context/ClientDashboardContext"
 import { useGlobalData } from "@/context/GlobalDataContext"
-
+import { Badge } from "../ui/badge"
 
 interface ClientHeaderProps {
   isSidebarOpen: boolean
@@ -17,13 +18,15 @@ interface ClientHeaderProps {
 
 export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
   const { setPage } = useClientDashboard();
-  const { userProfile, logout } = useGlobalData();
+  const { userProfile, logout, notifications } = useGlobalData();
   const router = useRouter();
 
   const handleSignOut = () => {
     logout();
     router.push('/login');
   };
+  
+  const unreadCount = (notifications || []).filter(n => !n.isRead && (n.target === 'All Users' || n.target === 'Clients')).length;
 
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm shadow-sm">
@@ -41,8 +44,9 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
           <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="relative" onClick={() => setPage('notifications')}>
             <Bell className="h-5 w-5 text-foreground" />
+            {unreadCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{unreadCount}</Badge>}
             <span className="sr-only">Notifications</span>
           </Button>
           <DropdownMenu>

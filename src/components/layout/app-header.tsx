@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Bell, LogOut, Menu, Search, Settings, Rocket, Crown, Users } from "lucide-react"
@@ -11,7 +12,7 @@ import { Progress } from "../ui/progress"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { GlobalSearch } from "../global-search"
-
+import { Badge } from "../ui/badge"
 
 interface AppHeaderProps {
   pageTitle: string
@@ -21,7 +22,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const { setPage } = useLawyerDashboard();
-  const { teamMembers, userProfile, logout } = useGlobalData();
+  const { teamMembers, userProfile, logout, notifications } = useGlobalData();
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -39,6 +40,8 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
     logout();
     router.push('/login');
   };
+  
+  const unreadCount = (notifications || []).filter(n => !n.isRead && (n.target === 'All Users' || n.target === 'Lawyers')).length;
 
   return (
     <>
@@ -98,8 +101,9 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => setPage('notifications')}>
               <Bell className="h-5 w-5 text-foreground" />
+              {unreadCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{unreadCount}</Badge>}
               <span className="sr-only">Notifications</span>
             </Button>
             <DropdownMenu>
