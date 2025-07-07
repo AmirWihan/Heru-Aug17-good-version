@@ -5,16 +5,13 @@ import Link from "next/link"
 import {
   Shield,
   Users,
-  FileText,
   LineChart,
   Settings,
   X,
   CreditCard,
-  Mail,
   Bell,
   Briefcase,
   CheckSquare,
-  Target,
   LifeBuoy,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -35,8 +32,7 @@ interface AdminSidebarProps {
 const navItems = [
   { id: 'overview', label: 'Overview', icon: Shield },
   { id: 'users', label: 'User Management', icon: Users },
-  { id: 'team', label: 'Team Management', icon: Briefcase },
-  { id: 'leads', label: 'Lead Management', icon: Target },
+  { id: 'team', label: 'Platform Team', icon: Briefcase },
   { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
   { id: 'analytics', label: 'Analytics', icon: LineChart },
   { id: 'payments', label: 'Payments & Subs', icon: CreditCard },

@@ -1,15 +1,25 @@
+
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { teamMembers } from "@/lib/data";
-import { PlusCircle, Mail, Phone, MoreHorizontal } from "lucide-react";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { PlusCircle, MoreHorizontal } from "lucide-react";
 import { AdminTeamPerformance } from "../admin-team-performance";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Badge } from "../ui/badge";
 
 export function AdminTeamManagementPage() {
-    const salesAndAdvisors = teamMembers.filter(member => member.type === 'sales' || member.type === 'advisor');
+    const { teamMembers } = useGlobalData();
+    const professionalUsers = teamMembers.filter(member => member.type !== 'admin');
+
+    const getRoleBadgeVariant = (role: string) => {
+        if (role.toLowerCase().includes('lawyer')) return 'info';
+        if (role.toLowerCase().includes('sales')) return 'success';
+        if (role.toLowerCase().includes('advisor')) return 'warning';
+        return 'secondary';
+    };
 
     return (
         <div className="space-y-6">
@@ -17,26 +27,26 @@ export function AdminTeamManagementPage() {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle>Team Roster</CardTitle>
+                        <CardTitle>Platform Team Roster</CardTitle>
                          <Button>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Invite Member
                         </Button>
                     </div>
-                    <CardDescription>Manage your sales and marketing team members.</CardDescription>
+                    <CardDescription>An overview of all professional members on the platform.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Member</TableHead>
+                                <TableHead>Firm</TableHead>
                                 <TableHead>Role</TableHead>
-                                <TableHead>Contact</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {salesAndAdvisors.map(member => (
+                            {professionalUsers.map(member => (
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         <div className="flex items-center gap-3">
@@ -44,15 +54,15 @@ export function AdminTeamManagementPage() {
                                                 <AvatarImage src={member.avatar} />
                                                 <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                                             </Avatar>
-                                            <span className="font-medium">{member.name}</span>
+                                            <div>
+                                                <p className="font-medium">{member.name}</p>
+                                                <p className="text-sm text-muted-foreground">{member.email}</p>
+                                            </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{member.role}</TableCell>
+                                    <TableCell>{member.firmName || 'N/A'}</TableCell>
                                     <TableCell>
-                                        <div className="flex flex-col">
-                                            <span>{member.email}</span>
-                                            <span className="text-muted-foreground">{member.phone}</span>
-                                        </div>
+                                        <Badge variant={getRoleBadgeVariant(member.role)}>{member.role}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -60,9 +70,9 @@ export function AdminTeamManagementPage() {
                                                 <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <DropdownMenuItem>View Performance</DropdownMenuItem>
-                                                <DropdownMenuItem>Edit Profile</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
+                                                <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                                <DropdownMenuItem>Message User</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Suspend User</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

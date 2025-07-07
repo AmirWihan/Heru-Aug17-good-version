@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,19 +9,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { WhatsappIcon } from '../icons/WhatsappIcon';
-
-const initialNotifications = [
-    { id: 1, title: 'Platform Maintenance', message: 'The platform will be down for scheduled maintenance on Sunday at 2 AM EST.', target: 'All Users', date: '2023-07-20T10:00:00Z' },
-    { id: 2, title: 'New Feature: AI Tools', message: 'We have launched new AI-powered tools to help you streamline your workflow.', target: 'Lawyers', date: '2023-07-18T14:30:00Z' },
-];
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 export function AdminSystemNotificationsPage() {
     const { toast } = useToast();
-    const [notifications, setNotifications] = useState(initialNotifications);
+    const { notifications, addNotification } = useGlobalData();
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [target, setTarget] = useState('all');
@@ -31,18 +28,17 @@ export function AdminSystemNotificationsPage() {
             toast({ title: 'Error', description: 'Title and message are required.', variant: 'destructive' });
             return;
         }
-        const newNotification = {
-            id: notifications.length + 1,
+        addNotification({
             title,
             message,
             target: target === 'all' ? 'All Users' : (target === 'lawyers' ? 'Lawyers' : 'Clients'),
-            date: new Date().toISOString(),
-        };
-        setNotifications([newNotification, ...notifications]);
+            isRead: false,
+        });
+
         setTitle('');
         setMessage('');
         setSendViaWhatsapp(false);
-        toast({ title: 'Notification Sent!', description: `Your message has been broadcast to ${newNotification.target}${sendViaWhatsapp ? ' and via WhatsApp.' : '.'}` });
+        toast({ title: 'Notification Sent!', description: `Your message has been broadcast to the selected users.` });
     };
 
     return (

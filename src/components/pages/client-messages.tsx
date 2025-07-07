@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,6 +12,7 @@ import { Search, SendHorizontal, Video, Phone, Mail, CheckCheck } from 'lucide-r
 import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsappIcon } from '../icons/WhatsappIcon';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 type Message = {
     id: number;
@@ -30,21 +32,23 @@ type Conversation = {
     isGroup?: boolean;
 };
 
-// This page now correctly simulates the view for a single logged-in client.
-// The `messagesData` in `data.ts` has been updated to reflect conversations for "James Wilson".
-
 export function ClientMessagesPage() {
     const { toast } = useToast();
+    const { userProfile } = useGlobalData();
     const [conversations, setConversations] = useState<Conversation[]>(initialMessagesData);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversations[0] || null);
     const [newMessage, setNewMessage] = useState('');
+    
+    if (!userProfile) {
+        return <p>Loading...</p>;
+    }
 
     const handleSendMessage = () => {
         if (!newMessage.trim() || !selectedConversation) return;
 
         const message: Message = {
             id: Date.now(),
-            sender: 'James Wilson', // Simulating message from the logged-in client
+            sender: userProfile.name, // Use the logged-in user's name
             text: newMessage,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
@@ -149,13 +153,13 @@ export function ClientMessagesPage() {
                                         key={msg.id}
                                         className={cn(
                                             'flex items-end gap-2 max-w-[80%] md:max-w-[60%]',
-                                            msg.sender === 'James Wilson' ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                                            msg.sender === userProfile.name ? 'ml-auto flex-row-reverse' : 'mr-auto'
                                         )}
                                     >
                                         <div
                                             className={cn(
                                                 'p-3 rounded-2xl',
-                                                msg.sender === 'James Wilson'
+                                                msg.sender === userProfile.name
                                                     ? 'bg-primary text-primary-foreground rounded-br-none'
                                                     : 'bg-card text-card-foreground border rounded-bl-none'
                                             )}
@@ -163,10 +167,10 @@ export function ClientMessagesPage() {
                                             <p className="text-sm">{msg.text}</p>
                                             <div className={cn(
                                                 "flex items-center justify-end gap-1 text-xs mt-1",
-                                                msg.sender === 'James Wilson' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                                msg.sender === userProfile.name ? 'text-primary-foreground/70' : 'text-muted-foreground'
                                             )}>
                                                 <span>{msg.timestamp}</span>
-                                                {msg.sender === 'James Wilson' && <CheckCheck className="h-4 w-4" />}
+                                                {msg.sender === userProfile.name && <CheckCheck className="h-4 w-4" />}
                                             </div>
                                         </div>
                                     </div>

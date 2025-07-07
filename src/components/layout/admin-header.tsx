@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Bell, LogOut, Menu, Search, Settings } from "lucide-react"
@@ -9,7 +10,7 @@ import { useGlobalData } from "@/context/GlobalDataContext"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { GlobalSearch } from "../global-search"
-
+import { Badge } from "../ui/badge"
 
 interface AdminHeaderProps {
   isSidebarOpen: boolean
@@ -19,7 +20,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
   const { setPage } = useAdminDashboard();
-  const { userProfile, logout } = useGlobalData();
+  const { userProfile, logout, notifications } = useGlobalData();
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -27,6 +28,8 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
     logout();
     router.push('/login');
   };
+
+  const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   return (
     <>
@@ -57,8 +60,9 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => setPage('notifications')} className="relative">
               <Bell className="h-5 w-5 text-foreground" />
+              {unreadCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{unreadCount}</Badge>}
               <span className="sr-only">Notifications</span>
             </Button>
             <DropdownMenu>

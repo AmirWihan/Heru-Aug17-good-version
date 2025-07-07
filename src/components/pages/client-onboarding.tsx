@@ -79,7 +79,11 @@ const steps = [
     { id: '06', name: 'Additional Points', fields: ['hasJobOffer', 'hasProvincialNomination', 'hasSiblingInCanada'] },
 ];
 
-export function ClientOnboarding() {
+interface ClientOnboardingProps {
+    onOnboardingComplete: () => void;
+}
+
+export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<CrsOutput | null>(null);
@@ -126,6 +130,7 @@ export function ClientOnboarding() {
             const response = await calculateCrsScore(apiInput);
             setResult(response);
             setCurrentStep(steps.length);
+            onOnboardingComplete(); // Trigger the redirect
         } catch (error) {
             console.error(error);
             toast({ title: 'Error', description: 'Failed to calculate your score. Please try again.', variant: 'destructive' });

@@ -9,8 +9,7 @@ import { AuthWrapper } from '@/components/auth-wrapper';
 const pageTitles: { [key: string]: string } = {
     'overview': 'Super Admin Dashboard',
     'users': 'User Management',
-    'team': 'Team Management',
-    'leads': 'Lead Management',
+    'team': 'Platform Team Roster',
     'tasks': 'All Tasks',
     'analytics': 'Platform Analytics',
     'payments': 'Payments & Subscriptions',

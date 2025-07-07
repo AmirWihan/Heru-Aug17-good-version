@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +17,6 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Label } from "../ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 import { documentCategories } from "@/lib/data";
-
-// For this demo, we'll hardcode the client ID to 5 (James Wilson) to simulate a logged-in user
-const CURRENT_CLIENT_ID = 5;
 
 const getStatusBadgeVariant = (status: ClientDocument['status']) => {
     switch (status) {
@@ -81,8 +79,8 @@ const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSe
 }
 
 export function MyDocumentsPage() {
-    const { clients, updateClient } = useGlobalData();
-    const client = clients.find(c => c.id === CURRENT_CLIENT_ID);
+    const { userProfile, updateClient } = useGlobalData();
+    const client = userProfile as Client; // We know this page is for clients
     const { toast } = useToast();
     
     const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
@@ -124,7 +122,7 @@ export function MyDocumentsPage() {
     };
 
     if (!client) {
-        return <Card><CardContent className="p-6">Error: Client data not found.</CardContent></Card>;
+        return <Card><CardContent className="p-6">Loading client data...</CardContent></Card>;
     }
 
     const officialForms = client.documents?.filter(d => d.type === 'form') || [];

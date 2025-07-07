@@ -1,3 +1,4 @@
+
 'use client';
 import { useAdminDashboard } from '@/context/AdminDashboardContext';
 import { AdminOverviewPage } from '@/components/pages/admin-overview';
@@ -8,7 +9,6 @@ import { AdminPaymentsPage } from '@/components/pages/admin-payments';
 import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
 import { AdminTeamManagementPage } from '@/components/pages/admin-team-management';
 import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
-import { AdminLeadManagementPage } from '@/components/pages/admin-lead-management';
 import { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';
 
 export default function AdminDashboardPage() {
@@ -18,7 +18,6 @@ export default function AdminDashboardPage() {
         'overview': AdminOverviewPage,
         'users': UserManagementPage,
         'team': AdminTeamManagementPage,
-        'leads': AdminLeadManagementPage,
         'tasks': AdminAllTasksPage,
         'analytics': AdminPlatformAnalyticsPage,
         'payments': AdminPaymentsPage,
