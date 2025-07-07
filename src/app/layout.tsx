@@ -5,8 +5,23 @@ import { GlobalDataProvider } from '@/context/GlobalDataContext';
 import { ThemeManager } from '@/components/theme-manager';
 
 export const metadata: Metadata = {
-  title: 'Heru',
-  description: 'Your AI-powered CRM',
+  title: 'VisaFor CRM',
+  description: 'Your AI-powered CRM for Immigration Professionals.',
+  applicationName: 'VisaFor CRM',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'VisaFor',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  manifest: '/manifest.json',
+  themeColor: '#374151',
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
