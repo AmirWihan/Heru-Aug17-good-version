@@ -12,3 +12,5 @@ import '@/ai/flows/intake-form-analyzer.ts';
 import '@/ai/flows/ircc-chat-flow.ts';
 import '@/ai/flows/resume-builder-flow.ts';
 import '@/ai/flows/document-analyzer.ts';
+import '@/ai/flows/cover-letter-flow.ts';
+import '@/ai/flows/writing-assistant-flow.ts';

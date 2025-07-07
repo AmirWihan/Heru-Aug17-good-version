@@ -11,7 +11,7 @@ import { ClientSettingsPage } from '@/components/pages/client-settings';
 import { SupportPage } from '@/components/pages/support';
 import { ClientAgreementsPage } from '@/components/pages/client-agreements';
 import { ClientIntakeFormPage } from '@/components/pages/client-intake-form';
-import { ClientCareerToolsPage } from '@/components/pages/client-career-tools';
+import { ClientAiAssistPage } from '@/components/pages/client-ai-assist';
 
 export default function ClientDashboardPage() {
     const { page, setPage } = useClientDashboard();
@@ -28,7 +28,7 @@ export default function ClientDashboardPage() {
         'messages': ClientMessagesPage,
         'settings': ClientSettingsPage,
         'support': SupportPage,
-        'career-tools': ClientCareerToolsPage,
+        'ai-assist': ClientAiAssistPage,
     };
 
     const PageComponent = pageComponents[page] || ClientOverviewPage;

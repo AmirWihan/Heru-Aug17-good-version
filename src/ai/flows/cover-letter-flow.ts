@@ -1,0 +1,75 @@
+'use server';
+
+/**
+ * @fileOverview An AI agent that generates a cover letter based on a client's intake form and a job description.
+ *
+ * - buildCoverLetter - A function that handles the cover letter generation.
+ * - BuildCoverLetterInput - The input type for the buildCoverLetter function.
+ * - BuildCoverLetterOutput - The return type for the buildCoverLetter function.
+ */
+
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
+import { type IntakeFormInput, IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
+
+const CoverLetterJobDetailsSchema = z.object({
+  jobTitle: z.string().describe("The title of the job being applied for."),
+  companyName: z.string().describe("The name of the company."),
+  jobDescription: z.string().describe("The full job description."),
+});
+
+export const BuildCoverLetterInputSchema = IntakeFormInputSchema.merge(CoverLetterJobDetailsSchema);
+
+export type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;
+
+const BuildCoverLetterOutputSchema = z.object({
+  coverLetterText: z.string().describe('The generated cover letter in Markdown format.'),
+});
+export type BuildCoverLetterOutput = z.infer<typeof BuildCoverLetterOutputSchema>;
+
+export async function buildCoverLetter(input: BuildCoverLetterInput): Promise<BuildCoverLetterOutput> {
+  return coverLetterBuilderFlow(input);
+}
+
+const prompt = ai.definePrompt({
+  name: 'coverLetterBuilderPrompt',
+  input: { schema: BuildCoverLetterInputSchema },
+  output: { schema: BuildCoverLetterOutputSchema },
+  prompt: `You are an expert career coach specializing in writing compelling cover letters for the Canadian job market. Generate a professional cover letter in Markdown format based on the client's data and the provided job description.
+
+  **Instructions:**
+  1.  **Address the Company:** Start with a professional salutation addressed to the hiring manager at {{{companyName}}}. If no specific name is available, use a general title.
+  2.  **Introduction:** State the position being applied for ({{{jobTitle}}}) and where it was seen. Briefly introduce the client and express enthusiasm.
+  3.  **Body Paragraphs:**
+      *   Analyze the client's work history and skills from their data.
+      *   Compare these with the requirements in the job description.
+      *   Highlight 2-3 key experiences or skills that make the client a strong fit for the role. Use specific examples and quantify achievements where possible.
+      *   Connect the client's qualifications directly to the needs mentioned in the job description.
+  4.  **Closing:** Reiterate interest in the position and the company. Mention the attached resume and express eagerness for an interview.
+  5.  **Tone:** Maintain a professional, confident, and enthusiastic tone throughout.
+
+  **Client Data:**
+  \`\`\`json
+  {{{json this}}}
+  \`\`\`
+
+  **Job Description:**
+  ---
+  {{{jobDescription}}}
+  ---
+
+  Generate the complete cover letter based on this information.
+  `,
+});
+
+const coverLetterBuilderFlow = ai.defineFlow(
+  {
+    name: 'coverLetterBuilderFlow',
+    inputSchema: BuildCoverLetterInputSchema,
+    outputSchema: BuildCoverLetterOutputSchema,
+  },
+  async input => {
+    const { output } = await prompt(input);
+    return output!;
+  }
+);
