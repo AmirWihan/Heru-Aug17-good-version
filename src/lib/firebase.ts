@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,10 +12,42 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Check if all necessary Firebase config keys are present
+export const isFirebaseEnabled = !!firebaseConfig.apiKey;
 
-export const isFirebaseEnabled = true;
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
+
+if (isFirebaseEnabled) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (e) {
+    console.error("Failed to initialize Firebase", e);
+    // @ts-ignore
+    app = null;
+    // @ts-ignore
+    auth = null;
+    // @ts-ignore
+    db = null;
+    // @ts-ignore
+    storage = null;
+  }
+} else {
+  console.warn("Firebase is not configured. The application will run in offline/prototype mode.");
+  // Assign nulls to prevent crashes on import when firebase is not enabled
+  // @ts-ignore
+  app = null;
+  // @ts-ignore
+  auth = null;
+  // @ts-ignore
+  db = null;
+  // @ts-ignore
+  storage = null;
+}
+
 export { app, auth, db, storage };

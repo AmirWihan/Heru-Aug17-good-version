@@ -14,7 +14,7 @@ import {
     notifications as staticNotifications,
     type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification,
 } from '@/lib/data';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
 // Define a unified UserProfile type
 type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
@@ -48,7 +48,7 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
 
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
-    const [user, authLoading, authError] = useAuthState(auth);
+    const [user, authLoading, authError] = isFirebaseEnabled ? useAuthState(auth) : [null, false, undefined];
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -65,19 +65,25 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const loadUserProfile = async () => {
-            if (user) {
+            if (isFirebaseEnabled && user) {
                 const userDocRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userDocRef);
                 if (userDoc.exists()) {
                     setUserProfile(userDoc.data() as UserProfile);
                 }
+            } else if (!isFirebaseEnabled) {
+                // In offline mode, login function sets the profile
             } else {
                 setUserProfile(null);
             }
             setLoading(false);
         };
-        loadUserProfile();
-    }, [user]);
+
+        if (!authLoading) {
+             loadUserProfile();
+        }
+       
+    }, [user, authLoading]);
 
     const setTheme = useCallback((themeId: string) => {
         setThemeState(themeId);
@@ -103,21 +109,48 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        const userDocRef = doc(db, 'users', userCredential.user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-            return userDoc.data() as UserProfile;
+        if (isFirebaseEnabled) {
+            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+            const userDocRef = doc(db, 'users', userCredential.user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                const profile = userDoc.data() as UserProfile
+                setUserProfile(profile);
+                return profile;
+            }
+            return null;
+        } else {
+             // Fallback to static data for prototype
+            const allUsers = [...staticTeamMembers, ...staticClients];
+            const foundUser = allUsers.find(
+                (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === pass
+            );
+            if (foundUser) {
+                const isTeamMember = 'accessLevel' in foundUser;
+                const isAdmin = isTeamMember && (foundUser as TeamMember).type === 'admin';
+                const authRole = isAdmin ? 'admin' : isTeamMember ? 'lawyer' : 'client';
+                const profile = { ...foundUser, authRole };
+                setUserProfile(profile);
+                setLoading(false);
+                return profile;
+            }
+            return null;
         }
-        return null;
     }, []);
 
     const logout = useCallback(async () => {
-        await signOut(auth);
+        if (isFirebaseEnabled) {
+            await signOut(auth);
+        }
         setUserProfile(null);
     }, []);
 
     const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }): Promise<UserProfile | null> => {
+        if (!isFirebaseEnabled) {
+            console.warn("Firebase not configured. Registration is disabled.");
+            return null;
+        }
+
         const { email, password, role, fullName } = details;
         if (!email || !password || !role || !fullName) {
             throw new Error("Missing details for registration.");
@@ -187,7 +220,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading: loading || authLoading, login, logout, register,
+            userProfile, loading: loading || (isFirebaseEnabled && authLoading), login, logout, register,
             teamMembers, clients, tasks, appointments, notifications,
             updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,
