@@ -1,4 +1,5 @@
 
+
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
@@ -359,11 +360,11 @@ export const teamMembers: TeamMember[] = [
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
         email: 'sophia.w@heru.com', phone: '+1-202-555-0103', password: 'password123', uid: 'static-sophia', accessLevel: 'Member', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
-        location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
+        location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$95k' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid']
     },
@@ -616,18 +617,10 @@ export const documentCategories = [
     { name: 'Permanent Residency', icon: Home },
     { name: 'Work Permits', icon: Briefcase },
     { name: 'Student Visas', icon: GraduationCap },
+    { name: 'Family Sponsorship', icon: Users },
     { name: 'Visitor Visas', icon: FileText },
     { name: 'Citizenship', icon: FileSignature },
-    { name: 'Family Sponsorship', icon: Users },
-    { name: 'Health', icon: FileHeart },
-    { name: 'Identification', icon: FileText },
-    { name: 'Financial', icon: Landmark },
-    { name: 'Language Test', icon: MessageSquare },
-    { name: 'Education', icon: GraduationCap },
-    { name: 'Employment', icon: Briefcase },
-    { name: 'Sponsorship', icon: Users },
-    { name: 'Immigration', icon: FileType },
-    { name: 'Agreements', icon: Handshake },
+    { name: 'Common Forms & Agreements', icon: FileType },
 ];
 
 export type DocumentTemplate = {
@@ -642,8 +635,8 @@ export type DocumentTemplate = {
 
 export const documents: DocumentTemplate[] = [
     // --- Generic & Common ---
-    { id: 100, title: 'Use of a Representative (IMM 5476)', description: 'Appoint or cancel a representative.', category: 'Official Forms', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
-    { id: 101, title: 'Application to Change Conditions, Extend my Stay or Remain in Canada as a Visitor or Temporary Resident Permit Holder (IMM 5708)', description: 'For visitors, students, and workers applying to extend their stay.', category: 'Official Forms', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-change-conditions-extend-your-stay-canada.html' },
+    { id: 100, title: 'Use of a Representative (IMM 5476)', description: 'Appoint or cancel a representative.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
+    { id: 101, title: 'Application to Change Conditions, Extend my Stay or Remain in Canada as a Visitor or Temporary Resident Permit Holder (IMM 5708)', description: 'For visitors, students, and workers applying to extend their stay.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-change-conditions-extend-your-stay-canada.html' },
 
     // --- Express Entry (PR) ---
     { id: 200, title: 'Generic Application Form for Canada (IMM 0008)', description: 'Main application form for permanent residence.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/generic-application-form-canada.html' },
@@ -675,13 +668,13 @@ export const documents: DocumentTemplate[] = [
     { id: 701, title: 'Relationship Information and Sponsorship Evaluation (IMM 5532)', description: 'Details about your relationship with the person you\'re sponsoring.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/relationship-information-sponsorship-evaluation.html' },
     
     // --- Supporting Documents ---
-    { id: 800, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Financial', format: 'PDF', size: 'Template' },
-    { id: 801, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Education', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/education-assessed.html' },
-    { id: 802, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Identification', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/police-certificates.html' },
-    { id: 803, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Health', format: 'PDF', size: 'Template' },
+    { id: 800, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
+    { id: 801, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/education-assessed.html' },
+    { id: 802, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/police-certificates.html' },
+    { id: 803, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
     
     // --- Agreements ---
-    { id: 900, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Agreements', format: 'DOCX', size: 'Template' },
+    { id: 900, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Common Forms & Agreements', format: 'DOCX', size: 'Template' },
 ];
 
 export const messagesData = [
@@ -1000,3 +993,4 @@ export const notifications: Notification[] = [
         isRead: true,
     }
 ];
+
