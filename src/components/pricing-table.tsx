@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { plans } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, Crown } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import Link from 'next/link';
@@ -41,7 +41,10 @@ export function PricingTable() {
                             </div>
                         )}
                         <CardHeader className="text-center">
-                            <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
+                                {plan.name}
+                                {plan.id === 'pro' && <Crown className="h-6 w-6 text-yellow-500" />}
+                            </CardTitle>
                             <CardDescription className="min-h-[40px]">{plan.description}</CardDescription>
                             <div className="pt-4">
                                 {typeof plan.price === 'object' ?

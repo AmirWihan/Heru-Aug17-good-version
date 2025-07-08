@@ -339,8 +339,8 @@ export const teamMembers: TeamMember[] = [
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
         gallery: [
             { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
-            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'team conference' },
-            { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'client celebration' },
+            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'professional team' },
+            { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'happy client' },
             { id: 4, src: 'https://placehold.co/600x400.png', alt: 'Charity run event', dataAiHint: 'charity event' },
         ]
     },
@@ -896,8 +896,8 @@ export const teamMembersWithStats = [
 
 export const plans = [
     { id: 'starter' as const, name: 'Starter', description: "For solo practitioners and small teams getting started.", price: { monthly: 49, annually: 490 }, userLimit: '2', clientLimit: '50', features: ['Basic AI Tools', 'Standard Support', 'Client Portal'] },
-    { id: 'pro' as const, name: 'Pro Team', description: "For growing firms that need more power and collaboration.", price: { monthly: 99, annually: 990 }, userLimit: '10', clientLimit: '500', features: ['Advanced AI Tools', 'Team Collaboration Features', 'Reporting & Analytics', 'Priority Email Support'] },
-    { id: 'enterprise' as const, name: 'Enterprise', description: "For large firms with complex needs and compliance requirements.", price: 'Custom' as const, userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Dedicated Support & Onboarding', 'Custom Integrations', 'Advanced Security & Compliance', 'API Access'] }
+    { id: 'pro' as const, name: 'Pro Team', description: "For growing firms that need more power and collaboration.", price: { monthly: 99, annually: 990 }, userLimit: '10', clientLimit: '500', features: ['Advanced AI Tools', 'Lead Connection Tools', 'Team Collaboration Features', 'Reporting & Analytics', 'Priority Email Support'] },
+    { id: 'enterprise' as const, name: 'Enterprise', description: "For large firms with complex needs and compliance requirements.", price: 'Custom' as const, userLimit: 'Unlimited', clientLimit: 'Unlimited', features: ['Dedicated Support & Onboarding', 'Lead Connection Tools', 'Custom Integrations', 'Advanced Security & Compliance', 'API Access'] }
 ];
 
 export const testimonials = [
@@ -948,7 +948,7 @@ export const supportTicketsData = [
 export const themes = [
     { name: 'Canada Red', id: 'red', colors: { primary: 'hsl(0 84.2% 60.2%)', accent: 'hsl(215.4 16.3% 46.9%)' } },
     { name: 'Heru Green', id: 'green', colors: { primary: 'hsl(142.1 76.2% 36.3%)', accent: 'hsl(262.1 83.3% 57.8%)' } },
-    { name: 'Ocean Blue', id: 'blue', colors: { primary: 'hsl(217.2 91.2% 59.8%)', accent: 'hsl(197.8 91.2% 59.8%)' } },
+    { name: 'Ocean Blue', id: 'blue', colors: { primary: 'hsl(217.2 91.2% 59.8%)', accent: 'hsl(45 93% 58%)' } },
     { name: 'Graphite', id: 'graphite', colors: { primary: 'hsl(221.2 83.2% 53.3%)', accent: 'hsl(215 27.9% 46.9%)' } },
     { name: 'Cool Sky', id: 'sky', colors: { primary: 'hsl(243 43% 45%)', accent: 'hsl(46 93% 70%)' } },
     { name: 'Warm Coral', id: 'coral', colors: { primary: 'hsl(357 98% 79%)', accent: 'hsl(14 98% 79%)' } },
