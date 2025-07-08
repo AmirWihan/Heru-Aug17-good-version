@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useGlobalData, type Lead, type Client } from '@/lib/data';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { leadsData, type Lead, type Client } from '@/lib/data';
 import { PlusCircle, MoreHorizontal, User, Building, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
@@ -39,7 +40,7 @@ const LeadCard = ({ lead, onConvert }: { lead: Lead, onConvert: (leadId: number)
 const statusColumns: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
 
 export function LeadsPage() {
-    const { leadsData, teamMembers, addClient } = useGlobalData();
+    const { teamMembers, addClient } = useGlobalData();
     const { toast } = useToast();
     const [leads, setLeads] = useState(leadsData);
 
@@ -114,4 +115,3 @@ export function LeadsPage() {
     );
 }
 
-    

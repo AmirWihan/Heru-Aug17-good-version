@@ -987,6 +987,28 @@ export const notifications: Notification[] = [
     }
 ];
 
+export const dashboardData = {
+    recentApplications: applicationsData.slice(0, 5).map(app => {
+        const client = clients.find(c => c.name === app.client.name);
+        return {
+            id: app.id,
+            clientName: app.client.name,
+            country: client?.countryOfOrigin || 'Unknown',
+            type: app.type,
+            status: app.status,
+            submitted: app.submitted
+        }
+    }),
+    upcomingAppointments: appointmentsData
+        .filter(a => a.status === 'Upcoming')
+        .slice(0, 3),
+    recentMessages: [
+        { id: 1, avatar: clients[0].avatar, name: clients[0].name, message: 'Can you please check on my PNP application?', time: '2m ago'},
+        { id: 2, avatar: clients[1].avatar, name: clients[1].name, message: 'Thank you for the pre-arrival checklist!', time: '1h ago'},
+        { id: 3, avatar: clients[2].avatar, name: clients[2].name, message: 'I need to put my application on hold.', time: '3h ago'},
+    ]
+};
+
 // Sidebar navigation items
 export const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
