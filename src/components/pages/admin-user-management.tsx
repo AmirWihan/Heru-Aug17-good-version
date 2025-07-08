@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, UserPlus, ShieldCheck } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, ShieldCheck, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -15,12 +15,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { type Client, type TeamMember } from '@/lib/data';
 import { AdminUserDetailSheet } from './admin-user-detail';
-import { ClientDetailSheet } from './client-detail';
 
 export function UserManagementPage() {
     const { teamMembers, updateTeamMember, clients, updateClient } = useGlobalData();
     const { toast } = useToast();
-    const [selectedUser, setSelectedUser] = useState<TeamMember | Client | null>(null);
+    const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     
     // State for lawyer filters
@@ -61,7 +60,7 @@ export function UserManagementPage() {
         }
     };
     
-    const handleViewDetails = (user: TeamMember | Client) => {
+    const handleViewDetails = (user: TeamMember) => {
         setSelectedUser(user);
         setIsSheetOpen(true);
     };
@@ -71,11 +70,6 @@ export function UserManagementPage() {
         setSelectedUser(updatedUser);
     };
     
-    const handleUpdateClient = (updatedClient: Client) => {
-        updateClient(updatedClient);
-        setSelectedUser(updatedClient);
-    };
-
     const handleBlockClient = (client: Client) => {
         updateClient({ ...client, status: 'Blocked' });
         toast({
@@ -84,10 +78,6 @@ export function UserManagementPage() {
             variant: 'destructive',
         });
     };
-    
-    const isTeamMember = (user: any): user is TeamMember => {
-        return user && 'accessLevel' in user;
-    }
 
     return (
         <>
@@ -170,7 +160,7 @@ export function UserManagementPage() {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                      <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>
-                                                         View Details
+                                                         View & Approve
                                                      </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -230,8 +220,10 @@ export function UserManagementPage() {
                                                             <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
-                                                            <DropdownMenuItem onClick={() => handleViewDetails(client)}>View Details</DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-destructive" onClick={() => handleBlockClient(client)}>Block Account</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive" onClick={() => handleBlockClient(client)}>
+                                                                <XCircle className="mr-2 h-4 w-4" />
+                                                                Block Account
+                                                            </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>
@@ -245,20 +237,12 @@ export function UserManagementPage() {
                 </CardContent>
             </Card>
 
-            {selectedUser && isTeamMember(selectedUser) && (
+            {selectedUser && (
                  <AdminUserDetailSheet
                     user={selectedUser}
                     isOpen={isSheetOpen}
                     onOpenChange={setIsSheetOpen}
                     onUpdateUser={handleUpdateTeamMember}
-                />
-            )}
-            {selectedUser && !isTeamMember(selectedUser) && (
-                 <ClientDetailSheet
-                    client={selectedUser}
-                    isOpen={isSheetOpen}
-                    onOpenChange={setIsSheetOpen}
-                    onUpdateClient={handleUpdateClient}
                 />
             )}
         </>

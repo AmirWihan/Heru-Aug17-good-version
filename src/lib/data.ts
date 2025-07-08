@@ -21,6 +21,19 @@ export type Task = {
     status: 'To Do' | 'In Progress' | 'Completed';
 };
 
+export type PlatformTask = {
+    id: number;
+    title: string;
+    description?: string;
+    assignedTo: {
+        name: string;
+        avatar: string;
+    };
+    dueDate: string;
+    priority: 'High' | 'Medium' | 'Low';
+    status: 'To Do' | 'In Progress' | 'Completed';
+};
+
 export type Notification = {
     id: number;
     date: string;
@@ -463,6 +476,36 @@ export const tasksData: Task[] = [
     }
 ];
 
+export const platformTasksData: PlatformTask[] = [
+    {
+        id: 1,
+        title: 'Review new lawyer sign-ups',
+        description: 'Verify credentials for all users with status "Pending Activation".',
+        assignedTo: { name: 'Super Admin', avatar: 'https://i.pravatar.cc/150?u=superadmin' },
+        dueDate: '2024-07-25',
+        priority: 'High',
+        status: 'To Do',
+    },
+    {
+        id: 2,
+        title: 'Prepare Q3 Marketing Report',
+        description: 'Analyze lead sources and conversion rates for the third quarter.',
+        assignedTo: { name: 'Chris Davis', avatar: 'https://i.pravatar.cc/150?u=chris' },
+        dueDate: '2024-08-01',
+        priority: 'Medium',
+        status: 'In Progress',
+    },
+    {
+        id: 3,
+        title: 'Follow up with Enterprise leads',
+        description: 'Contact all new enterprise-level leads from the past month.',
+        assignedTo: { name: 'Jessica Miller', avatar: 'https://i.pravatar.cc/150?u=jessica' },
+        dueDate: '2024-07-28',
+        priority: 'High',
+        status: 'To Do',
+    }
+];
+
 export const clients: Client[] = [
     { 
         id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', password: 'password123', uid: 'static-adebola', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
@@ -653,70 +696,77 @@ export type DocumentTemplate = {
 export const documents: DocumentTemplate[] = [
     // 1. Express Entry
     { id: 101, title: 'IMM 0008 - Generic Application Form for Canada', description: 'Main application form for permanent residence.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/generic-application-form-canada.html' },
-    { id: 102, title: 'IMM 5622 - Authorization to Release Personal Information', description: 'Authorize IRCC to release information.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 102, title: 'IMM 5622 - Authorization to Release Personal Information', description: 'Authorize IRCC to release information.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-release-information-designated-individual.html' },
     { id: 103, title: 'IMM 5406 - Family Information', description: 'Information about your family members.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/additional-family-information.html' },
     { id: 104, title: 'IMM 5407 - Additional Dependants/Declaration', description: 'For applicants with more than five dependants.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/generic-application-form-canada.html' },
     { id: 105, title: 'IMM 5708 - Document Checklist for Express Entry', description: 'Checklist to ensure all required documents are included.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/apply-permanent-residence/documents.html' },
-    { id: 106, title: 'Passport/Travel Document', description: 'Clear copy of the biodata page.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 107, title: 'Language Test Results', description: 'IELTS, CELPIP, TEF.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 108, title: 'Educational Credential Assessment (ECA) Report', description: 'Report from a designated organization like WES.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 109, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 110, title: 'Police Clearance Certificates', description: 'From all countries lived in for 6+ months since age 18.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 111, title: 'Medical Exam Confirmation', description: 'Upfront medical exam confirmation from a panel physician.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 112, title: 'Employment Reference Letters', description: 'Letters detailing job duties, hours, and duration.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
-    { id: 113, title: 'Marriage/Divorce/Birth Certificates', description: 'For dependents and to prove relationship status.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 1101, title: 'IMM 5669 - Use of a Representative', description: 'Appoint or cancel a representative.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
+    { id: 106, title: 'Passport/travel document', description: 'Clear copy of the biodata page.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 107, title: 'Language test results (IELTS, CELPIP, TEF)', description: 'Official language test scores.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 108, title: 'Educational Credential Assessment (ECA) report', description: 'Report from a designated organization like WES.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 109, title: 'Proof of funds', description: 'Bank statements for the last 6 months.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 110, title: 'Police clearance certificates', description: 'From all countries lived in for 6+ months since age 18.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 111, title: 'Medical exam confirmation', description: 'Upfront medical exam confirmation from a panel physician.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 112, title: 'Employment reference letters', description: 'Letters detailing job duties, hours, and duration.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
+    { id: 113, title: 'Marriage/divorce/birth certificates', description: 'For dependents and to prove relationship status.', category: 'Express Entry (EE)', format: 'PDF', size: 'Template' },
 
     // 2. Provincial Nominee Program (PNP)
-    { id: 201, title: 'IMM 5707 - Document Checklist for PNP', description: 'Document checklist for Provincial Nominee Program applicants.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
-    { id: 202, title: 'Provincial Nomination Certificate', description: 'The official certificate issued by the province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
-    { id: 203, title: 'Job Offer (if required)', description: 'A valid job offer from an employer in the nominating province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
-    { id: 204, title: 'Proof of Settlement Intent', description: 'Documents showing intent to reside in the province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
-    { id: 205, title: 'Proof of Ties to Province', description: 'E.g., job offer, family, previous study or work.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
+    { id: 201, title: 'IMM 5269 - Provincial Nomination Confirmation', description: 'Official confirmation of nomination from a province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
+    { id: 202, title: 'IMM 5707 - Document Checklist for PNP', description: 'Document checklist for Provincial Nominee Program applicants.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-provincial-nominee.html' },
+    { id: 203, title: 'Job offer (if required)', description: 'A valid job offer from an employer in the nominating province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
+    { id: 204, title: 'Proof of settlement intent in the province', description: 'Documents showing intent to reside in the province.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
+    { id: 205, title: 'Proof of ties to the province', description: 'E.g., job offer, family, previous study or work.', category: 'Provincial Nominee Program (PNP)', format: 'PDF', size: 'Template' },
 
     // 3. Study Permit
-    { id: 301, title: 'IMM 1294 - Application for Study Permit Made Outside of Canada', description: 'Main application form for study permits.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-study-permit-outside-canada.html' },
-    { id: 302, title: 'IMM 5483 - Document Checklist for a Study Permit', description: 'Checklist for study permit applicants.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-study-permit-outside-canada.html' },
-    { id: 303, title: 'Letter of Acceptance (LOA)', description: 'Official acceptance letter from a Designated Learning Institution (DLI).', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
-    { id: 304, title: 'Proof of Financial Support', description: 'GIC, bank statements, scholarship letters.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
-    { id: 305, title: 'Statement of Purpose', description: 'A letter explaining why you want to study in Canada.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
+    { id: 301, title: 'IMM 1294 - Application for Study Permit', description: 'Main application form for study permits.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-study-permit-outside-canada.html' },
+    { id: 302, title: 'IMM 5409 - Declaration of True Copy', description: 'Used if applying outside Canada.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/statutory-declaration-common-law-union.html' },
+    { id: 303, title: 'IMM 5483 - Biometric Request', description: 'Used if biometrics are required.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
+    { id: 304, title: 'Letter of acceptance from DLI school', description: 'Official acceptance letter from a Designated Learning Institution (DLI).', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
+    { id: 305, title: 'Proof of financial support', description: 'GIC, bank statements, scholarship letters.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
+    { id: 306, title: 'Statement of purpose', description: 'A letter explaining why you want to study in Canada.', category: 'Study Permit / Study Visa', format: 'PDF', size: 'Template' },
 
     // 4. Work Permit
-    { id: 401, title: 'IMM 1295 - Application for Work Permit Made Outside of Canada', description: 'Application for Work Permit Made Outside of Canada.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-work-permit-outside-canada.html' },
-    { id: 402, title: 'Offer of Employment Number', description: 'Number from employer who submitted offer via Employer Portal.', category: 'Work Permit / Temporary Work Visa', format: 'Text', size: 'Template' },
-    { id: 403, title: 'Labour Market Impact Assessment (LMIA)', description: 'Positive or neutral LMIA from ESDC, if required.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
-    { id: 404, title: 'Proof of Qualifications', description: 'Degree, diploma, or trade license.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
-    { id: 405, title: 'Proof of Ties to Home Country', description: 'Evidence you will leave Canada after your work permit expires.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
-
+    { id: 401, title: 'IMM 1295 - Work Permit Application', description: 'Application for Work Permit.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-work-permit-outside-canada.html' },
+    { id: 402, title: 'IMM 5723 - Offer to Employ Foreign National', description: 'Employer form for job offers.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
+    { id: 403, title: 'IMM 5424 - Employer Questionnaire', description: 'Questionnaire for employers.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
+    { id: 404, 'title': 'Labour Market Impact Assessment (LMIA) or LMIA-exempt letter', description: 'Positive or neutral LMIA from ESDC, if required.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
+    { id: 405, 'title': 'Proof of qualifications', description: 'Degree, diploma, or trade license.', category: 'Work Permit / Temporary Work Visa', format: 'PDF', size: 'Template' },
 
     // 5. Business Immigration
-    { id: 501, title: 'Business Plan', description: 'A comprehensive plan for your proposed business in Canada.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
-    { id: 502, title: 'Proof of Investment', description: 'Documents showing the source and availability of investment funds.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
-    { id: 503, title: 'Proof of Business Ownership/Experience', description: 'Registration documents, financial statements, etc.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
+    { id: 501, title: 'IMM 5270 - Business Immigration Questionnaire', description: 'Questionnaire for business applicants.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
+    { id: 502, title: 'IMM 5425 - Business Plan Submission', description: 'Official submission form for business plan.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
+    { id: 503, title: 'Business plan', description: 'A comprehensive plan for your proposed business in Canada.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
+    { id: 504, title: 'Investment proof', description: 'Documents showing the source and availability of investment funds.', category: 'Business Immigration Programs', format: 'PDF', size: 'Template' },
 
     // 6. Family Sponsorship
-    { id: 601, title: 'IMM 1344 - Application to Sponsor, Sponsorship Agreement and Undertaking', description: 'Agreement to sponsor a family member.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-sponsor-spouse-partner-child.html' },
-    { id: 602, title: 'IMM 5533 - Document Checklist - Spouse', description: 'Checklist for sponsoring a spouse or partner.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-sponsor-spouse-partner-child.html' },
-    { id: 603, title: 'Proof of Relationship', description: 'Marriage certificate, birth certificates, photos, joint documents.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
-    { id: 604, title: 'Proof of Income (NOA)', description: 'Notice of Assessment from the CRA for the sponsor.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
-
+    { id: 601, title: 'IMM 1344 - Undertaking and Sponsorship Agreement', description: 'Agreement to sponsor a family member.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-sponsor-spouse-partner-child.html' },
+    { id: 602, title: 'IMM 1345 - Sponsor Questionnaire', description: 'Questionnaire for the sponsor.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
+    { id: 603, title: 'IMM 5540 - Sponsorship Evaluation Report', description: 'Evaluation report for the sponsor.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
+    { id: 604, title: 'Proof of relationship', description: 'Marriage certificate, birth certificate, etc.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
+    { id: 605, title: 'Proof of income (NOA, pay stubs)', description: 'Notice of Assessment from the CRA for the sponsor.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
+    
     // 7. AIP
-    { id: 701, title: 'Job Offer from AIP-Designated Employer', description: 'A valid job offer from a designated employer in an Atlantic province.', category: 'Atlantic Immigration Program (AIP)', format: 'PDF', size: 'Template' },
-    { id: 702, title: 'Settlement Plan', description: 'A plan created with a designated settlement service provider.', category: 'Atlantic Immigration Program (AIP)', format: 'PDF', size: 'Template' },
-
+    { id: 701, title: 'IMM 5491 - AIP Candidate Information Form', description: 'Information form for AIP candidates.', category: 'Atlantic Immigration Program (AIP)', format: 'PDF', size: 'Template' },
+    { id: 702, title: 'Job offer from AIP-designated employer', description: 'A valid job offer from a designated employer in an Atlantic province.', category: 'Atlantic Immigration Program (AIP)', format: 'PDF', size: 'Template' },
+    { id: 703, title: 'Settlement plan', description: 'A plan created with a designated settlement service provider.', category: 'Atlantic Immigration Program (AIP)', format: 'PDF', size: 'Template' },
+    
     // 8. Caregiver Program
-    { id: 801, title: 'Proof of Work Experience (as caregiver)', description: 'Reference letters confirming at least 24 months of experience.', category: 'Caregiver Program', format: 'PDF', size: 'Template' },
-    { id: 802, title: 'NOC Code Matching Job Duties', description: 'Job offer must match the duties of an eligible NOC.', category: 'Caregiver Program', format: 'PDF', size: 'Template' },
-
+    { id: 801, title: 'IMM 5913 - Caregiver Employment Verification', description: 'Verification of caregiver employment.', category: 'Caregiver Program', format: 'PDF', size: 'Template' },
+    { id: 802, title: 'Proof of work experience (as caregiver)', description: 'Reference letters confirming at least 24 months of experience.', category: 'Caregiver Program', format: 'PDF', size: 'Template' },
+    { id: 803, title: 'NOC code matching job duties', description: 'Job offer must match the duties of an eligible NOC.', category: 'Caregiver Program', format: 'PDF', size: 'Template' },
+    
     // 9. RNIP
-    { id: 901, title: 'Community Recommendation Letter', description: 'Recommendation from a participating community.', category: 'Rural and Northern Immigration Pilot (RNIP)', format: 'PDF', size: 'Template' },
-    { id: 902, title: 'Job Offer in Participating Community', description: 'A genuine, full-time, non-seasonal job offer.', category: 'Rural and Northern Immigration Pilot (RNIP)', format: 'PDF', size: 'Template' },
-
-    // 10. Refugee and Asylum
-    { id: 1001, title: 'Basis of Claim (BOC) Form', description: 'The most important document for a refugee claim.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template', sourceUrl: 'https://irb.gc.ca/en/forms/Pages/boc-sif.aspx' },
-    { id: 1002, title: 'Evidence of Persecution or Danger', description: 'Documents, photos, or witness statements.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template' },
-
+    { id: 901, title: 'IMM 5492 - RNIP Community Recommendation Form', description: 'Recommendation from a participating community.', category: 'Rural and Northern Immigration Pilot (RNIP)', format: 'PDF', size: 'Template' },
+    { id: 902, title: 'Job offer in participating community', description: 'A genuine, full-time, non-seasonal job offer.', category: 'Rural and Northern Immigration Pilot (RNIP)', format: 'PDF', size: 'Template' },
+    { id: 903, title: 'Proof of ties to the community', description: 'Documents showing established ties to the community.', category: 'Rural and Northern Immigration Pilot (RNIP)', format: 'PDF', size: 'Template' },
+    
+    // 10. Refugee and Asylum Claims
+    { id: 1001, title: 'IRB/IRCC Referral Form', description: 'For inland refugee claims.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template' },
+    { id: 1002, title: 'IMM 5047 - Basis of Claim (BOC) Form', description: 'The most important document for a refugee claim.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template', sourceUrl: 'https://irb.gc.ca/en/forms/Pages/boc-sif.aspx' },
+    { id: 1003, title: 'IMM 5288 - Refugee Claimant Instructions', description: 'Instructions for refugee claimants.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template' },
+    { id: 1004, 'title': 'Evidence of persecution or danger', description: 'Documents, photos, or witness statements.', category: 'Refugee and Asylum Claims', format: 'PDF', size: 'Template' },
+    
     // General Supporting Docs
-    { id: 1101, title: 'IMM 5669 - Use of a Representative', description: 'Appoint or cancel a representative.', category: 'General Supporting Documents', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
     { id: 1102, title: 'Passport', description: 'Valid travel document.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
     { id: 1103, title: 'Language Test Results (General)', description: 'IELTS, CELPIP, TEF, TEFAQ.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
     { id: 1104, title: 'ECA Report', description: 'From WES, IQAS, or other recognized agency.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
@@ -725,6 +775,7 @@ export const documents: DocumentTemplate[] = [
     { id: 1107, title: 'Police Clearance Certificate (General)', description: 'From all countries lived >6 months in past 10 years.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
     { id: 1108, title: 'Birth/Marriage Certificates', description: 'For all family members included in the application.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
     { id: 1109, title: 'Employment References (General)', description: 'Signed letters showing job history.', category: 'General Supporting Documents', format: 'PDF', size: 'Template' },
+    { id: 1110, title: 'Use of a Representative (IMM 5669)', description: 'Appoint or cancel a representative.', category: 'General Supporting Documents', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
 ];
 
 

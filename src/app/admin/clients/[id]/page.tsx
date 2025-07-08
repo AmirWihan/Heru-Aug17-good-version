@@ -1,19 +1,6 @@
-'use client';
-import { useGlobalData } from '@/context/GlobalDataContext';
-import { ClientProfile } from '@/components/pages/client-profile';
-import { notFound, useParams } from 'next/navigation';
-
+// This page is intentionally left blank.
+// The Super Admin role does not require direct access to individual client profiles.
+// This route is deprecated and may be removed in a future version.
 export default function AdminClientProfilePage() {
-    const params = useParams();
-    const { clients, updateClient } = useGlobalData();
-    const clientId = parseInt(params.id as string, 10);
-    const client = clients.find(c => c.id === clientId);
-
-    if (!client) {
-        notFound();
-    }
-
-    return (
-        <ClientProfile client={client} onUpdateClient={updateClient} />
-    );
+    return null;
 }

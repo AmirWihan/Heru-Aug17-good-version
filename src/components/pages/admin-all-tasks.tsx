@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import type { Task } from '@/lib/data';
+import { platformTasksData, type PlatformTask } from '@/lib/data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,57 +19,53 @@ import { format } from 'date-fns';
 import { Textarea } from '../ui/textarea';
 
 export function AdminAllTasksPage() {
-    const { tasks, addTask, clients, teamMembers } = useGlobalData();
+    const { teamMembers } = useGlobalData();
     const { toast } = useToast();
     
+    const [tasks, setTasks] = useState(platformTasksData);
     const [isAddDialogOpen, setAddDialogOpen] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const [newTaskDescription, setNewTaskDescription] = useState("");
-    const [newTaskClient, setNewTaskClient] = useState("");
     const [newTaskAssignee, setNewTaskAssignee] = useState("");
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
-    const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
+    const [newTaskPriority, setNewTaskPriority] = useState<PlatformTask['priority']>('Medium');
 
     const [statusFilter, setStatusFilter] = useState('all');
     const [priorityFilter, setPriorityFilter] = useState('all');
-    const [assigneeFilter, setAssigneeFilter] = useState('all');
 
-    const salesTeam = teamMembers.filter(member => member.type === 'sales' || member.type === 'advisor');
+    const internalTeam = teamMembers.filter(member => member.type === 'sales' || member.type === 'advisor' || member.type === 'admin');
 
     const handleAddTask = () => {
-        if (!newTaskTitle || !newTaskClient || !newTaskAssignee || !newTaskDueDate) {
+        if (!newTaskTitle || !newTaskAssignee || !newTaskDueDate) {
             toast({ title: 'Error', description: 'Please fill out all fields.', variant: 'destructive' });
             return;
         }
 
-        const client = clients.find(c => c.id.toString() === newTaskClient);
-        const assignee = teamMembers.find(m => m.id.toString() === newTaskAssignee);
+        const assignee = internalTeam.find(m => m.id.toString() === newTaskAssignee);
 
-        if (!client || !assignee) {
-            toast({ title: 'Error', description: 'Selected client or assignee not found.', variant: 'destructive' });
+        if (!assignee) {
+            toast({ title: 'Error', description: 'Selected assignee not found.', variant: 'destructive' });
             return;
         }
 
-        const newTask: Task = {
+        const newTask: PlatformTask = {
             id: Date.now(),
             title: newTaskTitle,
             description: newTaskDescription,
-            client: { id: client.id, name: client.name, avatar: client.avatar },
             assignedTo: { name: assignee.name, avatar: assignee.avatar },
             dueDate: newTaskDueDate,
             priority: newTaskPriority,
             status: 'To Do',
         };
 
-        addTask(newTask);
+        setTasks(prevTasks => [newTask, ...prevTasks]);
         setAddDialogOpen(false);
         setNewTaskTitle('');
         setNewTaskDescription('');
-        setNewTaskClient('');
         setNewTaskAssignee('');
         setNewTaskDueDate('');
         setNewTaskPriority('Medium');
-        toast({ title: 'Success', description: 'Task added successfully.' });
+        toast({ title: 'Success', description: 'Internal task added successfully.' });
     };
 
     const getPriorityBadgeVariant = (priority: string) => {
@@ -93,11 +89,8 @@ export function AdminAllTasksPage() {
     const filteredTasks = tasks.filter(task => {
         const statusMatch = statusFilter === 'all' || task.status.toLowerCase() === statusFilter.toLowerCase();
         const priorityMatch = priorityFilter === 'all' || task.priority.toLowerCase() === priorityFilter.toLowerCase();
-        const assigneeMatch = assigneeFilter === 'all' || task.assignedTo.name === assigneeFilter;
-        return statusMatch && priorityMatch && assigneeMatch;
+        return statusMatch && priorityMatch;
     });
-
-    const assignees = ['all', ...teamMembers.map(m => m.name)];
 
     return (
         <>
@@ -105,8 +98,8 @@ export function AdminAllTasksPage() {
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle className="font-headline">All Platform Tasks</CardTitle>
-                            <CardDescription>Monitor and manage all tasks across the platform.</CardDescription>
+                            <CardTitle className="font-headline">Internal Team Tasks</CardTitle>
+                            <CardDescription>Monitor and manage tasks for the VisaFor team.</CardDescription>
                         </div>
                         <Button onClick={() => setAddDialogOpen(true)}>
                             <PlusCircle className="mr-2 h-4 w-4" />
@@ -136,16 +129,6 @@ export function AdminAllTasksPage() {
                                 <SelectItem value="Low">Low</SelectItem>
                             </SelectContent>
                         </Select>
-                         <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by assignee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {assignees.map(assignee => (
-                                    <SelectItem key={assignee} value={assignee}>{assignee === 'all' ? 'All Assignees' : assignee}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -154,7 +137,6 @@ export function AdminAllTasksPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Task</TableHead>
-                                    <TableHead>Client</TableHead>
                                     <TableHead>Assigned To</TableHead>
                                     <TableHead>Due Date</TableHead>
                                     <TableHead>Priority</TableHead>
@@ -168,15 +150,6 @@ export function AdminAllTasksPage() {
                                         <TableCell>
                                             <div className="font-medium">{task.title}</div>
                                             {task.description && <p className="text-sm text-muted-foreground truncate max-w-xs">{task.description}</p>}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-8 w-8">
-                                                    <AvatarImage src={task.client.avatar} alt={task.client.name} />
-                                                    <AvatarFallback>{task.client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="font-medium">{task.client.name}</div>
-                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -219,30 +192,23 @@ export function AdminAllTasksPage() {
             <Dialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add New Task</DialogTitle>
-                        <DialogDescription>Assign a new task to a team member.</DialogDescription>
+                        <DialogTitle>Add New Internal Task</DialogTitle>
+                        <DialogDescription>Assign a new task to an internal team member.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="task-title">Task Title</Label>
-                            <Input id="task-title" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} placeholder="e.g., Follow up on RFE" />
+                            <Input id="task-title" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} placeholder="e.g., Prepare Q3 Marketing Report" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="task-description">Description (Optional)</Label>
                             <Textarea id="task-description" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} placeholder="Add more details about the task..." />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="task-client">Client</Label>
-                            <Select value={newTaskClient} onValueChange={setNewTaskClient}>
-                                <SelectTrigger id="task-client"><SelectValue placeholder="Select a client" /></SelectTrigger>
-                                <SelectContent>{clients.map(client => (<SelectItem key={client.id} value={client.id.toString()}>{client.name}</SelectItem>))}</SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
                             <Label htmlFor="task-assignee">Assign To</Label>
                             <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
-                                <SelectTrigger id="task-assignee"><SelectValue placeholder="Select a sales team member" /></SelectTrigger>
-                                <SelectContent>{salesTeam.map(member => (<SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>))}</SelectContent>
+                                <SelectTrigger id="task-assignee"><SelectValue placeholder="Select an internal team member" /></SelectTrigger>
+                                <SelectContent>{internalTeam.map(member => (<SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>))}</SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -252,7 +218,7 @@ export function AdminAllTasksPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="task-priority">Priority</Label>
-                                <Select value={newTaskPriority} onValueChange={(v: Task['priority']) => setNewTaskPriority(v)}>
+                                <Select value={newTaskPriority} onValueChange={(v: PlatformTask['priority']) => setNewTaskPriority(v)}>
                                     <SelectTrigger id="task-priority"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="High">High</SelectItem>
