@@ -66,7 +66,7 @@ export type ClientDocument = {
 export type Agreement = {
     id: number;
     title: string;
-    status: 'Active' | 'Completed' | 'Terminated';
+    status: 'Active' | 'Completed' | 'Terminated' | 'Pending Signature' | 'Signed';
     dateSigned: string;
     documentUrl?: string; // Main agreement document
     relatedDocuments: {
@@ -503,7 +503,7 @@ export const platformTasksData: PlatformTask[] = [
         dueDate: '2024-07-28',
         priority: 'High',
         status: 'To Do',
-    }
+    },
 ];
 
 export const clients: Client[] = [
@@ -588,12 +588,10 @@ export const clients: Client[] = [
             {
                 id: 1,
                 title: 'Retainer Agreement - Work Permit Extension',
-                status: 'Active',
+                status: 'Pending Signature',
                 dateSigned: '2022-05-15',
-                documentUrl: '#',
-                relatedDocuments: [
-                    { id: 1, title: 'Proof of Initial Payment', dateAdded: '2022-05-16', url: '#' }
-                ],
+                documentUrl: 'https://unpkg.com/pdfjs-dist@3.4.120/web/compressed.tracemonkey-pldi-09.pdf',
+                relatedDocuments: [],
                 relatedInvoiceIds: ['INV-2023-0456']
             }
         ],
