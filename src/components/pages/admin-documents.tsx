@@ -22,7 +22,7 @@ export function AdminDocumentsPage() {
 
     const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>(allDocumentTemplates);
     const [categories, setCategories] = useState(documentCategories);
-    const [activeCategory, setActiveCategory] = useState('Permanent Residency (PR)');
+    const [activeCategory, setActiveCategory] = useState('Express Entry (EE)');
     
     const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
     const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
