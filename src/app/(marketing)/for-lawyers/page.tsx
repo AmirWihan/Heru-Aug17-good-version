@@ -46,7 +46,7 @@ export default function ForLawyersPage() {
                     </div>
                     <h2 className="text-3xl font-bold font-headline">Proactive, AI-Powered Insights</h2>
                     <p className="text-lg text-muted-foreground">
-                       Don't wait for problems to arise. Our AI scans active cases for approaching deadlines and missing documents, giving you actionable alerts before they become critical issues.
+                       Don't let deadlines slip through the cracks. Our AI proactively scans active cases for approaching expiry dates and missing documents, giving you actionable alerts before they become critical issues.
                     </p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Automatic Deadline Tracking</span></li>
@@ -67,7 +67,7 @@ export default function ForLawyersPage() {
                     </div>
                     <h2 className="text-3xl font-bold font-headline">A Single Hub for Every Client</h2>
                     <p className="text-lg text-muted-foreground">
-                       Move beyond spreadsheets. Heru provides a robust CRM to manage client details, track case progress, and log all communications in one organized place.
+                       Stop juggling spreadsheets and disconnected tools. Heru provides a robust CRM as a single source of truth to manage client details, track every case milestone, and log all communications in one organized hub.
                     </p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Centralized Client Database</span></li>
@@ -88,7 +88,7 @@ export default function ForLawyersPage() {
                     </div>
                     <h2 className="text-3xl font-bold font-headline">Automate Your Document Workflow</h2>
                     <p className="text-lg text-muted-foreground">
-                      Request, review, and manage all case-related documents securely. Our AI can even pre-fill standard forms based on client data, saving you countless hours.
+                      Eliminate repetitive data entry. Our AI automatically fills standard forms using client intake data, saving you countless hours. Request, review, and manage all case-related documents securely in one centralized hub.
                     </p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>AI-Powered Form Filling</span></li>
