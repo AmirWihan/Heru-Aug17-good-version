@@ -1,5 +1,6 @@
 
 'use client';
+import { useMemo } from "react";
 import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,31 +29,41 @@ export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
     const { teamMembers, clients, tasks, invoicesData } = useGlobalData();
 
-    const totalApplicants = clients.length;
-    const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
-    const totalRevenue = invoicesData.filter(p => p.status === 'Paid').reduce((acc, p) => acc + p.amount, 0);
+    const {
+        totalApplicants,
+        activeFirms,
+        totalRevenue,
+        totalActionItems,
+        actionItems,
+    } = useMemo(() => {
+        const totalApplicants = clients.length;
+        const activeFirms = new Set(teamMembers.filter(m => m.status === 'Active' && m.type === 'legal').map(m => m.firmName)).size;
+        const totalRevenue = invoicesData.filter(p => p.status === 'Paid').reduce((acc, p) => acc + p.amount, 0);
 
-    const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
-    const overdueInvoices = invoicesData.filter(i => i.status === 'Overdue').length;
+        const pendingActivations = teamMembers.filter(m => m.status === 'Pending Activation').length;
+        const overdueInvoices = invoicesData.filter(i => i.status === 'Overdue').length;
 
-    const actionItems = [
-        {
-            count: pendingActivations,
-            title: "Pending Lawyer Activations",
-            description: "accounts waiting for verification.",
-            icon: ShieldCheck,
-            page: "users",
-        },
-        {
-            count: overdueInvoices,
-            title: "Overdue Invoices",
-            description: "invoices are past their due date.",
-            icon: FileClock,
-            page: "payments",
-        }
-    ].filter(item => item.count > 0);
+        const actionItems = [
+            {
+                count: pendingActivations,
+                title: "Pending Lawyer Activations",
+                description: "accounts waiting for verification.",
+                icon: ShieldCheck,
+                page: "users",
+            },
+            {
+                count: overdueInvoices,
+                title: "Overdue Invoices",
+                description: "invoices are past their due date.",
+                icon: FileClock,
+                page: "payments",
+            }
+        ].filter(item => item.count > 0);
 
-    const totalActionItems = actionItems.reduce((acc, item) => acc + item.count, 0);
+        const totalActionItems = actionItems.reduce((acc, item) => acc + item.count, 0);
+        return { totalApplicants, activeFirms, totalRevenue, totalActionItems, actionItems };
+    }, [clients, teamMembers, invoicesData]);
+
 
     return (
         <div className="space-y-6">

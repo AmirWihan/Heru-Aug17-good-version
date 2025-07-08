@@ -1,5 +1,6 @@
+
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -35,18 +36,18 @@ export function UserManagementPage() {
     const lawyerPlans = ['all', ...Array.from(new Set(teamMembers.map(m => m.plan)))];
     const clientStatuses = ['all', ...Array.from(new Set(clients.map(c => c.status)))];
 
-    const filteredLawyers = teamMembers.filter(member => {
+    const filteredLawyers = useMemo(() => teamMembers.filter(member => {
         const searchMatch = member.name.toLowerCase().includes(lawyerSearchTerm.toLowerCase()) || member.email.toLowerCase().includes(lawyerSearchTerm.toLowerCase());
         const statusMatch = lawyerStatusFilter === 'all' || member.status === lawyerStatusFilter;
         const planMatch = lawyerPlanFilter === 'all' || member.plan === lawyerPlanFilter;
         return searchMatch && statusMatch && planMatch;
-    });
+    }), [teamMembers, lawyerSearchTerm, lawyerStatusFilter, lawyerPlanFilter]);
 
-    const filteredClients = clients.filter(client => {
+    const filteredClients = useMemo(() => clients.filter(client => {
         const searchMatch = client.name.toLowerCase().includes(clientSearchTerm.toLowerCase()) || client.email.toLowerCase().includes(clientSearchTerm.toLowerCase());
         const statusMatch = clientStatusFilter === 'all' || client.status === clientStatusFilter;
         return searchMatch && statusMatch;
-    });
+    }), [clients, clientSearchTerm, clientStatusFilter]);
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status.toLowerCase()) {

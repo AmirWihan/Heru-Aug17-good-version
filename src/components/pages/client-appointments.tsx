@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -61,7 +62,7 @@ export function ClientAppointmentsPage() {
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 
-        return { upcomingAppointments: upcoming, pastAppointments: past };
+        return { upcomingAppointments, pastAppointments };
     }, [clientAppointments]);
     
     const handleScheduleAppointment = () => {

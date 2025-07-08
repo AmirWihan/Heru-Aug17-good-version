@@ -47,7 +47,6 @@ export function AppointmentsPage() {
     const { toast } = useToast();
     
     const { upcomingAppointments, pastAppointments } = useMemo(() => {
-        const now = new Date();
         const upcoming = appointments
             .filter(a => isFuture(new Date(a.dateTime)))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
@@ -56,7 +55,7 @@ export function AppointmentsPage() {
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 
-        return { upcomingAppointments: upcoming, pastAppointments: past };
+        return { upcomingAppointments, pastAppointments };
     }, [appointments]);
 
     const handleScheduleAppointment = () => {

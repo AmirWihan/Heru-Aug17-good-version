@@ -1,4 +1,6 @@
+
 'use client';
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
@@ -34,7 +36,7 @@ const chartConfigStatus = {
 };
 
 const TeamActivityReport = () => {
-    const activitySummary = teamMembers.map(member => {
+    const activitySummary = useMemo(() => teamMembers.map(member => {
         const memberActivities = activityLogData.filter(log => log.teamMember.id === member.id);
         return {
             member,
@@ -43,7 +45,7 @@ const TeamActivityReport = () => {
             meetings: memberActivities.filter(a => a.type === 'Meeting').length,
             total: memberActivities.length,
         };
-    });
+    }), []);
 
     return (
         <Card className="lg:col-span-2">

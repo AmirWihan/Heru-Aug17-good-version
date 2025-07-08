@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -133,14 +133,14 @@ export function ClientsPage() {
     const caseTypes = ['all', ...Array.from(new Set(clients.map(c => c.caseType)))];
     const countries = ['all', ...Array.from(new Set(clients.map(c => c.countryOfOrigin)))];
 
-    const filteredClients = clients.filter(client => {
+    const filteredClients = useMemo(() => clients.filter(client => {
         return (
             client.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
             (statusFilter === 'all' || client.status === statusFilter) &&
             (caseTypeFilter === 'all' || client.caseType === caseTypeFilter) &&
             (countryFilter === 'all' || client.countryOfOrigin === countryFilter)
         );
-    });
+    }), [clients, searchTerm, statusFilter, caseTypeFilter, countryFilter]);
 
     return (
         <TooltipProvider>

@@ -1,4 +1,6 @@
+
 'use client';
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
@@ -29,10 +31,10 @@ const chartConfigCaseStatus = {
 };
 
 export function AdminPlatformAnalyticsPage() {
-    const geoDistribution = clients.reduce((acc, client) => {
+    const geoDistribution = useMemo(() => clients.reduce((acc, client) => {
         acc[client.countryOfOrigin] = (acc[client.countryOfOrigin] || 0) + 1;
         return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, number>), [clients]);
 
     return (
         <div className="space-y-6">
