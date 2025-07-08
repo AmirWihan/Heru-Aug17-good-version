@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ShieldAlert, Users, FileStack, DollarSign, CheckCircle } from 'lucide-react';
+import { ArrowRight, ShieldAlert, Users, FileStack, DollarSign, CheckCircle, LineChart } from 'lucide-react';
 import Link from 'next/link';
 import { PricingTable } from '@/components/pricing-table';
 import { Faq } from '@/components/faq';
@@ -9,6 +9,7 @@ import { DashboardScreenshot } from '@/components/screenshots/DashboardScreensho
 import { ClientManagementScreenshot } from '@/components/screenshots/ClientManagementScreenshot';
 import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
 import { BillingScreenshot } from '@/components/screenshots/BillingScreenshot';
+import { TeamManagementScreenshot } from '@/components/screenshots/TeamManagementScreenshot';
 
 
 const lawyerTestimonial = testimonials.find((t) => t.role === 'lawyer');
@@ -80,9 +81,30 @@ export default function ForLawyersPage() {
                 </div>
             </div>
 
-            {/* Feature 3: Document Hub */}
+            {/* Feature 3: Team Management */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-4">
+                    <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
+                        <LineChart className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-3xl font-bold font-headline">Track Performance & Manage Your Team</h2>
+                    <p className="text-lg text-muted-foreground">
+                        Empower your team with clear visibility. Monitor performance with sales and activity dashboards, manage user roles, and ensure every team member is aligned and productive.
+                    </p>
+                    <ul className="space-y-2 pt-2">
+                        <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Sales & Performance Dashboards</span></li>
+                        <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>User Role Management</span></li>
+                        <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Track Team Activity & Productivity</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <TeamManagementScreenshot />
+                </div>
+            </div>
+
+            {/* Feature 4: Document Hub */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
-                 <div className="space-y-4">
+                 <div className="md:order-2 space-y-4">
                     <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
                         <FileStack className="h-8 w-8" />
                     </div>
@@ -96,14 +118,14 @@ export default function ForLawyersPage() {
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Centralized Document Library</span></li>
                     </ul>
                 </div>
-                <div>
+                <div className="md:order-1">
                     <DocumentManagementScreenshot />
                 </div>
             </div>
 
-            {/* Feature 4: Billing */}
+            {/* Feature 5: Billing */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
-                 <div className="md:order-2 space-y-4">
+                 <div className="space-y-4">
                     <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
                         <DollarSign className="h-8 w-8" />
                     </div>
@@ -117,7 +139,7 @@ export default function ForLawyersPage() {
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Seamless QuickBooks Integration</span></li>
                     </ul>
                 </div>
-                <div className="md:order-1">
+                <div>
                     <BillingScreenshot />
                 </div>
             </div>

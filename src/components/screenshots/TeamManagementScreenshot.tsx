@@ -14,7 +14,7 @@ const team = [
 
 export function TeamManagementScreenshot() {
     return (
-        <Card className="bg-white dark:bg-slate-900 shadow-2xl shadow-primary/10 overflow-hidden">
+        <Card className="bg-white dark:bg-slate-900 shadow-2xl shadow-primary/10 overflow-hidden" data-ai-hint="team collaboration">
             <div className="bg-muted/50 p-2 flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
