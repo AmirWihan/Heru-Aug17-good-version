@@ -11,12 +11,14 @@ import { AdminTeamManagementPage } from '@/components/pages/admin-team-managemen
 import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
 import { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';
 import { AdminDocumentsPage } from '@/components/pages/admin-documents';
+import { AdminLeadsPage } from '@/components/pages/admin-leads';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
 
     const pageComponents: { [key: string]: React.ComponentType<any> } = {
         'overview': AdminOverviewPage,
+        'leads': AdminLeadsPage,
         'users': UserManagementPage,
         'team': AdminTeamManagementPage,
         'tasks': AdminAllTasksPage,

@@ -4,7 +4,7 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User, sendPasswordResetEmail } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { 
     clients as staticClients, 
@@ -13,7 +13,8 @@ import {
     appointmentsData as staticAppointments, 
     invoicesData as staticInvoices,
     notifications as staticNotifications,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm,
+    leadsData as staticLeads,
+    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead,
 } from '@/lib/data';
 import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
@@ -25,13 +26,17 @@ interface GlobalDataContextType {
     loading: boolean;
     login: (email: string, pass: string) => Promise<UserProfile | null>;
     logout: () => Promise<void>;
-    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }) => Promise<UserProfile | null>;
+    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }) => Promise<UserProfile | null>;
+    sendPasswordReset: (email: string) => Promise<void>;
     updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
     teamMembers: TeamMember[];
     clients: Client[];
     tasks: Task[];
     appointments: Appointment[];
     notifications: Notification[];
+    leads: Lead[];
+    setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
+    convertLeadToFirm: (leadId: number) => void;
     updateTeamMember: (updatedMember: TeamMember) => void;
     addClient: (client: Client) => void;
     updateClient: (updatedClient: Client) => void;
@@ -47,7 +52,7 @@ interface GlobalDataContextType {
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
+const LOCAL_STORAGE_KEY = 'visafor-ui-prefs';
 
 // This component isolates the useAuthState hook so it's only called when Firebase is enabled.
 const AuthStateListener = ({ setAuthData }: { setAuthData: Function }) => {
@@ -77,6 +82,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [tasks, setTasks] = useState<Task[]>(staticTasks);
     const [appointments, setAppointments] = useState<Appointment[]>(staticAppointments);
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
+    const [leads, setLeads] = useState<Lead[]>(staticLeads);
 
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
     const [theme, setThemeState] = useState('blue');
@@ -165,13 +171,23 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setUserProfile(null);
     }, []);
 
-    const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }): Promise<UserProfile | null> => {
+    const sendPasswordReset = useCallback(async (email: string) => {
+        if (isFirebaseEnabled && auth) {
+            await sendPasswordResetEmail(auth, email);
+        } else {
+            console.warn("Firebase not configured. Password reset is disabled.");
+            // Simulate success in offline mode for UI testing
+            return Promise.resolve();
+        }
+    }, []);
+
+    const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }): Promise<UserProfile | null> => {
         if (!isFirebaseEnabled || !auth) {
             console.warn("Firebase not configured. Registration is disabled.");
             return null;
         }
 
-        const { email, password, role, fullName } = details;
+        const { email, password, role, fullName, termsAgreed, marketingConsent } = details;
         if (!email || !password || !role || !fullName) {
             throw new Error("Missing details for registration.");
         }
@@ -181,12 +197,19 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
         let newProfile: UserProfile;
 
+        const commonData = {
+            uid: user.uid,
+            name: fullName,
+            email: email,
+            password: password,
+            termsAgreed: termsAgreed,
+            marketingConsent: !!marketingConsent,
+        };
+
         if (role === 'client') {
             newProfile = {
+                ...commonData,
                 id: Date.now(),
-                uid: user.uid,
-                name: fullName,
-                email: email,
                 authRole: 'client',
                 phone: '', caseType: 'Unassigned', status: 'Active', lastContact: new Date().toISOString().split('T')[0],
                 avatar: `https://i.pravatar.cc/150?u=${email}`, countryOfOrigin: 'Unknown', currentLocation: 'Unknown',
@@ -197,10 +220,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             };
         } else { // Lawyer
             newProfile = {
+                ...commonData,
                 id: Date.now(),
-                uid: user.uid,
-                name: fullName,
-                email: email,
                 authRole: 'lawyer',
                 role: 'Awaiting Onboarding',
                 avatar: `https://i.pravatar.cc/150?u=${email}`,
@@ -259,10 +280,41 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
     }, []);
 
+    const convertLeadToFirm = useCallback((leadId: number) => {
+        const lead = leads.find(l => l.id === leadId);
+        if (!lead) return;
+
+        const newFirm: TeamMember = {
+            id: Date.now(),
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone,
+            password: 'password123',
+            authRole: 'lawyer',
+            role: 'Awaiting Verification',
+            avatar: lead.avatar || `https://i.pravatar.cc/150?u=${lead.email}`,
+            type: 'legal',
+            accessLevel: 'Admin',
+            status: 'Pending Activation',
+            plan: 'Pro Team',
+            location: 'Unknown',
+            yearsOfPractice: 0,
+            successRate: 0,
+            licenseNumber: '',
+            registrationNumber: '',
+            firmName: lead.company,
+            stats: [],
+            specialties: []
+        };
+
+        setTeamMembers(prev => [...prev, newFirm]);
+        setLeads(prev => prev.filter(l => l.id !== leadId));
+    }, [leads]);
+
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading, login, logout, register, updateUserProfile,
-            teamMembers, clients, tasks, appointments, notifications,
+            userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
+            teamMembers, clients, tasks, appointments, notifications, leads, setLeads, convertLeadToFirm,
             updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,
         }}>

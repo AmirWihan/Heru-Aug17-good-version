@@ -14,6 +14,7 @@ import {
   CheckSquare,
   LifeBuoy,
   FileArchive,
+  BriefcaseBusiness,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -32,6 +33,7 @@ interface AdminSidebarProps {
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: Shield },
+  { id: 'leads', label: 'Firm Leads', icon: BriefcaseBusiness },
   { id: 'users', label: 'User Management', icon: Users },
   { id: 'team', label: 'Platform Team', icon: Briefcase },
   { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
