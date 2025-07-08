@@ -31,6 +31,23 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
 
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
+  const pageTitles: { [key: string]: string } = {
+    'overview': 'Super Admin Dashboard',
+    'leads': 'Firm Leads',
+    'users': 'User Management',
+    'team': 'Platform Team Roster',
+    'tasks': 'All Tasks',
+    'documents': 'Document Library',
+    'analytics': 'Platform Analytics',
+    'payments': 'Payments & Subscriptions',
+    'notifications': 'System Notifications',
+    'support-tickets': 'Support Tickets',
+    'settings': 'Platform Settings',
+    'ai-tools': 'AI Tools',
+    'appointments': 'Appointments',
+  };
+
+
   return (
     <>
       <GlobalSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
@@ -46,7 +63,7 @@ export function AdminHeader({ setSidebarOpen, pageTitle }: AdminHeaderProps) {
               <Menu className="h-6 w-6" />
               <span className="sr-only">Open sidebar</span>
             </Button>
-            <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitle}</h1>
+            <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitles[useAdminDashboard().page] || 'Super Admin'}</h1>
           </div>
           <div className="flex items-center space-x-4">
             <Button

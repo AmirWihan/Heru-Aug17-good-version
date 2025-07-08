@@ -15,6 +15,8 @@ import {
   LifeBuoy,
   FileArchive,
   BriefcaseBusiness,
+  CalendarCheck,
+  Wand2
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -34,12 +36,14 @@ interface AdminSidebarProps {
 const navItems = [
   { id: 'overview', label: 'Overview', icon: Shield },
   { id: 'leads', label: 'Firm Leads', icon: BriefcaseBusiness },
+  { id: 'appointments', label: 'Appointments', icon: CalendarCheck },
   { id: 'users', label: 'User Management', icon: Users },
   { id: 'team', label: 'Platform Team', icon: Briefcase },
   { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
   { id: 'documents', label: 'Document Library', icon: FileArchive },
   { id: 'analytics', label: 'Platform Analytics', icon: LineChart },
   { id: 'payments', label: 'Payments & Subs', icon: CreditCard },
+  { id: 'ai-tools', label: 'AI Tools', icon: Wand2 },
   { id: 'notifications', label: 'System Notifications', icon: Bell },
   { id: 'support-tickets', label: 'Support Tickets', icon: LifeBuoy },
   { id: 'settings', label: 'Platform Settings', icon: Settings },

@@ -12,6 +12,8 @@ import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
 import { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';
 import { AdminDocumentsPage } from '@/components/pages/admin-documents';
 import { AdminLeadsPage } from '@/components/pages/admin-leads';
+import { AdminAIToolsPage } from '@/components/pages/admin-ai-tools';
+import { AdminAppointmentsPage } from '@/components/pages/admin-appointments';
 
 export default function AdminDashboardPage() {
     const { page } = useAdminDashboard();
@@ -28,6 +30,8 @@ export default function AdminDashboardPage() {
         'notifications': AdminSystemNotificationsPage,
         'support-tickets': AdminSupportTicketsPage,
         'settings': PlatformSettingsPage,
+        'ai-tools': AdminAIToolsPage,
+        'appointments': AdminAppointmentsPage,
     };
 
     const PageComponent = pageComponents[page] || AdminOverviewPage;

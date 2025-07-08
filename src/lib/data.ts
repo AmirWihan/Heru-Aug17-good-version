@@ -1,5 +1,5 @@
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2 } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
@@ -261,6 +261,21 @@ export type Lead = {
         date: string;
     }[];
 };
+
+export type AdminAppointment = {
+    id: number;
+    firmName: string;
+    dateTime: string;
+    type: 'Sales Demo' | 'Onboarding' | 'Support' | 'Account Review';
+    avatar: string;
+    status: 'Upcoming' | 'Completed';
+}
+
+export const adminAppointmentsData: AdminAppointment[] = [
+    { id: 1, firmName: 'Innovate Legal', dateTime: '2024-07-25T14:00:00', type: 'Onboarding', avatar: 'https://i.pravatar.cc/150?u=evelynreed', status: 'Upcoming' },
+    { id: 2, firmName: 'Waystar Immigration', dateTime: '2024-07-26T11:00:00', type: 'Sales Demo', avatar: 'https://i.pravatar.cc/150?u=chenwang', status: 'Upcoming' },
+    { id: 3, firmName: 'Johnson Legal', dateTime: '2024-07-22T09:30:00', type: 'Account Review', avatar: 'https://i.pravatar.cc/150?u=sarah', status: 'Completed' },
+];
 
 export const teamMembers: TeamMember[] = [
     {
@@ -1030,7 +1045,7 @@ export const plans = [
 export const testimonials = [
     {
         role: 'lawyer',
-        quote: "Heru has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
+        quote: "VisaFor has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
         name: 'Sarah Johnson',
         avatar: 'https://i.pravatar.cc/150?u=sarah',
     },
