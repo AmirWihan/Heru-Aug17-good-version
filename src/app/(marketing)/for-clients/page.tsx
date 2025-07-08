@@ -17,7 +17,7 @@ export default function ForClientsPage() {
     return (
         <div className="bg-background text-foreground">
             {/* Hero Section */}
-            <section className="py-20 md:py-32 bg-muted/30">
+            <section className="py-20 md:py-32 bg-gradient-to-b from-yellow-50 via-white to-white dark:from-yellow-950/20 dark:via-background dark:to-background">
                 <div className="container mx-auto px-4 text-center">
                     <h1 className="text-4xl md:text-6xl font-bold font-headline">
                         Your Clearest Path to Canada.
@@ -49,14 +49,14 @@ export default function ForClientsPage() {
                             <p className="text-muted-foreground mt-2">Start by completing our smart intake form and CRS score calculator to understand your standing.</p>
                         </div>
                          <div className="flex flex-col items-center">
-                             <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary mb-4">
+                              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 mb-4">
                                <Search className="h-8 w-8" />
                             </div>
                             <h3 className="font-semibold text-lg">2. Find Your Expert</h3>
                             <p className="text-muted-foreground mt-2">Browse our directory of verified lawyers. Share your profile securely and connect with the right professional for your case.</p>
                         </div>
                          <div className="flex flex-col items-center">
-                             <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary mb-4">
+                             <div className="flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 mb-4">
                                <Users className="h-8 w-8" />
                             </div>
                             <h3 className="font-semibold text-lg">3. Collaborate & Track</h3>
@@ -102,6 +102,11 @@ export default function ForClientsPage() {
                             <li className="flex items-center gap-2"><FileText className="h-5 w-5 text-green-500" /><span>Tailored Cover Letter Generator</span></li>
                             <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>One-Time Information Entry</span></li>
                         </ul>
+                         <div className="pt-4">
+                            <Link href="/register">
+                                <Button size="lg">Get Started</Button>
+                            </Link>
+                        </div>
                     </div>
                     <div>
                          <div className="p-8 bg-muted rounded-lg">

@@ -18,7 +18,7 @@ export default function ForLawyersPage() {
   return (
     <div className="bg-background text-foreground">
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-primary/5">
+      <section className="py-20 md:py-32 bg-gradient-to-b from-primary/5 via-background to-background">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold font-headline">
             The Command Center for <br /> Modern Immigration Firms.
@@ -37,8 +37,8 @@ export default function ForLawyersPage() {
       </section>
 
        {/* Features Section */}
-      <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4 space-y-24">
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
             {/* Feature 1: AI Risk Alerts */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
                  <div className="space-y-4">
@@ -59,7 +59,11 @@ export default function ForLawyersPage() {
                     <DashboardScreenshot />
                 </div>
             </div>
+        </div>
+      </section>
             
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
             {/* Feature 2: Client Management */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
                  <div className="md:order-2 space-y-4">
@@ -80,7 +84,11 @@ export default function ForLawyersPage() {
                     <ClientManagementScreenshot />
                 </div>
             </div>
+        </div>
+      </section>
 
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
             {/* Feature 3: Team Management */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-4">
@@ -101,7 +109,11 @@ export default function ForLawyersPage() {
                     <TeamManagementScreenshot />
                 </div>
             </div>
+        </div>
+      </section>
 
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
             {/* Feature 4: Document Hub */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
                  <div className="md:order-2 space-y-4">
@@ -122,7 +134,11 @@ export default function ForLawyersPage() {
                     <DocumentManagementScreenshot />
                 </div>
             </div>
+        </div>
+      </section>
 
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
             {/* Feature 5: Billing */}
              <div className="grid md:grid-cols-2 gap-12 items-center">
                  <div className="space-y-4">
@@ -143,7 +159,6 @@ export default function ForLawyersPage() {
                     <BillingScreenshot />
                 </div>
             </div>
-
         </div>
       </section>
 
