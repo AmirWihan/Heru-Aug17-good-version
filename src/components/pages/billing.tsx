@@ -15,6 +15,7 @@ import { billingSummary, invoicesData, paymentsData, paymentMethodsData } from "
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import { QuickBooksIcon } from "../icons/QuickBooksIcon";
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string }) => (
     <Card className="dashboard-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -135,7 +136,7 @@ const InvoiceTable = () => (
             </div>
         </CardContent>
     </Card>
-);
+)
 
 const InvoicePreview = () => (
     <Card>
@@ -328,8 +329,14 @@ const PaymentMethods = () => (
 export function BillingPage() {
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold font-headline text-foreground">Billing & Invoices</h1>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold font-headline text-foreground">Billing & Invoices</h1>
+                    <p className="text-muted-foreground flex items-center gap-2 text-sm mt-1">
+                        <QuickBooksIcon className="h-4 w-4"/>
+                        Synced with QuickBooks
+                    </p>
+                </div>
                 <Button>
                     <Plus className="mr-2 h-4 w-4" /> Create Invoice
                 </Button>

@@ -17,12 +17,14 @@ import { TasksPage } from '@/components/pages/tasks';
 import { ActivityLogPage } from '@/components/pages/activity';
 import { SupportPage } from '@/components/pages/support';
 import { NotificationsPage } from '@/components/pages/notifications';
+import { LeadsPage } from '@/components/pages/leads';
 
 export default function LawyerDashboard() {
   const { page, setPage } = useLawyerDashboard();
 
   const pageComponents: { [key: string]: React.ComponentType<any> } = {
     dashboard: DashboardPage,
+    leads: LeadsPage,
     clients: ClientsPage,
     team: TeamPage,
     documents: DocumentsPage,
@@ -47,3 +49,5 @@ export default function LawyerDashboard() {
     </div>
   );
 }
+
+    

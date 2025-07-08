@@ -1,6 +1,6 @@
 
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
@@ -187,22 +187,9 @@ export type Client = {
     intakeForm?: IntakeForm;
 };
 
-export const dashboardData = {
-    recentApplications: [
-        { id: 1, clientName: 'Adebola Okonjo', country: 'Nigeria', type: 'Permanent Residency', status: 'Pending', submitted: '3 days ago' },
-        { id: 2, clientName: 'Carlos Mendez', country: 'Mexico', type: 'Student Visa', status: 'Approved', submitted: '2 weeks ago' },
-        { id: 3, clientName: 'Li Wei', country: 'China', type: 'Work Permit', status: 'Under Review', submitted: '5 days ago' },
-    ],
-    recentMessages: [
-        { id: 1, name: 'James Wilson', time: '2h ago', message: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?', avatar: 'https://i.pravatar.cc/150?u=james' },
-        { id: 2, name: 'Elena Rodriguez', time: '5h ago', message: 'Thank you for the consultation yesterday! I\'ll gather all the documents you mentioned.', avatar: 'https://i.pravatar.cc/150?u=elena' },
-        { id: 3, name: 'Michael Brown', time: '1d ago', message: 'Can we schedule another call to discuss the PNP options? I have some new questions.', avatar: 'https://i.pravatar.cc/150?u=michael' },
-    ],
-    upcomingAppointments: [
-        { id: 1, name: 'Elena Rodriguez', dateTime: '2024-07-24T14:00:00', type: 'Consultation', avatar: 'https://i.pravatar.cc/150?u=elena' },
-        { id: 2, name: 'James Wilson', dateTime: '2024-07-25T10:30:00', type: 'Document Review', avatar: 'https://i.pravatar.cc/150?u=james' },
-        { id: 3, name: 'Sophia Chen', dateTime: '2024-07-26T15:45:00', type: 'Follow-up', avatar: 'https://i.pravatar.cc/150?u=sophia' },
-    ],
+export type SocialLink = {
+    platform: 'linkedin' | 'twitter' | 'website';
+    url: string;
 };
 
 export type TeamMember = {
@@ -239,6 +226,7 @@ export type TeamMember = {
         alt: string;
         dataAiHint: string;
     }[];
+    socials?: SocialLink[];
 };
 
 export const teamMembers: TeamMember[] = [
@@ -257,6 +245,11 @@ export const teamMembers: TeamMember[] = [
             { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'professional team' },
             { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'happy client' },
             { id: 4, src: 'https://placehold.co/600x400.png', alt: 'Charity run event', dataAiHint: 'charity event' },
+        ],
+        socials: [
+            { platform: 'linkedin', url: 'https://linkedin.com/in/sarahjohnson' },
+            { platform: 'twitter', url: 'https://twitter.com/sjohnsonlegal' },
+            { platform: 'website', url: 'https://johnsonlegal.ca' },
         ]
     },
     {
@@ -915,7 +908,7 @@ export const plans = [
 export const testimonials = [
     {
         role: 'lawyer',
-        quote: "ImmiAssist has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
+        quote: "Heru has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
         name: 'Sarah Johnson',
         avatar: 'https://i.pravatar.cc/150?u=sarah',
     },
@@ -994,3 +987,22 @@ export const notifications: Notification[] = [
     }
 ];
 
+// Sidebar navigation items
+export const navItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: Home },
+  { id: 'leads', label: 'Leads', icon: BriefcaseBusiness },
+  { id: 'clients', label: 'Clients', icon: Users },
+  { id: 'team', label: 'Team Management', icon: Users },
+  { id: 'documents', label: 'Documents', icon: FileText },
+  { id: 'applications', label: 'Applications', icon: FileText, badge: '24' },
+  { id: 'appointments', label: 'Appointments', icon: CalendarCheck },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3' },
+  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive' },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'activity', label: 'Activity Log', icon: FileText },
+  { id: 'billing', label: 'Billing', icon: Landmark },
+  { id: 'reports', label: 'Reports', icon: LineChart },
+  { id: 'ai-tools', label: 'AI Tools', icon: Zap },
+  { id: 'settings', label: 'Settings', icon: Handshake },
+  { id: 'support', label: 'Help & Support', icon: Phone },
+];

@@ -26,6 +26,7 @@ import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import { useRouter } from "next/navigation"
 import { useGlobalData } from "@/context/GlobalDataContext"
+import { navItems } from "@/lib/data"
 
 interface AppSidebarProps {
   activePage: string
@@ -33,24 +34,6 @@ interface AppSidebarProps {
   isSidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
 }
-
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'clients', label: 'Clients', icon: Users },
-  { id: 'team', label: 'Team Management', icon: Users2 },
-  { id: 'documents', label: 'Documents', icon: FileText },
-  { id: 'applications', label: 'Applications', icon: FileText, badge: '24' },
-  { id: 'appointments', label: 'Appointments', icon: Calendar },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3' },
-  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive' },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'activity', label: 'Activity Log', icon: ClipboardList },
-  { id: 'billing', label: 'Billing', icon: FileDigit },
-  { id: 'reports', label: 'Reports', icon: LineChart },
-  { id: 'ai-tools', label: 'AI Tools', icon: Wand2 },
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'support', label: 'Help & Support', icon: HelpCircle },
-]
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
   const router = useRouter();
@@ -133,3 +116,5 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
     </>
   )
 }
+
+    

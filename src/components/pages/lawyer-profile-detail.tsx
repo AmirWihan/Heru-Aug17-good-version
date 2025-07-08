@@ -1,3 +1,4 @@
+
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -5,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { TeamMember } from "@/lib/data";
-import { Mail, MessageSquare, Phone, Share2, Star, Crown, ArrowLeft, Globe } from "lucide-react";
+import { Mail, MessageSquare, Phone, Share2, Star, Crown, ArrowLeft, Globe, Linkedin, Twitter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
+import { SocialLink } from "@/lib/data";
+
+const socialIcons: Record<SocialLink['platform'], React.ElementType> = {
+    linkedin: Linkedin,
+    twitter: Twitter,
+    website: Globe
+};
 
 export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
     const { toast } = useToast();
@@ -131,14 +139,17 @@ export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
                                 <Button variant="outline" className="w-full">
                                     <MessageSquare className="mr-2 h-4 w-4" /> Message
                                 </Button>
-                                 {lawyer.firmWebsite && (
-                                    <a href={lawyer.firmWebsite} target="_blank" rel="noopener noreferrer">
-                                        <Button variant="outline" className="w-full">
-                                            <Globe className="mr-2 h-4 w-4" /> Visit Website
-                                        </Button>
-                                    </a>
-                                )}
                                  <div className="flex w-full gap-2 pt-2">
+                                    {(lawyer.socials || []).map(social => {
+                                        const Icon = socialIcons[social.platform];
+                                        return (
+                                             <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                                                <Button variant="outline" size="icon" className="w-full">
+                                                    <Icon className="h-4 w-4" />
+                                                </Button>
+                                            </a>
+                                        )
+                                    })}
                                     <Button variant="outline" size="icon" className="flex-1">
                                         <Phone className="h-4 w-4" />
                                     </Button>
@@ -154,3 +165,5 @@ export function LawyerProfileDetail({ lawyer }: { lawyer: TeamMember }) {
         </div>
     );
 }
+
+    
