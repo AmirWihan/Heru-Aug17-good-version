@@ -1,6 +1,6 @@
 
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus, ShieldAlert, AlertTriangle, Sparkles, Loader2, CheckCircle, MoreHorizontal, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -78,7 +78,7 @@ const chartConfigRevenue = {
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const { clients, tasks, userProfile, teamMembers, addTask } = useGlobalData();
+    const { clients, tasks, userProfile, teamMembers, addTask, dashboardData } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
 
