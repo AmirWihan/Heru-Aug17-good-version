@@ -475,7 +475,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             title: activityTypes.find(t => t.id === newActivityType)?.label || "Activity",
             description: newActivityNotes,
             timestamp: activityTimestamp,
-            teamMember: { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
+            teamMember: { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah" },
         };
         activitiesToAdd.push(newActivity);
 
@@ -508,7 +508,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 title: 'New Task Created',
                 description: `Task "${newTask.title}" assigned to ${assignee.name}.`,
                 timestamp: new Date().toISOString(),
-                teamMember: { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
+                teamMember: { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah" },
             };
             
             updatedClient = {

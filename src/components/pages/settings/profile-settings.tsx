@@ -19,7 +19,7 @@ export function ProfileSettings() {
             <CardContent className="space-y-6">
                  <div className="flex items-center gap-4">
                     <Avatar className="h-20 w-20">
-                        <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Sarah J." />
+                        <AvatarImage src="https://i.pravatar.cc/150?u=sarah" alt="Sarah J." />
                         <AvatarFallback>SJ</AvatarFallback>
                     </Avatar>
                     <Button variant="outline">Change Photo</Button>

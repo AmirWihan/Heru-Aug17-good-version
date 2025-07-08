@@ -1,3 +1,4 @@
+
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
@@ -241,6 +242,23 @@ export type TeamMember = {
 
 export const teamMembers: TeamMember[] = [
     {
+        id: 1, name: 'Sarah Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=sarah', type: 'legal',
+        email: 'sarah.j@heru.com', phone: '+1-202-555-0101', password: 'password123', uid: 'static-sarah', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
+        location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
+        firmName: 'Johnson Legal',
+        firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
+        numEmployees: 8,
+        firmWebsite: 'https://johnsonlegal.ca',
+        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$340k' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }],
+        specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
+        gallery: [
+            { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
+            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'professional team' },
+            { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'happy client' },
+            { id: 4, src: 'https://placehold.co/600x400.png', alt: 'Charity run event', dataAiHint: 'charity event' },
+        ]
+    },
+    {
         id: 10,
         name: 'Super Admin',
         role: 'Super Admin',
@@ -328,23 +346,6 @@ export const teamMembers: TeamMember[] = [
         specialties: ['Awaiting Activation']
     },
     {
-        id: 1, name: 'Emma Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=emma', type: 'legal',
-        email: 'emma.j@heru.com', phone: '+1-202-555-0101', password: 'password123', uid: 'static-emma', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
-        location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
-        firmName: 'Johnson Legal',
-        firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
-        numEmployees: 8,
-        firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$340k' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }],
-        specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
-        gallery: [
-            { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
-            { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'professional team' },
-            { id: 3, src: 'https://placehold.co/600x400.png', alt: 'Client success celebration', dataAiHint: 'happy client' },
-            { id: 4, src: 'https://placehold.co/600x400.png', alt: 'Charity run event', dataAiHint: 'charity event' },
-        ]
-    },
-    {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
         email: 'michael.c@heru.com', phone: '+1-202-555-0102', password: 'password123', uid: 'static-michael', accessLevel: 'Member', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
@@ -401,7 +402,7 @@ export const tasksData: Task[] = [
         title: 'Follow up on document submission',
         description: 'Client Adebola Okonjo has submitted documents. Please review for completeness and accuracy.',
         client: { id: 1, name: 'Adebola Okonjo', avatar: 'https://i.pravatar.cc/150?u=adebola' },
-        assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
+        assignedTo: { name: 'Sarah Johnson', avatar: 'https://i.pravatar.cc/150?u=sarah' },
         dueDate: '2024-07-25',
         priority: 'High',
         status: 'To Do',
@@ -431,7 +432,7 @@ export const tasksData: Task[] = [
         title: 'Draft submission cover letter',
         description: 'Draft the cover letter for James Wilson\'s work permit extension application.',
         client: { id: 5, name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' },
-        assignedTo: { name: 'Emma Johnson', avatar: 'https://i.pravatar.cc/150?u=emma' },
+        assignedTo: { name: 'Sarah Johnson', avatar: 'https://i.pravatar.cc/150?u=sarah' },
         dueDate: '2024-07-24',
         priority: 'High',
         status: 'To Do',
@@ -518,14 +519,14 @@ export const clients: Client[] = [
             { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[1] },
         ],
         documents: [
-            { id: 101, type: 'form', submissionGroup: 'Main Form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Emma Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 101, type: 'form', submissionGroup: 'Main Form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Sarah Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=sarah' }] },
             { id: 102, type: 'form', submissionGroup: 'Main Form', title: 'Family Information Form (IMM 5707)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true },
             { id: 103, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
             { id: 104, type: 'supporting', submissionGroup: 'Supporting Document', title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
-            { id: 105, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected', comments: [{id: 2, author: 'Emma Johnson', text: 'Hi James, the submitted pay stubs were for the wrong period. Please upload stubs for March, April, and May 2023.', timestamp: '1d ago', avatar: 'https://i.pravatar.cc/150?u=emma' }] },
+            { id: 105, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Pay Stubs (3 months)', category: 'Financial', dateAdded: '2023-06-05', status: 'Rejected', comments: [{id: 2, author: 'Sarah Johnson', text: 'Hi James, the submitted pay stubs were for the wrong period. Please upload stubs for March, April, and May 2023.', timestamp: '1d ago', avatar: 'https://i.pravatar.cc/150?u=sarah' }] },
             { id: 106, type: 'supporting', submissionGroup: 'Additional Document', title: 'Proof of Funds', status: 'Requested' as const, dateAdded: '2023-06-15', category: 'Financial' },
         ],
-        tasks: [tasksData[3], {id: 6, title: 'Review LMIA Application', client: {id: 5, name: 'James Wilson', avatar: '...'}, assignedTo: {name: 'Emma Johnson', avatar: '...'}, dueDate: '2024-07-30', priority: 'High', status: 'To Do'}],
+        tasks: [tasksData[3], {id: 6, title: 'Review LMIA Application', client: {id: 5, name: 'James Wilson', avatar: '...'}, assignedTo: {name: 'Sarah Johnson', avatar: '...'}, dueDate: '2024-07-30', priority: 'High', status: 'To Do'}],
         agreements: [
             {
                 id: 1,
@@ -668,13 +669,13 @@ export const documents: DocumentTemplate[] = [
 export const messagesData = [
     {
       id: 1,
-      name: 'Emma Johnson',
-      avatar: 'https://i.pravatar.cc/150?u=emma',
+      name: 'Sarah Johnson',
+      avatar: 'https://i.pravatar.cc/150?u=sarah',
       lastMessage: 'Hi James, I just checked the portal. It\'s still showing as "under review". I will follow up with them next week if there\'s no change.',
       time: '1h ago',
       unreadCount: 0,
       messages: [
-        { id: 1, sender: 'James Wilson', text: 'Hi Emma, hope you\'re well.', timestamp: '10:30 AM' },
+        { id: 1, sender: 'James Wilson', text: 'Hi Sarah, hope you\'re well.', timestamp: '10:30 AM' },
         { id: 2, sender: 'James Wilson', text: 'Hi, I was wondering about the status of my work permit application? Any updates from IRCC?', timestamp: '10:32 AM' },
         { id: 3, sender: 'me', text: 'Hi James, I just checked the portal. It\'s still showing as "under review". I will follow up with them next week if there\'s no change.', timestamp: '11:15 AM' },
       ],
@@ -905,7 +906,7 @@ export const testimonials = [
         role: 'lawyer',
         quote: "ImmiAssist has transformed my practice. The AI risk alerts have saved me from potentially critical errors multiple times. I'm spending less time on admin and more time winning cases for my clients.",
         name: 'Sarah Johnson',
-        avatar: 'https://i.pravatar.cc/150?u=emma',
+        avatar: 'https://i.pravatar.cc/150?u=sarah',
     },
     {
         role: 'client',
