@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { plans } from "@/lib/data";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+
 
 const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -86,6 +88,17 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
          });
          onOpenChange(false);
      };
+
+     const handleDeleteUser = () => {
+        toast({
+            title: 'User Deleted',
+            description: `${user.name}'s account and all associated data have been permanently deleted (simulation).`,
+            variant: 'destructive',
+        });
+        // In a real app, you'd call a function here to delete the user from the database.
+        // For now, we'll just close the sheet.
+        onOpenChange(false);
+    };
  
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -175,12 +188,28 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                     </div>
                                 </CardContent>
                             </Card>
-                             <Card className="mt-4">
+                             <Card className="mt-4 border-destructive/50">
                                 <CardHeader>
-                                    <CardTitle>Danger Zone</CardTitle>
+                                    <CardTitle className="text-destructive">Danger Zone</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                     <Button variant="destructive">Delete User Account</Button>
+                                     <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive">Delete User Account</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete the account for {user.name} and all of their associated data.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90">Delete User</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                      <p className="text-xs text-muted-foreground mt-2">This action is permanent and cannot be undone.</p>
                                 </CardContent>
                             </Card>
