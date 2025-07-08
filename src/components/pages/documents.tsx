@@ -9,13 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { documentCategories, documents as allDocumentTemplates, clients as allClients, type DocumentTemplate } from "@/lib/data";
-import { FileText, UserPlus, FilePlus2, Edit, Trash2, DownloadCloud, FolderPlus, Search, Plus, ArrowLeft } from "lucide-react";
+import { FileText, UserPlus, FilePlus2, Edit, Trash2, DownloadCloud, FolderPlus, Search, Plus, ArrowLeft, Eye } from "lucide-react";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
 import { ScrollArea } from '../ui/scroll-area';
+import { DocumentViewer } from '../document-viewer';
 
 export function DocumentsPage() {
     const { clients, updateClient } = useGlobalData();
@@ -33,6 +34,7 @@ export function DocumentsPage() {
     const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null);
     const [deletingTemplate, setDeletingTemplate] = useState<DocumentTemplate | null>(null);
     const [selectedClient, setSelectedClient] = useState('');
+    const [viewingTemplate, setViewingTemplate] = useState<DocumentTemplate | null>(null);
 
     const [newTemplateTitle, setNewTemplateTitle] = useState('');
     const [newTemplateDescription, setNewTemplateDescription] = useState('');
@@ -253,6 +255,9 @@ export function DocumentsPage() {
                                                 <p className="text-sm text-muted-foreground">{doc.description}</p>
                                             </div>
                                             <div className="flex items-center gap-1">
+                                                <Button variant="ghost" size="icon" title="Preview Template" onClick={() => setViewingTemplate(doc)}>
+                                                    <Eye className="h-4 w-4" />
+                                                </Button>
                                                 {doc.sourceUrl && ( <Link href={doc.sourceUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="icon" title="Download from Source"><DownloadCloud className="h-4 w-4" /></Button></Link> )}
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenEditTemplateDialog(doc)}><Edit className="h-4 w-4" /></Button>
                                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteTemplate(doc)}><Trash2 className="h-4 w-4" /></Button>
@@ -265,6 +270,12 @@ export function DocumentsPage() {
                     </Card>
                 </div>
             </div>
+
+            <DocumentViewer
+                isOpen={!!viewingTemplate}
+                onOpenChange={(isOpen) => !isOpen && setViewingTemplate(null)}
+                document={viewingTemplate ? { title: viewingTemplate.title, url: 'https://unpkg.com/pdfjs-dist@3.4.120/web/compressed.tracemonkey-pldi-09.pdf' } : null}
+            />
 
             <Dialog open={isNewCategoryDialogOpen} onOpenChange={setNewCategoryDialogOpen}>
                 <DialogContent className="max-w-4xl h-[80vh] flex flex-col">

@@ -230,6 +230,26 @@ export type TeamMember = {
     socials?: SocialLink[];
 };
 
+export type Lead = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    company: string;
+    status: 'New' | 'Contacted' | 'Qualified' | 'Unqualified';
+    source: string;
+    owner: { name: string; avatar: string; };
+    lastContacted: string;
+    createdDate: string;
+    avatar?: string;
+    activity?: {
+        id: number;
+        type: 'Call' | 'Email' | 'Note';
+        notes: string;
+        date: string;
+    }[];
+};
+
 export const teamMembers: TeamMember[] = [
     {
         id: 1, name: 'Sarah Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=sarah', type: 'legal',
@@ -833,7 +853,7 @@ export const salesPerformanceData = {
     ]
 };
 
-export const leadsData = [
+export const leadsData: Lead[] = [
     {
         id: 1,
         name: 'John Smith',
@@ -844,7 +864,11 @@ export const leadsData = [
         source: 'Website Form',
         owner: teamMembers[4], // Jessica Miller
         lastContacted: '2024-07-20T10:00:00Z',
-        createdDate: '2024-07-20T10:00:00Z'
+        createdDate: '2024-07-20T10:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=johnsmith',
+        activity: [
+            { id: 1, type: 'Note', notes: 'Initial inquiry about corporate packages.', date: '2024-07-20T10:00:00Z' }
+        ]
     },
     {
         id: 2,
@@ -856,7 +880,11 @@ export const leadsData = [
         source: 'Referral',
         owner: teamMembers[5], // Chris Davis
         lastContacted: '2024-07-22T14:30:00Z',
-        createdDate: '2024-07-18T09:00:00Z'
+        createdDate: '2024-07-18T09:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=mariagarcia',
+        activity: [
+             { id: 1, type: 'Call', notes: 'Initial introductory call. Sent follow-up email.', date: '2024-07-22T14:30:00Z' }
+        ]
     },
     {
         id: 3,
@@ -868,7 +896,11 @@ export const leadsData = [
         source: 'LinkedIn',
         owner: teamMembers[4], // Jessica Miller
         lastContacted: '2024-07-23T11:00:00Z',
-        createdDate: '2024-07-15T15:00:00Z'
+        createdDate: '2024-07-15T15:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=chenwang',
+        activity: [
+             { id: 1, type: 'Email', notes: 'Replied to pricing inquiry. Scheduled a demo.', date: '2024-07-23T11:00:00Z' }
+        ]
     },
     {
         id: 4,
@@ -880,7 +912,11 @@ export const leadsData = [
         source: 'Cold Call',
         owner: teamMembers[5], // Chris Davis
         lastContacted: '2024-07-19T16:00:00Z',
-        createdDate: '2024-07-19T14:00:00Z'
+        createdDate: '2024-07-19T14:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=aishakhan',
+         activity: [
+             { id: 1, type: 'Note', notes: 'Not a good fit. Looking for a different type of software.', date: '2024-07-19T16:00:00Z' }
+        ]
     },
     {
         id: 5,
@@ -892,12 +928,11 @@ export const leadsData = [
         source: 'Website Form',
         owner: teamMembers[4], // Jessica Miller
         lastContacted: '2024-07-24T09:00:00Z',
-        createdDate: '2024-07-24T09:00:00Z'
+        createdDate: '2024-07-24T09:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=davidmiller',
+        activity: []
     }
 ];
-
-export type Lead = typeof leadsData[0];
-
 
 export const teamMembersWithStats = [
   ...teamMembers,

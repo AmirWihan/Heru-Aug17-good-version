@@ -11,9 +11,13 @@ import { useGlobalData } from "@/context/GlobalDataContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
-const StatCard = ({ title, value, change, icon: Icon, changeType = 'up' }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down' }) => (
-    <Card>
+const StatCard = ({ title, value, change, icon: Icon, changeType = 'up', onClick }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down', onClick?: () => void }) => (
+    <Card
+        className={cn("transition-all duration-300 hover:shadow-lg hover:-translate-y-1", onClick && "cursor-pointer")}
+        onClick={onClick}
+    >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -74,9 +78,9 @@ export function AdminOverviewPage() {
                 </CardHeader>
             </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Applicants" value={totalApplicants.toLocaleString()} change="Total client accounts on the platform" icon={Users} />
-                <StatCard title="Active Firms" value={activeFirms.toLocaleString()} change="Verified legal firms" icon={UserCheck} />
-                <StatCard title="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} change="From all completed payments" icon={DollarSign} />
+                <StatCard title="Total Applicants" value={totalApplicants.toLocaleString()} change="Total client accounts on the platform" icon={Users} onClick={() => setPage('users')}/>
+                <StatCard title="Active Firms" value={activeFirms.toLocaleString()} change="Verified legal firms" icon={UserCheck} onClick={() => setPage('users')}/>
+                <StatCard title="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} change="From all completed payments" icon={DollarSign} onClick={() => setPage('payments')}/>
                 <StatCard title="Action Items" value={totalActionItems.toString()} change="Pending across platform" icon={Bell} changeType="down"/>
             </div>
             
