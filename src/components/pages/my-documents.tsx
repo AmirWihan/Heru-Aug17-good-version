@@ -58,16 +58,16 @@ const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSe
                 </div>
                 <div className="flex items-center gap-1">
                     {(doc.status === 'Uploaded' || doc.status === 'Pending Review' || doc.status === 'Approved' || doc.status === 'Pending Client Review') && (
-                        <Button variant="ghost" size="icon" onClick={() => setIsEditorOpen(true)}><Eye className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setIsEditorOpen(true); }}><Eye className="h-4 w-4" /></Button>
                     )}
-                    {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={() => toast({ title: "Downloading...", description: `${doc.title}.pdf` })}><Download className="h-4 w-4" /></Button>}
+                    {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: "Downloading...", description: `${doc.title}.pdf` })}}><Download className="h-4 w-4" /></Button>}
                     {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
                 </div>
             </div>
             <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
                 <DialogContent className="max-w-4xl h-[90vh]">
                     <DialogHeader>
-                        <DialogTitle>Editing: {doc.title}</DialogTitle>
+                        <DialogTitle>Viewing: {doc.title}</DialogTitle>
                     </DialogHeader>
                     <div className="flex-1 bg-muted/50 rounded-lg flex items-center justify-center text-muted-foreground">
                         <p>Online document editor/viewer placeholder.</p>

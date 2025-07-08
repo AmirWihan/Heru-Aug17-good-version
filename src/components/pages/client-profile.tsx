@@ -106,7 +106,7 @@ interface ClientProfileProps {
     onUpdateClient: (updatedClient: Client) => void;
 }
 
-const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onActionClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onActionClick: (action: 'view' | 're-upload' | 'delete', docId: number) => void }) => {
+const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (documents.length === 0) return null;
     return (
         <div className="space-y-3">
@@ -126,10 +126,10 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                                 <TableCell className="font-medium">{doc.title}</TableCell>
                                 <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
                                 <TableCell className="text-right space-x-1">
+                                    <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
                                     <Button variant="ghost" size="icon" title="Approve" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Approved')}}><CheckCircle className="h-4 w-4 text-green-600" /></Button>
                                     <Button variant="ghost" size="icon" title="Reject" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Rejected')}}><XCircle className="h-4 w-4 text-red-600" /></Button>
-                                    <Button variant="ghost" size="icon" title="Request Re-upload" onClick={(e) => { e.stopPropagation(); onActionClick('re-upload', doc.id) }}><Upload className="h-4 w-4" /></Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -200,6 +200,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const [docAnalysisResult, setDocAnalysisResult] = useState<DocumentAnalysisOutput | null>(null);
     const [analyzedDocTitle, setAnalyzedDocTitle] = useState('');
     const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false);
+    const [viewingDocument, setViewingDocument] = useState<ClientDocument | null>(null);
 
     const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email"));
 
@@ -802,7 +803,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     selectedDocId={selectedDocument?.id || null}
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
-                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                    onViewClick={setViewingDocument}
                                     onAnalyze={handleAnalyzeDocument}
                                 />
                                  <DocumentSection
@@ -811,7 +812,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     selectedDocId={selectedDocument?.id || null}
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
-                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                    onViewClick={setViewingDocument}
                                     onAnalyze={handleAnalyzeDocument}
                                 />
                                  <DocumentSection
@@ -820,7 +821,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                                     selectedDocId={selectedDocument?.id || null}
                                     onSelect={setSelectedDocument}
                                     onStatusChange={handleDocumentStatusChange}
-                                    onActionClick={(action, docId) => console.log(action, docId)}
+                                    onViewClick={setViewingDocument}
                                     onAnalyze={handleAnalyzeDocument}
                                 />
                             </div>
@@ -1180,6 +1181,17 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     </TabsContent>
                 )}
             </Tabs>
+            
+            <Dialog open={!!viewingDocument} onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}>
+                <DialogContent className="max-w-4xl h-[90vh]">
+                    <DialogHeader>
+                        <DialogTitle>Viewing: {viewingDocument?.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 bg-muted/50 rounded-lg flex items-center justify-center text-muted-foreground">
+                        <p>Online document editor/viewer placeholder.</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">

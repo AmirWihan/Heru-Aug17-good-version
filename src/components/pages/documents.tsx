@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -252,7 +253,7 @@ export function DocumentsPage() {
                                                 <p className="text-sm text-muted-foreground">{doc.description}</p>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                {doc.sourceUrl && ( <Link href={doc.sourceUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="icon"><DownloadCloud className="h-4 w-4" /></Button></Link> )}
+                                                {doc.sourceUrl && ( <Link href={doc.sourceUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="icon" title="Download from Source"><DownloadCloud className="h-4 w-4" /></Button></Link> )}
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenEditTemplateDialog(doc)}><Edit className="h-4 w-4" /></Button>
                                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteTemplate(doc)}><Trash2 className="h-4 w-4" /></Button>
                                             </div>
