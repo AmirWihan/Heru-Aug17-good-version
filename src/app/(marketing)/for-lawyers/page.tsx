@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart, FileStack, ShieldAlert, Users, Wand2, Zap } from 'lucide-react';
+import { ArrowRight, BarChart, FileStack, ShieldAlert, Users, Wand2, Zap, FileHeart } from 'lucide-react';
 import Link from 'next/link';
 import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
 import { PricingTable } from '@/components/pricing-table';
 import { Faq } from '@/components/faq';
 import { TestimonialCard } from '@/components/testimonial-card';
 import { faqs, testimonials } from '@/lib/data';
+import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
+import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
 
 const lawyerTestimonial = testimonials.find((t) => t.role === 'lawyer');
 
@@ -81,66 +83,66 @@ export default function ForLawyersPage() {
         </div>
       </section>
 
-      {/* Solution/Feature Section */}
+      {/* Feature 1: Centralized Dashboard */}
       <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-block bg-primary/10 text-primary p-3 rounded-full mb-4">
-              <Zap className="h-8 w-8" />
-            </div>
-            <h2 className="text-3xl font-bold font-headline">
-              Your All-in-One Command Center
-            </h2>
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold font-headline">A Single Source of Truth for Every Case</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Heru brings everything you need into one intelligent
-              platform, designed to supercharge your practice.
+              Heru's intelligent dashboard gives you a 360-degree view of your firm. Track client progress, monitor team tasks, and see revenue insights—all in one place.
             </p>
+            <ul className="mt-6 space-y-3">
+              <li className="flex items-start gap-3"><Users className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">Centralized Client Management</h4><p className="text-muted-foreground">Access every client profile, document, and communication instantly.</p></div></li>
+              <li className="flex items-start gap-3"><ShieldAlert className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">AI-Powered Risk Alerts</h4><p className="text-muted-foreground">Proactively identify approaching deadlines and missing documents before they become problems.</p></div></li>
+              <li className="flex items-start gap-3"><BarChart className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">Firm-Wide Reporting</h4><p className="text-muted-foreground">Make data-driven decisions with real-time analytics on revenue, case types, and team performance.</p></div></li>
+            </ul>
           </div>
-          <div className="mt-12">
-            <LawyerDashboardScreenshot />
+          <div className="relative">
+            <div className="absolute -inset-8 bg-gradient-to-r from-primary to-accent rounded-xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="relative">
+              <LawyerDashboardScreenshot />
+            </div>
           </div>
-          <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="space-y-1">
-              <h3 className="font-semibold">Centralized Client Management</h3>
-              <p className="text-muted-foreground">
-                Manage every client profile, document, task, and communication
-                from a single, unified view.
-              </p>
+        </div>
+      </section>
+
+      {/* Feature 2: AI Document Automation */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+          <div className="md:order-2">
+            <h2 className="text-3xl font-bold font-headline">Automate the Tedious. Focus on the Strategy.</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Stop wasting billable hours on repetitive data entry. Heru’s AI can pre-fill complex immigration forms from a single client intake form, drastically reducing preparation time and eliminating costly errors.
+            </p>
+            <ul className="mt-6 space-y-3">
+              <li className="flex items-start gap-3"><Wand2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">Intelligent Form Filling</h4><p className="text-muted-foreground">Complete a client's intake once and let AI populate dozens of official forms.</p></div></li>
+              <li className="flex items-start gap-3"><FileStack className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">Streamlined Document Management</h4><p className="text-muted-foreground">Request, review, and approve documents in a centralized, easy-to-track system.</p></div></li>
+            </ul>
+          </div>
+          <div className="md:order-1 relative">
+            <div className="absolute -inset-8 bg-gradient-to-l from-primary to-accent rounded-xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="relative">
+              <DocumentManagementScreenshot />
             </div>
-             <div className="space-y-1">
-              <h3 className="font-semibold">AI-Powered Document Generation</h3>
-              <p className="text-muted-foreground">
-                Leverage AI to automatically pre-fill complex immigration forms from a single client intake. Save hours of manual data entry.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold">AI-Powered Risk Analysis</h3>
-              <p className="text-muted-foreground">
-                Our AI proactively scans your caseload for approaching
-                deadlines, missing documents, and stale cases.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold">Automated Document Checklists</h3>
-              <p className="text-muted-foreground">
-                Assign pre-built or custom document checklists to clients and
-                track submission status in real-time.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold">Secure Client Portal</h3>
-              <p className="text-muted-foreground">
-                Give clients a secure, branded portal to upload documents, view
-                case progress, and communicate with your team.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold">Advanced Reporting</h3>
-              <p className="text-muted-foreground">
-                Get instant insights into your firm's revenue, client
-                acquisition, and team performance with visual reports.
-              </p>
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 3: Client Collaboration */}
+      <section className="py-16 bg-muted">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold font-headline">A Seamless Experience for Your Clients</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Empower your clients with a secure, professional portal where they can track their application progress, upload documents, and communicate with your team.
+            </p>
+            <ul className="mt-6 space-y-3">
+              <li className="flex items-start gap-3"><FileHeart className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">Secure Document Upload</h4><p className="text-muted-foreground">Clients can easily upload requested documents, which appear directly in their case file.</p></div></li>
+              <li className="flex items-start gap-3"><Zap className="h-6 w-6 text-primary flex-shrink-0 mt-1" /><div><h4 className="font-semibold">AI-Powered Timelines</h4><p className="text-muted-foreground">Provide clients with a personalized, estimated timeline of their immigration journey.</p></div></li>
+            </ul>
+          </div>
+          <div className="relative">
+              <ClientDashboardScreenshot />
           </div>
         </div>
       </section>
