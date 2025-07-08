@@ -4,14 +4,14 @@ import { useMemo } from "react";
 import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare, Mail, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { dashboardData } from "@/lib/data";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
-import { TeamPerformance } from "../sales-team-performance";
+import { TeamPerformance } from "../team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { dashboardData, invoicesData } from "@/lib/data";
 
 const StatCard = ({ title, value, change, icon: Icon, changeType = 'up', onClick }: { title: string, value: string, change: string, icon: React.ElementType, changeType?: 'up' | 'down', onClick?: () => void }) => (
     <Card
@@ -31,7 +31,7 @@ const StatCard = ({ title, value, change, icon: Icon, changeType = 'up', onClick
 
 export function AdminOverviewPage() {
     const { setPage } = useAdminDashboard();
-    const { teamMembers, clients, tasks, invoicesData } = useGlobalData();
+    const { teamMembers, clients, tasks } = useGlobalData();
 
     const {
         totalApplicants,
@@ -66,7 +66,7 @@ export function AdminOverviewPage() {
 
         const totalActionItems = actionItems.reduce((acc, item) => acc + item.count, 0);
         return { totalApplicants, activeFirms, totalRevenue, totalActionItems, actionItems };
-    }, [clients, teamMembers, invoicesData]);
+    }, [clients, teamMembers]);
 
 
     return (
