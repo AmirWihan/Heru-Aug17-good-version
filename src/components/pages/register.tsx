@@ -1,10 +1,10 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
@@ -31,13 +31,28 @@ const registerSchema = z.object({
 export function RegisterPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { register } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
 
+    const roleParam = searchParams.get('role');
+
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
-        defaultValues: { role: undefined, fullName: "", email: "", password: "" },
+        defaultValues: { 
+            role: roleParam === 'lawyer' || roleParam === 'client' ? roleParam : undefined, 
+            fullName: "", 
+            email: "", 
+            password: "" 
+        },
     });
+
+    useEffect(() => {
+        if (roleParam === 'lawyer' || roleParam === 'client') {
+            form.setValue('role', roleParam);
+        }
+    }, [roleParam, form]);
+
 
     const onSubmit = async (values: z.infer<typeof registerSchema>) => {
         setIsLoading(true);
@@ -89,7 +104,7 @@ export function RegisterPage() {
                                     <FormItem className="space-y-3">
                                         <FormLabel>I am a...</FormLabel>
                                         <FormControl>
-                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4">
+                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
                                                 <FormItem className="flex items-center space-x-2 space-y-0">
                                                     <FormControl><RadioGroupItem value="lawyer" /></FormControl>
                                                     <FormLabel className="font-normal">Lawyer / Professional</FormLabel>
