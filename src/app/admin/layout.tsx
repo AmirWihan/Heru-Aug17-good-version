@@ -11,6 +11,7 @@ const pageTitles: { [key: string]: string } = {
     'users': 'User Management',
     'team': 'Platform Team Roster',
     'tasks': 'All Tasks',
+    'documents': 'Document Library',
     'analytics': 'Platform Analytics',
     'payments': 'Payments & Subscriptions',
     'notifications': 'System Notifications',
