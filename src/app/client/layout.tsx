@@ -35,7 +35,7 @@ function ClientDashboardLayoutContent({ children }: { children: React.ReactNode 
                             {children}
                         </div>
                         <footer className="text-center text-xs text-muted-foreground pt-8">
-                            Designed & Empowered by Heru
+                            Designed & Empowered by VisaFor
                         </footer>
                     </main>
                 </div>

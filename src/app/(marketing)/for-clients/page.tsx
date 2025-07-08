@@ -23,7 +23,7 @@ export default function ForClientsPage() {
                         Your Clearest Path to Canada.
                     </h1>
                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                        The immigration process is complex. Heru simplifies it. Connect with verified legal experts, track your application with an AI-powered timeline, and manage your documents securely in one place.
+                        The immigration process is complex. VisaFor simplifies it. Connect with verified legal experts, track your application with an AI-powered timeline, and manage your documents securely in one place.
                     </p>
                     <div className="mt-8">
                         <Link href="/register">
@@ -95,7 +95,7 @@ export default function ForClientsPage() {
                         </div>
                         <h2 className="text-3xl font-bold font-headline">AI-Powered Career Tools</h2>
                         <p className="text-lg text-muted-foreground">
-                           Heru helps you prepare for your new life in Canada. Our AI tools can generate professional resumes and cover letters tailored to the Canadian job market, based on the information you provide.
+                           VisaFor helps you prepare for your new life in Canada. Our AI tools can generate professional resumes and cover letters tailored to the Canadian job market, based on the information you provide.
                         </p>
                         <ul className="space-y-2 pt-2">
                             <li className="flex items-center gap-2"><Briefcase className="h-5 w-5 text-green-500" /><span>Canadian-Format Resume Builder</span></li>

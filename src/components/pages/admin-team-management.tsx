@@ -1,11 +1,10 @@
-
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
-import { AdminTeamPerformance } from "../admin-team-performance";
+import { SalesTeamPerformance } from "../admin-team-performance";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
@@ -23,7 +22,7 @@ export function AdminTeamManagementPage() {
 
     return (
         <div className="space-y-6">
-            <AdminTeamPerformance />
+            <SalesTeamPerformance />
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">

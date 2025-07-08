@@ -10,7 +10,7 @@ export default function TermsAndConditionsPage() {
                     <CardDescription>Last updated: July 8, 2024</CardDescription>
                 </CardHeader>
                 <CardContent className="prose prose-sm md:prose-base dark:prose-invert max-w-none">
-                    <p>Welcome to Heru ("the Platform"). These Terms and Conditions govern your use of the Heru CRM system. By registering for an account, you agree to be bound by these terms.</p>
+                    <p>Welcome to VisaFor ("the Platform"). These Terms and Conditions govern your use of the VisaFor CRM system. By registering for an account, you agree to be bound by these terms.</p>
                     
                     <h3>1. Professional Responsibility (For Lawyers & Legal Professionals)</h3>
                     <p>As a regulated legal professional using this Platform, you acknowledge and agree to the following:</p>
@@ -26,7 +26,7 @@ export default function TermsAndConditionsPage() {
                     <ul>
                         <li>AI-generated content may contain inaccuracies, errors, or omissions.</li>
                         <li>AI tools are not a substitute for legal research, professional expertise, or independent verification.</li>
-                        <li>Heru Inc. is not liable for any errors, damages, or professional consequences arising from your reliance on AI-generated content without proper professional review.</li>
+                        <li>VisaFor Inc. is not liable for any errors, damages, or professional consequences arising from your reliance on AI-generated content without proper professional review.</li>
                     </ul>
 
                     <h3>3. Account Security</h3>

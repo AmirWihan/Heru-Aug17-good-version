@@ -103,7 +103,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
             <DynamicLogoIcon className="h-8 w-8" />
-            <span className="text-xl font-bold font-headline text-primary">Heru</span>
+            <span className="text-xl font-bold font-headline text-primary">VisaFor</span>
           </Link>
           <Button
             variant="ghost"

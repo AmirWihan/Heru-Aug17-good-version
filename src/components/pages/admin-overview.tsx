@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { dashboardData } from "@/lib/data";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
-import { SalesTeamPerformance } from "../sales-team-performance";
+import { TeamPerformance } from "../sales-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,7 +74,7 @@ export function AdminOverviewPage() {
             <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-yellow-300 via-primary to-primary/90 text-primary-foreground border-0">
                 <CardHeader>
                     <CardTitle className="text-2xl">Welcome, Super Admin!</CardTitle>
-                    <CardDescription className="text-primary-foreground/80">Here's your platform summary and urgent tasks for today.</CardDescription>
+                    <CardDescription className="text-primary-foreground/80">Here's the summary for the VisaFor platform and your urgent tasks for today.</CardDescription>
                 </CardHeader>
             </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -184,7 +184,7 @@ export function AdminOverviewPage() {
                      </CardContent>
                  </Card>
             </div>
-             <SalesTeamPerformance />
+             <TeamPerformance />
         </div>
     );
 }

@@ -76,7 +76,7 @@ export function RegisterPage() {
                 <div className="text-center">
                     <DynamicLogoIcon className="mx-auto h-12 w-12" />
                     <h1 className="mt-4 font-headline text-3xl font-bold">Create an Account</h1>
-                    <p className="mt-2 text-muted-foreground">Join Heru to streamline your immigration journey.</p>
+                    <p className="mt-2 text-muted-foreground">Join VisaFor to streamline your immigration journey.</p>
                 </div>
                 <Card>
                     <CardHeader>
@@ -151,7 +151,7 @@ export function RegisterPage() {
                                             </FormControl>
                                             <div className="space-y-1 leading-none">
                                                 <FormLabel className="text-sm">
-                                                   I would like to receive news and marketing emails from Heru.
+                                                   I would like to receive news and marketing emails from VisaFor.
                                                 </FormLabel>
                                             </div>
                                         </FormItem>

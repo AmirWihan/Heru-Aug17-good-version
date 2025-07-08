@@ -64,7 +64,7 @@ export function PlatformSettingsPage() {
              <Card>
                 <CardHeader>
                     <CardTitle>Platform Settings</CardTitle>
-                    <CardDescription>Manage global settings for the Heru platform.</CardDescription>
+                    <CardDescription>Manage global settings for the VisaFor platform.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="general">
@@ -81,7 +81,7 @@ export function PlatformSettingsPage() {
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="platform-name">Platform Name</Label>
-                                        <Input id="platform-name" defaultValue="Heru Immigration CRM" />
+                                        <Input id="platform-name" defaultValue="VisaFor Immigration CRM" />
                                     </div>
                                      <div className="space-y-2">
                                         <Label>Platform Logo</Label>
@@ -290,5 +290,3 @@ export function PlatformSettingsPage() {
         </div>
     );
 }
-
-    

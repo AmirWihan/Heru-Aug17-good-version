@@ -24,7 +24,7 @@ export default function ForLawyersPage() {
             The Command Center for <br /> Modern Immigration Firms.
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Stop juggling spreadsheets and disconnected tools. Heru is the
+            Stop juggling spreadsheets and disconnected tools. VisaFor is the
             all-in-one CRM designed to help you manage clients, automate
             workflows, and grow your practice with AI-powered insights.
           </p>
@@ -72,7 +72,7 @@ export default function ForLawyersPage() {
                     </div>
                     <h2 className="text-3xl font-bold font-headline">A Single Hub for Every Client</h2>
                     <p className="text-lg text-muted-foreground">
-                       Stop juggling spreadsheets and disconnected tools. Heru provides a robust CRM as a single source of truth to manage client details, track every case milestone, and log all communications in one organized hub.
+                       Stop juggling spreadsheets and disconnected tools. VisaFor provides a robust CRM as a single source of truth to manage client details, track every case milestone, and log all communications in one organized hub.
                     </p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /><span>Centralized Client Database</span></li>
@@ -206,7 +206,7 @@ export default function ForLawyersPage() {
             Ready to Revolutionize Your Practice?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Join hundreds of legal professionals who trust Heru to grow
+            Join hundreds of legal professionals who trust VisaFor to grow
             their firm.
           </p>
           <div className="mt-6">

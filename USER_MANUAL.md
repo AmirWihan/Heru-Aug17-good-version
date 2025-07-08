@@ -1,12 +1,12 @@
 
-# Heru - User Manual
+# VisaFor - User Manual
 
 ---
 
 ## Table of Contents
 
 1.  [**Introduction**](#introduction)
-    *   [1.1. What is Heru?](#what-is-heru)
+    *   [1.1. What is VisaFor?](#what-is-visafor)
     *   [1.2. Getting Started: Account Creation & Login](#getting-started-account-creation--login)
 2.  [**User Role: Applicant**](#user-role-applicant)
     *   [2.1. First-Time Onboarding](#first-time-onboarding)
@@ -35,9 +35,9 @@
 
 ## 1. Introduction
 
-### 1.1. What is Heru?
+### 1.1. What is VisaFor?
 
-Welcome to Heru, your all-in-one platform for managing the complexities of the immigration process. Our application is designed to connect applicants with experienced legal professionals, streamline case management, and leverage powerful AI tools to improve efficiency and success rates.
+Welcome to VisaFor, your all-in-one platform for managing the complexities of the immigration process. Our application is designed to connect applicants with experienced legal professionals, streamline case management, and leverage powerful AI tools to improve efficiency and success rates.
 
 **Key Features:**
 
@@ -262,7 +262,7 @@ The **"Platform Settings"** page gives you control over the entire application.
 If you encounter an issue you cannot resolve, please contact our support team.
 
 *   **In-App Support:** Navigate to the **"Help & Support"** page from your dashboard sidebar to submit a ticket.
-*   **Email:** For urgent issues, you can email us at **support@heru.com**.
+*   **Email:** For urgent issues, you can email us at **support@visafor.com**.
 
 ### 5.3. Glossary of Terms
 

@@ -86,7 +86,7 @@ export function AdminSidebar({ isSidebarOpen, setSidebarOpen, activePage, setAct
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
             <DynamicLogoIcon className="h-8 w-8" />
-            <span className="text-xl font-bold font-headline text-primary">Heru Admin</span>
+            <span className="text-xl font-bold font-headline text-primary">VisaFor Admin</span>
           </Link>
           <Button
             variant="ghost"

@@ -72,7 +72,7 @@ export default function LoginPage() {
                     <div className="text-center">
                         <DynamicLogoIcon className="mx-auto h-12 w-12" />
                         <h1 className="mt-4 font-headline text-3xl font-bold">Welcome Back</h1>
-                        <p className="mt-2 text-muted-foreground">Sign in to access your Heru dashboard.</p>
+                        <p className="mt-2 text-muted-foreground">Sign in to access your VisaFor dashboard.</p>
                     </div>
                     <Card>
                         <CardHeader>

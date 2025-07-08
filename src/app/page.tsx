@@ -78,7 +78,7 @@ export default function UserSelectPage() {
             <main className="w-full max-w-4xl space-y-8">
                 <div className="text-center">
                     <DynamicLogoIcon className="mx-auto h-16 w-16 mb-4" />
-                    <h1 className="text-4xl md:text-5xl font-bold font-headline">Welcome to Heru</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold font-headline">Welcome to VisaFor</h1>
                     <p className="mt-2 text-lg text-muted-foreground">Select a user profile to start exploring.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

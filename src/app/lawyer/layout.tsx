@@ -26,7 +26,7 @@ const pageTitles: { [key: string]: string } = {
     'support': 'Help & Support',
 };
 
-const BANNER_DISMISS_KEY = 'heru-upgrade-banner-dismissed-date';
+const BANNER_DISMISS_KEY = 'visafor-upgrade-banner-dismissed-date';
 
 function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const { page, setPage } = useLawyerDashboard();
@@ -66,7 +66,7 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                             {children}
                         </div>
                         <footer className="text-center text-xs text-muted-foreground pt-8">
-                            Designed & Empowered by Heru
+                            Designed & Empowered by VisaFor
                         </footer>
                     </main>
                     {isBannerOpen && (

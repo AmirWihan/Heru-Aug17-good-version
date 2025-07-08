@@ -10,7 +10,7 @@ export function MarketingFooter() {
         <div className="lg:col-span-1 space-y-4">
           <Link href="/" className="flex items-center gap-2">
             <DynamicLogoIcon className="h-8 w-8" />
-            <span className="font-bold font-headline text-xl">Heru</span>
+            <span className="font-bold font-headline text-xl">VisaFor</span>
           </Link>
           <p className="text-muted-foreground text-sm">
             The all-in-one platform for modern immigration firms and applicants.
@@ -45,7 +45,7 @@ export function MarketingFooter() {
       </div>
       <div className="border-t">
         <div className="container flex flex-col md:flex-row items-center justify-between py-6 text-sm text-muted-foreground">
-            <p>&copy; 2024 Heru Inc. All rights reserved.</p>
+            <p>&copy; 2024 VisaFor Inc. All rights reserved.</p>
             <div className="flex gap-4 mt-4 md:mt-0">
                  <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
                  <Link href="#" className="hover:text-foreground">Terms of Service</Link>
