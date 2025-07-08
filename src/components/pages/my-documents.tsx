@@ -33,7 +33,7 @@ const getStatusBadgeVariant = (status: ClientDocument['status']) => {
 
 const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSelect: () => void, isSelected: boolean }) => {
     const { toast } = useToast();
-    const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [isViewerOpen, setIsViewerOpen] = useState(false);
 
     return (
         <>
@@ -59,15 +59,15 @@ const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSe
                 </div>
                 <div className="flex items-center gap-1">
                     {(doc.status === 'Uploaded' || doc.status === 'Pending Review' || doc.status === 'Approved' || doc.status === 'Pending Client Review') && (
-                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setIsEditorOpen(true); }}><Eye className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setIsViewerOpen(true); }}><Eye className="h-4 w-4" /></Button>
                     )}
                     {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: "Downloading...", description: `${doc.title}.pdf` })}}><Download className="h-4 w-4" /></Button>}
                     {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
                 </div>
             </div>
             <DocumentViewer
-                isOpen={isEditorOpen}
-                onOpenChange={setIsEditorOpen}
+                isOpen={isViewerOpen}
+                onOpenChange={setIsViewerOpen}
                 document={doc}
             />
         </>

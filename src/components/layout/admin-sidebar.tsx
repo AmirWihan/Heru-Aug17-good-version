@@ -36,7 +36,7 @@ const navItems = [
   { id: 'team', label: 'Platform Team', icon: Briefcase },
   { id: 'tasks', label: 'All Tasks', icon: CheckSquare },
   { id: 'documents', label: 'Document Library', icon: FileArchive },
-  { id: 'analytics', label: 'Analytics', icon: LineChart },
+  { id: 'analytics', label: 'Platform Analytics', icon: LineChart },
   { id: 'payments', label: 'Payments & Subs', icon: CreditCard },
   { id: 'notifications', label: 'System Notifications', icon: Bell },
   { id: 'support-tickets', label: 'Support Tickets', icon: LifeBuoy },
