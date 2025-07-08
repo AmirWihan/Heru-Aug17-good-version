@@ -5,7 +5,7 @@ import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
-import { TeamPerformance } from "../team-performance";
+import { TeamPerformance } from "../sales-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
