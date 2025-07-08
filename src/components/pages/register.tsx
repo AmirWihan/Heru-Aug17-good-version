@@ -15,12 +15,17 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlobalData } from '@/context/GlobalDataContext';
+import { Checkbox } from '../ui/checkbox';
 
 const registerSchema = z.object({
   role: z.enum(['lawyer', 'client'], { required_error: 'Please select your role.' }),
   fullName: z.string().min(2, "Full name is required."),
   email: z.string().email("A valid email is required."),
   password: z.string().min(8, "Password must be at least 8 characters."),
+  termsAgreed: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to the terms and conditions." }),
+  }),
+  marketingConsent: z.boolean().default(false).optional(),
 });
 
 export function RegisterPage() {
@@ -119,6 +124,39 @@ export function RegisterPage() {
                                         <FormMessage />
                                     </FormItem>
                                 )} />
+                                 <FormField
+                                    control={form.control}
+                                    name="termsAgreed"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md py-2">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none">
+                                                <FormLabel className="text-sm">
+                                                    I agree to the <Link href="/terms" target="_blank" className="underline hover:text-primary">Terms and Conditions</Link>.
+                                                </FormLabel>
+                                                <FormMessage />
+                                            </div>
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="marketingConsent"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none">
+                                                <FormLabel className="text-sm">
+                                                   I would like to receive news and marketing emails from Heru.
+                                                </FormLabel>
+                                            </div>
+                                        </FormItem>
+                                    )}
+                                />
                                 <Button className="w-full" type="submit" disabled={isLoading}>
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Create Account
