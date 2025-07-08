@@ -31,7 +31,7 @@ const LeadCard = ({ lead, onConvert, onView }: { lead: Lead, onConvert: (leadId:
                     </div>
                 </div>
                 <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Source: <Badge variant="secondary">{lead.source}</Badge></p>
+                    <div className="flex items-center">Source: <Badge variant="secondary" className="ml-2">{lead.source}</Badge></div>
                     <p>Owner: {lead.owner.name}</p>
                     <p>Last Contacted: {new Date(lead.lastContacted).toLocaleDateString()}</p>
                 </div>
