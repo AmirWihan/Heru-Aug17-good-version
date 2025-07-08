@@ -6,7 +6,7 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquar
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { irccNewsData, reportsData, type Task } from "@/lib/data";
+import { irccNewsData, reportsData, type Task, dashboardData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
@@ -21,7 +21,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from "@/lib/utils";
-import { dashboardData } from "@/lib/data";
 
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer, onClick }: { title: string, value: string, icon: React.ElementType, change?: string, changeType?: 'up' | 'down', footer?: string, onClick?: () => void }) => (

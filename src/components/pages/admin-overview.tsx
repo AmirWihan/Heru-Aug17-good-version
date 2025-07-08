@@ -1,7 +1,7 @@
 
 'use client';
 import { useMemo } from "react";
-import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare, Mail } from "lucide-react";
+import { Users, UserCheck, DollarSign, Bell, ShieldCheck, FileClock, CheckSquare, Mail, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { dashboardData } from "@/lib/data";
