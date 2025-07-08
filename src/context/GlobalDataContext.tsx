@@ -3,7 +3,7 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { 
     clients as staticClients, 
@@ -47,8 +47,25 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 
 const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
 
+// This component isolates the useAuthState hook so it's only called when Firebase is enabled.
+const AuthStateListener = ({ setAuthData }: { setAuthData: Function }) => {
+    const [user, loading, error] = useAuthState(auth!);
+    
+    useEffect(() => {
+        setAuthData({ user, loading, error });
+    }, [user, loading, error, setAuthData]);
+
+    return null;
+}
+
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
-    const [user, authLoading, authError] = isFirebaseEnabled ? useAuthState(auth) : [null, false, undefined];
+    const [authData, setAuthData] = useState<{user: User | null; loading: boolean; error: Error | undefined}>({
+        user: null,
+        loading: !isFirebaseEnabled, // If firebase is not enabled, we are not loading.
+        error: undefined,
+    });
+    const { user, loading: authLoading, error: authError } = authData;
+
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -60,7 +77,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
 
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
-    const [theme, setThemeState] = useState('sky');
+    const [theme, setThemeState] = useState('blue');
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -109,7 +126,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
-        if (isFirebaseEnabled) {
+        if (isFirebaseEnabled && auth) {
             const userCredential = await signInWithEmailAndPassword(auth, email, pass);
             const userDocRef = doc(db, 'users', userCredential.user.uid);
             const userDoc = await getDoc(userDocRef);
@@ -139,14 +156,14 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(async () => {
-        if (isFirebaseEnabled) {
+        if (isFirebaseEnabled && auth) {
             await signOut(auth);
         }
         setUserProfile(null);
     }, []);
 
     const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }): Promise<UserProfile | null> => {
-        if (!isFirebaseEnabled) {
+        if (!isFirebaseEnabled || !auth) {
             console.warn("Firebase not configured. Registration is disabled.");
             return null;
         }
@@ -220,11 +237,12 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading: loading || (isFirebaseEnabled && authLoading), login, logout, register,
+            userProfile, loading: loading || authLoading, login, logout, register,
             teamMembers, clients, tasks, appointments, notifications,
             updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,
         }}>
+            {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
             {children}
         </GlobalDataContext.Provider>
     );

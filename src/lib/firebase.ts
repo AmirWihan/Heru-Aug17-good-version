@@ -15,10 +15,10 @@ const firebaseConfig = {
 // Check if all necessary Firebase config keys are present
 export const isFirebaseEnabled = !!firebaseConfig.apiKey;
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let db: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
 
 if (isFirebaseEnabled) {
   try {
@@ -28,26 +28,17 @@ if (isFirebaseEnabled) {
     storage = getStorage(app);
   } catch (e) {
     console.error("Failed to initialize Firebase", e);
-    // @ts-ignore
-    app = null;
-    // @ts-ignore
-    auth = null;
-    // @ts-ignore
-    db = null;
-    // @ts-ignore
-    storage = null;
+    app = undefined;
+    auth = undefined;
+    db = undefined;
+    storage = undefined;
   }
 } else {
   console.warn("Firebase is not configured. The application will run in offline/prototype mode.");
-  // Assign nulls to prevent crashes on import when firebase is not enabled
-  // @ts-ignore
-  app = null;
-  // @ts-ignore
-  auth = null;
-  // @ts-ignore
-  db = null;
-  // @ts-ignore
-  storage = null;
+  app = undefined;
+  auth = undefined;
+  db = undefined;
+  storage = undefined;
 }
 
 export { app, auth, db, storage };
