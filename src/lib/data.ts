@@ -1,6 +1,6 @@
 
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
@@ -627,13 +627,13 @@ export const activityLogData = [
 ];
 
 export const documentCategories = [
+    { name: 'Common Forms & Agreements', icon: FileType },
     { name: 'Permanent Residency', icon: Home },
     { name: 'Work Permits', icon: Briefcase },
     { name: 'Student Visas', icon: GraduationCap },
     { name: 'Family Sponsorship', icon: Users },
     { name: 'Visitor Visas', icon: FileText },
     { name: 'Citizenship', icon: FileSignature },
-    { name: 'Common Forms & Agreements', icon: FileType },
 ];
 
 export type DocumentTemplate = {
@@ -1028,6 +1028,30 @@ export const notifications: Notification[] = [
         message: 'Please be aware of recent updates to the Provincial Nominee Program processing guidelines. See internal docs for details.',
         target: 'Lawyers',
         isRead: true,
+    }
+];
+
+export const irccNewsData = [
+    {
+        id: 1,
+        title: "New Instructions for Spousal Open Work Permits",
+        description: "Updated instructions have been issued for spouses and common-law partners applying for an open work permit.",
+        date: "July 7, 2024",
+        link: "https://www.canada.ca/en/immigration-refugees-citizenship/news.html"
+    },
+    {
+        id: 2,
+        title: "Express Entry Draw #298 Results: 3,500 ITAs Issued",
+        description: "Canada invites 3,500 candidates in the latest all-program Express Entry draw. Minimum CRS score was 505.",
+        date: "July 6, 2024",
+        link: "https://www.canada.ca/en/immigration-refugees-citizenship/news.html"
+    },
+    {
+        id: 3,
+        title: "Update to Biometrics Requirements for In-Canada Applicants",
+        description: "A temporary public policy exempts certain in-Canada temporary residence applicants from providing biometrics.",
+        date: "July 5, 2024",
+        link: "https://www.canada.ca/en/immigration-refugees-citizenship/news.html"
     }
 ];
 

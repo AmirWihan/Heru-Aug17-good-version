@@ -2,11 +2,11 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus, ShieldAlert, AlertTriangle, Sparkles, Loader2, CheckCircle, MoreHorizontal } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquare, DollarSign, FilePlus2, FileText, Mail, Users, UserPlus, ShieldAlert, AlertTriangle, Sparkles, Loader2, CheckCircle, MoreHorizontal, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { dashboardData, reportsData, type Task } from "@/lib/data";
+import { irccNewsData, reportsData, type Task } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
@@ -248,6 +248,37 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </CardContent>
                 </Card>
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-lg flex items-center gap-2">
+                            <Newspaper className="h-5 w-5 text-primary" />
+                            Latest IRCC News & Updates
+                        </CardTitle>
+                        <CardDescription>
+                            Stay informed with the latest announcements from Immigration, Refugees and Citizenship Canada.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {irccNewsData.map((news) => (
+                             <div key={news.id} className="flex items-start gap-4 p-2 -m-2 rounded-lg hover:bg-muted/50">
+                                <div className="flex-1">
+                                    <a href={news.link} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">{news.title}</a>
+                                    <p className="text-sm text-muted-foreground">{news.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{news.date}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </CardContent>
+                    <CardFooter>
+                         <Button asChild variant="outline" className="w-full">
+                            <a href="https://www.canada.ca/en/immigration-refugees-citizenship/news.html" target="_blank" rel="noopener noreferrer">
+                                View All IRCC News <ArrowRight className="ml-2 h-4 w-4" />
+                            </a>
+                        </Button>
+                    </CardFooter>
+                </Card>
+
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
@@ -266,7 +297,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {(dashboardData.recentApplications || []).map(app => (
+                                        {dashboardData.recentApplications.map(app => (
                                             <TableRow key={app.id} className="cursor-pointer" onClick={() => setPage('applications')}>
                                                 <TableCell>
                                                     <div className="font-medium">{app.clientName}</div>
@@ -299,7 +330,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {(dashboardData.upcomingAppointments || []).map((appt) => (
+                                        {dashboardData.upcomingAppointments.map((appt) => (
                                         <TableRow key={appt.id}>
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
