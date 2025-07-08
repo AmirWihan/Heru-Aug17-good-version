@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, UserPlus, ShieldCheck, XCircle } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { type Client, type TeamMember } from '@/lib/data';
 import { AdminUserDetailSheet } from './admin-user-detail';
+import { format } from 'date-fns';
 
 export function UserManagementPage() {
     const { teamMembers, updateTeamMember, clients, updateClient } = useGlobalData();
@@ -190,7 +191,6 @@ export function UserManagementPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Client</TableHead>
-                                            <TableHead>Case Type</TableHead>
                                             <TableHead>Joined</TableHead>
                                             <TableHead>Status</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
@@ -211,8 +211,7 @@ export function UserManagementPage() {
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>{client.caseType}</TableCell>
-                                                <TableCell>{client.joined}</TableCell>
+                                                <TableCell suppressHydrationWarning>{format(new Date(client.joined), 'PP')}</TableCell>
                                                 <TableCell><Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge></TableCell>
                                                 <TableCell className="text-right space-x-2">
                                                      <DropdownMenu>

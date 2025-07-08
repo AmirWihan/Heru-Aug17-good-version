@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +12,11 @@ import { Badge } from "../ui/badge";
 
 export function AdminTeamManagementPage() {
     const { teamMembers } = useGlobalData();
-    const professionalUsers = teamMembers.filter(member => member.type !== 'admin');
+    // Filter for internal team members only (sales, advisor, admin)
+    const internalTeam = teamMembers.filter(member => member.type === 'sales' || member.type === 'advisor' || member.type === 'admin');
 
     const getRoleBadgeVariant = (role: string) => {
-        if (role.toLowerCase().includes('lawyer')) return 'info';
+        if (role.toLowerCase().includes('admin')) return 'destructive';
         if (role.toLowerCase().includes('sales')) return 'success';
         if (role.toLowerCase().includes('advisor')) return 'warning';
         return 'secondary';
@@ -26,26 +28,25 @@ export function AdminTeamManagementPage() {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle>Platform Team Roster</CardTitle>
+                        <CardTitle>Internal Team Roster</CardTitle>
                          <Button>
                             <PlusCircle className="mr-2 h-4 w-4" />
-                            Invite Member
+                            Invite Staff Member
                         </Button>
                     </div>
-                    <CardDescription>An overview of all professional members on the platform.</CardDescription>
+                    <CardDescription>An overview of all internal VisaFor staff members.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Member</TableHead>
-                                <TableHead>Firm</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {professionalUsers.map(member => (
+                            {internalTeam.map(member => (
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         <div className="flex items-center gap-3">
@@ -59,7 +60,6 @@ export function AdminTeamManagementPage() {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{member.firmName || 'N/A'}</TableCell>
                                     <TableCell>
                                         <Badge variant={getRoleBadgeVariant(member.role)}>{member.role}</Badge>
                                     </TableCell>
