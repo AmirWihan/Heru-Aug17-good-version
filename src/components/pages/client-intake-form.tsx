@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -15,13 +16,12 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { analyzeIntakeForm, type IntakeFormInput } from '@/ai/flows/intake-form-analyzer';
+import { analyzeIntakeForm, type IntakeFormAnalysis } from '@/ai/flows/intake-form-analyzer';
+import { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-
-const CURRENT_CLIENT_ID = 5;
 
 const familyMemberSchema = z.object({
     fullName: z.string().min(2, "Full name is required."),
@@ -165,8 +165,7 @@ const HelpButtons = ({ fieldName, onFlag, isFlagged }: { fieldName: string; onFl
 
 export function ClientIntakeFormPage() {
     const { toast } = useToast();
-    const { clients, updateClient } = useGlobalData();
-    const client = clients.find(c => c.id === CURRENT_CLIENT_ID);
+    const { userProfile, updateUserProfile } = useGlobalData();
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
@@ -174,8 +173,8 @@ export function ClientIntakeFormPage() {
 
     const form = useForm<IntakeFormValues>({
         resolver: zodResolver(intakeFormSchema),
-        defaultValues: client?.intakeForm?.data || {
-            personal: { fullName: '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: '', phone: '', address: '' } },
+        defaultValues: userProfile?.intakeForm?.data || {
+            personal: { fullName: userProfile?.name || '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: userProfile?.email || '', phone: '', address: '' } },
             family: { maritalStatus: 'Single' },
             education: [{ institution: '', degree: '', yearCompleted: '', countryOfStudy: '' }],
             studyDetails: { schoolName: '', programName: '', dliNumber: '', tuitionFee: '', livingExpenses: '' },
@@ -200,7 +199,7 @@ export function ClientIntakeFormPage() {
     };
 
     const processForm = async (data: IntakeFormValues) => {
-        if (!client) return;
+        if (!userProfile) return;
         setIsLoading(true);
         try {
             const apiInput: IntakeFormInput = {
@@ -217,8 +216,11 @@ export function ClientIntakeFormPage() {
                   wasRefused: data.immigrationHistory.wasRefused === 'yes',
               },
             };
-            const analysis = await analyzeIntakeForm(apiInput);
-            updateClient({ ...client, intakeForm: { status: 'submitted', data, analysis, flaggedQuestions } });
+            const analysis: IntakeFormAnalysis = await analyzeIntakeForm(apiInput);
+            const intakeForm = { status: 'submitted' as const, data, analysis, flaggedQuestions };
+
+            await updateUserProfile({ intakeForm });
+
             toast({ title: "Form Submitted!", description: "Your intake form has been submitted for review." });
         } catch (error) {
             console.error(error);
@@ -232,7 +234,6 @@ export function ClientIntakeFormPage() {
         const stepId = steps[currentStep].id;
         let fieldsToValidate = steps[currentStep].fields;
 
-        // Conditional validation
         if (stepId === 'family' && form.getValues('family.maritalStatus') !== 'Married' && form.getValues('family.maritalStatus') !== 'Common-Law') {
             // @ts-ignore
             fieldsToValidate = fieldsToValidate.filter(f => f !== 'family.spouse');
@@ -245,7 +246,6 @@ export function ClientIntakeFormPage() {
             await form.handleSubmit(processForm)();
         } else {
             let nextStepIndex = currentStep + 1;
-            // Skip study details if not a student
             if (steps[nextStepIndex].id === 'study' && applicationType !== 'student') {
                 nextStepIndex++;
             }
@@ -256,7 +256,6 @@ export function ClientIntakeFormPage() {
     const prev = () => {
         if (currentStep > 0) {
             let prevStepIndex = currentStep - 1;
-             // Skip study details if not a student
             if (steps[prevStepIndex].id === 'study' && applicationType !== 'student') {
                 prevStepIndex--;
             }
@@ -264,9 +263,9 @@ export function ClientIntakeFormPage() {
         }
     };
 
-    if (!client) return <p>Loading...</p>;
+    if (!userProfile) return <p>Loading...</p>;
 
-    if (client.intakeForm?.status === 'submitted' || client.intakeForm?.status === 'reviewed') {
+    if (userProfile.intakeForm?.status === 'submitted' || userProfile.intakeForm?.status === 'reviewed') {
         return (
              <Card className="w-full max-w-4xl animate-fade">
                 <CardHeader className="text-center">

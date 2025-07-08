@@ -5,7 +5,7 @@
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { 
     clients as staticClients, 
     teamMembers as staticTeamMembers, 
@@ -13,12 +13,12 @@ import {
     appointmentsData as staticAppointments, 
     invoicesData as staticInvoices,
     notifications as staticNotifications,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification,
+    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm,
 } from '@/lib/data';
 import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
 // Define a unified UserProfile type
-type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
+export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
 
 interface GlobalDataContextType {
     userProfile: UserProfile | null;
@@ -26,6 +26,7 @@ interface GlobalDataContextType {
     login: (email: string, pass: string) => Promise<UserProfile | null>;
     logout: () => Promise<void>;
     register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }) => Promise<UserProfile | null>;
+    updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
     teamMembers: TeamMember[];
     clients: Client[];
     tasks: Task[];
@@ -60,15 +61,15 @@ const AuthStateListener = ({ setAuthData }: { setAuthData: Function }) => {
 }
 
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
-    const [authData, setAuthData] = useState<{user: User | null; loading: boolean; error: Error | undefined}>({
-        user: null,
-        loading: !isFirebaseEnabled, // If firebase is not enabled, we are not loading.
+    const [authData, setAuthData] = useState<{user: User | null | undefined; loading: boolean; error: Error | undefined}>({
+        user: undefined,
+        loading: isFirebaseEnabled,
         error: undefined,
     });
-    const { user, loading: authLoading, error: authError } = authData;
+    const { user, loading: authLoading } = authData;
 
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loadingProfile, setLoadingProfile] = useState(true);
 
     // Static data remains for now, will be replaced by Firestore queries later
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>(staticTeamMembers);
@@ -80,6 +81,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
     const [theme, setThemeState] = useState('blue');
     const [isLoaded, setIsLoaded] = useState(false);
+    
+    const loading = authLoading || loadingProfile;
 
     useEffect(() => {
         const loadUserProfile = async () => {
@@ -94,7 +97,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             } else {
                 setUserProfile(null);
             }
-            setLoading(false);
+             setLoadingProfile(false);
         };
 
         if (!authLoading) {
@@ -138,7 +141,6 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             }
             return null;
         } else {
-             // Fallback to static data for prototype
             const allUsers = [...staticTeamMembers, ...staticClients];
             const foundUser = allUsers.find(
                 (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === pass
@@ -149,7 +151,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 const authRole = isAdmin ? 'admin' : isTeamMember ? 'lawyer' : 'client';
                 const profile = { ...foundUser, authRole };
                 setUserProfile(profile);
-                setLoading(false);
+                setLoadingProfile(false);
                 return profile;
             }
             return null;
@@ -191,6 +193,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 joined: new Date().toISOString().split('T')[0], age: 0, educationLevel: 'Unknown',
                 caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
                 activity: [], documents: [], tasks: [], agreements: [],
+                intakeForm: { status: 'not_started' },
             };
         } else { // Lawyer
             newProfile = {
@@ -208,9 +211,21 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         }
 
         await setDoc(doc(db, "users", user.uid), newProfile);
-        setUserProfile(newProfile); // This is the fix
+        setUserProfile(newProfile);
         return newProfile;
     }, []);
+
+    const updateUserProfile = useCallback(async (updates: Partial<UserProfile>) => {
+        if (!userProfile || !userProfile.uid) return;
+        
+        if (isFirebaseEnabled) {
+            const userDocRef = doc(db, 'users', userProfile.uid);
+            await updateDoc(userDocRef, updates);
+        }
+        
+        const updatedProfile = { ...userProfile, ...updates };
+        setUserProfile(updatedProfile);
+    }, [userProfile]);
 
 
     const addClient = useCallback((client: Client) => {
@@ -219,11 +234,18 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const updateClient = useCallback((updatedClient: Client) => {
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
-    }, []);
+        // Also update in the main user profile if it's the current user
+        if (userProfile && userProfile.id === updatedClient.id) {
+             updateUserProfile(updatedClient);
+        }
+    }, [userProfile, updateUserProfile]);
     
     const updateTeamMember = useCallback((updatedMember: TeamMember) => {
         setTeamMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
-    }, []);
+        if (userProfile && userProfile.id === updatedMember.id) {
+             updateUserProfile(updatedMember);
+        }
+    }, [userProfile, updateUserProfile]);
 
     const addTask = useCallback((task: Task) => {
         setTasks(prev => [task, ...prev]);
@@ -239,7 +261,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading: loading || authLoading, login, logout, register,
+            userProfile, loading, login, logout, register, updateUserProfile,
             teamMembers, clients, tasks, appointments, notifications,
             updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,

@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,16 +15,13 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
-import { useGlobalData } from '@/context/GlobalDataContext';
+import { useGlobalData, UserProfile } from '@/context/GlobalDataContext';
 import { plans, type TeamMember } from '@/lib/data';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
 
 const onboardingSchema = z.object({
-    // Step 0
-    fullName: z.string().min(2, "Full name is required."),
-    email: z.string().email("A valid email is required."),
-    phone: z.string().min(10, "A valid phone number is required."),
+    // Step 0 - This data might already exist from registration, but we collect it here for completeness
     firmName: z.string().min(2, "Firm name is required."),
     firmAddress: z.string().min(10, "Firm address is required."),
     numEmployees: z.coerce.number().min(1, "At least one employee is required."),
@@ -31,21 +29,17 @@ const onboardingSchema = z.object({
     // Step 1
     licenseNumber: z.string().min(5, "A valid license number is required."),
     registrationNumber: z.string().min(5, "A valid registration number is required."),
-    governmentId: z.any().refine(file => file != null, "Government ID is required."),
+    governmentId: z.any().refine(file => file?.name, "Government ID is required."),
     // Step 2
     selectedPlan: z.enum(['starter', 'pro', 'enterprise']),
     billingCycle: z.enum(['monthly', 'annually']).default('monthly'),
-    cardName: z.string().min(2, "Name on card is required."),
-    cardNumber: z.string().refine((val) => /^\d{16}$/.test(val.replace(/\s/g, '')), "Invalid card number."),
-    expiryDate: z.string().refine((val) => /^(0[1-9]|1[0-2])\/\d{2}$/.test(val), "Invalid expiry date (MM/YY)."),
-    cvc: z.string().refine((val) => /^\d{3,4}$/.test(val), "Invalid CVC."),
 });
 
 
 const steps = [
-    { name: 'Firm & Personal Details', icon: Building, fields: ['fullName', 'email', 'phone', 'firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
+    { name: 'Firm Details', icon: Building, fields: ['firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
     { name: 'License & Verification', icon: Award, fields: ['licenseNumber', 'registrationNumber', 'governmentId'] as const },
-    { name: 'Subscription & Payment', icon: CreditCard, fields: ['selectedPlan', 'billingCycle', 'cardName', 'cardNumber', 'expiryDate', 'cvc'] as const },
+    { name: 'Subscription Plan', icon: CreditCard, fields: ['selectedPlan', 'billingCycle'] as const },
 ];
 
 export function LawyerOnboarding() {
@@ -54,14 +48,11 @@ export function LawyerOnboarding() {
     const [fileName, setFileName] = useState<string | null>(null);
     const router = useRouter();
     const { toast } = useToast();
-    const { addTeamMember } = useGlobalData();
+    const { userProfile, updateUserProfile } = useGlobalData();
 
     const form = useForm<z.infer<typeof onboardingSchema>>({
         resolver: zodResolver(onboardingSchema),
         defaultValues: {
-            fullName: "",
-            email: "",
-            phone: "",
             firmName: "",
             firmAddress: "",
             numEmployees: 1,
@@ -71,10 +62,6 @@ export function LawyerOnboarding() {
             governmentId: undefined,
             selectedPlan: 'pro',
             billingCycle: 'monthly',
-            cardName: "",
-            cardNumber: "",
-            expiryDate: "",
-            cvc: "",
         }
     });
 
@@ -82,39 +69,33 @@ export function LawyerOnboarding() {
     const billingCycle = form.watch('billingCycle');
 
     async function processSubmit(data: z.infer<typeof onboardingSchema>) {
-        const newMember: TeamMember = {
-            id: Date.now(),
-            name: data.fullName,
+        if (!userProfile) {
+            toast({ title: "Error", description: "You must be logged in to complete onboarding.", variant: "destructive" });
+            router.push('/login');
+            return;
+        }
+
+        const planName = data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise';
+        
+        const updates: Partial<UserProfile> = {
             role: 'Awaiting Verification',
-            avatar: `https://i.pravatar.cc/150?u=${data.email}`,
-            type: 'legal',
-            email: data.email,
-            phone: data.phone,
-            password: 'password123', // In a real app, this comes from the registration form
-            uid: `static-${Date.now()}`,
-            accessLevel: 'Admin',
             status: 'Pending Activation',
-            plan: data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise',
+            plan: planName,
             billingCycle: data.billingCycle,
-            location: 'Unknown',
-            yearsOfPractice: 0,
-            successRate: 0,
             licenseNumber: data.licenseNumber,
             registrationNumber: data.registrationNumber,
             firmName: data.firmName,
             firmAddress: data.firmAddress,
             numEmployees: data.numEmployees,
             firmWebsite: data.firmWebsite,
-            stats: [
-                { label: 'Clients', value: '0' },
-                { label: 'Revenue', value: '$0' },
-                { label: 'Success Rate', value: 'N/A' },
-                { label: 'Rating', value: 'N/A' }
-            ],
-            specialties: ['Awaiting Activation']
         };
 
-        addTeamMember(newMember);
+        // In a real app, you would upload the file to Firebase Storage here
+        // and save the URL in the 'updates' object.
+        // For now, we'll just proceed.
+
+        await updateUserProfile(updates);
+
         setIsComplete(true);
         toast({
             title: 'Request Submitted!',
@@ -171,7 +152,7 @@ export function LawyerOnboarding() {
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)] py-8">
             <Card className="w-full max-w-4xl">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Welcome! Let's Set Up Your Account.</CardTitle>
+                    <CardTitle className="font-headline text-2xl">Welcome! Let's Set Up Your Firm.</CardTitle>
                     <CardDescription>Complete these steps to activate your professional account.</CardDescription>
                      <div className="pt-4">
                         <Progress value={progress} className="w-full" />
@@ -191,34 +172,21 @@ export function LawyerOnboarding() {
                         <CardContent className="min-h-[420px]">
                             {currentStep === 0 && (
                                 <div className="space-y-4 animate-fade">
-                                    <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm & Personal Details</h3>
+                                    <h3 className="font-semibold text-lg flex items-center"><Building className="mr-2 h-5 w-5"/>Firm Details</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField control={form.control} name="fullName" render={({ field }) => (
-                                            <FormItem><FormLabel>Your Full Name</FormLabel><FormControl><Input placeholder="e.g., Sarah Johnson" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <FormField control={form.control} name="email" render={({ field }) => (
-                                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="sarah.j@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField control={form.control} name="phone" render={({ field }) => (
-                                            <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+1-555-0199" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <FormField control={form.control} name="firmName" render={({ field }) => (
+                                         <FormField control={form.control} name="firmName" render={({ field }) => (
                                             <FormItem><FormLabel>Firm Name</FormLabel><FormControl><Input placeholder="e.g., Heru Immigration Services" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                                        )} />
+                                         <FormField control={form.control} name="firmWebsite" render={({ field }) => (
+                                            <FormItem><FormLabel>Firm Website (Optional)</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="firmAddress" render={({ field }) => (
                                         <FormItem><FormLabel>Firm Address</FormLabel><FormControl><Textarea placeholder="123 Main Street, Suite 400, Toronto, ON M5H 2N2" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                     )} />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField control={form.control} name="numEmployees" render={({ field }) => (
-                                            <FormItem><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <FormField control={form.control} name="firmWebsite" render={({ field }) => (
-                                            <FormItem><FormLabel>Firm Website</FormLabel><FormControl><Input type="url" placeholder="https://www.yourfirm.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                    </div>
+                                    <FormField control={form.control} name="numEmployees" render={({ field }) => (
+                                        <FormItem className="max-w-xs"><FormLabel>Number of Employees</FormLabel><FormControl><Input type="number" placeholder="e.g., 5" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                                    )} />
                                 </div>
                             )}
                             {currentStep === 1 && (
@@ -230,7 +198,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>Law Society License #</FormLabel><FormControl><Input placeholder="e.g., LSO-P12345" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="registrationNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormMessage>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="governmentId" render={({ field: { onChange, onBlur, name, ref } }) => (
@@ -277,7 +245,7 @@ export function LawyerOnboarding() {
                             )}
                             {currentStep === 2 && (
                                 <div className="space-y-6 animate-fade">
-                                    <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription & Payment</h3>
+                                    <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription Plan</h3>
                                      <FormField control={form.control} name="billingCycle" render={({ field }) => (
                                         <FormItem className="flex items-center justify-center gap-2 pt-2">
                                             <FormLabel className={cn('transition-colors', field.value === 'monthly' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Monthly</FormLabel>
@@ -328,23 +296,6 @@ export function LawyerOnboarding() {
                                             </FormControl>
                                         </FormItem>
                                     )} />
-                                    <div className="space-y-4 pt-6 border-t">
-                                        <p className="text-sm text-muted-foreground">Your card will only be charged upon account activation. Your subscription will auto-renew.</p>
-                                        <FormField control={form.control} name="cardName" render={({ field }) => (
-                                            <FormItem><FormLabel>Name on Card</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <FormField control={form.control} name="cardNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>Card Number</FormLabel><FormControl><Input placeholder="•••• •••• •••• ••••" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <FormField control={form.control} name="expiryDate" render={({ field }) => (
-                                                <FormItem><FormLabel>Expiry Date</FormLabel><FormControl><Input placeholder="MM/YY" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                            )} />
-                                            <FormField control={form.control} name="cvc" render={({ field }) => (
-                                                <FormItem><FormLabel>CVC</FormLabel><FormControl><Input placeholder="123" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                                            )} />
-                                        </div>
-                                    </div>
                                 </div>
                             )}
                         </CardContent>
