@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -207,6 +208,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         }
 
         await setDoc(doc(db, "users", user.uid), newProfile);
+        setUserProfile(newProfile); // This is the fix
         return newProfile;
     }, []);
 
