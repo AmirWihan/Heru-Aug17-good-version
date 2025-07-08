@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
 import { analyzeDocument, DocumentAnalysisOutput } from "@/ai/flows/document-analyzer";
+import { DocumentViewer } from "@/components/document-viewer";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -616,6 +617,12 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         <>
             <input type="file" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
             
+            <DocumentViewer
+                isOpen={!!viewingDocument}
+                onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}
+                document={viewingDocument}
+            />
+            
             <div className="flex flex-col sm:flex-row items-start gap-6">
                 <Avatar className="w-24 h-24 border-2 border-primary">
                     <AvatarImage src={client.avatar} alt={client.name} />
@@ -1182,16 +1189,6 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 )}
             </Tabs>
             
-            <Dialog open={!!viewingDocument} onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}>
-                <DialogContent className="max-w-4xl h-[90vh]">
-                    <DialogHeader>
-                        <DialogTitle>Viewing: {viewingDocument?.title}</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 bg-muted/50 rounded-lg flex items-center justify-center text-muted-foreground">
-                        <p>Online document editor/viewer placeholder.</p>
-                    </div>
-                </DialogContent>
-            </Dialog>
 
             <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">

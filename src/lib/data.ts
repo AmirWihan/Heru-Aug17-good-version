@@ -41,6 +41,7 @@ export type ClientDocument = {
     type: 'form' | 'supporting';
     submissionGroup?: 'Main Form' | 'Supporting Document' | 'Additional Document';
     isAiFilled?: boolean;
+    url?: string;
     comments?: {
         id: number;
         author: string;
@@ -513,7 +514,7 @@ export const clients: Client[] = [
             { id: 9, title: 'Appointment Completed', description: 'Reviewed all documents before submission', timestamp: '2024-07-20T12:00:00.000Z', teamMember: teamMembers[1] },
         ],
         documents: [
-            { id: 101, type: 'form', submissionGroup: 'Main Form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, comments: [{ id: 1, author: 'Sarah Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=sarah' }] },
+            { id: 101, type: 'form', submissionGroup: 'Main Form', title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true, url: 'https://unpkg.com/pdfjs-dist@3.4.120/web/compressed.tracemonkey-pldi-09.pdf', comments: [{ id: 1, author: 'Sarah Johnson', text: 'Hi James, the form is pre-filled with your intake data. Please review Section B, Question 3 carefully.', timestamp: '2h ago', avatar: 'https://i.pravatar.cc/150?u=sarah' }] },
             { id: 102, type: 'form', submissionGroup: 'Main Form', title: 'Family Information Form (IMM 5707)', category: 'Official Forms', dateAdded: '2023-06-10', status: 'Pending Client Review', isAiFilled: true },
             { id: 103, type: 'supporting', submissionGroup: 'Supporting Document', title: 'Employment Contract', category: 'Employment', dateAdded: '2022-05-20', status: 'Approved' },
             { id: 104, type: 'supporting', submissionGroup: 'Supporting Document', title: 'LMIA Application', category: 'Employment', dateAdded: '2023-06-05', status: 'Uploaded' },
@@ -606,7 +607,6 @@ export const activityLogData = [
 ];
 
 export const documentCategories = [
-    { name: 'All Documents', icon: FileText },
     { name: 'Permanent Residency', icon: Home },
     { name: 'Work Permits', icon: Briefcase },
     { name: 'Student Visas', icon: GraduationCap },
@@ -627,47 +627,56 @@ export type DocumentTemplate = {
 };
 
 export const documents: DocumentTemplate[] = [
-    // --- Generic & Common ---
+    // --- Common Forms & Agreements ---
     { id: 100, title: 'Use of a Representative (IMM 5476)', description: 'Appoint or cancel a representative.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/use-representative.html' },
-    { id: 101, title: 'Application to Change Conditions, Extend my Stay or Remain in Canada as a Visitor or Temporary Resident Permit Holder (IMM 5708)', description: 'For visitors, students, and workers applying to extend their stay.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-change-conditions-extend-your-stay-canada.html' },
+    { id: 101, title: 'Application to Change Conditions, Extend my Stay or Remain in Canada', description: 'For visitors, students, and workers.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-change-conditions-extend-your-stay-canada.html' },
+    { id: 102, title: 'Additional Family Information (IMM 5406)', description: 'Information about your family members.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/additional-family-information.html' },
+    { id: 103, title: 'Schedule A – Background/Declaration (IMM 5669)', description: 'Provides background information on the applicant.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/schedule-background-declaration.html' },
+    { id: 104, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Common Forms & Agreements', format: 'DOCX', size: 'Template' },
+    
+    // --- Supporting Docs (Common) ---
+    { id: 150, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
+    { id: 151, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/education-assessed.html' },
+    { id: 152, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/police-certificates.html' },
+    { id: 153, title: 'Medical Examination Confirmation', description: 'Confirmation from a panel physician after your exam.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
+    { id: 154, title: 'Digital Photo', description: 'Passport-style digital photo meeting IRCC specifications.', category: 'Common Forms & Agreements', format: 'JPG', size: 'Template' },
+    { id: 155, title: 'Passport/Travel Document', description: 'Clear copy of the biodata page of your passport.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
 
     // --- Express Entry (PR) ---
     { id: 200, title: 'Generic Application Form for Canada (IMM 0008)', description: 'Main application form for permanent residence.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/generic-application-form-canada.html' },
     { id: 201, title: 'Additional Dependants/Declaration (IMM 0008DEP)', description: 'If you have more than five dependants.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/additional-dependants-declaration.html' },
-    { id: 202, title: 'Schedule A – Background/Declaration (IMM 5669)', description: 'Provides background information on the applicant.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/schedule-background-declaration.html' },
-    { id: 203, title: 'Additional Family Information (IMM 5406)', description: 'Information about your family members.', category: 'Permanent Residency', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/additional-family-information.html' },
+    { id: 202, title: 'Proof of Work Experience', description: 'Reference letters from previous employers.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 203, title: 'Language Test Results (IELTS, CELPIP, TEF)', description: 'Official language test score report.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
+    { id: 204, title: 'Provincial Nomination Letter (if applicable)', description: 'Letter confirming nomination from a province.', category: 'Permanent Residency', format: 'PDF', size: 'Template' },
     
     // --- Work Permits ---
     { id: 300, title: 'Application for Work Permit Made Outside of Canada (IMM 1295)', description: 'Main application form for temporary work permits.', category: 'Work Permits', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-work-permit-outside-canada.html' },
     { id: 301, title: 'Job Offer Letter', description: 'A formal job offer from a Canadian employer.', category: 'Work Permits', format: 'PDF', size: 'Template' },
     { id: 302, title: 'LMIA (if applicable)', description: 'Labour Market Impact Assessment document.', category: 'Work Permits', format: 'PDF', size: 'Template' },
-    
+    { id: 303, title: 'Resume/CV', description: 'Your most up-to-date resume or curriculum vitae.', category: 'Work Permits', format: 'PDF', size: 'Template' },
+
     // --- Student Visas ---
     { id: 400, title: 'Application for Study Permit (IMM 1294)', description: 'Main application form for study permits.', category: 'Student Visas', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-study-permit-outside-canada.html' },
     { id: 401, title: 'Letter of Acceptance (LOA)', description: 'Official acceptance letter from a Designated Learning Institution (DLI).', category: 'Student Visas', format: 'PDF', size: 'Template' },
     { id: 402, title: 'Guaranteed Investment Certificate (GIC)', description: 'Proof of funds for students, often required for SDS stream.', category: 'Student Visas', format: 'PDF', size: 'Template' },
+    { id: 403, title: 'Proof of Tuition Payment', description: 'Receipt showing tuition fees have been paid.', category: 'Student Visas', format: 'PDF', size: 'Template' },
 
     // --- Visitor Visas ---
     { id: 500, title: 'Application for Visitor Visa (IMM 5257)', description: 'For temporary resident visa applications.', category: 'Visitor Visas', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-visitor-visa.html' },
-    { id: 501, title: 'Proof of Ties to Home Country', description: 'Documents showing intent to return, e.g., property, job.', category: 'Visitor Visas', format: 'PDF', size: 'Template' },
+    { id: 501, title: 'Proof of Ties to Home Country', description: 'Documents showing intent to return (e.g., property, job).', category: 'Visitor Visas', format: 'PDF', size: 'Template' },
     { id: 502, title: 'Letter of Invitation', description: 'A letter from someone in Canada inviting you to visit.', category: 'Visitor Visas', format: 'DOCX', size: 'Template' },
+    { id: 503, title: 'Travel Itinerary', description: 'Flight bookings, hotel reservations, etc.', category: 'Visitor Visas', format: 'PDF', size: 'Template' },
 
     // --- Citizenship ---
     { id: 600, title: 'Application for Canadian Citizenship (CIT 0002)', description: 'Form CIT 0002 for adult applications.', category: 'Citizenship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-canadian-citizenship-adults.html' },
     { id: 601, title: 'Residency Calculation', description: 'Physical presence calculation for citizenship.', category: 'Citizenship', format: 'PDF', size: 'Template', sourceUrl: 'https://eservices.cic.gc.ca/rescalc/resCalcStartNew.do' },
+    { id: 602, title: 'Tax Filing History (CRA)', description: 'Proof of filing income taxes in Canada.', category: 'Citizenship', format: 'PDF', size: 'Template' },
+    { id: 603, title: 'Proof of Language Ability', description: 'E.g., Results of an approved third-party test.', category: 'Citizenship', format: 'PDF', size: 'Template' },
 
     // --- Family Sponsorship ---
     { id: 700, title: 'Application to Sponsor, Sponsorship Agreement and Undertaking (IMM 1344)', description: 'Sponsor your spouse, partner, or dependent child.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/application-sponsor-spouse-partner-child.html' },
-    { id: 701, title: 'Relationship Information and Sponsorship Evaluation (IMM 5532)', description: 'Details about your relationship with the person you\'re sponsoring.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/relationship-information-sponsorship-evaluation.html' },
-    
-    // --- Supporting Documents ---
-    { id: 800, title: 'Proof of Funds', description: 'Bank statements for the last 6 months.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
-    { id: 801, title: 'Educational Credential Assessment (ECA)', description: 'Report from a designated organization like WES.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/education-assessed.html' },
-    { id: 802, title: 'Police Certificates', description: 'From every country lived in for more than 6 months since age 18.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/police-certificates.html' },
-    { id: 803, title: 'Medical Examination Form (IMM 1017)', description: 'Form provided by the panel physician after your exam.', category: 'Common Forms & Agreements', format: 'PDF', size: 'Template' },
-    
-    // --- Agreements ---
-    { id: 900, title: 'Retainer Agreement', description: 'Standard retainer agreement for legal services.', category: 'Common Forms & Agreements', format: 'DOCX', size: 'Template' },
+    { id: 701, title: 'Relationship Information and Sponsorship Evaluation (IMM 5532)', description: 'Details about your relationship.', category: 'Family Sponsorship', format: 'PDF', size: 'Template', sourceUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/application-forms-guides/relationship-information-sponsorship-evaluation.html' },
+    { id: 702, title: 'Proof of Relationship', description: 'Marriage certificate, photos, joint bank accounts, etc.', category: 'Family Sponsorship', format: 'PDF', size: 'Template' },
 ];
 
 export const messagesData = [

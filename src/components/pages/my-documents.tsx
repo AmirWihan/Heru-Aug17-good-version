@@ -17,6 +17,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Label } from "../ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 import { documentCategories } from "@/lib/data";
+import { DocumentViewer } from "@/components/document-viewer";
 
 const getStatusBadgeVariant = (status: ClientDocument['status']) => {
     switch (status) {
@@ -64,16 +65,11 @@ const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSe
                     {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
                 </div>
             </div>
-            <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
-                <DialogContent className="max-w-4xl h-[90vh]">
-                    <DialogHeader>
-                        <DialogTitle>Viewing: {doc.title}</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 bg-muted/50 rounded-lg flex items-center justify-center text-muted-foreground">
-                        <p>Online document editor/viewer placeholder.</p>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <DocumentViewer
+                isOpen={isEditorOpen}
+                onOpenChange={setIsEditorOpen}
+                document={doc}
+            />
         </>
     );
 }

@@ -1,0 +1,106 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Save, Download, Printer } from 'lucide-react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// Set workerSrc for pdfjs
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
+
+interface DocumentViewerProps {
+    isOpen: boolean;
+    onOpenChange: (isOpen: boolean) => void;
+    document: {
+        title: string;
+        url?: string;
+    } | null;
+}
+
+export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewerProps) {
+    const { toast } = useToast();
+    const [numPages, setNumPages] = useState<number | null>(null);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [scale, setScale] = useState(1.0);
+
+    function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+        setNumPages(numPages);
+        setPageNumber(1);
+    }
+
+    function changePage(offset: number) {
+        setPageNumber(prevPageNumber => prevPageNumber + offset);
+    }
+
+    const previousPage = () => changePage(-1);
+    const nextPage = () => changePage(1);
+
+    const handleSave = () => {
+        toast({ title: "Document Saved", description: `${document?.title} has been saved.` });
+    };
+
+    const handleDownload = () => {
+        toast({ title: "Downloading Document", description: `An export of ${document?.title} has been initiated.` });
+    };
+
+    const handlePrint = () => {
+        toast({ title: "Printing Document", description: "Opening print dialog..." });
+        // window.print() could be used here in a real scenario
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            onOpenChange(open);
+            if (!open) {
+                setNumPages(null);
+                setPageNumber(1);
+                setScale(1.0);
+            }
+        }}>
+            <DialogContent className="max-w-4xl h-[95vh] flex flex-col p-0">
+                <DialogHeader className="p-4 border-b">
+                    <DialogTitle>Viewing: {document?.title}</DialogTitle>
+                    <DialogDescription>Use the controls below to navigate and manage the document.</DialogDescription>
+                </DialogHeader>
+                <div className="bg-muted flex-1 overflow-auto flex items-start justify-center p-4">
+                    {document?.url ? (
+                        <Document
+                            file={document.url}
+                            onLoadSuccess={onDocumentLoadSuccess}
+                            loading={<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading PDF...</span></div>}
+                            error={<div className="text-destructive">Failed to load PDF.</div>}
+                        >
+                            <Page pageNumber={pageNumber} scale={scale} renderTextLayer={false} />
+                        </Document>
+                    ) : (
+                        <div className="text-muted-foreground">No document preview available.</div>
+                    )}
+                </div>
+                <div className="flex items-center justify-between p-2 border-t bg-background rounded-b-lg">
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={previousPage} disabled={pageNumber <= 1}><ChevronLeft /></Button>
+                        <span className="text-sm font-medium">Page {pageNumber} of {numPages || '--'}</span>
+                        <Button variant="ghost" size="icon" onClick={nextPage} disabled={!numPages || pageNumber >= numPages}><ChevronRight /></Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setScale(s => s - 0.1)} disabled={scale <= 0.5}><ZoomOut /></Button>
+                        <span className="text-sm font-medium w-12 text-center">{(scale * 100).toFixed(0)}%</span>
+                        <Button variant="ghost" size="icon" onClick={() => setScale(s => s + 0.1)} disabled={scale >= 2}><ZoomIn /></Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={handleSave}><Save className="mr-2 h-4 w-4" />Save</Button>
+                        <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Export</Button>
+                        <Button variant="outline" onClick={handlePrint}><Printer className="mr-2 h-4 w-4" />Print</Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
