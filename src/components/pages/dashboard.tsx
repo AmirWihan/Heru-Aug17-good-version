@@ -6,7 +6,7 @@ import { ArrowDown, ArrowRight, ArrowUp, CalendarCheck, CalendarPlus, CheckSquar
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { irccNewsData, reportsData, type Task } from "@/lib/data";
+import { dashboardData, irccNewsData, reportsData, type Task } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
@@ -78,7 +78,7 @@ const chartConfigRevenue = {
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const { clients, tasks, userProfile, teamMembers, addTask, dashboardData } = useGlobalData();
+    const { clients, tasks, userProfile, teamMembers, addTask } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
 
