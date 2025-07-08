@@ -2,6 +2,9 @@
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { 
     clients as staticClients, 
     teamMembers as staticTeamMembers, 
@@ -11,6 +14,7 @@ import {
     notifications as staticNotifications,
     type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification,
 } from '@/lib/data';
+import { auth, db } from '@/lib/firebase';
 
 // Define a unified UserProfile type
 type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
@@ -44,9 +48,11 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 const LOCAL_STORAGE_KEY = 'heru-ui-prefs';
 
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
+    const [user, authLoading, authError] = useAuthState(auth);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Static data remains for now, will be replaced by Firestore queries later
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>(staticTeamMembers);
     const [clients, setClients] = useState<Client[]>(staticClients);
     const [tasks, setTasks] = useState<Task[]>(staticTasks);
@@ -56,6 +62,22 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
     const [theme, setThemeState] = useState('sky');
     const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        const loadUserProfile = async () => {
+            if (user) {
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    setUserProfile(userDoc.data() as UserProfile);
+                }
+            } else {
+                setUserProfile(null);
+            }
+            setLoading(false);
+        };
+        loadUserProfile();
+    }, [user]);
 
     const setTheme = useCallback((themeId: string) => {
         setThemeState(themeId);
@@ -69,107 +91,75 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         try {
-            setLoading(true);
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
                 const { theme: storedTheme, logoSrc: storedLogo } = JSON.parse(storedPrefs);
                 if (storedTheme) setThemeState(storedTheme);
                 if (storedLogo) setLogoSrc(storedLogo);
             }
-            // Simulate session persistence
-            const sessionUser = sessionStorage.getItem('heru-user-profile');
-            if (sessionUser) {
-                setUserProfile(JSON.parse(sessionUser));
-            }
         } finally {
             setIsLoaded(true);
-            setLoading(false);
         }
     }, []);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
-        const allUsers = [...teamMembers, ...clients];
-        const foundUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
-        
-        if (foundUser) {
-            let authRole: 'admin' | 'lawyer' | 'client' = 'client'; // Default
-            if ('type' in foundUser) { // It's a TeamMember
-                authRole = foundUser.type === 'admin' ? 'admin' : 'lawyer';
-            }
-            
-            const profile: UserProfile = { ...foundUser, authRole };
-            setUserProfile(profile);
-            sessionStorage.setItem('heru-user-profile', JSON.stringify(profile));
-            return profile;
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const userDocRef = doc(db, 'users', userCredential.user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            return userDoc.data() as UserProfile;
         }
         return null;
-    }, [teamMembers, clients]);
+    }, []);
 
     const logout = useCallback(async () => {
+        await signOut(auth);
         setUserProfile(null);
-        sessionStorage.removeItem('heru-user-profile');
     }, []);
 
     const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string }): Promise<UserProfile | null> => {
-        const allUsers = [...teamMembers, ...clients];
-        const emailExists = allUsers.some(u => u.email.toLowerCase() === details.email?.toLowerCase());
-        
-        if (emailExists) {
-            throw new Error("An account with this email already exists.");
+        const { email, password, role, fullName } = details;
+        if (!email || !password || !role || !fullName) {
+            throw new Error("Missing details for registration.");
         }
+        
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const { user } = userCredential;
 
-        if (details.role === 'client') {
-             const newClient: Client = {
+        let newProfile: UserProfile;
+
+        if (role === 'client') {
+            newProfile = {
                 id: Date.now(),
-                name: details.fullName!,
-                email: details.email!,
-                password: details.password!,
-                phone: '',
-                caseType: 'Unassigned',
-                status: 'Active',
-                lastContact: new Date().toISOString().split('T')[0],
-                avatar: `https://i.pravatar.cc/150?u=${details.email}`,
-                countryOfOrigin: 'Unknown',
-                currentLocation: 'Unknown',
-                joined: new Date().toISOString().split('T')[0],
-                age: 0,
-                educationLevel: 'Unknown',
+                uid: user.uid,
+                name: fullName,
+                email: email,
+                authRole: 'client',
+                phone: '', caseType: 'Unassigned', status: 'Active', lastContact: new Date().toISOString().split('T')[0],
+                avatar: `https://i.pravatar.cc/150?u=${email}`, countryOfOrigin: 'Unknown', currentLocation: 'Unknown',
+                joined: new Date().toISOString().split('T')[0], age: 0, educationLevel: 'Unknown',
                 caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
                 activity: [], documents: [], tasks: [], agreements: [],
             };
-            setClients(prev => [...prev, newClient]);
-            const profile = { ...newClient, authRole: 'client' as const };
-            setUserProfile(profile);
-            sessionStorage.setItem('heru-user-profile', JSON.stringify(profile));
-            return profile;
         } else { // Lawyer
-            const newLawyer: TeamMember = {
+            newProfile = {
                 id: Date.now(),
-                name: details.fullName!,
-                email: details.email!,
-                password: details.password!,
+                uid: user.uid,
+                name: fullName,
+                email: email,
+                authRole: 'lawyer',
                 role: 'Awaiting Onboarding',
-                avatar: `https://i.pravatar.cc/150?u=${details.email}`,
-                type: 'legal',
-                phone: '',
-                accessLevel: 'Admin',
-                status: 'Pending Activation',
-                plan: 'Pro Team',
-                location: 'Unknown',
-                yearsOfPractice: 0,
-                successRate: 0,
-                licenseNumber: '',
-                registrationNumber: '',
-                stats: [],
-                specialties: ['Awaiting Activation'],
+                avatar: `https://i.pravatar.cc/150?u=${email}`,
+                type: 'legal', phone: '', accessLevel: 'Admin', status: 'Pending Activation', plan: 'Pro Team',
+                location: 'Unknown', yearsOfPractice: 0, successRate: 0, licenseNumber: '', registrationNumber: '',
+                stats: [], specialties: ['Awaiting Activation'],
             };
-            setTeamMembers(prev => [...prev, newLawyer]);
-            const profile = { ...newLawyer, authRole: 'lawyer' as const };
-            setUserProfile(profile);
-            sessionStorage.setItem('heru-user-profile', JSON.stringify(profile));
-            return profile;
         }
-    }, [teamMembers, clients]);
+
+        await setDoc(doc(db, "users", user.uid), newProfile);
+        return newProfile;
+    }, []);
+
 
     const addClient = useCallback((client: Client) => {
         setClients(prev => [...prev, client]);
@@ -197,7 +187,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading, login, logout, register,
+            userProfile, loading: loading || authLoading, login, logout, register,
             teamMembers, clients, tasks, appointments, notifications,
             updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,

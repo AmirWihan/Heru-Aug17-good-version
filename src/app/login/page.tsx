@@ -34,16 +34,25 @@ export default function LoginPage() {
 
     const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {
         setIsLoading(true);
-        const user = await login(values.email, values.password);
-        if (user) {
-            toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
-            router.push('/dashboard-select');
-        } else {
+        try {
+            const user = await login(values.email, values.password);
+            if (user) {
+                toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
+                router.push('/dashboard-select');
+            } else {
+                 toast({
+                    title: 'Login Failed',
+                    description: "Please check your credentials and try again.",
+                    variant: 'destructive',
+                });
+            }
+        } catch (error: any) {
              toast({
                 title: 'Login Failed',
-                description: "Please check your credentials and try again.",
+                description: error.message || "An unknown error occurred.",
                 variant: 'destructive',
             });
+        } finally {
             setIsLoading(false);
         }
     };

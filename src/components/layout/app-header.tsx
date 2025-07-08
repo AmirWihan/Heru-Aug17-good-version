@@ -26,18 +26,17 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // For demo, assume logged-in user is from "Johnson Legal" firm
-  const currentFirmName = "Johnson Legal";
+  const currentFirmName = userProfile && 'firmName' in userProfile ? userProfile.firmName : "Johnson Legal";
   const currentFirmMembers = teamMembers.filter(m => m.firmName === currentFirmName);
-  const currentPlanName = currentFirmMembers.length > 0 ? currentFirmMembers[0].plan : 'Pro Team';
+  const currentPlanName = userProfile && 'plan' in userProfile ? userProfile.plan : 'Pro Team';
   const planDetails = plans.find(p => p.name === currentPlanName);
 
   const userCount = currentFirmMembers.length;
   const userLimit = planDetails?.userLimit || 10;
   const usagePercentage = typeof userLimit === 'number' ? (userCount / userLimit) * 100 : 0;
 
-  const handleSignOut = () => {
-    logout();
+  const handleSignOut = async () => {
+    await logout();
     router.push('/login');
   };
   
