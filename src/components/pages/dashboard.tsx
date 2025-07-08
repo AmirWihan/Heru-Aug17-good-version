@@ -1,4 +1,3 @@
-
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,9 +68,11 @@ const chartConfigRevenue = {
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const { clients, tasks } = useGlobalData();
+    const { clients, tasks, userProfile } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
+
+    const lawyerName = userProfile?.name?.split(' ')[0] || 'there';
 
     const handleRunAnalysis = async () => {
         setIsAnalyzing(true);
@@ -115,7 +116,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
             <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-accent to-primary text-primary-foreground shadow-lg border-0">
                 <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold">Welcome back, Sarah! 👋</h2>
+                        <h2 className="text-3xl font-bold">Welcome back, {lawyerName}! 👋</h2>
                         <p className="text-primary-foreground/90 mt-1">
                             You have <span className="font-bold">5 new client applications</span> and <span className="font-bold">3 upcoming appointments</span> needing your attention today.
                         </p>
