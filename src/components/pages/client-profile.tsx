@@ -1045,7 +1045,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                             <div className="flex justify-between items-center">
                                 <div>
                                     <CardTitle className="text-lg">Client Tasks</CardTitle>
-                                    <CardDescription>All tasks associated with {client.name}.</CardDescription>
+                                    <CardDescription>All tasks associated with ${client.name}.</CardDescription>
                                 </div>
                                 <Button onClick={() => setAddTaskDialogOpen(true)}>
                                     <Plus className="mr-2 h-4 w-4" /> Add Task
@@ -1197,7 +1197,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Upload Document</DialogTitle>
-                        <DialogDescription>Add a new document to {client.name}'s profile.</DialogDescription>
+                        <DialogDescription>Add a new document to ${client.name}'s profile.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1233,7 +1233,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Assign Document</DialogTitle>
-                        <DialogDescription>Request a document from {client.name}.</DialogDescription>
+                        <DialogDescription>Request a document from ${client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1303,7 +1303,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Add New Task</DialogTitle>
-                        <DialogDescription>Assign a new task for {client.name}.</DialogDescription>
+                        <DialogDescription>Assign a new task for ${client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1358,7 +1358,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Log Activity</DialogTitle>
-                        <DialogDescription>Log an activity for {client.name}.</DialogDescription>
+                        <DialogDescription>Log an activity for ${client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -1446,7 +1446,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "{analyzedDocTitle}"
+                            AI Analysis for "${analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.
@@ -1477,7 +1477,7 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the document
-                            "{(client.documents || []).find(d => d.id === deletingDocId)?.title}" from the client's profile.
+                            "${(client.documents || []).find(d => d.id === deletingDocId)?.title}" from the client's profile.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

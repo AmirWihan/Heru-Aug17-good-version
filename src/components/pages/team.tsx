@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
-import { TeamPerformance } from '../sales-team-performance';
+import { TeamPerformance } from "../sales-team-performance";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
 

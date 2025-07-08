@@ -13,7 +13,7 @@ const performanceData = {
         { title: "Conversion Rate", value: "24%", change: "3%", icon: Percent, iconBg: "bg-green-100 dark:bg-green-900/50", iconColor: "text-green-600 dark:text-green-400", cardBg: "bg-green-50 dark:bg-green-950/50" },
     ],
     topPerformers: [
-        { id: 1, name: "Emma Johnson", avatar: "https://i.pravatar.cc/150?u=emma", performance: "12 new clients • $15,200 revenue", isTopSeller: true },
+        { id: 1, name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah", performance: "12 new clients • $15,200 revenue", isTopSeller: true },
         { id: 2, name: "Michael Chen", avatar: "https://i.pravatar.cc/150?u=michaelchen", performance: "9 new clients • $10,450 revenue", isTopSeller: false },
         { id: 3, name: "Sophia Williams", avatar: "https://i.pravatar.cc/150?u=sophia", performance: "8 new clients • $9,320 revenue", isTopSeller: false },
     ]

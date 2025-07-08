@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { salesPerformanceData } from "@/lib/data";
 import { ArrowUp, UserPlus, Zap, Target } from "lucide-react";
 
-export function AdminTeamPerformance() {
+export function SalesTeamPerformance() {
     return (
         <Card>
             <CardHeader>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { dashboardData } from "@/lib/data";
 import { useAdminDashboard } from "@/context/AdminDashboardContext";
-import { AdminTeamPerformance } from "../admin-team-performance";
+import { SalesTeamPerformance } from "../sales-team-performance";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -180,7 +180,7 @@ export function AdminOverviewPage() {
                      </CardContent>
                  </Card>
             </div>
-             <AdminTeamPerformance />
+             <SalesTeamPerformance />
         </div>
     );
 }
