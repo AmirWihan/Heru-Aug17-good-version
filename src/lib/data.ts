@@ -290,7 +290,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients', value: '72' }, { label: 'Revenue', value: '$340k' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }],
+        stats: [{ label: 'Clients Handled', value: '72' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }, { label: 'Years Practicing', value: '12' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
         gallery: [
             { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
@@ -399,7 +399,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
         numEmployees: 5,
         firmWebsite: 'https://chenassociates.com',
-        stats: [{ label: 'Clients', value: '45' }, { label: 'Revenue', value: '$210k' }, { label: 'Success Rate', value: '89%' }, { label: 'Active Cases', value: '11' }],
+        stats: [{ label: 'Clients Handled', value: '45' }, { label: 'Success Rate', value: '89%' }, { label: 'Active Cases', value: '11' }, { label: 'Years Practicing', value: '8' }],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services']
     },
     {
@@ -410,7 +410,7 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
-        stats: [{ label: 'Clients', value: '38' }, { label: 'Revenue', value: '$95k' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }],
+        stats: [{ label: 'Clients Handled', value: '38' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }, { label: 'Years Practicing', value: '5' }],
         specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid']
     },
     {
@@ -421,7 +421,7 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
         numEmployees: 3,
         firmWebsite: 'https://rodriguezlaw.ca',
-        stats: [{ label: 'Clients', value: '51' }, { label: 'Revenue', value: '$280k' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }],
+        stats: [{ label: 'Clients Handled', value: '51' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }, { label: 'Years Practicing', value: '7' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration', 'Court Representation'],
         gallery: [
             { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Networking event', dataAiHint: 'networking event' },

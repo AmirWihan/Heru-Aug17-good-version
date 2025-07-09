@@ -64,7 +64,7 @@ export function LawyerProfileCard({ lawyer, onViewProfile, isEnterprise }: Lawye
                         </div>
                     )}
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2 p-4 pt-2">
+                <CardFooter className="flex flex-col gap-2 p-4 pt-2 mt-auto">
                     <Button size="sm" className="w-full" onClick={() => onViewProfile(lawyer.id)}>
                         View Profile <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
