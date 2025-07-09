@@ -179,6 +179,7 @@ export type Client = {
     joined: string;
     age: number;
     educationLevel: string;
+    coins: number;
     caseSummary: {
         priority: string;
         caseType: string;
@@ -318,10 +319,10 @@ export const teamMembers: TeamMember[] = [
         successRate: 0,
         licenseNumber: 'N/A',
         registrationNumber: 'N/A',
-        firmName: 'Heru Platform',
+        firmName: 'VisaFor Platform',
         firmAddress: '123 Cloud St, Internet',
         numEmployees: 1,
-        firmWebsite: 'https://heru.com',
+        firmWebsite: 'https://visafor.com',
         stats: [],
         specialties: ['Platform Management']
     },
@@ -524,7 +525,7 @@ export const platformTasksData: PlatformTask[] = [
 export const clients: Client[] = [
     { 
         id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', password: 'password123', uid: 'static-adebola', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
-        countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20', age: 29, educationLevel: "Master's degree",
+        countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20', age: 29, educationLevel: "Master's degree", coins: 15,
         caseSummary: {
             priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
         },
@@ -540,7 +541,7 @@ export const clients: Client[] = [
     },
     { 
         id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', password: 'password123', uid: 'static-carlos', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
-        countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10', age: 22, educationLevel: "Bachelor's degree",
+        countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10', age: 22, educationLevel: "Bachelor's degree", coins: 50,
         caseSummary: {
             priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
         },
@@ -555,7 +556,7 @@ export const clients: Client[] = [
     },
     { 
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
-        countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05', age: 35, educationLevel: "PhD",
+        countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05', age: 35, educationLevel: "PhD", coins: 5,
         caseSummary: {
             priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
         },
@@ -569,7 +570,7 @@ export const clients: Client[] = [
     },
     { 
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
-        countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18', age: 42, educationLevel: "Bachelor's degree",
+        countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18', age: 42, educationLevel: "Bachelor's degree", coins: 100,
         caseSummary: {
             priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
         },
@@ -581,7 +582,7 @@ export const clients: Client[] = [
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', password: 'password123', uid: 'static-james', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-        countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15', age: 31, educationLevel: "Two or more post-secondary credentials",
+        countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15', age: 31, educationLevel: "Two or more post-secondary credentials", coins: 30,
         caseSummary: {
             priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: '2023-06-15',
         },

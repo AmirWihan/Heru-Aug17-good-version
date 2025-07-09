@@ -1,7 +1,7 @@
 
 'use client'
 
-import { Bell, LogOut, Menu, Settings } from "lucide-react"
+import { Bell, LogOut, Menu, Settings, CircleDollarSign } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { useClientDashboard } from "@/context/ClientDashboardContext"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { Badge } from "../ui/badge"
+import { Client } from "@/lib/data"
 
 interface ClientHeaderProps {
   isSidebarOpen: boolean
@@ -20,6 +21,7 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
   const { setPage } = useClientDashboard();
   const { userProfile, logout, notifications } = useGlobalData();
   const router = useRouter();
+  const client = userProfile as Client | null;
 
   const handleSignOut = () => {
     logout();
@@ -44,6 +46,11 @@ export function ClientHeader({ setSidebarOpen, pageTitle }: ClientHeaderProps) {
           <h1 className="font-headline text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center space-x-4">
+           <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full">
+              <CircleDollarSign className="h-5 w-5 text-yellow-500" />
+              <span className="font-bold text-sm">{client?.coins ?? 0}</span>
+              <span className="text-sm text-muted-foreground">Coins</span>
+          </div>
           <Button variant="ghost" size="icon" className="relative" onClick={() => setPage('notifications')}>
             <Bell className="h-5 w-5 text-foreground" />
             {unreadCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{unreadCount}</Badge>}

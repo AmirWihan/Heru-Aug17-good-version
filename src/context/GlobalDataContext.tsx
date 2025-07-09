@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -217,6 +218,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
                 activity: [], documents: [], tasks: [], agreements: [],
                 intakeForm: { status: 'not_started' },
+                coins: 25, // Welcome bonus
             };
         } else { // Lawyer
             newProfile = {
