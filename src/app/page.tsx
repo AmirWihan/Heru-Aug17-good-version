@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { Loader2, Shield, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const adminUser = {
     name: 'Super Admin',
@@ -55,7 +56,7 @@ const RoleCard = ({
 }) => (
     <Card
         className={cn(
-            'text-white p-8 rounded-2xl flex flex-col justify-between min-h-[300px]',
+            'text-white p-8 rounded-2xl flex flex-col justify-between min-h-[300px] shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1',
             className
         )}
     >
@@ -67,7 +68,7 @@ const RoleCard = ({
             <p className="opacity-80 max-w-sm">{description}</p>
         </div>
         <div className="mt-8">
-            <Button onClick={onClick} disabled={isLoading} className="w-full bg-white/90 text-black hover:bg-white">
+            <Button onClick={onClick} disabled={isLoading} className="w-full bg-white/90 text-black hover:bg-white text-base py-6">
                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                  View as {title}
             </Button>
@@ -116,16 +117,39 @@ export default function UserSelectPage() {
 
     return (
         <div className="relative flex flex-col min-h-screen items-center justify-center bg-muted/20 p-4 overflow-hidden">
+            {/* Admin Login Button */}
+            <div className="absolute top-4 right-4 z-20">
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <Button
+                                variant="outline"
+                                size="icon"
+                                className="bg-background/50 backdrop-blur-sm rounded-full h-12 w-12"
+                                onClick={() => handleLogin('admin')}
+                                disabled={loadingRole === 'admin'}
+                                aria-label="Login as Super Admin"
+                            >
+                                {loadingRole === 'admin' ? <Loader2 className="h-5 w-5 animate-spin"/> : <Shield className="h-5 w-5" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Login as Super Admin</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
             {/* Background Gradients */}
             <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent opacity-30 blur-3xl -translate-x-1/4"></div>
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-purple-200 via-indigo-100 to-transparent opacity-30 blur-3xl translate-x-1/4"></div>
             
-            <main className="w-full max-w-6xl space-y-8 z-10">
+            <main className="w-full max-w-4xl space-y-8 z-10">
                 <div className="text-center mb-12">
                      <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground">Welcome to VisaFor</h1>
                     <p className="mt-2 text-lg text-muted-foreground">Select a role to view the platform.</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <RoleCard
                         className="bg-blue-600"
                         icon={clientUser.icon}
@@ -141,14 +165,6 @@ export default function UserSelectPage() {
                         description="Professional managing clients, cases, and their team within the CRM."
                          onClick={() => handleLogin('lawyer')}
                          isLoading={loadingRole === 'lawyer'}
-                    />
-                    <RoleCard
-                        className="bg-slate-800"
-                        icon={adminUser.icon}
-                        title="Admin"
-                        description="Platform owner with access to all users, settings, and analytics."
-                        onClick={() => handleLogin('admin')}
-                        isLoading={loadingRole === 'admin'}
                     />
                 </div>
                  <div className="text-center text-muted-foreground pt-4">
