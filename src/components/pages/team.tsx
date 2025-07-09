@@ -25,6 +25,7 @@ import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Badge } from '../ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -88,23 +89,6 @@ export function TeamPage() {
             description: `${values.name} has been successfully added to the team.`,
         });
     }
-
-    const handleActionClick = (action: string, member: TeamMember) => {
-        if (action === 'call' && member.phone) {
-            window.location.href = `tel:${member.phone}`;
-            toast({ title: `Calling ${member.name}` });
-        } else if (action === 'email' && member.email) {
-            window.location.href = `mailto:${member.email}`;
-            toast({ title: `Emailing ${member.name}` });
-        } else if (action === 'stats') {
-            router.push(`/lawyer/team/${member.id}`);
-        }
-    };
-    
-    const getIconForType = (type: string) => {
-        const activityType = activityTypes.find(t => t.label === type);
-        return activityType ? activityType.icon : null;
-    };
     
     const handleAccessLevelChange = (memberId: number, newLevel: TeamMember['accessLevel']) => {
         const memberToUpdate = teamMembers.find(m => m.id === memberId);
@@ -133,41 +117,57 @@ export function TeamPage() {
                         <CardDescription>Manage your firm's team members and their access levels.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {firmMembers.map(member => (
-                                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div className="flex items-center gap-4">
-                                        <Avatar className="w-12 h-12">
-                                            <AvatarImage src={member.avatar} />
-                                            <AvatarFallback>{member.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="font-semibold">{member.name}</p>
-                                            <p className="text-sm text-muted-foreground">{member.role}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant={member.accessLevel === 'Admin' ? 'destructive' : 'secondary'}>{member.accessLevel}</Badge>
-                                        <Select
-                                            value={member.accessLevel}
-                                            onValueChange={(value: TeamMember['accessLevel']) => handleAccessLevelChange(member.id, value)}
-                                        >
-                                            <SelectTrigger className="w-[120px]">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Admin">Admin</SelectItem>
-                                                <SelectItem value="Member">Member</SelectItem>
-                                                <SelectItem value="Viewer">Viewer</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Button variant="outline" size="sm" onClick={() => handleActionClick('stats', member)}>
-                                            <LineChart className="mr-2 h-4 w-4" /> Performance
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                       <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>User</TableHead>
+                                        <TableHead>Role</TableHead>
+                                        <TableHead>Access Level</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {firmMembers.map(member => (
+                                        <TableRow key={member.id}>
+                                            <TableCell>
+                                                 <div className="flex items-center gap-4">
+                                                    <Avatar className="w-10 h-10">
+                                                        <AvatarImage src={member.avatar} />
+                                                        <AvatarFallback>{member.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className="font-semibold">{member.name}</p>
+                                                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{member.role}</TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    value={member.accessLevel}
+                                                    onValueChange={(value: TeamMember['accessLevel']) => handleAccessLevelChange(member.id, value)}
+                                                >
+                                                    <SelectTrigger className="w-[120px]">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Admin">Admin</SelectItem>
+                                                        <SelectItem value="Member">Member</SelectItem>
+                                                        <SelectItem value="Viewer">Viewer</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                 <Button variant="outline" size="sm" onClick={() => router.push(`/lawyer/team/${member.id}`)}>
+                                                    <LineChart className="mr-2 h-4 w-4" /> Performance
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                       </div>
                     </CardContent>
                 </Card>
             </div>
