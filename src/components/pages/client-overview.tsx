@@ -11,6 +11,7 @@ import { useGlobalData } from "@/context/GlobalDataContext";
 import type { Client, TeamMember, ApplicationStatus } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ApplicationProgress } from "@/components/application-progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export function ClientOverviewPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
@@ -20,6 +21,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
     const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isTimelineVisible, setIsTimelineVisible] = useState(false);
 
     const connectionRequestLawyer = client?.connectionRequestFromLawyerId 
         ? teamMembers.find(m => m.id === client.connectionRequestFromLawyerId) 
@@ -123,8 +125,55 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                     </Button>
                 </CardContent>
             </Card>
-
-            <ApplicationProgress currentStatus={client.caseSummary.currentStatus as ApplicationStatus} />
+            
+            <Card>
+                <Collapsible open={isTimelineVisible} onOpenChange={setIsTimelineVisible}>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Case Progress</CardTitle>
+                            <CardDescription>A high-level overview of your application status.</CardDescription>
+                        </div>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="icon" title="Toggle AI Timeline">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                <span className="sr-only">Toggle AI Timeline</span>
+                            </Button>
+                        </CollapsibleTrigger>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <ApplicationProgress currentStatus={client.caseSummary.currentStatus as ApplicationStatus} />
+                        
+                        <CollapsibleContent className="space-y-4 animate-accordion-down">
+                           <div className="border-t pt-4">
+                                {isLoading && (
+                                    <div className="flex items-center justify-center h-40">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                        <p className="ml-4 text-muted-foreground">Generating AI timeline...</p>
+                                    </div>
+                                )}
+                                {error && !isLoading && (
+                                    <div className="text-center text-destructive">
+                                        <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
+                                        <p>{error}</p>
+                                    </div>
+                                )}
+                                {timelineData && !isLoading && (
+                                    <>
+                                        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                            <Sparkles className="h-5 w-5 text-primary" />
+                                            AI-Powered Detailed Timeline
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            Here is an estimated, step-by-step projection of your case based on your profile and current processing trends.
+                                        </p>
+                                        <CaseTimeline timeline={timelineData} />
+                                    </>
+                                )}
+                           </div>
+                        </CollapsibleContent>
+                    </CardContent>
+                </Collapsible>
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
