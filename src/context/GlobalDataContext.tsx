@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -150,9 +151,17 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             return null;
         } else {
             const allUsers = [...staticTeamMembers, ...staticClients];
-            const foundUser = allUsers.find(
-                (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === pass
-            );
+            let foundUser;
+
+            // "Dumb" login for demo purposes. Ignores password for any @example.com email.
+            if (email.endsWith('@example.com')) {
+                foundUser = allUsers.find(u => u.email?.toLowerCase() === email.toLowerCase());
+            } else {
+                 foundUser = allUsers.find(
+                    (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === pass
+                );
+            }
+            
             if (foundUser) {
                 const isTeamMember = 'accessLevel' in foundUser;
                 const isAdmin = isTeamMember && (foundUser as TeamMember).type === 'admin';
