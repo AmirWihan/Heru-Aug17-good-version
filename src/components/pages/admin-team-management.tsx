@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
-import { SalesTeamPerformance } from "../sales-team-performance";
+import { TeamPerformance } from "../sales-team-performance";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
@@ -77,7 +77,7 @@ export function AdminTeamManagementPage() {
     return (
         <>
             <div className="space-y-6">
-                <SalesTeamPerformance />
+                <TeamPerformance />
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-center">
