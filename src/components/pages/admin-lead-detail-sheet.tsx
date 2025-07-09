@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import type { Lead } from "@/lib/data";
@@ -9,6 +10,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
 interface AdminLeadDetailSheetProps {
     lead: Lead;
@@ -24,6 +32,38 @@ const activityIcons: { [key: string]: React.ElementType } = {
 };
 
 export function AdminLeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: AdminLeadDetailSheetProps) {
+    const { toast } = useToast();
+    const { updateLead } = useGlobalData();
+    const [isLogActivityOpen, setIsLogActivityOpen] = useState(false);
+    const [activityType, setActivityType] = useState('');
+    const [activityNotes, setActivityNotes] = useState('');
+
+    const handleLogActivity = () => {
+        if (!activityType || !activityNotes) {
+            toast({ title: 'Error', description: 'Activity Type and Notes are required.', variant: 'destructive' });
+            return;
+        }
+
+        const newActivity = {
+            id: Date.now(),
+            type: activityType as 'Call' | 'Email' | 'Note',
+            notes: activityNotes,
+            date: new Date().toISOString(),
+        };
+
+        const updatedLead = {
+            ...lead,
+            activity: [...(lead.activity || []), newActivity],
+            lastContacted: new Date().toISOString(),
+        };
+
+        updateLead(updatedLead);
+        toast({ title: 'Activity Logged!', description: `A new ${activityType} has been logged for ${lead.name}.` });
+        setIsLogActivityOpen(false);
+        setActivityType('');
+        setActivityNotes('');
+    };
+
     return (
         <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col h-full">
@@ -62,7 +102,38 @@ export function AdminLeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: 
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-lg">Activity Log</CardTitle>
-                                <Button size="sm" variant="outline"><Plus className="mr-2 h-4 w-4"/>Log Activity</Button>
+                                <Dialog open={isLogActivityOpen} onOpenChange={setIsLogActivityOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button size="sm" variant="outline"><Plus className="mr-2 h-4 w-4"/>Log Activity</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Log New Activity</DialogTitle>
+                                            <DialogDescription>Record a new interaction with {lead.name}.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="activity-type">Activity Type</Label>
+                                                <Select value={activityType} onValueChange={setActivityType}>
+                                                    <SelectTrigger><SelectValue placeholder="Select an activity type"/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Call">Call</SelectItem>
+                                                        <SelectItem value="Email">Email</SelectItem>
+                                                        <SelectItem value="Note">Note</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="activity-notes">Notes</Label>
+                                                <Textarea id="activity-notes" value={activityNotes} onChange={e => setActivityNotes(e.target.value)} placeholder="Enter details of the interaction..." />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button variant="outline" onClick={() => setIsLogActivityOpen(false)}>Cancel</Button>
+                                            <Button onClick={handleLogActivity}>Log Activity</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">

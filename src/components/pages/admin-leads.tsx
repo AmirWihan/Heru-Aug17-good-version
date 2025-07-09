@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { AdminLeadDetailSheet } from './admin-lead-detail-sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 
 const LeadCard = ({ lead, onConvert, onView }: { lead: Lead, onConvert: (leadId: number) => void, onView: () => void }) => {
@@ -46,11 +47,21 @@ const LeadCard = ({ lead, onConvert, onView }: { lead: Lead, onConvert: (leadId:
 const statusColumns: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
 
 export function AdminLeadsPage() {
-    const { leads, convertLeadToFirm, setLeads } = useGlobalData();
+    const { leads, addLead, convertLeadToFirm, teamMembers } = useGlobalData();
     const { toast } = useToast();
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
+    const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+
+    // Form state for adding a lead
+    const [newLeadName, setNewLeadName] = useState('');
+    const [newLeadCompany, setNewLeadCompany] = useState('');
+    const [newLeadEmail, setNewLeadEmail] = useState('');
+    const [newLeadPhone, setNewLeadPhone] = useState('');
+    const [newLeadSource, setNewLeadSource] = useState('');
+
+    const salesTeam = teamMembers.filter(m => m.type === 'sales' || m.type === 'advisor');
 
     const handleConvertLead = (leadId: number) => {
         const lead = leads.find(l => l.id === leadId);
@@ -78,6 +89,39 @@ export function AdminLeadsPage() {
         setIsImportOpen(false);
     };
 
+    const handleAddLead = () => {
+        if (!newLeadCompany || !newLeadName || !newLeadEmail) {
+            toast({ title: "Validation Error", description: "Company, Name, and Email are required.", variant: 'destructive' });
+            return;
+        }
+
+        const newLead: Lead = {
+            id: Date.now(),
+            name: newLeadName,
+            company: newLeadCompany,
+            email: newLeadEmail,
+            phone: newLeadPhone,
+            status: 'New',
+            source: newLeadSource || 'Manual Entry',
+            owner: salesTeam[0] || { name: 'Admin', avatar: '' }, // Assign to first sales member or admin
+            lastContacted: new Date().toISOString(),
+            createdDate: new Date().toISOString(),
+            activity: [],
+        };
+        
+        addLead(newLead);
+        
+        toast({ title: "Lead Added!", description: `${newLeadCompany} has been added to your leads.` });
+        
+        // Reset form and close dialog
+        setIsAddLeadOpen(false);
+        setNewLeadName('');
+        setNewLeadCompany('');
+        setNewLeadEmail('');
+        setNewLeadPhone('');
+        setNewLeadSource('');
+    };
+
     return (
         <>
             <div className="space-y-6">
@@ -88,7 +132,7 @@ export function AdminLeadsPage() {
                             <Upload className="mr-2 h-4 w-4" />
                             Import Leads
                         </Button>
-                        <Button>
+                        <Button onClick={() => setIsAddLeadOpen(true)}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Add Lead
                         </Button>
@@ -108,6 +152,40 @@ export function AdminLeadsPage() {
                     ))}
                 </div>
             </div>
+
+             <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add New Lead</DialogTitle>
+                        <DialogDescription>Manually enter the details for a new law firm lead.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2"><Label htmlFor="lead-company">Firm Name</Label><Input id="lead-company" value={newLeadCompany} onChange={(e) => setNewLeadCompany(e.target.value)} placeholder="e.g., Innovate Legal" /></div>
+                        <div className="space-y-2"><Label htmlFor="lead-name">Contact Person</Label><Input id="lead-name" value={newLeadName} onChange={(e) => setNewLeadName(e.target.value)} placeholder="e.g., Dr. Evelyn Reed" /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="lead-email">Email</Label><Input id="lead-email" type="email" value={newLeadEmail} onChange={(e) => setNewLeadEmail(e.target.value)} placeholder="e.g., e.reed@innovatelegal.com" /></div>
+                            <div className="space-y-2"><Label htmlFor="lead-phone">Phone</Label><Input id="lead-phone" type="tel" value={newLeadPhone} onChange={(e) => setNewLeadPhone(e.target.value)} /></div>
+                        </div>
+                        <div className="space-y-2"><Label htmlFor="lead-source">Lead Source</Label>
+                            <Select value={newLeadSource} onValueChange={setNewLeadSource}>
+                                <SelectTrigger><SelectValue placeholder="Select a source" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Website Form">Website Form</SelectItem>
+                                    <SelectItem value="Referral">Referral</SelectItem>
+                                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                                    <SelectItem value="Cold Call">Cold Call</SelectItem>
+                                    <SelectItem value="Manual Entry">Manual Entry</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsAddLeadOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAddLead}>Add Lead</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
              <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
                 <DialogContent>
                     <DialogHeader>

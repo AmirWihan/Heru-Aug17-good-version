@@ -4,6 +4,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -40,8 +41,11 @@ interface GlobalDataContextType {
     notifications: Notification[];
     leads: Lead[];
     setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
+    addLead: (lead: Lead) => void;
+    updateLead: (updatedLead: Lead) => void;
     convertLeadToFirm: (leadId: number) => void;
     updateTeamMember: (updatedMember: TeamMember) => void;
+    addTeamMember: (member: TeamMember) => void;
     addClient: (client: Client) => void;
     updateClient: (updatedClient: Client) => void;
     addTask: (task: Task) => void;
@@ -265,6 +269,17 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         });
     }, []);
 
+    const addLead = useCallback((lead: Lead) => {
+        setLeads(prev => [lead, ...prev]);
+    }, []);
+
+    const updateLead = useCallback((updatedLead: Lead) => {
+        setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
+    }, []);
+
+    const addTeamMember = useCallback((member: TeamMember) => {
+        setTeamMembers(prev => [...prev, member]);
+    }, []);
 
     const addClient = useCallback((client: Client) => {
         setClients(prev => [...prev, client]);
@@ -333,8 +348,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
-            teamMembers, clients, tasks, appointments, notifications, leads, setLeads, convertLeadToFirm,
-            updateTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
+            teamMembers, clients, tasks, appointments, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
+            updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,
         }}>
             {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
