@@ -204,7 +204,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false);
     const [viewingDocument, setViewingDocument] = useState<ClientDocument | null>(null);
 
-    const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email"));
+    const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email") || item.title.includes("Call"));
 
     const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
     const [isTimelineLoading, setIsTimelineLoading] = useState(true);
@@ -627,7 +627,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const isConnected = !!client.connectedLawyerId;
 
     return (
-        <>
+        <div className="animate-fade">
             <input type="file" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
             
             <DocumentViewer
@@ -1380,7 +1380,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Log Activity</DialogTitle>
-                        <DialogDescription>Log an activity for ${client.name}.</DialogDescription>
+                        <DialogDescription>Log an activity for {client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -1510,6 +1510,6 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
+        </div>
     );
 });
