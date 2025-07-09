@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,22 +21,26 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
-import { TeamPerformance } from "../sales-team-performance";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Badge } from '../ui/badge';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
     role: z.string().min(2, "Role must be at least 2 characters."),
     email: z.string().email("Please enter a valid email address."),
     phone: z.string().optional(),
+    accessLevel: z.enum(['Admin', 'Member', 'Viewer']),
 });
 
 export function TeamPage() {
-    const { teamMembers, addTeamMember } = useGlobalData();
+    const { userProfile, teamMembers, addTeamMember, updateTeamMember } = useGlobalData();
     const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+
+    const firmMembers = teamMembers.filter(m => m.firmName === (userProfile as TeamMember)?.firmName);
 
     const form = useForm<z.infer<typeof memberFormSchema>>({
         resolver: zodResolver(memberFormSchema),
@@ -44,6 +49,7 @@ export function TeamPage() {
             role: "",
             email: "",
             phone: "",
+            accessLevel: 'Member',
         },
     });
 
@@ -55,9 +61,10 @@ export function TeamPage() {
             email: values.email,
             phone: values.phone || '',
             avatar: `https://i.pravatar.cc/150?u=${values.email}`,
-            accessLevel: 'Member',
-            status: 'Active',
-            plan: 'Pro Team',
+            accessLevel: values.accessLevel,
+            status: 'Active' as const,
+            plan: (userProfile as TeamMember)?.plan || 'Pro Team',
+            firmName: (userProfile as TeamMember)?.firmName,
             location: 'Remote',
             yearsOfPractice: 0,
             successRate: 0,
@@ -68,7 +75,7 @@ export function TeamPage() {
                 { label: 'Clients', value: '0' },
                 { label: 'Success Rate', value: 'N/A' },
                 { label: 'Active Cases', value: '0' },
-                { label: 'Revenue', value: '$0' }
+                { label: 'Years Practicing', value: '0' }
             ],
             specialties: []
         };
@@ -98,6 +105,17 @@ export function TeamPage() {
         const activityType = activityTypes.find(t => t.label === type);
         return activityType ? activityType.icon : null;
     };
+    
+    const handleAccessLevelChange = (memberId: number, newLevel: TeamMember['accessLevel']) => {
+        const memberToUpdate = teamMembers.find(m => m.id === memberId);
+        if (memberToUpdate) {
+            updateTeamMember({ ...memberToUpdate, accessLevel: newLevel });
+            toast({
+                title: 'Access Level Updated',
+                description: `${memberToUpdate.name}'s access level changed to ${newLevel}.`
+            });
+        }
+    };
 
 
     return (
@@ -109,84 +127,49 @@ export function TeamPage() {
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Member
                     </Button>
                 </div>
-
-                <TeamPerformance />
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="font-headline text-lg">Team Members</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {teamMembers.filter(m => m.type === 'legal').map(member => (
-                                    <Card key={member.id} className="team-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col">
-                                        <CardHeader className="flex-row items-center gap-4">
-                                            <Avatar className="w-12 h-12">
-                                                <AvatarImage src={member.avatar} />
-                                                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <h4 className="font-bold">{member.name}</h4>
-                                                <p className="text-sm text-muted-foreground">{member.role}</p>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="grid grid-cols-2 gap-3 text-sm flex-grow">
-                                            {member.stats.map(stat => (
-                                                <div key={stat.label} className="bg-muted p-2 rounded text-center">
-                                                    <p className="font-medium">{stat.value}</p>
-                                                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                                                </div>
-                                            ))}
-                                        </CardContent>
-                                        <CardFooter className="flex justify-around">
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('call', member)}><Phone className="mr-1 h-4 w-4" />Call</Button>
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('email', member)}><Mail className="mr-1 h-4 w-4" />Email</Button>
-                                            <Button variant="ghost" size="sm" onClick={() => handleActionClick('stats', member)}><LineChart className="mr-1 h-4 w-4" />Stats</Button>
-                                        </CardFooter>
-                                    </Card>
-                                ))}
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                     <Card className="lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Recent Team Activity</CardTitle>
-                            <CardDescription>A log of the most recent activities across the team.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="relative pl-6 before:absolute before:inset-y-0 before:w-px before:bg-border before:left-0">
-                                {activityLogData.slice(0, 5).map((activity) => {
-                                    const Icon = getIconForType(activity.type);
-                                    return (
-                                    <div key={activity.id} className="relative pl-8 py-4">
-                                        <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-card flex items-center justify-center">
-                                            <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
-                                                {Icon && <Icon className="h-3 w-3 text-primary" />}
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-medium">{activity.type} for {activity.client.name}</h4>
-                                            </div>
-                                            <span suppressHydrationWarning className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}</span>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">{activity.description}</p>
-                                        <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
-                                            Logged by
-                                            <Avatar className="h-4 w-4">
-                                                <AvatarImage src={activity.teamMember.avatar} alt={activity.teamMember.name} />
-                                                <AvatarFallback>{activity.teamMember.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            {activity.teamMember.name}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Team Roster</CardTitle>
+                        <CardDescription>Manage your firm's team members and their access levels.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {firmMembers.map(member => (
+                                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div className="flex items-center gap-4">
+                                        <Avatar className="w-12 h-12">
+                                            <AvatarImage src={member.avatar} />
+                                            <AvatarFallback>{member.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-semibold">{member.name}</p>
+                                            <p className="text-sm text-muted-foreground">{member.role}</p>
                                         </div>
                                     </div>
-                                )})}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant={member.accessLevel === 'Admin' ? 'destructive' : 'secondary'}>{member.accessLevel}</Badge>
+                                        <Select
+                                            value={member.accessLevel}
+                                            onValueChange={(value: TeamMember['accessLevel']) => handleAccessLevelChange(member.id, value)}
+                                        >
+                                            <SelectTrigger className="w-[120px]">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Admin">Admin</SelectItem>
+                                                <SelectItem value="Member">Member</SelectItem>
+                                                <SelectItem value="Viewer">Viewer</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Button variant="outline" size="sm" onClick={() => handleActionClick('stats', member)}>
+                                            <LineChart className="mr-2 h-4 w-4" /> Performance
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             <Dialog open={isAddMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>
@@ -238,15 +221,24 @@ export function TeamPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
+                             <FormField
                                 control={form.control}
-                                name="phone"
+                                name="accessLevel"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Phone (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="+1-202-555-0105" {...field} />
-                                        </FormControl>
+                                        <FormLabel>Access Level</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select an access level" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Admin">Admin (Full Access)</SelectItem>
+                                                <SelectItem value="Member">Member (Standard Access)</SelectItem>
+                                                <SelectItem value="Viewer">Viewer (Read-only)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}

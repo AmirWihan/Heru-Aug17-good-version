@@ -26,7 +26,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import { useRouter } from "next/navigation"
-import { useGlobalData } from "@/context/GlobalDataContext"
+import { useGlobalData, UserProfile } from "@/context/GlobalDataContext"
+import { TeamMember } from "@/lib/data"
 
 interface AppSidebarProps {
   activePage: string
@@ -36,28 +37,29 @@ interface AppSidebarProps {
 }
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'leads', label: 'Leads', icon: BriefcaseBusiness },
-  { id: 'clients', label: 'Clients', icon: Users },
-  { id: 'team', label: 'Team Management', icon: Users },
-  { id: 'documents', label: 'Documents', icon: FileText },
-  { id: 'applications', label: 'Applications', icon: FileText, badge: '24' },
-  { id: 'appointments', label: 'Appointments', icon: CalendarCheck },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3' },
-  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive' },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'activity', label: 'Activity Log', icon: FileText },
-  { id: 'billing', label: 'Billing', icon: Landmark },
-  { id: 'reports', label: 'Reports', icon: LineChart },
-  { id: 'ai-tools', label: 'AI Tools', icon: Wand2 },
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'support', label: 'Help & Support', icon: HelpCircle },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'leads', label: 'Leads', icon: BriefcaseBusiness, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'clients', label: 'Clients', icon: Users, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'team', label: 'Team Management', icon: Users, roles: ['Admin'] },
+  { id: 'documents', label: 'Documents', icon: FileText, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'applications', label: 'Applications', icon: FileText, badge: '24', roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'appointments', label: 'Appointments', icon: CalendarCheck, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3', roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive', roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'notifications', label: 'Notifications', icon: Bell, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'activity', label: 'Activity Log', icon: FileText, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'billing', label: 'Billing', icon: Landmark, roles: ['Admin'] },
+  { id: 'reports', label: 'Reports', icon: LineChart, roles: ['Admin'] },
+  { id: 'ai-tools', label: 'AI Tools', icon: Wand2, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'settings', label: 'Settings', icon: Settings, roles: ['Admin'] },
+  { id: 'support', label: 'Help & Support', icon: HelpCircle, roles: ['Admin', 'Member', 'Viewer'] },
 ];
 
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
   const router = useRouter();
   const { userProfile } = useGlobalData();
+  const teamMember = userProfile as TeamMember;
 
   const handleNavigation = (page: string) => {
     setPage(page)
@@ -129,7 +131,12 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
 
         <nav className="flex-1 overflow-y-auto">
           <ul className="p-2 space-y-1">
-            {navItems.map((item) => <NavLink key={item.id} item={item} />)}
+            {navItems.map((item) => {
+              if (item.roles.includes(teamMember.accessLevel)) {
+                return <NavLink key={item.id} item={item} />
+              }
+              return null;
+            })}
           </ul>
         </nav>
       </aside>

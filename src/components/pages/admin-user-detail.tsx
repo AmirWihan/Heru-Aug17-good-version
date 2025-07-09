@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TeamMember } from "@/lib/data";
-import { X, Mail, Phone, Building, ShieldCheck, CreditCard } from "lucide-react";
+import { X, Mail, Phone, Building, ShieldCheck, CreditCard, UserCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -37,16 +37,18 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
     const { toast } = useToast();
     const [status, setStatus] = useState(user.status);
     const [plan, setPlan] = useState<TeamMember['plan']>(user.plan);
+    const [accessLevel, setAccessLevel] = useState<TeamMember['accessLevel']>(user.accessLevel);
     
     useEffect(() => {
         if (isOpen) {
             setStatus(user.status);
             setPlan(user.plan);
+            setAccessLevel(user.accessLevel);
         }
     }, [isOpen, user]);
 
     const handleSaveChanges = () => {
-         onUpdateUser({ ...user, status, plan });
+         onUpdateUser({ ...user, status, plan, accessLevel });
          toast({
              title: 'User Updated',
              description: `${user.name}'s details have been updated.`,
@@ -151,6 +153,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /> Subscription</CardTitle></CardHeader>
                                 <CardContent className="space-y-2 text-sm">
                                     <p><strong className="text-muted-foreground font-normal">Plan:</strong> {user.plan}</p>
+                                    <p><strong className="text-muted-foreground font-normal">Access Level:</strong> <Badge variant={user.accessLevel === 'Admin' ? 'destructive' : 'secondary'}>{user.accessLevel}</Badge></p>
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -175,16 +178,31 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Subscription Plan</Label>
-                                         <Select value={plan} onValueChange={(value: TeamMember['plan']) => setPlan(value)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {plans.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Subscription Plan</Label>
+                                             <Select value={plan} onValueChange={(value: TeamMember['plan']) => setPlan(value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {plans.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label>Access Level</Label>
+                                             <Select value={accessLevel} onValueChange={(value: TeamMember['accessLevel']) => setAccessLevel(value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Admin">Admin</SelectItem>
+                                                    <SelectItem value="Member">Member</SelectItem>
+                                                    <SelectItem value="Viewer">Viewer</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
