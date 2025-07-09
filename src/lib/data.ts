@@ -4,6 +4,16 @@ import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, File
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
+export type ApplicationStatus =
+    | 'Profile Setup'
+    | 'Awaiting Documents'
+    | 'Pending Review'
+    | 'In Review'
+    | 'Biometrics Required'
+    | 'Awaiting Decision'
+    | 'Approved'
+    | 'Rejected';
+
 export type Task = {
     id: number;
     title: string;
@@ -184,7 +194,7 @@ export type Client = {
     caseSummary: {
         priority: string;
         caseType: string;
-        currentStatus: string;
+        currentStatus: ApplicationStatus;
         nextStep: string;
         dueDate: string;
     };
@@ -565,7 +575,7 @@ export const clients: Client[] = [
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
         countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05', age: 35, educationLevel: "PhD", coins: 5,
         caseSummary: {
-            priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'On Hold', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
+            priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'Awaiting Documents', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
         },
         activity: [
              { id: 6, title: 'New Message', description: 'Client requested to put case on hold.', timestamp: '2024-07-11T12:00:00.000Z', teamMember: teamMembers[2] },
@@ -581,7 +591,7 @@ export const clients: Client[] = [
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
         countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18', age: 42, educationLevel: "Bachelor's degree", coins: 100,
         caseSummary: {
-            priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Closed', nextStep: 'Case closed successfully', dueDate: 'N/A',
+            priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Approved', nextStep: 'Case closed successfully', dueDate: 'N/A',
         },
         activity: [],
         documents: [],

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis, ClientDocument, TeamMember } from "@/lib/data";
+import type { Client, Task, Agreement, IntakeForm, IntakeFormAnalysis, ClientDocument, TeamMember, ApplicationStatus } from "@/lib/data";
 import { CalendarCheck, FileText, MessageSquare, Download, Eye, Upload, CheckSquare, Plus, FilePlus, Trash2, Phone, Mail, Users, Sparkles, BrainCircuit, Loader2, AlertTriangle, Handshake, Landmark, Edit, FileHeart, AlertCircle, Flag, Package, CheckCircle, XCircle, FileDown, UserCheck } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -36,6 +36,7 @@ import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeli
 import { CaseTimeline } from "@/components/case-timeline";
 import { analyzeDocument, DocumentAnalysisOutput } from "@/ai/flows/document-analyzer";
 import { DocumentViewer } from "@/components/document-viewer";
+import { ApplicationProgress } from "@/components/application-progress";
 
 const activityIcons: { [key: string]: React.ElementType } = {
     "Application Submitted": FileText,
@@ -696,38 +697,41 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 </div>
                 <TabsContent value="overview" className="mt-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <Card className="lg:col-span-1">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Case Summary</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4 text-sm">
-                                <div>
-                                    <p className="text-muted-foreground">Priority</p>
-                                    <p className="font-bold text-base">{client.caseSummary.priority}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">Case Type</p>
-                                    <p className="font-semibold">{client.caseSummary.caseType}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">Education</p>
-                                    <p className="font-semibold">{client.educationLevel}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">Current Status</p>
-                                    <Badge variant={getStatusBadgeVariant(client.caseSummary.currentStatus)}>{client.caseSummary.currentStatus}</Badge>
-                                </div>
+                        <div className="lg:col-span-1">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Case Summary</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4 text-sm">
                                     <div>
-                                    <p className="text-muted-foreground">Next Step</p>
-                                    <p className="font-semibold">{client.caseSummary.nextStep}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">Due Date</p>
-                                    <p className="font-semibold">{client.caseSummary.dueDate}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                        <p className="text-muted-foreground">Priority</p>
+                                        <p className="font-bold text-base">{client.caseSummary.priority}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Case Type</p>
+                                        <p className="font-semibold">{client.caseSummary.caseType}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Education</p>
+                                        <p className="font-semibold">{client.educationLevel}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Current Status</p>
+                                        <Badge variant={getStatusBadgeVariant(client.caseSummary.currentStatus)}>{client.caseSummary.currentStatus}</Badge>
+                                    </div>
+                                        <div>
+                                        <p className="text-muted-foreground">Next Step</p>
+                                        <p className="font-semibold">{client.caseSummary.nextStep}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Due Date</p>
+                                        <p className="font-semibold">{client.caseSummary.dueDate}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                         <div className="lg:col-span-2 space-y-6">
+                            <ApplicationProgress currentStatus={client.caseSummary.currentStatus as ApplicationStatus} />
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="text-lg flex items-center gap-2">

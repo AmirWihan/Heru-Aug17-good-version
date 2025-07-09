@@ -8,8 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
 import { useGlobalData } from "@/context/GlobalDataContext";
-import type { Client, TeamMember } from "@/lib/data";
+import type { Client, TeamMember, ApplicationStatus } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ApplicationProgress } from "@/components/application-progress";
 
 export function ClientOverviewPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
@@ -123,31 +124,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-primary" />
-                        AI-Powered Case Timeline
-                    </CardTitle>
-                    <CardDescription>A personalized estimate of your immigration journey's next steps and timelines.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                   {isLoading && (
-                       <div className="flex items-center justify-center h-40">
-                           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                           <p className="ml-4 text-muted-foreground">Generating your personalized timeline...</p>
-                       </div>
-                   )}
-                   {error && !isLoading && (
-                       <div className="flex flex-col items-center justify-center h-40 text-center text-destructive">
-                           <AlertTriangle className="h-8 w-8 mb-2" />
-                           <p className="font-semibold">Timeline Generation Failed</p>
-                           <p className="text-sm">{error}</p>
-                       </div>
-                   )}
-                   {timelineData && !isLoading && <CaseTimeline timeline={timelineData} />}
-                </CardContent>
-            </Card>
+            <ApplicationProgress currentStatus={client.caseSummary.currentStatus as ApplicationStatus} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
