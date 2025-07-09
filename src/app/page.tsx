@@ -7,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { Loader2, Shield, User, Briefcase, Check } from 'lucide-react';
+import { Loader2, Shield, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-// Admin user details for direct login
 const adminUser = {
     name: 'Super Admin',
     role: 'Platform Administrator',
@@ -21,25 +20,42 @@ const adminUser = {
     icon: Shield,
 };
 
+const lawyerUser = {
+    name: 'Sarah Johnson',
+    role: 'Lawyer / Professional',
+    authRole: 'lawyer',
+    email: 'sarah.j@heru.com',
+    password: 'password123',
+    icon: Briefcase,
+};
+
+const clientUser = {
+    name: 'James Wilson',
+    role: 'Client / Applicant',
+    authRole: 'client',
+    email: 'james.wilson@example.com',
+    password: 'password123',
+    icon: User,
+}
+
 const RoleCard = ({
     className,
     icon: Icon,
     title,
     description,
-    features,
     onClick,
+    isLoading
 }: {
     className?: string;
     icon: React.ElementType;
     title: string;
     description: string;
-    features: string[];
     onClick: () => void;
+    isLoading: boolean;
 }) => (
     <Card
-        onClick={onClick}
         className={cn(
-            'text-white p-8 rounded-2xl cursor-pointer hover:shadow-2xl hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-between min-h-[380px]',
+            'text-white p-8 rounded-2xl flex flex-col justify-between min-h-[300px]',
             className
         )}
     >
@@ -50,15 +66,11 @@ const RoleCard = ({
             <h2 className="text-3xl font-bold font-headline mb-2">{title}</h2>
             <p className="opacity-80 max-w-sm">{description}</p>
         </div>
-        <div className="mt-8 pt-6 border-t border-white/20">
-            <ul className="space-y-3">
-                {features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5" />
-                        <span>{feature}</span>
-                    </li>
-                ))}
-            </ul>
+        <div className="mt-8">
+            <Button onClick={onClick} disabled={isLoading} className="w-full bg-white/90 text-black hover:bg-white">
+                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 View as {title}
+            </Button>
         </div>
     </Card>
 );
@@ -68,19 +80,25 @@ export default function UserSelectPage() {
     const router = useRouter();
     const { login } = useGlobalData();
     const { toast } = useToast();
-    const [loadingAdmin, setLoadingAdmin] = useState(false);
+    const [loadingRole, setLoadingRole] = useState<'lawyer' | 'client' | 'admin' | null>(null);
 
-    const handleAdminLogin = async () => {
-        setLoadingAdmin(true);
+    const handleLogin = async (role: 'lawyer' | 'client' | 'admin') => {
+        setLoadingRole(role);
+        
+        let userToLogin;
+        if (role === 'admin') userToLogin = adminUser;
+        else if (role === 'lawyer') userToLogin = lawyerUser;
+        else userToLogin = clientUser;
+
         try {
-            const loggedInUser = await login(adminUser.email, adminUser.password);
+            const loggedInUser = await login(userToLogin.email, userToLogin.password);
             if (loggedInUser) {
-                toast({ title: "Admin Login Successful", description: `Welcome, ${loggedInUser.name}!` });
+                toast({ title: `${userToLogin.role} Login Successful`, description: `Welcome, ${loggedInUser.name}!` });
                 router.push('/dashboard-select');
             } else {
                 toast({
                     title: 'Login Failed',
-                    description: "Could not log in as the admin user.",
+                    description: `Could not log in as the ${role} user.`,
                     variant: 'destructive',
                 });
             }
@@ -92,52 +110,49 @@ export default function UserSelectPage() {
                 variant: 'destructive',
             });
         } finally {
-            setLoadingAdmin(false);
+            setLoadingRole(null);
         }
-    };
-    
-    const handleRoleSelect = (role: 'lawyer' | 'client') => {
-        router.push(`/register?role=${role}`);
     };
 
     return (
         <div className="relative flex flex-col min-h-screen items-center justify-center bg-muted/20 p-4 overflow-hidden">
-             {/* Admin Login Button */}
-            <div className="absolute top-4 right-4 z-20">
-                <Button variant="ghost" size="icon" onClick={handleAdminLogin} disabled={loadingAdmin} title="Admin Login">
-                    {loadingAdmin ? <Loader2 className="h-5 w-5 animate-spin" /> : <Shield className="h-5 w-5" />}
-                </Button>
-            </div>
-            
             {/* Background Gradients */}
             <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent opacity-30 blur-3xl -translate-x-1/4"></div>
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-purple-200 via-indigo-100 to-transparent opacity-30 blur-3xl translate-x-1/4"></div>
             
-            <main className="w-full max-w-5xl space-y-8 z-10">
+            <main className="w-full max-w-6xl space-y-8 z-10">
                 <div className="text-center mb-12">
                      <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground">Welcome to VisaFor</h1>
-                    <p className="mt-2 text-lg text-muted-foreground">Select your role to get started.</p>
+                    <p className="mt-2 text-lg text-muted-foreground">Select a role to view the platform.</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <RoleCard
                         className="bg-blue-600"
-                        icon={User}
-                        title="I'm a Client"
-                        description="Looking for immigration services and want to connect with qualified lawyers."
-                        features={['Find Lawyers', 'Case Tracking', 'Document Management']}
-                        onClick={() => handleRoleSelect('client')}
+                        icon={clientUser.icon}
+                        title="Client"
+                        description="Applicant seeking immigration services and managing their case."
+                        onClick={() => handleLogin('client')}
+                        isLoading={loadingRole === 'client'}
                     />
                     <RoleCard
                         className="bg-gradient-to-br from-indigo-600 to-purple-700"
-                        icon={Briefcase}
-                        title="I'm a Lawyer"
-                        description="Immigration lawyer managing my practice with comprehensive CRM tools."
-                        features={['Complete CRM System', 'Team Management', 'Performance Analytics']}
-                        onClick={() => handleRoleSelect('lawyer')}
+                        icon={lawyerUser.icon}
+                        title="Lawyer"
+                        description="Professional managing clients, cases, and their team within the CRM."
+                         onClick={() => handleLogin('lawyer')}
+                         isLoading={loadingRole === 'lawyer'}
+                    />
+                    <RoleCard
+                        className="bg-slate-800"
+                        icon={adminUser.icon}
+                        title="Admin"
+                        description="Platform owner with access to all users, settings, and analytics."
+                        onClick={() => handleLogin('admin')}
+                        isLoading={loadingRole === 'admin'}
                     />
                 </div>
-                <div className="text-center text-muted-foreground pt-4">
-                    <p>Already have an account? <Link href="/login" className="font-semibold text-primary hover:underline">Sign in here</Link></p>
+                 <div className="text-center text-muted-foreground pt-4">
+                    <p>Or, <Link href="/login" className="font-semibold text-primary hover:underline">sign in manually</Link></p>
                 </div>
             </main>
         </div>
