@@ -11,10 +11,11 @@ import { UploadCloud } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import type { TeamMember } from '@/lib/data';
 
 export function GeneralSettings() {
     const { toast } = useToast();
-    const { setLogoSrc } = useGlobalData();
+    const { userProfile, setWorkspaceLogo } = useGlobalData();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleLogoUploadClick = () => {
@@ -22,6 +23,11 @@ export function GeneralSettings() {
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!userProfile || !(userProfile as TeamMember).firmName) {
+            toast({ title: "Error", description: "Firm information is not available."});
+            return;
+        }
+
         const file = event.target.files?.[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) { // 2MB limit
@@ -34,7 +40,8 @@ export function GeneralSettings() {
             }
             const reader = new FileReader();
             reader.onload = (e) => {
-                setLogoSrc(e.target?.result as string);
+                const newLogoSrc = e.target?.result as string;
+                setWorkspaceLogo((userProfile as TeamMember).firmName!, newLogoSrc);
                 toast({
                     title: "Logo updated",
                     description: "Your new workspace logo has been applied."

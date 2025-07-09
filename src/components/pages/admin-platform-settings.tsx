@@ -21,7 +21,7 @@ import { GmailIcon } from "@/components/icons/GmailIcon";
 import { OutlookIcon } from "@/components/icons/OutlookIcon";
 
 export function PlatformSettingsPage() {
-    const { setLogoSrc, theme, setTheme } = useGlobalData();
+    const { setWorkspaceLogo, theme, setTheme } = useGlobalData();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -42,10 +42,11 @@ export function PlatformSettingsPage() {
             }
             const reader = new FileReader();
             reader.onload = (e) => {
-                setLogoSrc(e.target?.result as string);
+                const newLogoSrc = e.target?.result as string;
+                setWorkspaceLogo('platform', newLogoSrc);
                 toast({
                     title: "Logo updated",
-                    description: "Your new logo has been applied."
+                    description: "Your new platform logo has been applied."
                 });
             };
             reader.readAsDataURL(file);

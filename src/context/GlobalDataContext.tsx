@@ -5,6 +5,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -51,8 +52,8 @@ interface GlobalDataContextType {
     addTask: (task: Task) => void;
     addNotification: (notification: Notification) => void;
     updateNotification: (id: number, updates: Partial<Notification>) => void;
-    logoSrc: string | null;
-    setLogoSrc: (src: string | null) => void;
+    logos: { [key: string]: string };
+    setWorkspaceLogo: (key: string, src: string | null) => void;
     isLoaded: boolean;
     theme: string;
     setTheme: (themeId: string) => void;
@@ -92,7 +93,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
     const [leads, setLeads] = useState<Lead[]>(staticLeads);
 
-    const [logoSrc, setLogoSrc] = useState<string | null>(null);
+    const [logos, setLogos] = useState<{ [key: string]: string }>({});
     const [theme, setThemeState] = useState('blue');
     const [isLoaded, setIsLoaded] = useState(false);
     
@@ -122,21 +123,29 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const setTheme = useCallback((themeId: string) => {
         setThemeState(themeId);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme: themeId, logoSrc }));
-    }, [logoSrc]);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme: themeId, logos }));
+    }, [logos]);
     
-    const setAndStoreLogo = useCallback((src: string | null) => {
-        setLogoSrc(src);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logoSrc: src }));
+    const setWorkspaceLogo = useCallback((key: string, src: string | null) => {
+        setLogos(currentLogos => {
+            const newLogos = { ...currentLogos };
+            if (src === null) {
+                delete newLogos[key];
+            } else {
+                newLogos[key] = src;
+            }
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos: newLogos }));
+            return newLogos;
+        });
     }, [theme]);
 
     useEffect(() => {
         try {
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
-                const { theme: storedTheme, logoSrc: storedLogo } = JSON.parse(storedPrefs);
+                const { theme: storedTheme, logos: storedLogos } = JSON.parse(storedPrefs);
                 if (storedTheme) setThemeState(storedTheme);
-                if (storedLogo) setLogoSrc(storedLogo);
+                if (storedLogos) setLogos(storedLogos);
             }
         } finally {
             setIsLoaded(true);
@@ -350,7 +359,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
             teamMembers, clients, tasks, appointments, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
             updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
-            logoSrc, setLogoSrc: setAndStoreLogo, isLoaded, theme, setTheme,
+            logos, setWorkspaceLogo, isLoaded, theme, setTheme,
         }}>
             {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
             {children}

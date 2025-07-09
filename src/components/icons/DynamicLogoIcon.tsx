@@ -5,13 +5,22 @@ import { useGlobalData } from '@/context/GlobalDataContext';
 import Image from 'next/image';
 import { HeruLogoIcon } from './HeruLogoIcon';
 import { cn } from '@/lib/utils';
+import type { TeamMember } from '@/lib/data';
 
 interface DynamicLogoIconProps {
   className?: string;
 }
 
 export function DynamicLogoIcon({ className }: DynamicLogoIconProps) {
-  const { logoSrc } = useGlobalData();
+  const { logos, userProfile } = useGlobalData();
+  
+  let logoSrc: string | null = null;
+
+  if (userProfile?.authRole === 'lawyer' && (userProfile as TeamMember).firmName) {
+    logoSrc = logos[(userProfile as TeamMember).firmName!] || logos['platform'];
+  } else {
+    logoSrc = logos['platform'];
+  }
 
   if (logoSrc) {
     // We can't know the aspect ratio, so we'll use fill and let the parent container size it.
