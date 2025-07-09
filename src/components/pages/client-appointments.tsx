@@ -62,7 +62,7 @@ export function ClientAppointmentsPage() {
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 
-        return { upcomingAppointments, pastAppointments };
+        return { upcomingAppointments: upcoming, pastAppointments: past };
     }, [clientAppointments]);
     
     const handleScheduleAppointment = () => {
