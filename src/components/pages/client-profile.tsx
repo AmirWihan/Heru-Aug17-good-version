@@ -612,6 +612,18 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
         }, 2000);
     };
 
+    const handleSendConnectionRequest = () => {
+        if (!userProfile) return;
+        onUpdateClient({ ...client, connectionRequestFromLawyerId: userProfile.id });
+        toast({
+            title: "Connection Request Sent!",
+            description: `Your request to connect has been sent to ${client.name}.`
+        });
+    };
+
+    const canSendRequest = !client.connectedLawyerId && !client.connectionRequestFromLawyerId;
+    const isRequestPending = client.connectionRequestFromLawyerId === userProfile?.id;
+    const isConnected = !!client.connectedLawyerId;
 
     return (
         <>
@@ -629,12 +641,21 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
                     <AvatarFallback>{client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <h2 className="text-2xl font-bold">{client.name}</h2>
-                        <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
-                        <Badge variant={getStatusBadgeVariant(client.caseType)}>{client.caseType}</Badge>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                                <h2 className="text-2xl font-bold">{client.name}</h2>
+                                <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
+                                <Badge variant={getStatusBadgeVariant(client.caseType)}>{client.caseType}</Badge>
+                            </div>
+                            <p className="text-muted-foreground mt-1">{client.email} • {client.phone}</p>
+                        </div>
+                         <div className="flex-shrink-0">
+                            {canSendRequest && <Button onClick={handleSendConnectionRequest}><UserCheck className="mr-2 h-4 w-4"/>Send Connection Request</Button>}
+                            {isRequestPending && <Button disabled>Request Sent</Button>}
+                            {isConnected && <Button disabled variant="outline"><CheckCircle className="mr-2 h-4 w-4 text-green-500"/>Connected</Button>}
+                        </div>
                     </div>
-                    <p className="text-muted-foreground mt-1">{client.email} • {client.phone}</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
                         <div>
                             <p className="text-muted-foreground">Country of Origin</p>

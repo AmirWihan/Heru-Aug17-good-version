@@ -17,6 +17,7 @@ import {
   FileHeart,
   Sparkles,
   Bell,
+  Lock,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -25,6 +26,8 @@ import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import type { Dispatch, SetStateAction } from 'react'
 import { useRouter } from "next/navigation"
 import { useGlobalData } from "@/context/GlobalDataContext";
+import type { Client } from "@/lib/data"
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "../ui/tooltip"
 
 interface ClientSidebarProps {
   isSidebarOpen: boolean
@@ -52,6 +55,8 @@ const navItems = [
 export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: ClientSidebarProps) {
   const router = useRouter();
   const { userProfile } = useGlobalData();
+  const client = userProfile as Client;
+  const isConnected = !!client?.connectedLawyerId;
 
   const handleNavigation = (pageId: string) => {
     setPage(pageId);
@@ -63,20 +68,40 @@ export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: 
 
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
     const isActive = page === item.id;
-    return (
-      <li key={item.id}>
+    const isDisabled = item.id === 'find-lawyer' && isConnected;
+
+    const button = (
         <button
           onClick={() => handleNavigation(item.id)}
+          disabled={isDisabled}
           className={cn(
             "flex w-full items-center p-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors",
-            isActive && "bg-primary/10 text-primary font-semibold"
+            isActive && "bg-primary/10 text-primary font-semibold",
+            isDisabled && "cursor-not-allowed opacity-50"
           )}
         >
           <item.icon className="mr-3 h-5 w-5" />
           <span>{item.label}</span>
+          {isDisabled && <Lock className="ml-auto h-4 w-4" />}
         </button>
-      </li>
-    )
+    );
+
+    if (isDisabled) {
+        return (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                       {button}
+                    </TooltipTrigger>
+                     <TooltipContent side="right">
+                        <p>You are already connected with a lawyer.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        )
+    }
+    
+    return button;
   }
 
   return (
@@ -118,7 +143,7 @@ export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: 
 
         <nav className="flex-1 overflow-y-auto">
           <ul className="p-2 space-y-1">
-            {navItems.map((item) => <NavLink key={item.id} item={item} />)}
+            {navItems.map((item) => <li key={item.id}><NavLink item={item} /></li>)}
           </ul>
         </nav>
       </aside>

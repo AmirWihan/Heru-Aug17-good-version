@@ -1,5 +1,6 @@
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2 } from "lucide-react";
+
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
@@ -199,6 +200,8 @@ export type Client = {
     analysis?: SuccessPredictorOutput;
     agreements: Agreement[];
     intakeForm?: IntakeForm;
+    connectedLawyerId: number | null;
+    connectionRequestFromLawyerId: number | null;
 };
 
 export type SocialLink = {
@@ -538,6 +541,8 @@ export const clients: Client[] = [
         tasks: [tasksData[0]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
+        connectedLawyerId: 1,
+        connectionRequestFromLawyerId: null,
     },
     { 
         id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', password: 'password123', uid: 'static-carlos', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
@@ -553,6 +558,8 @@ export const clients: Client[] = [
         tasks: [tasksData[1], tasksData[4]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
+        connectedLawyerId: 2,
+        connectionRequestFromLawyerId: null,
     },
     { 
         id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
@@ -567,6 +574,8 @@ export const clients: Client[] = [
         tasks: [tasksData[2]],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
+        connectedLawyerId: 1,
+        connectionRequestFromLawyerId: null,
     },
     { 
         id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
@@ -579,6 +588,8 @@ export const clients: Client[] = [
         tasks: [],
         agreements: [],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
+        connectedLawyerId: 4,
+        connectionRequestFromLawyerId: null,
     },
     { 
         id: 5, name: 'James Wilson', email: 'james.wilson@example.com', password: 'password123', uid: 'static-james', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
@@ -612,6 +623,8 @@ export const clients: Client[] = [
             }
         ],
         intakeForm: { status: 'not_started', flaggedQuestions: [] },
+        connectedLawyerId: null,
+        connectionRequestFromLawyerId: null,
     },
 ];
 

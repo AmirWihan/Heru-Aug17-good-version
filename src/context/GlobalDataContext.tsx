@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -219,6 +220,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 activity: [], documents: [], tasks: [], agreements: [],
                 intakeForm: { status: 'not_started' },
                 coins: 25, // Welcome bonus
+                connectedLawyerId: null,
+                connectionRequestFromLawyerId: null,
             };
         } else { // Lawyer
             newProfile = {
@@ -259,14 +262,14 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
         // Also update in the main user profile if it's the current user
         if (userProfile && userProfile.id === updatedClient.id) {
-             updateUserProfile(updatedClient);
+             updateUserProfile(updatedClient as UserProfile);
         }
     }, [userProfile, updateUserProfile]);
     
     const updateTeamMember = useCallback((updatedMember: TeamMember) => {
         setTeamMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
         if (userProfile && userProfile.id === updatedMember.id) {
-             updateUserProfile(updatedMember);
+             updateUserProfile(updatedMember as UserProfile);
         }
     }, [userProfile, updateUserProfile]);
 
