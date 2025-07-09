@@ -9,15 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
-import { SalesTeamPerformance } from "../admin-team-performance";
+import { SalesTeamPerformance } from "../sales-team-performance";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 
 const memberFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
@@ -151,7 +151,18 @@ export function AdminTeamManagementPage() {
                                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="alex@visafor.com" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                              <FormField control={form.control} name="role" render={({ field }) => (
-                                <FormItem><FormLabel>Role</FormLabel><FormControl><Input placeholder="e.g. Sales" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger><SelectValue placeholder="Select a role" /></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="sales">Sales</SelectItem>
+                                        <SelectItem value="advisor">Advisor</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage /></FormItem>
                             )} />
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
