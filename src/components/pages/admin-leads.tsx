@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { type Lead } from '@/lib/data';
-import { PlusCircle, User, Building, Upload } from 'lucide-react';
+import { PlusCircle, User, Building, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
@@ -15,36 +15,21 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { AdminLeadDetailSheet } from './admin-lead-detail-sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { format } from 'date-fns';
 
+const statusTabs: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
 
-const LeadCard = ({ lead, onConvert, onView }: { lead: Lead, onConvert: (leadId: number) => void, onView: () => void }) => {
-    return (
-        <Card className="mb-4 cursor-pointer hover:shadow-lg transition-shadow" onClick={onView}>
-            <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                    <Avatar className="h-10 w-10">
-                        <AvatarImage src={lead.avatar} />
-                        <AvatarFallback><Building className="h-5 w-5"/></AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <h4 className="font-semibold">{lead.company}</h4>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1.5"><User className="h-3 w-3"/>{lead.name}</p>
-                    </div>
-                </div>
-                <div className="text-xs text-muted-foreground space-y-1">
-                    <div className="flex items-center">Source: <Badge variant="secondary" className="ml-2">{lead.source}</Badge></div>
-                    <p>Owner: {lead.owner.name}</p>
-                    <p>Last Contacted: {new Date(lead.lastContacted).toLocaleDateString()}</p>
-                </div>
-                {lead.status === 'Qualified' &&
-                    <Button className="w-full mt-3" size="sm" onClick={(e) => { e.stopPropagation(); onConvert(lead.id); }}>Convert to Firm</Button>
-                }
-            </CardContent>
-        </Card>
-    )
-}
-
-const statusColumns: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
+const getStatusBadgeVariant = (status: Lead['status']) => {
+    switch (status) {
+        case 'New': return 'info';
+        case 'Contacted': return 'secondary';
+        case 'Qualified': return 'success';
+        case 'Unqualified': return 'destructive';
+        default: return 'default';
+    }
+};
 
 export function AdminLeadsPage() {
     const { leads, addLead, convertLeadToFirm, teamMembers } = useGlobalData();
@@ -54,6 +39,10 @@ export function AdminLeadsPage() {
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
+    // Filters
+    const [searchTerm, setSearchTerm] = useState('');
+    const [ownerFilter, setOwnerFilter] = useState('all');
+
     // Form state for adding a lead
     const [newLeadName, setNewLeadName] = useState('');
     const [newLeadCompany, setNewLeadCompany] = useState('');
@@ -61,7 +50,7 @@ export function AdminLeadsPage() {
     const [newLeadPhone, setNewLeadPhone] = useState('');
     const [newLeadSource, setNewLeadSource] = useState('');
 
-    const salesTeam = teamMembers.filter(m => m.type === 'sales' || m.type === 'advisor');
+    const salesTeam = teamMembers.filter(m => m.type === 'sales' || m.type === 'advisor' || m.type === 'admin');
 
     const handleConvertLead = (leadId: number) => {
         const lead = leads.find(l => l.id === leadId);
@@ -122,35 +111,122 @@ export function AdminLeadsPage() {
         setNewLeadSource('');
     };
 
+    const LeadsTable = ({ status }: { status?: Lead['status'] }) => {
+        const filteredLeads = useMemo(() => {
+            return leads.filter(lead => {
+                const statusMatch = !status || lead.status === status;
+                const searchMatch = searchTerm === '' || lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || lead.company.toLowerCase().includes(searchTerm.toLowerCase());
+                const ownerMatch = ownerFilter === 'all' || lead.owner.name === ownerFilter;
+                return statusMatch && searchMatch && ownerMatch;
+            });
+        }, [status, searchTerm, ownerFilter]);
+
+        return (
+            <div className="overflow-x-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Company</TableHead>
+                            <TableHead>Contact Person</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Owner</TableHead>
+                            <TableHead>Last Contacted</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {filteredLeads.map(lead => (
+                             <TableRow key={lead.id} className="cursor-pointer" onClick={() => handleViewLead(lead)}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={lead.avatar} />
+                                            <AvatarFallback><Building className="h-4 w-4"/></AvatarFallback>
+                                        </Avatar>
+                                        <div className="font-medium">{lead.company}</div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{lead.name}</TableCell>
+                                <TableCell><Badge variant={getStatusBadgeVariant(lead.status)}>{lead.status}</Badge></TableCell>
+                                <TableCell>{lead.owner.name}</TableCell>
+                                <TableCell suppressHydrationWarning>{format(new Date(lead.lastContacted), 'PP')}</TableCell>
+                                <TableCell className="text-right">
+                                     <DropdownMenu>
+                                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem onClick={() => handleViewLead(lead)}>View Details</DropdownMenuItem>
+                                            {lead.status === 'Qualified' && <DropdownMenuItem onClick={() => handleConvertLead(lead.id)}>Convert to Firm</DropdownMenuItem>}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                 {filteredLeads.length === 0 && <p className="text-center text-muted-foreground py-8">No leads match the current filters.</p>}
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold font-headline text-foreground">Law Firm Leads</h1>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Import Leads
-                        </Button>
-                        <Button onClick={() => setIsAddLeadOpen(true)}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Lead
-                        </Button>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {statusColumns.map(status => (
-                        <div key={status} className="bg-muted/50 rounded-lg p-4">
-                            <h3 className="font-semibold mb-4 text-center">{status} ({leads.filter(l => l.status === status).length})</h3>
-                            <div className="space-y-4">
-                                {leads.filter(l => l.status === status).map(lead => (
-                                    <LeadCard key={lead.id} lead={lead} onConvert={handleConvertLead} onView={() => handleViewLead(lead)} />
-                                ))}
+                 <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle>Law Firm Leads</CardTitle>
+                                <CardDescription>Manage and track potential law firm partnerships.</CardDescription>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Import Leads
+                                </Button>
+                                <Button onClick={() => setIsAddLeadOpen(true)}>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Add Lead
+                                </Button>
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="flex items-center gap-4 pt-4 flex-wrap">
+                            <div className="relative flex-1 min-w-[240px]">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="Search by company or contact..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                            </div>
+                             <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Filter by owner" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Owners</SelectItem>
+                                    {Array.from(new Set(leads.map(l => l.owner.name))).map(name => (
+                                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button variant="outline" onClick={() => { setSearchTerm(''); setOwnerFilter('all'); }}>
+                                <Filter className="mr-2 h-4 w-4" /> Reset Filters
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                         <Tabs defaultValue="all">
+                            <TabsList>
+                                <TabsTrigger value="all">All ({leads.length})</TabsTrigger>
+                                {statusTabs.map(status => (
+                                    <TabsTrigger key={status} value={status}>{status} ({leads.filter(l => l.status === status).length})</TabsTrigger>
+                                ))}
+                            </TabsList>
+                            <TabsContent value="all" className="mt-4"><LeadsTable /></TabsContent>
+                            {statusTabs.map(status => (
+                                <TabsContent key={status} value={status} className="mt-4"><LeadsTable status={status} /></TabsContent>
+                            ))}
+                        </Tabs>
+                    </CardContent>
+                </Card>
             </div>
 
              <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
