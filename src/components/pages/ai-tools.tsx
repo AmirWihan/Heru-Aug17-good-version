@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Sparkles, Wand2, Briefcase, FileText, PencilRuler } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, Briefcase, FileText, PencilRuler, CaseSensitive, FileCheck, MessageSquare } from 'lucide-react';
 
 import { applicationChecker, ApplicationCheckerOutput } from '@/ai/flows/application-checker';
 import { summarizeDocument, SummarizeDocumentOutput } from '@/ai/flows/document-summarization';
@@ -450,12 +450,13 @@ export function AIToolsPage() {
                     <p className="text-muted-foreground">Leverage generative AI to streamline your immigration case management.</p>
                 </div>
             </div>
-            <Tabs defaultValue="case-management">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="case-management">Case Management Tools</TabsTrigger>
-                    <TabsTrigger value="client-assistance">Client Assistance Tools</TabsTrigger>
+            <Tabs defaultValue="analysis" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="analysis"><FileCheck className="mr-2 h-4 w-4"/>Case & Document Analysis</TabsTrigger>
+                    <TabsTrigger value="writing"><MessageSquare className="mr-2 h-4 w-4"/>Writing & Communications</TabsTrigger>
+                    <TabsTrigger value="career"><Briefcase className="mr-2 h-4 w-4"/>Client Career Tools</TabsTrigger>
                 </TabsList>
-                <TabsContent value="case-management" className="space-y-6 mt-4">
+                <TabsContent value="analysis" className="space-y-6 mt-4">
                     <Card>
                         <CardHeader><CardTitle>Document Summarizer</CardTitle></CardHeader>
                         <CardContent><DocumentSummarizer/></CardContent>
@@ -464,23 +465,25 @@ export function AIToolsPage() {
                         <CardHeader><CardTitle>Application Checker</CardTitle></CardHeader>
                         <CardContent><ApplicationChecker/></CardContent>
                     </Card>
+                </TabsContent>
+                <TabsContent value="writing" className="space-y-6 mt-4">
                     <Card>
                         <CardHeader><CardTitle>AI-Assisted Messaging</CardTitle></CardHeader>
                         <CardContent><MessageComposer/></CardContent>
                     </Card>
-                </TabsContent>
-                <TabsContent value="client-assistance" className="space-y-6 mt-4">
                      <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Briefcase className="h-5 w-5"/> Canadian Resume Builder</CardTitle></CardHeader>
+                        <CardHeader><CardTitle>Writing Assistant</CardTitle></CardHeader>
+                        <CardContent><WritingAssistant/></CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="career" className="space-y-6 mt-4">
+                     <Card>
+                        <CardHeader><CardTitle>Canadian Resume Builder</CardTitle></CardHeader>
                         <CardContent><ResumeBuilder/></CardContent>
                     </Card>
                      <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5"/> Cover Letter Generator</CardTitle></CardHeader>
+                        <CardHeader><CardTitle>Cover Letter Generator</CardTitle></CardHeader>
                         <CardContent><CoverLetterBuilder/></CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><PencilRuler className="h-5 w-5"/> Writing Assistant</CardTitle></CardHeader>
-                        <CardContent><WritingAssistant/></CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, AlertTriangle, Briefcase, FileText, PencilRuler, Gift } from 'lucide-react';
+import { Loader2, Sparkles, AlertTriangle, Briefcase, FileText, PencilRuler, Gift, Copy } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -15,10 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // AI Flows
 import { buildResume, BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
 import { buildCoverLetter, BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
-import { assistWithWriting } from '@/ai/flows/writing-assistant-flow';
-import type { WritingAssistantOutput } from '@/ai/schemas/writing-assistant-schema';
+import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { Client, IntakeFormInput } from '@/ai/schemas/intake-form-schema';
-import { Copy } from 'lucide-react';
 
 const AI_FEATURE_COST = 5;
 
@@ -32,7 +30,8 @@ const AIToolTab = ({
     children,
     buttonText,
     Icon,
-    result
+    result,
+    requiresIntakeForm = true,
 }: {
     title: string;
     description: string;
@@ -44,24 +43,32 @@ const AIToolTab = ({
     buttonText: string;
     Icon: React.ElementType;
     result: any;
+    requiresIntakeForm?: boolean;
 }) => {
     const hasSufficientCoins = (client?.coins ?? 0) >= cost;
+    const isDisabled = isLoading || (requiresIntakeForm && !client?.intakeForm?.data) || !hasSufficientCoins;
     
     return (
         <CardContent className="space-y-4">
             <CardDescription>{description} It costs <span className="font-bold text-primary">{cost} coins</span>.</CardDescription>
             {children}
-            <Button onClick={onGenerate} disabled={isLoading || !client?.intakeForm?.data || !hasSufficientCoins}>
+            <Button onClick={onGenerate} disabled={isDisabled}>
                 {isLoading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
                 ) : (
                     <><Icon className="mr-2 h-4 w-4" /> {buttonText}</>
                 )}
             </Button>
+            {requiresIntakeForm && !client?.intakeForm?.data && <p className="text-sm text-destructive mt-2">You must complete your intake form to use this feature.</p>}
             {!hasSufficientCoins && <p className="text-sm text-destructive mt-2">You do not have enough coins for this feature. Refer friends to earn more!</p>}
             {result && (
                  <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
-                    <h4 className="font-bold">Generated Result:</h4>
+                    <div className="flex justify-between items-center">
+                        <h4 className="font-bold">Generated Result:</h4>
+                        <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(result.resumeText || result.coverLetterText || result.improvedText)}>
+                            <Copy className="mr-2 h-4 w-4" /> Copy
+                        </Button>
+                    </div>
                     <Textarea readOnly value={result.resumeText || result.coverLetterText || result.improvedText} rows={15} className="bg-background font-mono text-xs" />
                 </div>
             )}
@@ -69,6 +76,75 @@ const AIToolTab = ({
     );
 };
 
+function WritingAssistant() {
+    const { userProfile, updateClient } = useGlobalData();
+    const { toast } = useToast();
+    const client = userProfile as Client | null;
+
+    const [result, setResult] = useState<WritingAssistantOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [textToImprove, setTextToImprove] = useState('');
+    const [instruction, setInstruction] = useState('');
+
+    const handleUseCoins = (cost: number) => {
+        if (!client) return;
+        const newBalance = (client.coins || 0) - cost;
+        updateClient({ ...client, coins: newBalance });
+        toast({
+            title: `You spent ${cost} coins!`,
+            description: `Your new balance is ${newBalance}.`,
+        });
+    };
+
+    const handleGenerate = async () => {
+        if (!textToImprove || !instruction) {
+            toast({ title: 'Input Required', description: 'Please provide text and an instruction.', variant: 'destructive' });
+            return;
+        }
+        if ((client?.coins ?? 0) < AI_FEATURE_COST) {
+            toast({ title: "Insufficient Coins", description: "You don't have enough coins to use this feature.", variant: "destructive" });
+            return;
+        }
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await assistWithWriting({ textToImprove, instruction });
+            setResult(response);
+            handleUseCoins(AI_FEATURE_COST);
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to process text.', variant: 'destructive' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <AIToolTab
+            title="Writing Assistant"
+            description="Improve any text, such as emails to potential employers or clarifying questions for your lawyer."
+            cost={AI_FEATURE_COST}
+            client={client}
+            onGenerate={handleGenerate}
+            isLoading={isLoading}
+            buttonText="Improve My Text"
+            Icon={PencilRuler}
+            result={result}
+            requiresIntakeForm={false}
+        >
+            <div className="space-y-4">
+                <div className="space-y-1">
+                    <Label htmlFor="client-text-to-improve">Original Text</Label>
+                    <Textarea id="client-text-to-improve" value={textToImprove} onChange={e => setTextToImprove(e.target.value)} placeholder="Paste the text you want to improve here..." rows={4} />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="client-instruction">Instruction</Label>
+                    <Input id="client-instruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="e.g., make it more professional, check grammar." />
+                </div>
+            </div>
+        </AIToolTab>
+    );
+}
 
 export function ClientAiAssistPage() {
     const { userProfile, updateClient } = useGlobalData();
@@ -77,20 +153,14 @@ export function ClientAiAssistPage() {
 
     const [resumeResult, setResumeResult] = useState<BuildResumeOutput | null>(null);
     const [coverLetterResult, setCoverLetterResult] = useState<BuildCoverLetterOutput | null>(null);
-    const [writingResult, setWritingResult] = useState<WritingAssistantOutput | null>(null);
     
     const [isResumeLoading, setIsResumeLoading] = useState(false);
     const [isCoverLoading, setIsCoverLoading] = useState(false);
-    const [isWritingLoading, setIsWritingLoading] = useState(false);
 
     // Cover letter specific state
     const [jobTitle, setJobTitle] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [jobDescription, setJobDescription] = useState('');
-
-    // Writing assistant specific state
-    const [textToImprove, setTextToImprove] = useState('');
-    const [instruction, setInstruction] = useState('');
     
     const handleUseCoins = (cost: number) => {
         if (!client) return;
@@ -234,10 +304,7 @@ export function ClientAiAssistPage() {
                          </AIToolTab>
                     </TabsContent>
                     <TabsContent value="writing-assistant">
-                        {/* Placeholder for Writing Assistant, can be implemented similarly */}
-                        <CardContent>
-                             <p className="text-center text-muted-foreground p-8">The Writing Assistant feature is coming soon!</p>
-                        </CardContent>
+                        <WritingAssistant />
                     </TabsContent>
                 </Tabs>
             </Card>
