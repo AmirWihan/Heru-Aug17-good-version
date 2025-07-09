@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -20,7 +21,7 @@ interface DocumentViewerProps {
     onOpenChange: (isOpen: boolean) => void;
     document: {
         title: string;
-        url?: string;
+        url?: string; // In a real app, this would be a secure, time-limited URL from Firebase Storage
     } | null;
 }
 
@@ -29,6 +30,9 @@ export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewe
     const [numPages, setNumPages] = useState<number | null>(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [scale, setScale] = useState(1.0);
+
+    // Using a public placeholder PDF for demonstration purposes.
+    const fileUrl = 'https://unpkg.com/pdfjs-dist@3.4.120/web/compressed.tracemonkey-pldi-09.pdf';
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
@@ -70,18 +74,14 @@ export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewe
                     <DialogDescription>Use the controls below to navigate and manage the document.</DialogDescription>
                 </DialogHeader>
                 <div className="bg-muted flex-1 overflow-auto flex items-start justify-center p-4">
-                    {document?.url ? (
-                        <Document
-                            file={document.url}
-                            onLoadSuccess={onDocumentLoadSuccess}
-                            loading={<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading PDF...</span></div>}
-                            error={<div className="text-destructive">Failed to load PDF.</div>}
-                        >
-                            <Page pageNumber={pageNumber} scale={scale} renderTextLayer={false} />
-                        </Document>
-                    ) : (
-                        <div className="text-muted-foreground">No document preview available.</div>
-                    )}
+                    <Document
+                        file={fileUrl} // Using the placeholder URL
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        loading={<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading PDF...</span></div>}
+                        error={<div className="text-destructive">Failed to load PDF.</div>}
+                    >
+                        <Page pageNumber={pageNumber} scale={scale} renderTextLayer={false} />
+                    </Document>
                 </div>
                 <div className="flex items-center justify-between p-2 border-t bg-background rounded-b-lg">
                     <div className="flex items-center gap-2">

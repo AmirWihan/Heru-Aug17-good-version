@@ -17,7 +17,7 @@ import { type Client, type TeamMember } from '@/lib/data';
 import { AdminUserDetailSheet } from './admin-user-detail';
 import { format } from 'date-fns';
 
-export function UserManagementPage() {
+export function UserManagementPage({ setPage }: { setPage: (page: string) => void }) {
     const { teamMembers, updateTeamMember, clients, updateClient } = useGlobalData();
     const { toast } = useToast();
     const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null);
@@ -89,9 +89,9 @@ export function UserManagementPage() {
                             <CardTitle>User Management</CardTitle>
                             <CardDescription>View, manage, approve, or block user accounts.</CardDescription>
                         </div>
-                         <Button>
+                         <Button onClick={() => setPage('team')}>
                             <UserPlus className="mr-2 h-4 w-4" />
-                            Invite User
+                            Invite Staff Member
                         </Button>
                     </div>
                 </CardHeader>
