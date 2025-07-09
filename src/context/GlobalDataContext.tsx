@@ -6,6 +6,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -167,8 +168,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             const allUsers = [...staticTeamMembers, ...staticClients];
             let foundUser;
 
-            // "Dumb" login for demo purposes. Ignores password for any @example.com email.
-            if (email.endsWith('@example.com')) {
+            // "Dumb" login for demo purposes. Ignores password for any @example.com or @heru.com email.
+            if (email.endsWith('@example.com') || email.endsWith('@heru.com')) {
                 foundUser = allUsers.find(u => u.email?.toLowerCase() === email.toLowerCase());
             } else {
                  foundUser = allUsers.find(

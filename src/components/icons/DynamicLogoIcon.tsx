@@ -14,13 +14,15 @@ interface DynamicLogoIconProps {
 export function DynamicLogoIcon({ className }: DynamicLogoIconProps) {
   const { logos, userProfile } = useGlobalData();
   
-  let logoSrc: string | null = null;
-
+  let logoKey: string | null = null;
+  
   if (userProfile?.authRole === 'lawyer' && (userProfile as TeamMember).firmName) {
-    logoSrc = logos[(userProfile as TeamMember).firmName!] || logos['platform'];
+    logoKey = (userProfile as TeamMember).firmName!;
   } else {
-    logoSrc = logos['platform'];
+    logoKey = 'platform';
   }
+
+  const logoSrc = logoKey ? logos[logoKey] : null;
 
   if (logoSrc) {
     // We can't know the aspect ratio, so we'll use fill and let the parent container size it.

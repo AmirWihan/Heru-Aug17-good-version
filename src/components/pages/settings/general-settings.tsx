@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,21 @@ import type { TeamMember } from '@/lib/data';
 
 export function GeneralSettings() {
     const { toast } = useToast();
-    const { userProfile, setWorkspaceLogo } = useGlobalData();
+    const { userProfile, setWorkspaceLogo, updateTeamMember } = useGlobalData();
+    const lawyerProfile = userProfile as TeamMember;
+
+    const [firmName, setFirmName] = useState(lawyerProfile?.firmName || '');
+    const [firmAddress, setFirmAddress] = useState(lawyerProfile?.firmAddress || '');
+    const [firmPhone, setFirmPhone] = useState(lawyerProfile?.phone || '');
+    const [firmEmail, setFirmEmail] = useState(lawyerProfile?.email || '');
+    
+    useEffect(() => {
+        setFirmName(lawyerProfile?.firmName || '');
+        setFirmAddress(lawyerProfile?.firmAddress || '');
+        setFirmPhone(lawyerProfile?.phone || '');
+        setFirmEmail(lawyerProfile?.email || '');
+    }, [lawyerProfile]);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleLogoUploadClick = () => {
@@ -23,7 +37,7 @@ export function GeneralSettings() {
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!userProfile || !(userProfile as TeamMember).firmName) {
+        if (!userProfile || !lawyerProfile.firmName) {
             toast({ title: "Error", description: "Firm information is not available."});
             return;
         }
@@ -41,7 +55,7 @@ export function GeneralSettings() {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const newLogoSrc = e.target?.result as string;
-                setWorkspaceLogo((userProfile as TeamMember).firmName!, newLogoSrc);
+                setWorkspaceLogo(lawyerProfile.firmName!, newLogoSrc);
                 toast({
                     title: "Logo updated",
                     description: "Your new workspace logo has been applied."
@@ -52,6 +66,17 @@ export function GeneralSettings() {
     };
 
     const handleSaveChanges = () => {
+        if (!lawyerProfile) return;
+
+        const updatedProfile = {
+            ...lawyerProfile,
+            firmName,
+            firmAddress,
+            phone: firmPhone,
+            email: firmEmail,
+        };
+
+        updateTeamMember(updatedProfile);
         toast({ title: "Settings Saved", description: "Your workspace settings have been updated." });
     };
 
@@ -89,20 +114,20 @@ export function GeneralSettings() {
                     <p className="text-sm text-muted-foreground">This information will be used to automatically generate letterheads for official documents.</p>
                     <div className="space-y-2">
                         <Label htmlFor="firm-name">Firm Name</Label>
-                        <Input id="firm-name" defaultValue="Johnson Legal" />
+                        <Input id="firm-name" value={firmName} onChange={(e) => setFirmName(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="firm-address">Address</Label>
-                        <Textarea id="firm-address" defaultValue="789 Bay Street, Toronto, ON M5G 2C2" />
+                        <Textarea id="firm-address" value={firmAddress} onChange={(e) => setFirmAddress(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="firm-phone">Phone Number</Label>
-                            <Input id="firm-phone" defaultValue="+1-202-555-0101" />
+                            <Input id="firm-phone" value={firmPhone} onChange={(e) => setFirmPhone(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="firm-email">Email</Label>
-                            <Input id="firm-email" type="email" defaultValue="contact@johnsonlegal.ca" />
+                            <Input id="firm-email" type="email" value={firmEmail} onChange={(e) => setFirmEmail(e.target.value)} />
                         </div>
                     </div>
                 </div>

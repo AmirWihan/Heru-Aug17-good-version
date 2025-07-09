@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon"
 import { useRouter } from "next/navigation"
-import { useGlobalData, UserProfile } from "@/context/GlobalDataContext"
+import { useGlobalData } from "@/context/GlobalDataContext"
 import { TeamMember } from "@/lib/data"
 
 interface AppSidebarProps {
@@ -60,6 +60,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
   const router = useRouter();
   const { userProfile } = useGlobalData();
   const teamMember = userProfile as TeamMember;
+  const firmName = teamMember?.firmName || 'VisaFor';
 
   const handleNavigation = (page: string) => {
     setPage(page)
@@ -105,7 +106,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
             <DynamicLogoIcon className="h-8 w-8" />
-            <span className="text-xl font-bold font-headline text-primary">VisaFor</span>
+            <span className="text-xl font-bold font-headline text-primary">{firmName}</span>
           </Link>
           <Button
             variant="ghost"
