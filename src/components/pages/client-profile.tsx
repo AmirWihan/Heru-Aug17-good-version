@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -142,7 +142,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
 };
 
 
-export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
+export const ClientProfile = React.memo(function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
@@ -1508,4 +1508,4 @@ export function ClientProfile({ client, onUpdateClient }: ClientProfileProps) {
             </AlertDialog>
         </>
     );
-}
+});

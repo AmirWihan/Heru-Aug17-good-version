@@ -3,6 +3,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -251,16 +252,18 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const updateUserProfile = useCallback(async (updates: Partial<UserProfile>) => {
-        if (!userProfile || !userProfile.uid) return;
-        
-        if (isFirebaseEnabled) {
-            const userDocRef = doc(db, 'users', userProfile.uid);
-            await updateDoc(userDocRef, updates);
-        }
-        
-        const updatedProfile = { ...userProfile, ...updates };
-        setUserProfile(updatedProfile);
-    }, [userProfile]);
+        setUserProfile(currentProfile => {
+            if (!currentProfile) return null;
+            const updatedProfile = { ...currentProfile, ...updates } as UserProfile;
+            
+            if (isFirebaseEnabled && currentProfile.uid) {
+                const userDocRef = doc(db, 'users', currentProfile.uid);
+                updateDoc(userDocRef, updates).catch(console.error);
+            }
+            
+            return updatedProfile;
+        });
+    }, []);
 
 
     const addClient = useCallback((client: Client) => {
@@ -269,11 +272,13 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const updateClient = useCallback((updatedClient: Client) => {
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
-        // Also update in the main user profile if it's the current user
-        if (userProfile && userProfile.id === updatedClient.id) {
-             updateUserProfile(updatedClient as UserProfile);
-        }
-    }, [userProfile, updateUserProfile]);
+        setUserProfile(currentProfile => {
+            if (currentProfile && currentProfile.id === updatedClient.id) {
+                return { ...currentProfile, ...updatedClient };
+            }
+            return currentProfile;
+        });
+    }, []);
     
     const updateTeamMember = useCallback((updatedMember: TeamMember) => {
         setTeamMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
