@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { LawyerConnectDialog } from "./lawyer-connect-dialog";
 import { TeamMember } from "@/lib/data";
 
 export function FindLawyerPage() {
@@ -20,9 +19,6 @@ export function FindLawyerPage() {
     const [location, setLocation] = useState("all");
     const [language, setLanguage] = useState("all");
     const [consultation, setConsultation] = useState("all");
-
-    const [selectedLawyer, setSelectedLawyer] = useState<TeamMember | null>(null);
-    const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
 
     const specialties = useMemo(() => ['all', ...Array.from(new Set(teamMembers.flatMap(l => l.specialties)))], []);
     const locations = useMemo(() => ['all', ...Array.from(new Set(teamMembers.map(l => l.location)))], []);
@@ -65,9 +61,8 @@ export function FindLawyerPage() {
         setConsultation("all");
     };
 
-    const handleConnectClick = (lawyer: TeamMember) => {
-        setSelectedLawyer(lawyer);
-        setIsConnectDialogOpen(true);
+    const handleViewProfile = (lawyer: TeamMember) => {
+        router.push(`/client/lawyer/${lawyer.id}`);
     };
     
     return (
@@ -125,7 +120,7 @@ export function FindLawyerPage() {
                         <LawyerProfileCard 
                             key={lawyer.id} 
                             lawyer={lawyer} 
-                            onViewProfile={() => handleConnectClick(lawyer)}
+                            onViewProfile={() => handleViewProfile(lawyer)}
                             isEnterprise={lawyer.plan === 'Enterprise'}
                         />
                     )) : (
@@ -136,14 +131,6 @@ export function FindLawyerPage() {
                     )}
                 </CardContent>
             </Card>
-
-            {selectedLawyer && (
-                <LawyerConnectDialog
-                    lawyer={selectedLawyer}
-                    isOpen={isConnectDialogOpen}
-                    onOpenChange={setIsConnectDialogOpen}
-                />
-            )}
         </>
     );
 }
