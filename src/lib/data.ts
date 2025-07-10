@@ -1,5 +1,4 @@
 
-
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
@@ -247,6 +246,8 @@ export type TeamMember = {
         value: string;
     }[];
     specialties: string[];
+    languages: string[];
+    consultationType: 'Free' | 'Paid';
     gallery?: {
         id: number;
         src: string;
@@ -302,6 +303,8 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://johnsonlegal.ca',
         stats: [{ label: 'Clients Handled', value: '72' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }, { label: 'Years Practicing', value: '12' }],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
+        languages: ['English', 'French'],
+        consultationType: 'Paid',
         gallery: [
             { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Community workshop event', dataAiHint: 'community workshop' },
             { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Team photo at a conference', dataAiHint: 'professional team' },
@@ -337,7 +340,9 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 1,
         firmWebsite: 'https://visafor.com',
         stats: [],
-        specialties: ['Platform Management']
+        specialties: ['Platform Management'],
+        languages: [],
+        consultationType: 'Paid'
     },
     {
         id: 9,
@@ -368,7 +373,9 @@ export const teamMembers: TeamMember[] = [
             { label: 'Success Rate', value: 'N/A' },
             { label: 'Rating', value: 'N/A' }
         ],
-        specialties: ['Awaiting Activation']
+        specialties: ['Awaiting Activation'],
+        languages: [],
+        consultationType: 'Paid'
     },
     {
         id: 8,
@@ -399,7 +406,9 @@ export const teamMembers: TeamMember[] = [
             { label: 'Success Rate', value: 'N/A' },
             { label: 'Rating', value: 'N/A' }
         ],
-        specialties: ['Awaiting Activation']
+        specialties: ['Awaiting Activation'],
+        languages: [],
+        consultationType: 'Paid'
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
@@ -410,7 +419,9 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 5,
         firmWebsite: 'https://chenassociates.com',
         stats: [{ label: 'Clients Handled', value: '45' }, { label: 'Success Rate', value: '89%' }, { label: 'Active Cases', value: '11' }, { label: 'Years Practicing', value: '8' }],
-        specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services']
+        specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services'],
+        languages: ['English', 'Mandarin'],
+        consultationType: 'Free'
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
@@ -421,7 +432,9 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://johnsonlegal.ca',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         stats: [{ label: 'Clients Handled', value: '38' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }, { label: 'Years Practicing', value: '5' }],
-        specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid']
+        specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid'],
+        languages: ['English'],
+        consultationType: 'Paid'
     },
     {
         id: 4, name: 'David Rodriguez', role: 'Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=david', type: 'legal',
@@ -433,6 +446,8 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://rodriguezlaw.ca',
         stats: [{ label: 'Clients Handled', value: '51' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }, { label: 'Years Practicing', value: '7' }],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration', 'Court Representation'],
+        languages: ['English', 'Spanish'],
+        consultationType: 'Paid',
         gallery: [
             { id: 1, src: 'https://placehold.co/600x400.png', alt: 'Networking event', dataAiHint: 'networking event' },
             { id: 2, src: 'https://placehold.co/600x400.png', alt: 'Legal seminar', dataAiHint: 'legal seminar' },
@@ -442,13 +457,13 @@ export const teamMembers: TeamMember[] = [
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
         email: 'jessica.m@heru.com', phone: '+1-202-555-0105', password: 'password123', uid: 'static-jessica', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
-        stats: [], specialties: []
+        stats: [], specialties: [], languages: [], consultationType: 'Paid'
     },
     {
         id: 6, name: 'Chris Davis', role: 'Marketing Advisor', avatar: 'https://i.pravatar.cc/150?u=chris', type: 'advisor',
         email: 'chris.d@heru.com', phone: '+1-202-555-0106', password: 'password123', uid: 'static-chris', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
-        stats: [], specialties: []
+        stats: [], specialties: [], languages: [], consultationType: 'Paid'
     },
 ];
 

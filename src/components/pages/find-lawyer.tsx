@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useMemo } from "react";
 import { teamMembers } from "@/lib/data";
@@ -15,11 +16,12 @@ export function FindLawyerPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [specialty, setSpecialty] = useState("all");
     const [location, setLocation] = useState("all");
-    const [experience, setExperience] = useState("all");
-    const [successRate, setSuccessRate] = useState("all");
+    const [language, setLanguage] = useState("all");
+    const [consultation, setConsultation] = useState("all");
 
     const specialties = useMemo(() => ['all', ...Array.from(new Set(teamMembers.flatMap(l => l.specialties)))], []);
     const locations = useMemo(() => ['all', ...Array.from(new Set(teamMembers.map(l => l.location)))], []);
+    const languages = useMemo(() => ['all', ...Array.from(new Set(teamMembers.flatMap(l => l.languages)))], []);
 
     const filteredLawyers = useMemo(() => {
         const filtered = teamMembers.filter(lawyer => {
@@ -29,10 +31,10 @@ export function FindLawyerPage() {
             const nameMatch = lawyer.name.toLowerCase().includes(searchTerm.toLowerCase());
             const specialtyMatch = specialty === 'all' || lawyer.specialties.includes(specialty);
             const locationMatch = location === 'all' || lawyer.location === location;
-            const experienceMatch = experience === 'all' || lawyer.yearsOfPractice >= parseInt(experience);
-            const successRateMatch = successRate === 'all' || lawyer.successRate >= parseInt(successRate);
+            const languageMatch = language === 'all' || lawyer.languages.includes(language);
+            const consultationMatch = consultation === 'all' || lawyer.consultationType === consultation;
             
-            return nameMatch && specialtyMatch && locationMatch && experienceMatch && successRateMatch;
+            return nameMatch && specialtyMatch && locationMatch && languageMatch && consultationMatch;
         });
 
         // Sort to bring Enterprise lawyers to the front
@@ -43,14 +45,14 @@ export function FindLawyerPage() {
             return aIsEnterprise ? -1 : 1;
         });
 
-    }, [searchTerm, specialty, location, experience, successRate]);
+    }, [searchTerm, specialty, location, language, consultation]);
 
     const resetFilters = () => {
         setSearchTerm("");
         setSpecialty("all");
         setLocation("all");
-        setExperience("all");
-        setSuccessRate("all");
+        setLanguage("all");
+        setConsultation("all");
     };
 
     const handleViewProfile = (lawyerId: number) => {
@@ -86,21 +88,19 @@ export function FindLawyerPage() {
                             {locations.filter(l => l !== 'all').map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                     <Select value={experience} onValueChange={setExperience}>
-                        <SelectTrigger><SelectValue placeholder="Years of Experience" /></SelectTrigger>
+                     <Select value={language} onValueChange={setLanguage}>
+                        <SelectTrigger><SelectValue placeholder="Language" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Any Experience</SelectItem>
-                            <SelectItem value="5">5+ Years</SelectItem>
-                            <SelectItem value="10">10+ Years</SelectItem>
+                            <SelectItem value="all">Any Language</SelectItem>
+                            {languages.filter(l => l !== 'all' && l).map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Select value={successRate} onValueChange={setSuccessRate}>
-                        <SelectTrigger><SelectValue placeholder="Success Rate" /></SelectTrigger>
+                    <Select value={consultation} onValueChange={setConsultation}>
+                        <SelectTrigger><SelectValue placeholder="Consultation Fee" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Any Success Rate</SelectItem>
-                            <SelectItem value="95">95%+ Success</SelectItem>
-                            <SelectItem value="90">90%+ Success</SelectItem>
-                            <SelectItem value="85">85%+ Success</SelectItem>
+                            <SelectItem value="all">Any Fee</SelectItem>
+                            <SelectItem value="Free">Free Consultation</SelectItem>
+                            <SelectItem value="Paid">Paid Consultation</SelectItem>
                         </SelectContent>
                     </Select>
                     <Button variant="outline" onClick={resetFilters}>

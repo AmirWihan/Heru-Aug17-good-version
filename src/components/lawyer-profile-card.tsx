@@ -1,10 +1,11 @@
+
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Crown, MapPin, Award, Users } from "lucide-react";
+import { ArrowRight, Crown, MapPin, Award, Users, Languages, DollarSign, Check } from "lucide-react";
 
 type LawyerProfileCardProps = {
     lawyer: {
@@ -15,6 +16,8 @@ type LawyerProfileCardProps = {
         location: string;
         registrationNumber: string;
         numEmployees?: number;
+        languages?: string[];
+        consultationType?: 'Free' | 'Paid';
     };
     onViewProfile: (lawyerId: number) => void;
     isEnterprise?: boolean;
@@ -61,6 +64,18 @@ export function LawyerProfileCard({ lawyer, onViewProfile, isEnterprise }: Lawye
                         <div className="flex items-center gap-2">
                             <Users className="h-3 w-3 shrink-0" />
                             <span>Team of {lawyer.numEmployees}</span>
+                        </div>
+                    )}
+                    {lawyer.languages && lawyer.languages.length > 0 && (
+                         <div className="flex items-center gap-2">
+                            <Languages className="h-3 w-3 shrink-0" />
+                            <span>{lawyer.languages.join(', ')}</span>
+                        </div>
+                    )}
+                    {lawyer.consultationType && (
+                         <div className="flex items-center gap-2">
+                            {lawyer.consultationType === 'Free' ? <Check className="h-3 w-3 shrink-0 text-green-500" /> : <DollarSign className="h-3 w-3 shrink-0" />}
+                            <span>{lawyer.consultationType} Consultation</span>
                         </div>
                     )}
                 </CardContent>

@@ -2,7 +2,7 @@
 
 'use client';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, UploadCloud, FileSignature } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Building, Award, CreditCard, UploadCloud, FileSignature, Languages } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 const onboardingSchema = z.object({
     // Step 0
@@ -33,9 +34,12 @@ const onboardingSchema = z.object({
     registrationNumber: z.string().min(5, "A valid registration number is required."),
     governmentId: z.any().refine(file => file?.name, "Government ID is required."),
     // Step 2
+    languages: z.array(z.string()).min(1, "Please select at least one language."),
+    consultationType: z.enum(['Free', 'Paid'], { required_error: "Please select a consultation type." }),
+    // Step 3
     selectedPlan: z.enum(['starter', 'pro', 'enterprise']),
     billingCycle: z.enum(['monthly', 'annually']).default('monthly'),
-    // Step 3
+    // Step 4
     finalAgreement: z.literal(true, {
         errorMap: () => ({ message: "You must accept the terms of professional responsibility to proceed." }),
     }),
@@ -45,9 +49,12 @@ const onboardingSchema = z.object({
 const steps = [
     { name: 'Firm Details', icon: Building, fields: ['firmName', 'firmAddress', 'numEmployees', 'firmWebsite'] as const },
     { name: 'License & Verification', icon: Award, fields: ['licenseNumber', 'registrationNumber', 'governmentId'] as const },
+    { name: 'Services Offered', icon: Languages, fields: ['languages', 'consultationType'] as const },
     { name: 'Subscription Plan', icon: CreditCard, fields: ['selectedPlan', 'billingCycle'] as const },
     { name: 'Terms Agreement', icon: FileSignature, fields: ['finalAgreement'] as const },
 ];
+
+const allLanguages = ['English', 'French', 'Mandarin', 'Spanish', 'Hindi', 'Punjabi', 'Arabic', 'Portuguese'];
 
 export function LawyerOnboarding() {
     const [currentStep, setCurrentStep] = useState(0);
@@ -67,6 +74,8 @@ export function LawyerOnboarding() {
             licenseNumber: "",
             registrationNumber: "",
             governmentId: undefined,
+            languages: [],
+            consultationType: undefined,
             selectedPlan: 'pro',
             billingCycle: 'monthly',
             finalAgreement: false,
@@ -96,6 +105,8 @@ export function LawyerOnboarding() {
             firmAddress: data.firmAddress,
             numEmployees: data.numEmployees,
             firmWebsite: data.firmWebsite,
+            languages: data.languages,
+            consultationType: data.consultationType,
         };
 
         // In a real app, you would upload the file to Firebase Storage here
@@ -206,7 +217,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>Law Society License #</FormLabel><FormControl><Input placeholder="e.g., LSO-P12345" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="registrationNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormMessage>
+                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl></FormMessage>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="governmentId" render={({ field: { onChange, onBlur, name, ref } }) => (
@@ -253,6 +264,75 @@ export function LawyerOnboarding() {
                             )}
                             {currentStep === 2 && (
                                 <div className="space-y-6 animate-fade">
+                                    <h3 className="font-semibold text-lg flex items-center"><Languages className="mr-2 h-5 w-5"/>Services Offered</h3>
+                                    <FormField
+                                        control={form.control}
+                                        name="languages"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>What languages do you offer services in?</FormLabel>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                                                    {allLanguages.map((language) => (
+                                                        <FormField
+                                                            key={language}
+                                                            control={form.control}
+                                                            name="languages"
+                                                            render={({ field }) => (
+                                                                <FormItem key={language} className="flex flex-row items-center space-x-3 space-y-0">
+                                                                    <FormControl>
+                                                                        <Checkbox
+                                                                            checked={field.value?.includes(language)}
+                                                                            onCheckedChange={(checked) => {
+                                                                                return checked
+                                                                                    ? field.onChange([...(field.value || []), language])
+                                                                                    : field.onChange(field.value?.filter(value => value !== language))
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal">{language}</FormLabel>
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="consultationType"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-3">
+                                                <FormLabel>Is your initial consultation free or paid?</FormLabel>
+                                                <FormControl>
+                                                    <RadioGroup
+                                                        onValueChange={field.onChange}
+                                                        defaultValue={field.value}
+                                                        className="flex flex-col space-y-1"
+                                                    >
+                                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="Free" />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">Free Consultation</FormLabel>
+                                                        </FormItem>
+                                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="Paid" />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">Paid Consultation</FormLabel>
+                                                        </FormItem>
+                                                    </RadioGroup>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                            {currentStep === 3 && (
+                                <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription Plan</h3>
                                      <FormField control={form.control} name="billingCycle" render={({ field }) => (
                                         <FormItem className="flex items-center justify-center gap-2 pt-2">
@@ -280,7 +360,7 @@ export function LawyerOnboarding() {
                                                                         <>
                                                                             <span className="text-3xl font-bold text-foreground">${billingCycle === 'annually' ? Math.floor(plan.price.annually / 12) : plan.price.monthly}</span>
                                                                             <span className="text-muted-foreground">/mo</span>
-                                                                            {billingCycle === 'annually' && <p className="text-xs text-primary">Billed as ${plan.price.annually} annually</p>}
+                                                                            {billingCycle === 'annually && <p className="text-xs text-primary">Billed as ${plan.price.annually} annually</p>}
                                                                         </>
                                                                         : <span className="text-3xl font-bold text-foreground">Contact Us</span>
                                                                     }
@@ -306,7 +386,7 @@ export function LawyerOnboarding() {
                                     )} />
                                 </div>
                             )}
-                             {currentStep === 3 && (
+                             {currentStep === 4 && (
                                 <div className="space-y-6 animate-fade">
                                     <h3 className="font-semibold text-lg flex items-center"><FileSignature className="mr-2 h-5 w-5"/>Terms of Professional Responsibility</h3>
                                      <div className="prose prose-sm dark:prose-invert max-w-none h-64 overflow-y-auto border p-4 rounded-md">
