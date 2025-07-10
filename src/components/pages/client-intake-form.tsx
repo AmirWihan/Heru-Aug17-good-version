@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag } from 'lucide-react';
+import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag, Save } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { analyzeIntakeForm, type IntakeFormAnalysis } from '@/ai/flows/intake-form-analyzer';
 import { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
@@ -168,8 +168,9 @@ export function ClientIntakeFormPage() {
     const { userProfile, updateUserProfile } = useGlobalData();
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
+    const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>(userProfile?.intakeForm?.flaggedQuestions || []);
     const [applicationType, setApplicationType] = useState<string>('work');
+    const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
     const form = useForm<IntakeFormValues>({
         resolver: zodResolver(intakeFormSchema),
@@ -198,11 +199,12 @@ export function ClientIntakeFormPage() {
         );
     };
 
-    const processForm = async (data: IntakeFormValues) => {
+    const processAndSave = async () => {
         if (!userProfile) return;
         setIsLoading(true);
+        const data = form.getValues();
         try {
-            const apiInput: IntakeFormInput = {
+             const apiInput: IntakeFormInput = {
               ...data,
               admissibility: {
                 ...data.admissibility,
@@ -217,14 +219,15 @@ export function ClientIntakeFormPage() {
               },
             };
             const analysis: IntakeFormAnalysis = await analyzeIntakeForm(apiInput);
-            const intakeForm = { status: 'submitted' as const, data, analysis, flaggedQuestions };
+            const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
 
             await updateUserProfile({ intakeForm });
+            setLastSaved(new Date());
 
-            toast({ title: "Form Submitted!", description: "Your intake form has been submitted for review." });
+            toast({ title: "Progress Saved!", description: "Your intake form has been updated." });
         } catch (error) {
             console.error(error);
-            toast({ title: 'Error', description: 'Failed to submit the form. Please try again.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'Failed to save your progress. Please try again.', variant: 'destructive' });
         } finally {
             setIsLoading(false);
         }
@@ -242,9 +245,7 @@ export function ClientIntakeFormPage() {
         const output = await form.trigger(fieldsToValidate as any, { shouldFocus: true });
         if (!output) return;
 
-        if (currentStep >= steps.length - 1) {
-            await form.handleSubmit(processForm)();
-        } else {
+        if (currentStep < steps.length - 1) {
             let nextStepIndex = currentStep + 1;
             if (steps[nextStepIndex].id === 'study' && applicationType !== 'student') {
                 nextStepIndex++;
@@ -265,21 +266,6 @@ export function ClientIntakeFormPage() {
 
     if (!userProfile) return <p>Loading...</p>;
 
-    if (userProfile.intakeForm?.status === 'submitted' || userProfile.intakeForm?.status === 'reviewed') {
-        return (
-             <Card className="w-full max-w-4xl animate-fade">
-                <CardHeader className="text-center">
-                    <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-                    <CardTitle className="font-headline text-2xl mt-4">Intake Form Submitted</CardTitle>
-                    <CardDescription>Thank you for completing your intake form. Your lawyer will review your submission shortly.</CardDescription>
-                </CardHeader>
-                 <CardContent>
-                    <p className="text-center text-muted-foreground">You can now proceed to other sections of your dashboard.</p>
-                </CardContent>
-            </Card>
-        )
-    }
-
     const progress = ((currentStep + 1) / steps.length) * 100;
     const watchMaritalStatus = form.watch('family.maritalStatus');
     const watchPreviouslyApplied = form.watch('immigrationHistory.previouslyApplied');
@@ -291,15 +277,20 @@ export function ClientIntakeFormPage() {
     return (
         <Card className="w-full max-w-4xl">
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Smart Intake Form</CardTitle>
-                <CardDescription>Please complete all sections accurately. The information you provide will be used to automatically generate resumes, cover letters, and official application forms, saving you valuable time.</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle className="font-headline text-2xl">Smart Intake Form</CardTitle>
+                        <CardDescription>Please complete all sections accurately. Your information is saved as you go.</CardDescription>
+                    </div>
+                     {lastSaved && <p className="text-xs text-muted-foreground">Last saved: {lastSaved.toLocaleTimeString()}</p>}
+                </div>
                 <div className="pt-2">
                     <Progress value={progress} className="w-full" />
                     <p className="text-xs text-muted-foreground mt-2">Step {currentStep + 1} of {steps.length}: {steps[currentStep].name}</p>
                 </div>
             </CardHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(processForm)}>
+                <form>
                     <CardContent className="min-h-[400px]">
                         {currentStep === 0 && (
                             <div className="space-y-4 animate-fade">
@@ -504,10 +495,16 @@ export function ClientIntakeFormPage() {
                     </CardContent>
                     <CardFooter className="flex justify-between border-t pt-6">
                         <Button variant="ghost" onClick={prev} disabled={currentStep === 0} type="button"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
-                        <Button onClick={next} disabled={isLoading} type="button">
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {currentStep >= steps.length - 1 ? <><Sparkles className="mr-2 h-4 w-4"/>Submit for Review</> : <>Next Step <ArrowRight className="ml-2 h-4 w-4" /></>}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button variant="secondary" onClick={processAndSave} disabled={isLoading}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+                                Save Progress
+                            </Button>
+                            <Button onClick={next} type="button">
+                                {currentStep >= steps.length - 1 ? 'Finish' : 'Next Step'}
+                                {currentStep < steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
+                            </Button>
+                        </div>
                     </CardFooter>
                 </form>
             </Form>
