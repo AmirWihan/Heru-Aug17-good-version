@@ -13,7 +13,7 @@ import { Label } from '../ui/label';
 
 // AI Flows
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
-import { Client, IntakeFormInput } from '@/ai/schemas/intake-form-schema';
+import { Client } from '@/lib/data';
 
 const AI_FEATURE_COST = 5;
 
