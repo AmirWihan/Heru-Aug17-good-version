@@ -32,17 +32,19 @@ export function RegisterPage() {
     const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { register } = useGlobalData();
+    const { register, consumeClientInvitation } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
 
     const roleParam = searchParams.get('role');
+    const refParam = searchParams.get('ref');
+    const emailParam = searchParams.get('email');
 
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: { 
-            role: roleParam === 'lawyer' || roleParam === 'client' ? roleParam : undefined, 
+            role: roleParam === 'lawyer' || roleParam === 'client' ? roleParam : (refParam ? 'client' : undefined), 
             fullName: "", 
-            email: "", 
+            email: emailParam ? decodeURIComponent(emailParam) : "", 
             password: "" 
         },
     });
@@ -50,14 +52,27 @@ export function RegisterPage() {
     useEffect(() => {
         if (roleParam === 'lawyer' || roleParam === 'client') {
             form.setValue('role', roleParam);
+        } else if (refParam) {
+            form.setValue('role', 'client');
         }
-    }, [roleParam, form]);
+        if (emailParam) {
+            form.setValue('email', decodeURIComponent(emailParam));
+        }
+    }, [roleParam, refParam, emailParam, form]);
 
 
     const onSubmit = async (values: z.infer<typeof registerSchema>) => {
         setIsLoading(true);
         try {
-            const newUser = await register(values);
+            const lawyerId = refParam ? parseInt(refParam, 10) : null;
+            if (lawyerId && values.role === 'client') {
+                const invitation = consumeClientInvitation(values.email);
+                if (!invitation || invitation.invitingLawyerId !== lawyerId) {
+                    throw new Error("Invalid or expired invitation link.");
+                }
+            }
+
+            const newUser = await register(values, lawyerId);
 
             if (!newUser) {
                  throw new Error("This email might already be in use.");

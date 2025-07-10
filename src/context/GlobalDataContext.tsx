@@ -7,6 +7,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -28,12 +29,17 @@ import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 // Define a unified UserProfile type
 export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
 
+type ClientInvitation = {
+    email: string;
+    invitingLawyerId: number;
+}
+
 interface GlobalDataContextType {
     userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, pass: string) => Promise<UserProfile | null>;
     logout: () => Promise<void>;
-    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }) => Promise<UserProfile | null>;
+    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }, connectedLawyerId?: number | null) => Promise<UserProfile | null>;
     sendPasswordReset: (email: string) => Promise<void>;
     updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
     teamMembers: TeamMember[];
@@ -58,6 +64,8 @@ interface GlobalDataContextType {
     isLoaded: boolean;
     theme: string;
     setTheme: (themeId: string) => void;
+    sendClientInvitation: (invitation: ClientInvitation) => void;
+    consumeClientInvitation: (email: string) => ClientInvitation | null;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -93,6 +101,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [appointments, setAppointments] = useState<Appointment[]>(staticAppointments);
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
     const [leads, setLeads] = useState<Lead[]>(staticLeads);
+    const [invitations, setInvitations] = useState<ClientInvitation[]>([]);
 
     const [logos, setLogos] = useState<{ [key: string]: string }>({});
     const [theme, setThemeState] = useState('blue');
@@ -207,24 +216,16 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }): Promise<UserProfile | null> => {
-        if (!isFirebaseEnabled || !auth) {
-            console.warn("Firebase not configured. Registration is disabled.");
-            return null;
-        }
-
+    const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }, connectedLawyerId: number | null = null): Promise<UserProfile | null> => {
         const { email, password, role, fullName, termsAgreed, marketingConsent } = details;
         if (!email || !password || !role || !fullName) {
             throw new Error("Missing details for registration.");
         }
         
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const { user } = userCredential;
-
         let newProfile: UserProfile;
 
         const commonData = {
-            uid: user.uid,
+            id: Date.now(),
             name: fullName,
             email: email,
             password: password,
@@ -235,7 +236,6 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         if (role === 'client') {
             newProfile = {
                 ...commonData,
-                id: Date.now(),
                 authRole: 'client',
                 phone: '', caseType: 'Unassigned', status: 'Active', lastContact: new Date().toISOString().split('T')[0],
                 avatar: `https://i.pravatar.cc/150?u=${email}`, countryOfOrigin: 'Unknown', currentLocation: 'Unknown',
@@ -244,13 +244,13 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 activity: [], documents: [], tasks: [], agreements: [],
                 intakeForm: { status: 'not_started' },
                 coins: 25, // Welcome bonus
-                connectedLawyerId: null,
+                connectedLawyerId: connectedLawyerId,
                 connectionRequestFromLawyerId: null,
             };
+            setClients(prev => [...prev, newProfile as Client]);
         } else { // Lawyer
             newProfile = {
                 ...commonData,
-                id: Date.now(),
                 authRole: 'lawyer',
                 role: 'Awaiting Onboarding',
                 avatar: `https://i.pravatar.cc/150?u=${email}`,
@@ -258,10 +258,17 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 location: 'Unknown', yearsOfPractice: 0, successRate: 0, licenseNumber: '', registrationNumber: '',
                 stats: [], specialties: ['Awaiting Activation'],
             };
+            setTeamMembers(prev => [...prev, newProfile as TeamMember]);
+        }
+        
+        // Simulate login after registration
+        setUserProfile(newProfile);
+        
+        if (isFirebaseEnabled && auth) {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db, "users", userCredential.user.uid), { ...newProfile, uid: userCredential.user.uid });
         }
 
-        await setDoc(doc(db, "users", user.uid), newProfile);
-        setUserProfile(newProfile);
         return newProfile;
     }, []);
 
@@ -354,6 +361,19 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setTeamMembers(prev => [...prev, newFirm]);
         setLeads(prev => prev.filter(l => l.id !== leadId));
     }, [leads]);
+    
+    const sendClientInvitation = useCallback((invitation: ClientInvitation) => {
+        setInvitations(prev => [...prev, invitation]);
+    }, []);
+    
+    const consumeClientInvitation = useCallback((email: string): ClientInvitation | null => {
+        const invitation = invitations.find(inv => inv.email === email);
+        if (invitation) {
+            setInvitations(prev => prev.filter(inv => inv.email !== email));
+            return invitation;
+        }
+        return null;
+    }, [invitations]);
 
     return (
         <GlobalDataContext.Provider value={{
@@ -361,6 +381,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             teamMembers, clients, tasks, appointments, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
             updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logos, setWorkspaceLogo, isLoaded, theme, setTheme,
+            sendClientInvitation, consumeClientInvitation,
         }}>
             {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
             {children}

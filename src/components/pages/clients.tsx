@@ -42,15 +42,11 @@ const clientFormSchema = z.object({
     email: z.string().email({
         message: "Please enter a valid email address.",
     }),
-    phone: z.string().optional(),
-    caseType: z.string({
-        required_error: "Please select a case type.",
-    }),
 });
 
 export function ClientsPage() {
-    const { clients, addClient, updateClient } = useGlobalData();
-    const [isAddClientDialogOpen, setAddClientDialogOpen] = useState(false);
+    const { clients, sendClientInvitation, updateClient, userProfile } = useGlobalData();
+    const [isInviteClientDialogOpen, setInviteClientDialogOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const { toast } = useToast();
@@ -65,44 +61,31 @@ export function ClientsPage() {
         defaultValues: {
             name: "",
             email: "",
-            phone: "",
-            caseType: undefined,
         },
     });
 
     function onSubmit(values: z.infer<typeof clientFormSchema>) {
-        const newClient: Client = {
-            id: Date.now(),
-            name: values.name,
+        const lawyerId = userProfile?.id;
+        if (!lawyerId) {
+            toast({ title: "Error", description: "Could not identify inviting lawyer.", variant: 'destructive' });
+            return;
+        }
+
+        const invitationLink = `${window.location.origin}/register?ref=${lawyerId}&email=${encodeURIComponent(values.email)}`;
+        
+        sendClientInvitation({
             email: values.email,
-            phone: values.phone || '',
-            caseType: values.caseType,
-            status: 'Active',
-            lastContact: new Date().toLocaleDateString('en-CA'),
-            avatar: `https://i.pravatar.cc/150?u=${values.email}`,
-            countryOfOrigin: 'Unknown',
-            currentLocation: 'Unknown',
-            joined: new Date().toISOString().split('T')[0],
-            age: 30, // Default age
-            educationLevel: "Bachelor's degree", // Default education
-            caseSummary: {
-                priority: 'Medium',
-                caseType: values.caseType,
-                currentStatus: 'New',
-                nextStep: 'Initial consultation',
-                dueDate: '',
-            },
-            activity: [],
-            documents: [],
-            tasks: [],
-            agreements: [],
-        };
-        addClient(newClient);
-        setAddClientDialogOpen(false);
+            invitingLawyerId: lawyerId
+        });
+
+        // In a real app, this would be an email. For the demo, we show a toast with the link.
+        navigator.clipboard.writeText(invitationLink);
+
+        setInviteClientDialogOpen(false);
         form.reset();
         toast({
-            title: "Client Added",
-            description: `${values.name} has been successfully added to your client list.`,
+            title: "Invitation Sent (Link Copied!)",
+            description: `An invitation for ${values.name} has been created. The unique registration link has been copied to your clipboard.`,
         });
     }
 
@@ -149,9 +132,9 @@ export function ClientsPage() {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle className="font-headline">All Clients</CardTitle>
-                            <Button onClick={() => setAddClientDialogOpen(true)}>
+                            <Button onClick={() => setInviteClientDialogOpen(true)}>
                                 <PlusCircle className="mr-2 h-4 w-4" />
-                                New Client
+                                Invite Client
                             </Button>
                         </div>
                     </CardHeader>
@@ -276,12 +259,12 @@ export function ClientsPage() {
                     </CardContent>
                 </Card>
 
-                <Dialog open={isAddClientDialogOpen} onOpenChange={setAddClientDialogOpen}>
+                <Dialog open={isInviteClientDialogOpen} onOpenChange={setInviteClientDialogOpen}>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Add New Client</DialogTitle>
+                            <DialogTitle>Invite New Client</DialogTitle>
                             <DialogDescription>
-                                Enter the details for the new client. Click save when you're done.
+                                Send an invitation link to your client to join the portal.
                             </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
@@ -291,7 +274,7 @@ export function ClientsPage() {
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Name</FormLabel>
+                                            <FormLabel>Client's Full Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="John Doe" {...field} />
                                             </FormControl>
@@ -304,7 +287,7 @@ export function ClientsPage() {
                                     name="email"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Email</FormLabel>
+                                            <FormLabel>Client's Email</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="john.doe@example.com" {...field} />
                                             </FormControl>
@@ -312,47 +295,9 @@ export function ClientsPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    control={form.control}
-                                    name="phone"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Phone (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="+1-202-555-0176" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="caseType"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Case Type</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select a case type" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="Permanent Residency">Permanent Residency</SelectItem>
-                                                    <SelectItem value="Student Visa">Student Visa</SelectItem>
-                                                    <SelectItem value="Work Permit">Work Permit</SelectItem>
-                                                    <SelectItem value="Family Sponsorship">Family Sponsorship</SelectItem>
-                                                    <SelectItem value="Visitor Visa">Visitor Visa</SelectItem>
-                                                    <SelectItem value="Citizenship">Citizenship</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                                 <DialogFooter>
-                                    <Button type="button" variant="secondary" onClick={() => setAddClientDialogOpen(false)}>Cancel</Button>
-                                    <Button type="submit">Save Client</Button>
+                                    <Button type="button" variant="secondary" onClick={() => setInviteClientDialogOpen(false)}>Cancel</Button>
+                                    <Button type="submit">Send Invitation</Button>
                                 </DialogFooter>
                             </form>
                         </Form>
