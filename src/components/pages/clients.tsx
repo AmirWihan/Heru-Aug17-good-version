@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, Send } from "lucide-react";
 import type { Client } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -64,6 +64,24 @@ export function ClientsPage() {
         },
     });
 
+    const handleInviteToPortal = (client: Client) => {
+        const lawyerId = userProfile?.id;
+        if (!lawyerId) {
+            toast({ title: "Error", description: "Could not identify inviting lawyer.", variant: 'destructive' });
+            return;
+        }
+        
+        const invitationLink = `${window.location.origin}/register?ref=${lawyerId}&email=${encodeURIComponent(client.email)}`;
+        navigator.clipboard.writeText(invitationLink);
+
+        updateClient({ ...client, portalStatus: 'Invited' });
+        
+        toast({
+            title: "Invitation Sent (Link Copied!)",
+            description: `An invitation for ${client.name} has been created. The unique registration link has been copied to your clipboard.`,
+        });
+    };
+    
     function onSubmit(values: z.infer<typeof clientFormSchema>) {
         const lawyerId = userProfile?.id;
         if (!lawyerId) {
@@ -111,6 +129,15 @@ export function ClientsPage() {
                 return 'default' as const;
         }
     }
+    
+    const getPortalStatusBadgeVariant = (status: Client['portalStatus']) => {
+        switch (status) {
+            case 'Active': return 'success';
+            case 'Invited': return 'info';
+            case 'Not Invited': return 'secondary';
+            default: return 'secondary';
+        }
+    };
 
     const statuses = ['all', ...Array.from(new Set(clients.map(c => c.status)))];
     const caseTypes = ['all', ...Array.from(new Set(clients.map(c => c.caseType)))];
@@ -185,12 +212,9 @@ export function ClientsPage() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Name</TableHead>
-                                        <TableHead className="hidden md:table-cell">Email</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Phone</TableHead>
                                         <TableHead className="hidden md:table-cell">Case Type</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Last Contact</TableHead>
-                                        <TableHead>Activity</TableHead>
+                                        <TableHead>Portal Access</TableHead>
                                         <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -223,15 +247,24 @@ export function ClientsPage() {
                                                     <div className="font-medium">{client.name}</div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell">{client.email}</TableCell>
-                                            <TableCell className="hidden lg:table-cell">{client.phone}</TableCell>
                                             <TableCell className="hidden md:table-cell">{client.caseType}</TableCell>
                                             <TableCell>
                                                 <Badge variant={getStatusBadgeVariant(client.status)}>{client.status}</Badge>
                                             </TableCell>
-                                            <TableCell className="hidden lg:table-cell">{client.lastContact}</TableCell>
-                                            <TableCell>{client.activity.length} logs</TableCell>
                                             <TableCell>
+                                                 <Badge variant={getPortalStatusBadgeVariant(client.portalStatus)}>{client.portalStatus}</Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                 {client.portalStatus === 'Not Invited' && (
+                                                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleInviteToPortal(client); }}>
+                                                        <Send className="mr-2 h-4 w-4" /> Invite to Portal
+                                                    </Button>
+                                                )}
+                                                {client.portalStatus === 'Invited' && (
+                                                    <Button size="sm" variant="outline" disabled>
+                                                        Invitation Sent
+                                                    </Button>
+                                                )}
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                                         <Button variant="ghost" size="icon">

@@ -12,6 +12,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -249,7 +250,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             newProfile = {
                 ...commonData,
                 authRole: 'client',
-                phone: '', caseType: 'Unassigned', status: 'Active', lastContact: new Date().toISOString().split('T')[0],
+                phone: '', caseType: 'Unassigned', status: 'Active', portalStatus: 'Active', lastContact: new Date().toISOString().split('T')[0],
                 avatar: `https://i.pravatar.cc/150?u=${email}`, countryOfOrigin: 'Unknown', currentLocation: 'Unknown',
                 joined: new Date().toISOString().split('T')[0], age: 0, educationLevel: 'Unknown',
                 caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
@@ -421,7 +422,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             activity: [{
                 id: Date.now(),
                 type: 'Note',
-                notes: `Connection request sent with message: "${request.message}". Proposed meeting: ${request.proposedDate} at ${request.proposedTime}.`,
+                notes: `Connection request from client. Message: "${request.message}". Proposed meeting: ${request.proposedDate} at ${request.proposedTime}.`,
                 date: new Date().toISOString(),
             }]
         };

@@ -183,6 +183,7 @@ export type Client = {
     uid?: string;
     caseType: string;
     status: 'Active' | 'On-hold' | 'Closed' | 'Blocked';
+    portalStatus: 'Active' | 'Invited' | 'Not Invited';
     lastContact: string;
     avatar: string;
     countryOfOrigin: string;
@@ -332,9 +333,9 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://johnsonlegal.ca',
         stats: [
             { label: 'Clients Handled', value: '72', icon: Users }, 
-            { label: 'Success Rate', value: '96%', icon: CheckCircle }, 
+            { label: 'Success Rate', value: '96%', icon: Award }, 
             { label: 'Revenue Generated', value: '$340k', icon: DollarSign }, 
-            { label: 'Years Practicing', value: '12', icon: Award }
+            { label: 'Years Practicing', value: '12', icon: CheckCircle }
         ],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
         languages: ['English', 'French'],
@@ -454,9 +455,9 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://chenassociates.com',
         stats: [
             { label: 'Clients Handled', value: '45', icon: Users }, 
-            { label: 'Success Rate', value: '89%', icon: CheckCircle }, 
+            { label: 'Success Rate', value: '89%', icon: Award }, 
             { label: 'Active Cases', value: '11', icon: Briefcase }, 
-            { label: 'Years Practicing', value: '8', icon: Award }
+            { label: 'Years Practicing', value: '8', icon: CheckCircle }
         ],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services'],
         languages: ['English', 'Mandarin'],
@@ -472,9 +473,9 @@ export const teamMembers: TeamMember[] = [
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
         stats: [
             { label: 'Clients Handled', value: '38', icon: Users }, 
-            { label: 'Success Rate', value: '92%', icon: CheckCircle }, 
+            { label: 'Success Rate', value: '92%', icon: Award }, 
             { label: 'Active Cases', value: '8', icon: Briefcase }, 
-            { label: 'Years Practicing', value: '5', icon: Award }
+            { label: 'Years Practicing', value: '5', icon: CheckCircle }
         ],
         specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid'],
         languages: ['English'],
@@ -490,9 +491,9 @@ export const teamMembers: TeamMember[] = [
         firmWebsite: 'https://rodriguezlaw.ca',
         stats: [
             { label: 'Clients Handled', value: '51', icon: Users }, 
-            { label: 'Success Rate', value: '94%', icon: CheckCircle }, 
+            { label: 'Success Rate', value: '94%', icon: Award }, 
             { label: 'Active Cases', value: '12', icon: Briefcase }, 
-            { label: 'Years Practicing', value: '7', icon: Award }
+            { label: 'Years Practicing', value: '7', icon: CheckCircle }
         ],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration', 'Court Representation'],
         languages: ['English', 'Spanish'],
@@ -601,7 +602,7 @@ export const platformTasksData: PlatformTask[] = [
 
 export const clients: Client[] = [
     { 
-        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', password: 'password123', uid: 'static-adebola', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
+        id: 1, name: 'Adebola Okonjo', email: 'ade.okonjo@example.com', password: 'password123', uid: 'static-adebola', phone: '+1-202-555-0176', caseType: 'Permanent Residency', status: 'Active', portalStatus: 'Active', lastContact: '2023-06-12', avatar: 'https://i.pravatar.cc/150?u=adebola',
         countryOfOrigin: 'Nigeria', currentLocation: 'Calgary, AB', joined: '2022-08-20', age: 29, educationLevel: "Master's degree", coins: 15,
         caseSummary: {
             priority: 'High', caseType: 'Permanent Residency (PNP)', currentStatus: 'Awaiting Documents', nextStep: 'Submit provincial nomination docs', dueDate: '2023-07-01',
@@ -619,7 +620,7 @@ export const clients: Client[] = [
         connectionRequestFromLawyerId: null,
     },
     { 
-        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', password: 'password123', uid: 'static-carlos', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
+        id: 2, name: 'Carlos Mendez', email: 'carlos.m@example.com', password: 'password123', uid: 'static-carlos', phone: '+1-202-555-0129', caseType: 'Student Visa', status: 'Active', portalStatus: 'Invited', lastContact: '2023-06-10', avatar: 'https://i.pravatar.cc/150?u=carlos',
         countryOfOrigin: 'Mexico', currentLocation: 'Vancouver, BC', joined: '2023-01-10', age: 22, educationLevel: "Bachelor's degree", coins: 50,
         caseSummary: {
             priority: 'Medium', caseType: 'Student Visa', currentStatus: 'Approved', nextStep: 'Advise on arrival procedures', dueDate: 'N/A',
@@ -636,7 +637,7 @@ export const clients: Client[] = [
         connectionRequestFromLawyerId: null,
     },
     { 
-        id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
+        id: 3, name: 'Li Wei', email: 'li.wei@example.com', password: 'password123', uid: 'static-liwei', phone: '+1-202-555-0153', caseType: 'Work Permit', status: 'On-hold', portalStatus: 'Not Invited', lastContact: '2023-05-28', avatar: 'https://i.pravatar.cc/150?u=liwei',
         countryOfOrigin: 'China', currentLocation: 'Toronto, ON', joined: '2021-11-05', age: 35, educationLevel: "PhD", coins: 5,
         caseSummary: {
             priority: 'Low', caseType: 'Work Permit Renewal', currentStatus: 'Awaiting Documents', nextStep: 'Awaiting updated offer letter from employer', dueDate: '2023-08-15',
@@ -652,7 +653,7 @@ export const clients: Client[] = [
         connectionRequestFromLawyerId: null,
     },
     { 
-        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
+        id: 4, name: 'Ananya Sharma', email: 'ananya.s@example.com', password: 'password123', uid: 'static-ananya', phone: '+1-202-555-0198', caseType: 'Family Sponsorship', status: 'Closed', portalStatus: 'Active', lastContact: '2023-04-15', avatar: 'https://i.pravatar.cc/150?u=ananya',
         countryOfOrigin: 'India', currentLocation: 'Mississauga, ON', joined: '2020-02-18', age: 42, educationLevel: "Bachelor's degree", coins: 100,
         caseSummary: {
             priority: 'N/A', caseType: 'Family Sponsorship', currentStatus: 'Approved', nextStep: 'Case closed successfully', dueDate: 'N/A',
@@ -666,7 +667,7 @@ export const clients: Client[] = [
         connectionRequestFromLawyerId: null,
     },
     { 
-        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', password: 'password123', uid: 'static-james', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        id: 5, name: 'James Wilson', email: 'james.wilson@example.com', password: 'password123', uid: 'static-james', phone: '+1 (416) 555-0182', caseType: 'Work Permit', status: 'Active', portalStatus: 'Active', lastContact: '2023-06-13', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
         countryOfOrigin: 'United Kingdom', currentLocation: 'Toronto, Canada', joined: '2022-05-15', age: 31, educationLevel: "Two or more post-secondary credentials", coins: 30,
         caseSummary: {
             priority: 'High', caseType: 'Work Permit Extension', currentStatus: 'Pending Review', nextStep: 'Submit additional documents', dueDate: '2023-06-15',
