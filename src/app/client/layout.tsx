@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { ClientSidebar } from '@/components/layout/client-sidebar';
@@ -18,7 +17,9 @@ const pageTitles: { [key: string]: string } = {
     'settings': 'Settings',
     'support': 'Help & Support',
     'ai-assist': 'AI Assist',
-    'intake-form': 'Intake Form'
+    'intake-form': 'Intake Form',
+    'news': 'News & Updates',
+    'notifications': 'Notifications'
 };
 
 function ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {

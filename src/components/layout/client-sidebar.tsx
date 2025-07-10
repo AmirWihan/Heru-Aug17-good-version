@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from "next/link"
@@ -18,6 +17,7 @@ import {
   Sparkles,
   Bell,
   Lock,
+  Newspaper,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -47,6 +47,7 @@ const navItems = [
   { id: 'agreements', label: 'My Agreements', icon: Handshake },
   { id: 'messages', label: 'Messages', icon: Mail },
   { id: 'billing', label: 'Billing', icon: FileDigit },
+  { id: 'news', label: 'News & Updates', icon: Newspaper },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'support', label: 'Help & Support', icon: HelpCircle },

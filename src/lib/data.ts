@@ -1228,3 +1228,46 @@ export const dashboardData = {
         { id: 3, avatar: clients[2].avatar, name: clients[2].name, message: 'I need to put my application on hold.', time: '3h ago'},
     ]
 };
+
+export const newsFeedData = [
+    {
+        id: 1,
+        authorName: 'Sarah Johnson',
+        authorAvatar: 'https://i.pravatar.cc/150?u=sarah',
+        authorFirm: 'Johnson Legal',
+        title: 'Upcoming Seminar: Navigating the Express Entry System',
+        content: 'Join us for a free online seminar where we break down the complexities of the Express Entry system. We will cover CRS score calculation, document requirements, and common pitfalls to avoid. Limited spots available!',
+        date: 'July 28, 2024',
+        type: 'Seminar'
+    },
+    {
+        id: 2,
+        authorName: 'Michael Chen',
+        authorAvatar: 'https://i.pravatar.cc/150?u=michaelchen',
+        authorFirm: 'Chen & Associates',
+        title: 'Special Offer: 15% Off Student Visa Applications',
+        content: 'For a limited time, get 15% off our professional fees for all new student visa and study permit applications. Ideal for the upcoming Fall 2024 intake. Contact us today to learn more.',
+        date: 'July 26, 2024',
+        type: 'Offer'
+    },
+    {
+        id: 3,
+        authorName: 'David Rodriguez',
+        authorAvatar: 'https://i.pravatar.cc/150?u=david',
+        authorFirm: 'Rodriguez Immigration Law',
+        title: 'Important Update on Work Permit Processing Times',
+        content: 'IRCC has recently updated its processing time estimates for several work permit categories. Applicants should anticipate slightly longer waits for applications submitted from outside Canada. We are monitoring the situation closely.',
+        date: 'July 25, 2024',
+        type: 'Update'
+    },
+     {
+        id: 4,
+        authorName: 'Sarah Johnson',
+        authorAvatar: 'https://i.pravatar.cc/150?u=sarah',
+        authorFirm: 'Johnson Legal',
+        title: 'New Provincial Nominee Program (PNP) Draw in Ontario',
+        content: 'The Ontario Immigrant Nominee Program (OINP) has issued new invitations to apply under the Human Capital Priorities stream. Candidates with tech and healthcare experience were targeted.',
+        date: 'July 22, 2024',
+        type: 'Update'
+    },
+];
