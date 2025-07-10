@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { appointmentsData as initialAppointmentsData, clients } from '@/lib/data';
-import { format, isPast, isFuture } from 'date-fns';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { format, isPast, isFuture, isSameDay, startOfDay } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Appointment = typeof initialAppointmentsData[0];
+type Appointment = ReturnType<typeof useGlobalData>['appointments'][0];
 
 const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
     return (
@@ -41,12 +41,12 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
 };
 
 export function AppointmentsPage() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [appointments, setAppointments] = useState(initialAppointmentsData);
-    const [isScheduling, setIsScheduling] = useState(false);
     const { toast } = useToast();
-    
-    const { upcomingAppointments, pastAppointments } = useMemo(() => {
+    const { appointments, clients } = useGlobalData();
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+    const [isScheduling, setIsScheduling] = useState(false);
+
+    const { upcomingAppointments, pastAppointments, appointmentDates } = useMemo(() => {
         const upcoming = appointments
             .filter(a => isFuture(new Date(a.dateTime)))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
@@ -54,12 +54,20 @@ export function AppointmentsPage() {
         const past = appointments
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
+        
+        const appointmentDates = appointments.map(a => new Date(a.dateTime));
 
-        return { upcomingAppointments, pastAppointments };
+        return { upcomingAppointments: upcoming, pastAppointments: past, appointmentDates };
     }, [appointments]);
 
+    const appointmentsForSelectedDate = useMemo(() => {
+        if (!selectedDate) return [];
+        return appointments
+            .filter(a => isSameDay(new Date(a.dateTime), selectedDate))
+            .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    }, [selectedDate, appointments]);
+
     const handleScheduleAppointment = () => {
-        // In a real app, you'd collect form data and create a new appointment object
         toast({
             title: "Appointment Scheduled!",
             description: "The appointment has been added to your calendar.",
@@ -137,30 +145,16 @@ export function AppointmentsPage() {
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline">All Appointments</CardTitle>
-                            <CardDescription>View upcoming and past client appointments.</CardDescription>
+                            <CardTitle className="font-headline">
+                                {selectedDate ? `Appointments for ${format(selectedDate, 'PPP')}` : 'All Appointments'}
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                             <Tabs defaultValue="upcoming" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                                    <TabsTrigger value="past">Past</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="upcoming" className="mt-4 space-y-2">
-                                    {upcomingAppointments.length > 0 ? (
-                                        <ul className="space-y-2">{upcomingAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}</ul>
-                                    ) : (
-                                        <p className="text-muted-foreground p-4 text-center">No upcoming appointments.</p>
-                                    )}
-                                </TabsContent>
-                                <TabsContent value="past" className="mt-4 space-y-2">
-                                    {pastAppointments.length > 0 ? (
-                                        <ul className="space-y-2">{pastAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}</ul>
-                                    ) : (
-                                        <p className="text-muted-foreground p-4 text-center">No past appointments.</p>
-                                    )}
-                                </TabsContent>
-                            </Tabs>
+                            {appointmentsForSelectedDate.length > 0 ? (
+                                <ul className="space-y-2">{appointmentsForSelectedDate.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}</ul>
+                            ) : (
+                                <p className="text-muted-foreground p-4 text-center">No appointments scheduled for this day.</p>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -169,9 +163,15 @@ export function AppointmentsPage() {
                          <CardContent className="p-2">
                              <Calendar
                                 mode="single"
-                                selected={date}
-                                onSelect={setDate}
+                                selected={selectedDate}
+                                onSelect={setSelectedDate}
                                 className="rounded-md"
+                                modifiers={{
+                                    hasAppointment: appointmentDates,
+                                }}
+                                modifiersClassNames={{
+                                    hasAppointment: 'has-appointment',
+                                }}
                                 />
                          </CardContent>
                     </Card>

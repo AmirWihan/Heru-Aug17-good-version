@@ -7,17 +7,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { format, isFuture, isPast } from 'date-fns';
+import { format, isFuture, isPast, isSameDay } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Assume the logged-in client is James Wilson, ID 5
-const CURRENT_CLIENT_ID = 5;
+import type { Client } from '@/lib/data';
 
 type Appointment = ReturnType<typeof useGlobalData>['appointments'][0];
 
@@ -44,26 +41,26 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
 };
 
 export function ClientAppointmentsPage() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [isScheduling, setIsScheduling] = useState(false);
-    const { appointments, teamMembers } = useGlobalData();
     const { toast } = useToast();
+    const { userProfile, appointments, teamMembers } = useGlobalData();
+    const client = userProfile as Client;
+    
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+    const [isScheduling, setIsScheduling] = useState(false);
 
-    const clientAppointments = useMemo(() => {
-        return (appointments || []).filter(a => a.clientId === CURRENT_CLIENT_ID);
-    }, [appointments]);
+    const { clientAppointments, appointmentDates } = useMemo(() => {
+        if (!client) return { clientAppointments: [], appointmentDates: [] };
+        const appointmentsForClient = appointments.filter(a => a.clientId === client.id);
+        const dates = appointmentsForClient.map(a => new Date(a.dateTime));
+        return { clientAppointments: appointmentsForClient, appointmentDates: dates };
+    }, [appointments, client]);
 
-    const { upcomingAppointments, pastAppointments } = useMemo(() => {
-        const upcoming = clientAppointments
-            .filter(a => isFuture(new Date(a.dateTime)))
+    const appointmentsForSelectedDate = useMemo(() => {
+        if (!selectedDate) return [];
+        return clientAppointments
+            .filter(a => isSameDay(new Date(a.dateTime), selectedDate))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
-        
-        const past = clientAppointments
-            .filter(a => isPast(new Date(a.dateTime)))
-            .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
-
-        return { upcomingAppointments: upcoming, pastAppointments: past };
-    }, [clientAppointments]);
+    }, [selectedDate, clientAppointments]);
     
     const handleScheduleAppointment = () => {
         setIsScheduling(false);
@@ -71,9 +68,7 @@ export function ClientAppointmentsPage() {
             title: "Appointment Scheduled!",
             description: "Your appointment has been successfully booked. You will receive a confirmation email shortly.",
         });
-        // Here you would typically add the new appointment to the global state
     };
-
 
     return (
         <div className="space-y-6">
@@ -106,7 +101,7 @@ export function ClientAppointmentsPage() {
                                                 <SelectValue placeholder="Select a lawyer" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {(teamMembers || []).map(lawyer => (
+                                                {(teamMembers || []).filter(m => m.type === 'legal' && m.id === client?.connectedLawyerId).map(lawyer => (
                                                     <SelectItem key={lawyer.id} value={lawyer.id.toString()}>{lawyer.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -134,34 +129,29 @@ export function ClientAppointmentsPage() {
                 <CardContent>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2">
-                             <Tabs defaultValue="upcoming" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                                    <TabsTrigger value="past">Past</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="upcoming" className="mt-4 space-y-2">
-                                    {upcomingAppointments.length > 0 ? (
-                                        upcomingAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)
-                                    ) : (
-                                        <p className="text-muted-foreground p-4 text-center">No upcoming appointments.</p>
-                                    )}
-                                </TabsContent>
-                                <TabsContent value="past" className="mt-4 space-y-2">
-                                    {pastAppointments.length > 0 ? (
-                                        pastAppointments.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)
-                                    ) : (
-                                        <p className="text-muted-foreground p-4 text-center">No past appointments.</p>
-                                    )}
-                                </TabsContent>
-                            </Tabs>
+                            <h3 className="font-semibold mb-4">
+                                {selectedDate ? `Appointments for ${format(selectedDate, 'PPP')}` : 'All Appointments'}
+                            </h3>
+                             {appointmentsForSelectedDate.length > 0 ? (
+                                <ul className="space-y-2">
+                                    {appointmentsForSelectedDate.map(appt => <AppointmentCard key={appt.id} appointment={appt} />)}
+                                </ul>
+                            ) : (
+                                <p className="text-muted-foreground p-4 text-center border rounded-md">No appointments scheduled for this day.</p>
+                            )}
                         </div>
                         <div className="lg:col-span-1">
                              <Calendar
                                 mode="single"
-                                selected={date}
-                                onSelect={setDate}
+                                selected={selectedDate}
+                                onSelect={setSelectedDate}
                                 className="rounded-md border"
-                                // You could add logic here to highlight days with appointments
+                                modifiers={{
+                                    hasAppointment: appointmentDates,
+                                }}
+                                modifiersClassNames={{
+                                    hasAppointment: 'has-appointment',
+                                }}
                                 />
                         </div>
                     </div>

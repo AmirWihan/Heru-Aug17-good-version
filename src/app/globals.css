@@ -239,3 +239,20 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for the calendar */
+.has-appointment { 
+  font-weight: bold;
+  position: relative;
+}
+.has-appointment::after {
+  content: '';
+  position: absolute;
+  background-color: hsl(var(--primary));
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
