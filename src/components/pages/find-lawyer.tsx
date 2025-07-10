@@ -25,9 +25,14 @@ export function FindLawyerPage() {
 
     const filteredLawyers = useMemo(() => {
         const filtered = teamMembers.filter(lawyer => {
-            if (lawyer.type !== 'legal' || lawyer.status !== 'Active') {
+            const isVisible = lawyer.type === 'legal' 
+                && lawyer.status === 'Active' 
+                && (lawyer.plan === 'Pro Team' || lawyer.plan === 'Enterprise');
+
+            if (!isVisible) {
                 return false;
             }
+
             const nameMatch = lawyer.name.toLowerCase().includes(searchTerm.toLowerCase());
             const specialtyMatch = specialty === 'all' || lawyer.specialties.includes(specialty);
             const locationMatch = location === 'all' || lawyer.location === location;
