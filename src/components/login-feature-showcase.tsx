@@ -1,7 +1,8 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
-import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
+import { LawyerDashboardScreenshot } from '@/components/screenshots/DashboardScreenshot'; // Corrected import
 import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
 import { ClientDashboardScreenshot } from './client-dashboard-screenshot';
 

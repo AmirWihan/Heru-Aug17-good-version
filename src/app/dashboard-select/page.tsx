@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { Client } from '@/lib/data';
+import { Client, TeamMember } from '@/lib/data';
 
 export default function DashboardSelectPage() {
     const router = useRouter();
@@ -21,8 +21,13 @@ export default function DashboardSelectPage() {
                     router.replace('/admin/dashboard');
                     break;
                 case 'lawyer':
-                    // In a real app, you might check for lawyer onboarding status too
-                    router.replace('/lawyer/dashboard');
+                    const lawyerProfile = userProfile as TeamMember;
+                    // Check if the essential onboarding field (licenseNumber) is filled.
+                    if (lawyerProfile.licenseNumber && lawyerProfile.licenseNumber !== 'N/A') {
+                        router.replace('/lawyer/dashboard');
+                    } else {
+                        router.replace('/lawyer/onboarding');
+                    }
                     break;
                 case 'client':
                     const clientProfile = userProfile as Client;

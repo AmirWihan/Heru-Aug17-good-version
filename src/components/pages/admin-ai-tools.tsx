@@ -1,159 +1,58 @@
-
 'use client';
+import { useState, useEffect } from 'react';
+import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
+import { LawyerDashboardScreenshot } from '@/components/screenshots/DashboardScreenshot'; // Corrected import
+import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
+import { ClientDashboardScreenshot } from './client-dashboard-screenshot';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Sparkles, Wand2, PencilRuler, Send } from 'lucide-react';
-import { composeMessage, ComposeMessageOutput } from '@/ai/flows/ai-assisted-messaging';
-import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
-import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+const features = [
+    {
+        icon: ShieldAlert,
+        title: "Proactive Risk Alerts",
+        description: "Our AI scans active cases for approaching deadlines and missing documents, giving you actionable alerts before they become problems.",
+        visual: <LawyerDashboardScreenshot />
+    },
+    {
+        icon: FileStack,
+        title: "Streamlined Document Management",
+        description: "A centralized hub for all case documents. AI can pre-fill forms, and clients can upload required files directly, saving you hours.",
+        visual: <DocumentManagementScreenshot />
+    },
+    {
+        icon: Wand2,
+        title: "AI-Powered Case Timelines",
+        description: "No more guessing games. Our AI provides a personalized, estimated roadmap of your client's entire immigration journey.",
+        visual: <ClientDashboardScreenshot />
+    }
+];
 
-function MessageComposer() {
-    const [recipientName, setRecipientName] = useState('');
-    const [messageContext, setMessageContext] = useState('');
-    const [tone, setTone] = useState('Professional');
-    const [isLoading, setIsLoading] = useState(false);
-    const [result, setResult] = useState<ComposeMessageOutput | null>(null);
-    const { toast } = useToast();
+export function LoginFeatureShowcase() {
+    const [featureIndex, setFeatureIndex] = useState(0);
 
-    const handleCompose = async () => {
-         if (!recipientName.trim() || !messageContext.trim()) {
-            toast({ title: 'Error', description: 'Recipient Name and Context are required.', variant: 'destructive' });
-            return;
-        }
-        setIsLoading(true);
-        setResult(null);
-        try {
-            const response = await composeMessage({ clientName: recipientName, messageContext, tone });
-            setResult(response);
-        } catch (error) {
-            console.error(error);
-            toast({ title: 'Error', description: 'Failed to compose the message. Please try again.', variant: 'destructive' });
-        }
-        setIsLoading(false);
-    };
-    
-    return (
-        <Card>
-            <CardHeader><CardTitle>Message Composer</CardTitle></CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    <CardDescription>Compose professional outreach emails, announcements, or support responses.</CardDescription>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="recipient-name">Recipient Name / Group</Label>
-                            <Input id="recipient-name" placeholder="e.g., Acme Corp Legal Team" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="message-tone">Tone</Label>
-                            <Select value={tone} onValueChange={setTone}>
-                                <SelectTrigger id="message-tone"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Professional">Professional</SelectItem>
-                                    <SelectItem value="Friendly">Friendly</SelectItem>
-                                    <SelectItem value="Urgent">Urgent</SelectItem>
-                                    <SelectItem value="Marketing">Marketing</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="message-context">Message Context</Label>
-                        <Textarea id="message-context" placeholder="e.g., Follow up on demo request, announce new feature." rows={4} value={messageContext} onChange={(e) => setMessageContext(e.target.value)} />
-                    </div>
-                    <Button onClick={handleCompose} disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Generate Message
-                    </Button>
-                    {result && (
-                        <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
-                            <h4 className="font-bold">Generated Message:</h4>
-                            <Textarea readOnly value={result.message} rows={6} className="bg-white" />
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
+    useEffect(() => {
+        // Choose a random feature on component mount
+        setFeatureIndex(Math.floor(Math.random() * features.length));
+    }, []);
 
-
-function WritingAssistant() {
-    const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(false);
-    const [result, setResult] = useState<WritingAssistantOutput | null>(null);
-    const [textToImprove, setTextToImprove] = useState('');
-    const [instruction, setInstruction] = useState('');
-
-    const handleGenerate = async () => {
-        if (!textToImprove || !instruction) {
-            toast({ title: 'Input Required', description: 'Please provide text and an instruction.', variant: 'destructive' });
-            return;
-        }
-        setIsLoading(true);
-        setResult(null);
-        try {
-            const response = await assistWithWriting({ textToImprove, instruction });
-            setResult(response);
-        } catch (error) {
-            console.error(error);
-            toast({ title: 'Error', description: 'Failed to process text.', variant: 'destructive' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const currentFeature = features[featureIndex];
+    const Icon = currentFeature.icon;
 
     return (
-        <Card>
-            <CardHeader><CardTitle>Writing Assistant</CardTitle></CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    <CardDescription>Improve writing for marketing copy, support articles, or any other professional text.</CardDescription>
-                    <div className="space-y-1">
-                        <Label htmlFor="lawyer-text-to-improve">Original Text</Label>
-                        <Textarea id="lawyer-text-to-improve" value={textToImprove} onChange={e => setTextToImprove(e.target.value)} placeholder="Paste the text you want to improve here..." rows={4} />
+        <div className="w-full h-full bg-muted p-12 flex flex-col justify-center items-center">
+            <div className="w-full max-w-2xl animate-fade">
+                <div className="mb-8 text-center">
+                    <div className="inline-block bg-primary/10 text-primary p-4 rounded-full mb-4">
+                        <Icon className="h-8 w-8" />
                     </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="lawyer-instruction">Instruction</Label>
-                        <Input id="lawyer-instruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="e.g., Make this more professional, shorten it, check for grammar errors." />
+                    <h2 className="text-3xl font-bold font-headline">{currentFeature.title}</h2>
+                    <p className="text-muted-foreground mt-2 max-w-lg mx-auto">{currentFeature.description}</p>
+                </div>
+                <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-xl blur-2xl opacity-20"></div>
+                     <div className="relative">
+                        {currentFeature.visual}
                     </div>
-                    <Button onClick={handleGenerate} disabled={isLoading}>
-                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Improve Text
-                    </Button>
-                    {result && (
-                        <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
-                            <h4 className="font-bold">Improved Text:</h4>
-                            <Textarea readOnly value={result.improvedText} rows={4} className="bg-white" />
-                        </div>
-                    )}
                 </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-export function AdminAIToolsPage() {
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-4">
-                <div className="bg-primary/10 p-3 rounded-full">
-                    <Wand2 className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                    <h1 className="text-2xl font-bold font-headline text-foreground">AI Tools for Platform Management</h1>
-                    <p className="text-muted-foreground">Leverage generative AI to streamline your business communications.</p>
-                </div>
-            </div>
-            <div className="space-y-6">
-                <MessageComposer />
-                <WritingAssistant />
             </div>
         </div>
     );
