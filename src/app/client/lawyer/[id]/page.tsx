@@ -1,3 +1,4 @@
+
 'use client';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { LawyerProfileDetail } from '@/components/pages/lawyer-profile-detail';
