@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link"
@@ -92,7 +93,7 @@ export function ClientSidebar({ isSidebarOpen, setSidebarOpen, page, setPage }: 
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                       {button}
+                       <div className="w-full">{button}</div>
                     </TooltipTrigger>
                      <TooltipContent side="right">
                         <p>You are already connected with a lawyer.</p>

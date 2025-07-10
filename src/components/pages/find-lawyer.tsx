@@ -36,7 +36,7 @@ export function FindLawyerPage() {
             const nameMatch = lawyer.name.toLowerCase().includes(searchTerm.toLowerCase());
             const specialtyMatch = specialty === 'all' || lawyer.specialties.includes(specialty);
             const locationMatch = location === 'all' || lawyer.location === location;
-            const languageMatch = language === 'all' || lawyer.languages.includes(language);
+            const languageMatch = language === 'all' || (lawyer.languages || []).includes(language);
             const consultationMatch = consultation === 'all' || lawyer.consultationType === consultation;
             
             return nameMatch && specialtyMatch && locationMatch && languageMatch && consultationMatch;
