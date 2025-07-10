@@ -8,6 +8,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -46,6 +47,7 @@ interface GlobalDataContextType {
     clients: Client[];
     tasks: Task[];
     appointments: Appointment[];
+    invoicesData: Invoice[];
     notifications: Notification[];
     leads: Lead[];
     setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
@@ -99,6 +101,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [clients, setClients] = useState<Client[]>(staticClients);
     const [tasks, setTasks] = useState<Task[]>(staticTasks);
     const [appointments, setAppointments] = useState<Appointment[]>(staticAppointments);
+    const [invoicesData, setInvoicesData] = useState<Invoice[]>(staticInvoices);
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
     const [leads, setLeads] = useState<Lead[]>(staticLeads);
     const [invitations, setInvitations] = useState<ClientInvitation[]>([]);
@@ -378,7 +381,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
-            teamMembers, clients, tasks, appointments, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
+            teamMembers, clients, tasks, appointments, invoicesData, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
             updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logos, setWorkspaceLogo, isLoaded, theme, setTheme,
             sendClientInvitation, consumeClientInvitation,
