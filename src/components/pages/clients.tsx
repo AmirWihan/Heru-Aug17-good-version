@@ -33,6 +33,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils";
+import { ClientInvitationDialog } from "../client-invitation-dialog";
 
 
 const clientFormSchema = z.object({
@@ -47,6 +48,9 @@ const clientFormSchema = z.object({
 export function ClientsPage() {
     const { clients, sendClientInvitation, updateClient, userProfile } = useGlobalData();
     const [isInviteClientDialogOpen, setInviteClientDialogOpen] = useState(false);
+    const [clientToInvite, setClientToInvite] = useState<Client | null>(null);
+    const [invitationLink, setInvitationLink] = useState('');
+
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const { toast } = useToast();
@@ -64,22 +68,27 @@ export function ClientsPage() {
         },
     });
 
-    const handleInviteToPortal = (client: Client) => {
+    const handleOpenInvitationDialog = (client: Client) => {
         const lawyerId = userProfile?.id;
         if (!lawyerId) {
             toast({ title: "Error", description: "Could not identify inviting lawyer.", variant: 'destructive' });
             return;
         }
         
-        const invitationLink = `${window.location.origin}/register?ref=${lawyerId}&email=${encodeURIComponent(client.email)}`;
-        navigator.clipboard.writeText(invitationLink);
+        const generatedLink = `${window.location.origin}/register?ref=${lawyerId}&email=${encodeURIComponent(client.email)}`;
+        setInvitationLink(generatedLink);
+        setClientToInvite(client);
+    };
 
-        updateClient({ ...client, portalStatus: 'Invited' });
+    const handleSendInvitation = () => {
+        if (!clientToInvite) return;
+        updateClient({ ...clientToInvite, portalStatus: 'Invited' });
         
         toast({
-            title: "Invitation Sent (Link Copied!)",
-            description: `An invitation for ${client.name} has been created. The unique registration link has been copied to your clipboard.`,
+            title: "Invitation Sent!",
+            description: `An email invitation has been sent to ${clientToInvite.name}.`,
         });
+        setClientToInvite(null);
     };
     
     function onSubmit(values: z.infer<typeof clientFormSchema>) {
@@ -161,7 +170,7 @@ export function ClientsPage() {
                             <CardTitle className="font-headline">All Clients</CardTitle>
                             <Button onClick={() => setInviteClientDialogOpen(true)}>
                                 <PlusCircle className="mr-2 h-4 w-4" />
-                                Invite Client
+                                Add Client
                             </Button>
                         </div>
                     </CardHeader>
@@ -256,7 +265,7 @@ export function ClientsPage() {
                                             </TableCell>
                                             <TableCell className="text-right">
                                                  {client.portalStatus === 'Not Invited' && (
-                                                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleInviteToPortal(client); }}>
+                                                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleOpenInvitationDialog(client); }}>
                                                         <Send className="mr-2 h-4 w-4" /> Invite to Portal
                                                     </Button>
                                                 )}
@@ -295,9 +304,9 @@ export function ClientsPage() {
                 <Dialog open={isInviteClientDialogOpen} onOpenChange={setInviteClientDialogOpen}>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Invite New Client</DialogTitle>
+                            <DialogTitle>Add New Client</DialogTitle>
                             <DialogDescription>
-                                Send an invitation link to your client to join the portal.
+                                Add a new client to your list. An invitation link will be generated for them to join the portal.
                             </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
@@ -330,12 +339,22 @@ export function ClientsPage() {
                                 />
                                 <DialogFooter>
                                     <Button type="button" variant="secondary" onClick={() => setInviteClientDialogOpen(false)}>Cancel</Button>
-                                    <Button type="submit">Send Invitation</Button>
+                                    <Button type="submit">Add Client & Get Invite Link</Button>
                                 </DialogFooter>
                             </form>
                         </Form>
                     </DialogContent>
                 </Dialog>
+
+                {clientToInvite && (
+                    <ClientInvitationDialog
+                        isOpen={!!clientToInvite}
+                        onOpenChange={(isOpen) => !isOpen && setClientToInvite(null)}
+                        client={clientToInvite}
+                        invitationLink={invitationLink}
+                        onSend={handleSendInvitation}
+                    />
+                )}
 
                 {selectedClient && (
                     <ClientDetailSheet
