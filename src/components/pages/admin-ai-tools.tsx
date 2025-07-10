@@ -40,41 +40,46 @@ function MessageComposer() {
     };
     
     return (
-         <div className="space-y-4">
-            <CardDescription>Compose professional outreach emails, announcements, or support responses.</CardDescription>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="recipient-name">Recipient Name / Group</Label>
-                    <Input id="recipient-name" placeholder="e.g., Acme Corp Legal Team" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
+        <Card>
+            <CardHeader><CardTitle>Message Composer</CardTitle></CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                    <CardDescription>Compose professional outreach emails, announcements, or support responses.</CardDescription>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="recipient-name">Recipient Name / Group</Label>
+                            <Input id="recipient-name" placeholder="e.g., Acme Corp Legal Team" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="message-tone">Tone</Label>
+                            <Select value={tone} onValueChange={setTone}>
+                                <SelectTrigger id="message-tone"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Professional">Professional</SelectItem>
+                                    <SelectItem value="Friendly">Friendly</SelectItem>
+                                    <SelectItem value="Urgent">Urgent</SelectItem>
+                                    <SelectItem value="Marketing">Marketing</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="message-context">Message Context</Label>
+                        <Textarea id="message-context" placeholder="e.g., Follow up on demo request, announce new feature." rows={4} value={messageContext} onChange={(e) => setMessageContext(e.target.value)} />
+                    </div>
+                    <Button onClick={handleCompose} disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Generate Message
+                    </Button>
+                    {result && (
+                        <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
+                            <h4 className="font-bold">Generated Message:</h4>
+                            <Textarea readOnly value={result.message} rows={6} className="bg-white" />
+                        </div>
+                    )}
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="message-tone">Tone</Label>
-                    <Select value={tone} onValueChange={setTone}>
-                        <SelectTrigger id="message-tone"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Professional">Professional</SelectItem>
-                            <SelectItem value="Friendly">Friendly</SelectItem>
-                            <SelectItem value="Urgent">Urgent</SelectItem>
-                            <SelectItem value="Marketing">Marketing</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="message-context">Message Context</Label>
-                <Textarea id="message-context" placeholder="e.g., Follow up on demo request, announce new feature." rows={4} value={messageContext} onChange={(e) => setMessageContext(e.target.value)} />
-            </div>
-            <Button onClick={handleCompose} disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Generate Message
-            </Button>
-             {result && (
-                <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
-                    <h4 className="font-bold">Generated Message:</h4>
-                    <Textarea readOnly value={result.message} rows={6} className="bg-white" />
-                </div>
-            )}
-        </div>
+            </CardContent>
+        </Card>
     )
 }
 
@@ -105,27 +110,32 @@ function WritingAssistant() {
     };
 
     return (
-        <div className="space-y-4">
-            <CardDescription>Improve writing for marketing copy, support articles, or any other professional text.</CardDescription>
-            <div className="space-y-1">
-                <Label htmlFor="lawyer-text-to-improve">Original Text</Label>
-                <Textarea id="lawyer-text-to-improve" value={textToImprove} onChange={e => setTextToImprove(e.target.value)} placeholder="Paste the text you want to improve here..." rows={4} />
-            </div>
-            <div className="space-y-1">
-                <Label htmlFor="lawyer-instruction">Instruction</Label>
-                <Input id="lawyer-instruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="e.g., Make this more professional, shorten it, check for grammar errors." />
-            </div>
-             <Button onClick={handleGenerate} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                Improve Text
-            </Button>
-            {result && (
-                <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
-                    <h4 className="font-bold">Improved Text:</h4>
-                    <Textarea readOnly value={result.improvedText} rows={4} className="bg-white" />
+        <Card>
+            <CardHeader><CardTitle>Writing Assistant</CardTitle></CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                    <CardDescription>Improve writing for marketing copy, support articles, or any other professional text.</CardDescription>
+                    <div className="space-y-1">
+                        <Label htmlFor="lawyer-text-to-improve">Original Text</Label>
+                        <Textarea id="lawyer-text-to-improve" value={textToImprove} onChange={e => setTextToImprove(e.target.value)} placeholder="Paste the text you want to improve here..." rows={4} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="lawyer-instruction">Instruction</Label>
+                        <Input id="lawyer-instruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="e.g., Make this more professional, shorten it, check for grammar errors." />
+                    </div>
+                    <Button onClick={handleGenerate} disabled={isLoading}>
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Improve Text
+                    </Button>
+                    {result && (
+                        <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
+                            <h4 className="font-bold">Improved Text:</h4>
+                            <Textarea readOnly value={result.improvedText} rows={4} className="bg-white" />
+                        </div>
+                    )}
                 </div>
-            )}
-        </div>
+            </CardContent>
+        </Card>
     );
 }
 
@@ -141,16 +151,10 @@ export function AdminAIToolsPage() {
                     <p className="text-muted-foreground">Leverage generative AI to streamline your business communications.</p>
                 </div>
             </div>
-            <Card>
-                <Tabs defaultValue="composer">
-                    <TabsList className="grid w-full grid-cols-2 m-6 mb-0">
-                        <TabsTrigger value="composer"><Send className="mr-2 h-4 w-4" />Message Composer</TabsTrigger>
-                        <TabsTrigger value="writer"><PencilRuler className="mr-2 h-4 w-4"/>Writing Assistant</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="composer"><CardContent><MessageComposer/></CardContent></TabsContent>
-                    <TabsContent value="writer"><CardContent><WritingAssistant/></CardContent></TabsContent>
-                </Tabs>
-            </Card>
+            <div className="space-y-6">
+                <MessageComposer />
+                <WritingAssistant />
+            </div>
         </div>
     );
 }
