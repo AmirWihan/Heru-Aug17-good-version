@@ -1,18 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -257,6 +243,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 activity: [], documents: [], tasks: [], agreements: [],
                 intakeForm: { status: 'not_started' },
                 coins: 25, // Welcome bonus
+                onboardingComplete: false, // <-- New flag
                 connectedLawyerId: connectedLawyerId,
                 connectionRequestFromLawyerId: null,
             };

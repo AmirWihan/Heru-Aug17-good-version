@@ -83,12 +83,8 @@ export function RegisterPage() {
                 description: "Let's get your profile started.",
             });
 
-            // Redirect based on role
-            if (values.role === 'lawyer') {
-                router.push('/lawyer/onboarding');
-            } else {
-                router.push('/client/onboarding');
-            }
+            // The /dashboard-select page will now handle routing to onboarding
+            router.push('/dashboard-select');
 
         } catch (error: any) {
             toast({

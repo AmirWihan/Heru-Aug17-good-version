@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -5,22 +6,31 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
+import { Client } from '@/lib/data';
 
 export default function DashboardSelectPage() {
     const router = useRouter();
-    const { userProfile } = useGlobalData();
+    const { userProfile, loading } = useGlobalData();
 
     useEffect(() => {
+        if (loading) return; // Wait until loading is complete
+
         if (userProfile) {
             switch (userProfile.authRole) {
                 case 'admin':
                     router.replace('/admin/dashboard');
                     break;
                 case 'lawyer':
+                    // In a real app, you might check for lawyer onboarding status too
                     router.replace('/lawyer/dashboard');
                     break;
                 case 'client':
-                    router.replace('/client/dashboard');
+                    const clientProfile = userProfile as Client;
+                    if (clientProfile.onboardingComplete) {
+                        router.replace('/client/dashboard');
+                    } else {
+                        router.replace('/client/onboarding');
+                    }
                     break;
                 default:
                     router.replace('/login');
@@ -28,13 +38,11 @@ export default function DashboardSelectPage() {
         } else {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
-                if (!userProfile) {
-                    router.replace('/login');
-                }
+                router.replace('/login');
             }, 1500);
             return () => clearTimeout(timer);
         }
-    }, [userProfile, router]);
+    }, [userProfile, router, loading]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">

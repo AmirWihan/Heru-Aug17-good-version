@@ -18,6 +18,7 @@ import { Loader2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { useGlobalData } from '@/context/GlobalDataContext';
 
 
 const crsSchema = z.object({
@@ -89,6 +90,7 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
     const [result, setResult] = useState<CrsOutput | null>(null);
     const { toast } = useToast();
     const router = useRouter();
+    const { updateUserProfile } = useGlobalData();
 
     const form = useForm<CrsFormValues>({
         resolver: zodResolver(crsSchema),
@@ -130,7 +132,11 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
             const response = await calculateCrsScore(apiInput);
             setResult(response);
             setCurrentStep(steps.length);
-            onOnboardingComplete(); // Trigger the redirect
+            
+            // Mark onboarding as complete
+            await updateUserProfile({ onboardingComplete: true });
+
+            onOnboardingComplete(); // Trigger the redirect from the parent page
         } catch (error) {
             console.error(error);
             toast({ title: 'Error', description: 'Failed to calculate your score. Please try again.', variant: 'destructive' });
