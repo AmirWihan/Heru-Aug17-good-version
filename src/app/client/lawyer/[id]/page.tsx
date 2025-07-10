@@ -14,17 +14,20 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { LawyerConnectDialog } from "@/components/pages/lawyer-connect-dialog";
 
-const StatCard = ({ label, value, icon: Icon }: { label: string, value: string | number, icon: React.ElementType }) => (
-    <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
-        <div className="bg-primary/10 p-3 rounded-full">
-            <Icon className="h-6 w-6 text-primary" />
+const StatCard = ({ label, value, icon }: { label: string, value: string | number, icon: React.ElementType }) => {
+    const Icon = icon;
+    return (
+        <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
+            <div className="bg-primary/10 p-3 rounded-full">
+                <Icon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+            </div>
         </div>
-        <div>
-            <p className="text-2xl font-bold">{value}</p>
-            <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
-    </div>
-);
+    );
+};
 
 export default function LawyerProfilePage() {
     const router = useRouter();

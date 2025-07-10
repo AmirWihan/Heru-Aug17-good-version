@@ -1,6 +1,6 @@
 
 
-import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck } from "lucide-react";
+import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck, DollarSign, Award, CheckCircle } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
 
@@ -245,6 +245,7 @@ export type TeamMember = {
     stats: {
         label: string;
         value: string;
+        icon: React.ElementType;
     }[];
     specialties: string[];
     languages: string[];
@@ -322,7 +323,12 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
-        stats: [{ label: 'Clients Handled', value: '72' }, { label: 'Success Rate', value: '96%' }, { label: 'Active Cases', value: '15' }, { label: 'Years Practicing', value: '12' }],
+        stats: [
+            { label: 'Clients Handled', value: '72', icon: Users }, 
+            { label: 'Success Rate', value: '96%', icon: CheckCircle }, 
+            { label: 'Revenue Generated', value: '$340k', icon: DollarSign }, 
+            { label: 'Years Practicing', value: '12', icon: Award }
+        ],
         specialties: ['Express Entry', 'PNP', 'Family Sponsorship', 'Court Representation', 'Post-Landing Services'],
         languages: ['English', 'French'],
         consultationType: 'Paid',
@@ -389,10 +395,10 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 12,
         firmWebsite: 'https://innovatelegal.com',
         stats: [
-            { label: 'Clients', value: '0' },
-            { label: 'Revenue', value: '$0' },
-            { label: 'Success Rate', value: 'N/A' },
-            { label: 'Rating', value: 'N/A' }
+            { label: 'Clients', value: '0', icon: Users },
+            { label: 'Revenue', value: '$0', icon: DollarSign },
+            { label: 'Success Rate', value: 'N/A', icon: CheckCircle },
+            { label: 'Rating', value: 'N/A', icon: CheckCircle }
         ],
         specialties: ['Awaiting Activation'],
         languages: [],
@@ -422,10 +428,10 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 1,
         firmWebsite: 'https://testfirm.com',
         stats: [
-            { label: 'Clients', value: '0' },
-            { label: 'Revenue', value: '$0' },
-            { label: 'Success Rate', value: 'N/A' },
-            { label: 'Rating', value: 'N/A' }
+            { label: 'Clients', value: '0', icon: Users },
+            { label: 'Revenue', value: '$0', icon: DollarSign },
+            { label: 'Success Rate', value: 'N/A', icon: CheckCircle },
+            { label: 'Rating', value: 'N/A', icon: CheckCircle }
         ],
         specialties: ['Awaiting Activation'],
         languages: [],
@@ -439,7 +445,12 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
         numEmployees: 5,
         firmWebsite: 'https://chenassociates.com',
-        stats: [{ label: 'Clients Handled', value: '45' }, { label: 'Success Rate', value: '89%' }, { label: 'Active Cases', value: '11' }, { label: 'Years Practicing', value: '8' }],
+        stats: [
+            { label: 'Clients Handled', value: '45', icon: Users }, 
+            { label: 'Success Rate', value: '89%', icon: CheckCircle }, 
+            { label: 'Active Cases', value: '11', icon: Briefcase }, 
+            { label: 'Years Practicing', value: '8', icon: Award }
+        ],
         specialties: ['Student Visas', 'Work Permits', 'Visitor Visas', 'Post-Landing Services'],
         languages: ['English', 'Mandarin'],
         consultationType: 'Free'
@@ -452,7 +463,12 @@ export const teamMembers: TeamMember[] = [
         numEmployees: 8,
         firmWebsite: 'https://johnsonlegal.ca',
         location: 'Toronto, ON', yearsOfPractice: 5, successRate: 92, licenseNumber: 'LSO-PL-33445', registrationNumber: 'ICCRC-R67890',
-        stats: [{ label: 'Clients Handled', value: '38' }, { label: 'Success Rate', value: '92%' }, { label: 'Active Cases', value: '8' }, { label: 'Years Practicing', value: '5' }],
+        stats: [
+            { label: 'Clients Handled', value: '38', icon: Users }, 
+            { label: 'Success Rate', value: '92%', icon: CheckCircle }, 
+            { label: 'Active Cases', value: '8', icon: Briefcase }, 
+            { label: 'Years Practicing', value: '5', icon: Award }
+        ],
         specialties: ['Document Review', 'Application Filing', 'Client Communication', 'Legal Aid'],
         languages: ['English'],
         consultationType: 'Paid'
@@ -465,7 +481,12 @@ export const teamMembers: TeamMember[] = [
         firmAddress: '333 7 Ave SW, Calgary, AB T2P 2Z1',
         numEmployees: 3,
         firmWebsite: 'https://rodriguezlaw.ca',
-        stats: [{ label: 'Clients Handled', value: '51' }, { label: 'Success Rate', value: '94%' }, { label: 'Active Cases', value: '12' }, { label: 'Years Practicing', value: '7' }],
+        stats: [
+            { label: 'Clients Handled', value: '51', icon: Users }, 
+            { label: 'Success Rate', value: '94%', icon: CheckCircle }, 
+            { label: 'Active Cases', value: '12', icon: Briefcase }, 
+            { label: 'Years Practicing', value: '7', icon: Award }
+        ],
         specialties: ['Case Management', 'Client Onboarding', 'Task Coordination', 'Business Immigration', 'Court Representation'],
         languages: ['English', 'Spanish'],
         consultationType: 'Paid',
