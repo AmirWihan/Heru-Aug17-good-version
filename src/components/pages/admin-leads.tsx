@@ -18,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+
 
 const statusTabs: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
 
@@ -119,7 +121,7 @@ export function AdminLeadsPage() {
                 const ownerMatch = ownerFilter === 'all' || lead.owner.name === ownerFilter;
                 return statusMatch && searchMatch && ownerMatch;
             });
-        }, [status, searchTerm, ownerFilter]);
+        }, [status, searchTerm, ownerFilter, leads]);
 
         return (
             <div className="overflow-x-auto">

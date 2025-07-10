@@ -5,15 +5,15 @@ import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { leadsData, type Lead, type Client } from '@/lib/data';
-import { PlusCircle, User, Building, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
+import { type Lead, type Client } from '@/lib/data';
+import { PlusCircle, User, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { LeadDetailSheet } from './lead-detail-sheet';
+import { AdminLeadDetailSheet } from './admin-lead-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { format } from 'date-fns';
@@ -33,9 +33,8 @@ const getStatusBadgeVariant = (status: Lead['status']) => {
 };
 
 export function LeadsPage() {
-    const { userProfile, addClient } = useGlobalData();
+    const { userProfile, leads, addLead, addClient } = useGlobalData();
     const { toast } = useToast();
-    const [leads, setLeads] = useState(leadsData);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
@@ -85,7 +84,7 @@ export function LeadsPage() {
             connectionRequestFromLawyerId: null
         };
         addClient(newClient);
-        setLeads(prev => prev.filter(l => l.id !== leadId));
+        // In a real app, you would also remove the lead from the database
         toast({
             title: 'Lead Converted!',
             description: `${lead.name} is now a client.`,
@@ -114,7 +113,7 @@ export function LeadsPage() {
                 const ownerMatch = ownershipFilter === 'all' || (ownershipFilter === 'mine' && lead.owner.name === userProfile?.name);
                 return statusMatch && searchMatch && ownerMatch;
             });
-        }, [status, searchTerm, ownershipFilter, userProfile]);
+        }, [status, searchTerm, ownershipFilter, userProfile, leads]);
 
         return (
             <div className="overflow-x-auto">
@@ -241,7 +240,7 @@ export function LeadsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {selectedLead && <LeadDetailSheet lead={selectedLead} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} onConvert={handleConvertLead} />}
+            {selectedLead && <AdminLeadDetailSheet lead={selectedLead} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} onConvert={handleConvertLead} />}
         </>
     );
 }

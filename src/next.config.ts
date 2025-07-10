@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 import CopyPlugin from 'copy-webpack-plugin';
 
@@ -13,17 +14,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-   webpack: (config) => {
-    config.plugins.push(
-      new CopyPlugin({
-        patterns: [
-          {
-            from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
-            to: 'static/chunks/pdf.worker.min.mjs',
-          },
-        ],
-      }),
-    );
+   webpack: (config, { isServer }) => {
+    // This is to make `re-pdf` work.
+    // It copies the pdf.worker.min.mjs file to the static chunks directory.
+    if (!isServer) {
+        config.plugins.push(
+          new CopyPlugin({
+            patterns: [
+              {
+                from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
+                to: 'static/chunks/pdf.worker.min.mjs',
+              },
+            ],
+          }),
+        );
+    }
 
     return config;
   },

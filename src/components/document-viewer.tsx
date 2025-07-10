@@ -10,11 +10,9 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 
-// Set workerSrc for pdfjs
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+// Set workerSrc for pdfjs. This is crucial for the worker to be loaded correctly.
+// The copy-webpack-plugin in next.config.ts handles moving this file.
+pdfjs.GlobalWorkerOptions.workerSrc = `/static/chunks/pdf.worker.min.mjs`;
 
 interface DocumentViewerProps {
     isOpen: boolean;
