@@ -6,16 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, Gift, Copy } from 'lucide-react';
+import { Loader2, Sparkles, Gift, Copy, Briefcase, FileText } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // AI Flows
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
+import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
+import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { type IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 import { Client } from '@/lib/data';
 
-const AI_FEATURE_COST = 5;
+const WRITING_ASSISTANT_COST = 5;
+const CAREER_TOOL_COST = 10;
 
 function WritingAssistant() {
     const { userProfile, updateClient } = useGlobalData();
@@ -27,7 +32,7 @@ function WritingAssistant() {
     const [textToImprove, setTextToImprove] = useState('');
     const [instruction, setInstruction] = useState('');
 
-    const hasSufficientCoins = (client?.coins ?? 0) >= AI_FEATURE_COST;
+    const hasSufficientCoins = (client?.coins ?? 0) >= WRITING_ASSISTANT_COST;
     const isDisabled = isLoading || !hasSufficientCoins;
 
     const handleUseCoins = (cost: number) => {
@@ -54,7 +59,7 @@ function WritingAssistant() {
         try {
             const response = await assistWithWriting({ textToImprove, instruction });
             setResult(response);
-            handleUseCoins(AI_FEATURE_COST);
+            handleUseCoins(WRITING_ASSISTANT_COST);
         } catch (error) {
             console.error(error);
             toast({ title: 'Error', description: 'Failed to process text.', variant: 'destructive' });
@@ -65,7 +70,7 @@ function WritingAssistant() {
 
     return (
         <div className="space-y-4">
-            <CardDescription>Improve any text, such as emails to potential employers or clarifying questions for your lawyer. This costs <span className="font-bold text-primary">{AI_FEATURE_COST} coins</span>.</CardDescription>
+            <CardDescription>Improve any text, such as emails to potential employers or clarifying questions for your lawyer. This costs <span className="font-bold text-primary">{WRITING_ASSISTANT_COST} coins</span>.</CardDescription>
             <div className="space-y-4">
                 <div className="space-y-1">
                     <Label htmlFor="client-text-to-improve">Original Text</Label>
@@ -95,21 +100,182 @@ function WritingAssistant() {
     );
 }
 
+function ResumeBuilder() {
+    const { userProfile, updateClient } = useGlobalData();
+    const client = userProfile as Client;
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+    const [result, setResult] = useState<BuildResumeOutput | null>(null);
+
+    const hasSufficientCoins = (client?.coins ?? 0) >= CAREER_TOOL_COST;
+    const isDisabled = isLoading || !hasSufficientCoins || !client?.intakeForm?.data;
+
+    const handleUseCoins = (cost: number) => {
+        const newBalance = (client.coins || 0) - cost;
+        updateClient({ ...client, coins: newBalance });
+        toast({ title: `You spent ${cost} coins!`, description: `Your new balance is ${newBalance}.` });
+    };
+
+    const handleGenerate = async () => {
+        if (!client?.intakeForm?.data) {
+            toast({ title: 'Error', description: 'Please complete your intake form before generating a resume.', variant: 'destructive' });
+            return;
+        }
+        if (!hasSufficientCoins) {
+            toast({ title: "Insufficient Coins", description: "You don't have enough coins for this feature.", variant: "destructive" });
+            return;
+        }
+        setIsLoading(true);
+        setResult(null);
+
+        try {
+            const apiInput: IntakeFormInput = {
+              ...client.intakeForm.data,
+              admissibility: {
+                ...client.intakeForm.data.admissibility,
+                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
+                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
+                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
+              },
+              immigrationHistory: {
+                  ...client.intakeForm.data.immigrationHistory,
+                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
+                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
+              },
+            };
+            const response = await buildResume(apiInput);
+            setResult(response);
+            handleUseCoins(CAREER_TOOL_COST);
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to generate the resume. Please try again.', variant: 'destructive' });
+        }
+        setIsLoading(false);
+    };
+
+    return (
+        <div className="space-y-4">
+            <CardDescription>Generate a resume based on your intake form information, formatted for the Canadian job market. This costs <span className="font-bold text-primary">{CAREER_TOOL_COST} coins</span>.</CardDescription>
+            <Button onClick={handleGenerate} disabled={isDisabled}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Generate Resume
+            </Button>
+             {!client?.intakeForm?.data && <p className="text-sm text-destructive mt-2">You must complete your intake form to use this feature.</p>}
+            {!hasSufficientCoins && <p className="text-sm text-destructive mt-2">You do not have enough coins for this feature.</p>}
+            {result && (
+                <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
+                    <h4 className="font-bold">Generated Resume (Markdown):</h4>
+                    <Textarea readOnly value={result.resumeText} rows={15} className="bg-white font-mono text-xs" />
+                </div>
+            )}
+        </div>
+    );
+}
+
+function CoverLetterBuilder() {
+    const { userProfile, updateClient } = useGlobalData();
+    const client = userProfile as Client;
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+    const [result, setResult] = useState<BuildCoverLetterOutput | null>(null);
+    const [jobTitle, setJobTitle] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [jobDescription, setJobDescription] = useState('');
+
+    const hasSufficientCoins = (client?.coins ?? 0) >= CAREER_TOOL_COST;
+    const isDisabled = isLoading || !hasSufficientCoins || !client?.intakeForm?.data;
+    
+    const handleUseCoins = (cost: number) => {
+        const newBalance = (client.coins || 0) - cost;
+        updateClient({ ...client, coins: newBalance });
+        toast({ title: `You spent ${cost} coins!`, description: `Your new balance is ${newBalance}.` });
+    };
+
+    const handleGenerate = async () => {
+        if (!client?.intakeForm?.data) {
+            toast({ title: 'Error', description: 'Please complete your intake form first.', variant: 'destructive' });
+            return;
+        }
+        if (!jobTitle || !companyName || !jobDescription) {
+            toast({ title: 'Job Details Required', description: 'Please fill in all job details.', variant: 'destructive' });
+            return;
+        }
+        if (!hasSufficientCoins) {
+            toast({ title: "Insufficient Coins", description: "You don't have enough coins for this feature.", variant: "destructive" });
+            return;
+        }
+
+        setIsLoading(true);
+        setResult(null);
+
+         try {
+             const apiInput = {
+              ...client.intakeForm.data,
+              jobTitle,
+              companyName,
+              jobDescription,
+              admissibility: {
+                ...client.intakeForm.data.admissibility,
+                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
+                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
+                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
+              },
+              immigrationHistory: {
+                  ...client.intakeForm.data.immigrationHistory,
+                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
+                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
+              },
+            };
+            const response = await buildCoverLetter(apiInput);
+            setResult(response);
+            handleUseCoins(CAREER_TOOL_COST);
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to generate cover letter.', variant: 'destructive' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
+        <div className="space-y-4">
+            <CardDescription>Generate a tailored cover letter based on your profile and a job description. This costs <span className="font-bold text-primary">{CAREER_TOOL_COST} coins</span>.</CardDescription>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                    <Label htmlFor="client-job-title">Job Title</Label>
+                    <Input id="client-job-title" value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="e.g., Software Engineer" />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="client-company-name">Company Name</Label>
+                    <Input id="client-company-name" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="e.g., Tech Solutions Inc." />
+                </div>
+            </div>
+            <div className="space-y-1">
+                <Label htmlFor="client-job-desc">Job Description</Label>
+                <Textarea id="client-job-desc" value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Paste the job description here..." rows={4} />
+            </div>
+             <Button onClick={handleGenerate} disabled={isDisabled}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Generate Cover Letter
+            </Button>
+            {!client?.intakeForm?.data && <p className="text-sm text-destructive mt-2">You must complete your intake form to use this feature.</p>}
+            {!hasSufficientCoins && <p className="text-sm text-destructive mt-2">You do not have enough coins for this feature.</p>}
+            {result && (
+                <div className="mt-4 space-y-2 rounded-lg border bg-muted/50 p-4 animate-fade">
+                    <h4 className="font-bold">Generated Cover Letter:</h4>
+                    <Textarea readOnly value={result.coverLetterText} rows={10} className="bg-white font-mono text-xs" />
+                </div>
+            )}
+        </div>
+    );
+}
+
+
 export function ClientAiAssistPage() {
     const { userProfile, updateClient } = useGlobalData();
     const { toast } = useToast();
     const client = userProfile as Client | null;
 
-    const handleReferral = () => {
-        if (!client) return;
-        const newBalance = (client.coins || 0) + 5;
-        updateClient({ ...client, coins: newBalance });
-        toast({
-            title: "Referral Success!",
-            description: "You've earned 5 coins! Your new balance is " + newBalance,
-        });
-    };
-    
     const copyReferralLink = () => {
         navigator.clipboard.writeText(`https://visafor.com/register?ref=${client?.id || 'user'}`);
         toast({ title: "Copied to clipboard!", description: "Share your referral link with friends." });
@@ -137,19 +303,24 @@ export function ClientAiAssistPage() {
                              <Input type="text" readOnly value={`https://visafor.com/register?ref=${client?.id || 'user'}`} />
                              <Button variant="outline" size="icon" onClick={copyReferralLink}><Copy className="h-4 w-4" /></Button>
                         </div>
-                        <Button onClick={handleReferral}>Simulate a Friend Signing Up</Button>
                     </CardContent>
                 </Card>
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle>Writing Assistant</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <WritingAssistant />
-                </CardContent>
+                <Tabs defaultValue="writing">
+                    <TabsList className="grid w-full grid-cols-3 m-6 mb-0">
+                        <TabsTrigger value="writing"><FileText className="mr-2 h-4 w-4" />Writing Assistant</TabsTrigger>
+                        <TabsTrigger value="resume"><Briefcase className="mr-2 h-4 w-4"/>Resume Builder</TabsTrigger>
+                        <TabsTrigger value="cover-letter"><FileText className="mr-2 h-4 w-4"/>Cover Letter Generator</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="writing"><CardContent><WritingAssistant/></CardContent></TabsContent>
+                    <TabsContent value="resume"><CardContent><ResumeBuilder/></CardContent></TabsContent>
+                    <TabsContent value="cover-letter"><CardContent><CoverLetterBuilder/></CardContent></TabsContent>
+                </Tabs>
             </Card>
         </div>
     );
 }
+
+    
