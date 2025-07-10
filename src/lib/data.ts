@@ -308,6 +308,13 @@ export type AdminAppointment = {
     status: 'Upcoming' | 'Completed';
 }
 
+export type ConnectionRequest = {
+    lawyerId: number;
+    message: string;
+    proposedDate: string;
+    proposedTime: string;
+}
+
 export const adminAppointmentsData: AdminAppointment[] = [
     { id: 1, firmName: 'Innovate Legal', dateTime: '2024-07-25T14:00:00', type: 'Onboarding', avatar: 'https://i.pravatar.cc/150?u=evelynreed', status: 'Upcoming' },
     { id: 2, firmName: 'Waystar Immigration', dateTime: '2024-07-26T11:00:00', type: 'Sales Demo', avatar: 'https://i.pravatar.cc/150?u=chenwang', status: 'Upcoming' },

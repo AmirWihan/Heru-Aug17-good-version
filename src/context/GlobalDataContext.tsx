@@ -11,6 +11,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -26,7 +27,8 @@ import {
     notifications as staticNotifications,
     leadsData as staticLeads,
     clientLeadsData as staticClientLeads,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead, type ClientLead
+    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead, type ClientLead,
+    type ConnectionRequest
 } from '@/lib/data';
 import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
@@ -36,12 +38,6 @@ export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer'
 type ClientInvitation = {
     email: string;
     invitingLawyerId: number;
-}
-
-type ConnectionRequest = {
-    lawyerId: number;
-    message: string;
-    proposedDate: string;
 }
 
 interface GlobalDataContextType {
@@ -272,7 +268,10 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 avatar: `https://i.pravatar.cc/150?u=${email}`,
                 type: 'legal', phone: '', accessLevel: 'Admin', status: 'Pending Activation', plan: 'Pro Team',
                 location: 'Unknown', yearsOfPractice: 0, successRate: 0, licenseNumber: '', registrationNumber: '',
+                firmName: 'Unknown Firm',
                 stats: [], specialties: ['Awaiting Activation'],
+                languages: [],
+                consultationType: 'Paid'
             };
             setTeamMembers(prev => [...prev, newProfile as TeamMember]);
         }
@@ -400,8 +399,6 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, [invitations]);
 
     const sendConnectionRequest = useCallback((clientId: number, request: ConnectionRequest) => {
-        // In a real app, this would write to a 'connectionRequests' collection in Firestore.
-        // For the demo, we'll add a new lead to the lawyer's CRM.
         const client = clients.find(c => c.id === clientId);
         const lawyer = teamMembers.find(t => t.id === request.lawyerId);
 
@@ -424,7 +421,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             activity: [{
                 id: Date.now(),
                 type: 'Note',
-                notes: `Connection request sent with message: "${request.message}". Proposed meeting: ${request.proposedDate}.`,
+                notes: `Connection request sent with message: "${request.message}". Proposed meeting: ${request.proposedDate} at ${request.proposedTime}.`,
                 date: new Date().toISOString(),
             }]
         };

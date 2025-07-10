@@ -13,6 +13,7 @@ import { Input } from "../ui/input";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { format } from "date-fns";
 import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface LawyerConnectDialogProps {
     lawyer: TeamMember;
@@ -20,10 +21,16 @@ interface LawyerConnectDialogProps {
     onOpenChange: (isOpen: boolean) => void;
 }
 
+const timeSlots = [
+    "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+    "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM"
+];
+
 export function LawyerConnectDialog({ lawyer, isOpen, onOpenChange }: LawyerConnectDialogProps) {
     const { toast } = useToast();
     const { sendConnectionRequest, userProfile } = useGlobalData();
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+    const [selectedTime, setSelectedTime] = useState<string>('10:00 AM');
     const [message, setMessage] = useState("");
     const [step, setStep] = useState(1);
 
@@ -32,15 +39,16 @@ export function LawyerConnectDialog({ lawyer, isOpen, onOpenChange }: LawyerConn
             toast({ title: "Error", description: "You must be logged in to connect.", variant: "destructive"});
             return;
         }
-        if (!message.trim() || !selectedDate) {
-            toast({ title: "Missing Information", description: "Please write a message and select a date.", variant: "destructive"});
+        if (!message.trim() || !selectedDate || !selectedTime) {
+            toast({ title: "Missing Information", description: "Please write a message and select a date and time.", variant: "destructive"});
             return;
         }
         
         sendConnectionRequest(userProfile.id, {
             lawyerId: lawyer.id,
             message,
-            proposedDate: format(selectedDate, 'PPP')
+            proposedDate: format(selectedDate, 'PPP'),
+            proposedTime: selectedTime
         });
 
         toast({
@@ -53,7 +61,12 @@ export function LawyerConnectDialog({ lawyer, isOpen, onOpenChange }: LawyerConn
     const handleClose = () => {
         onOpenChange(false);
         // Reset state after a short delay to allow animation to finish
-        setTimeout(() => setStep(1), 300);
+        setTimeout(() => {
+            setStep(1);
+            setMessage('');
+            setSelectedDate(new Date());
+            setSelectedTime('10:00 AM');
+        }, 300);
     }
     
     return (
@@ -80,15 +93,29 @@ export function LawyerConnectDialog({ lawyer, isOpen, onOpenChange }: LawyerConn
                                         onChange={(e) => setMessage(e.target.value)}
                                     />
                                 </div>
-                                 <div className="space-y-2">
-                                    <Label className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Propose a meeting date</Label>
-                                     <CalendarComponent
-                                        mode="single"
-                                        selected={selectedDate}
-                                        onSelect={setSelectedDate}
-                                        className="rounded-md border not-prose"
-                                        disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
-                                    />
+                                <div className="space-y-2">
+                                    <Label className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Propose a meeting date & time</Label>
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <CalendarComponent
+                                            mode="single"
+                                            selected={selectedDate}
+                                            onSelect={setSelectedDate}
+                                            className="rounded-md border not-prose"
+                                            disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                        />
+                                        <div className="flex-1">
+                                            <Select value={selectedTime} onValueChange={setSelectedTime}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a time" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {timeSlots.map(time => (
+                                                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
