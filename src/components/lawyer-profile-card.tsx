@@ -18,8 +18,9 @@ type LawyerProfileCardProps = {
         numEmployees?: number;
         languages?: string[];
         consultationType?: 'Free' | 'Paid';
+        plan?: string;
     };
-    onViewProfile: (lawyerId: number) => void;
+    onViewProfile: (lawyer: LawyerProfileCardProps['lawyer']) => void;
     isEnterprise?: boolean;
 };
 
@@ -80,8 +81,8 @@ export function LawyerProfileCard({ lawyer, onViewProfile, isEnterprise }: Lawye
                     )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2 p-4 pt-2 mt-auto">
-                    <Button size="sm" className="w-full" onClick={() => onViewProfile(lawyer.id)}>
-                        View Profile <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button size="sm" className="w-full" onClick={() => onViewProfile(lawyer)}>
+                        Share Info & Connect <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 </CardFooter>
             </Card>

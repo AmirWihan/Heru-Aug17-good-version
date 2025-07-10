@@ -10,6 +10,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -35,6 +36,12 @@ export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer'
 type ClientInvitation = {
     email: string;
     invitingLawyerId: number;
+}
+
+type ConnectionRequest = {
+    lawyerId: number;
+    message: string;
+    proposedDate: string;
 }
 
 interface GlobalDataContextType {
@@ -72,6 +79,7 @@ interface GlobalDataContextType {
     setTheme: (themeId: string) => void;
     sendClientInvitation: (invitation: ClientInvitation) => void;
     consumeClientInvitation: (email: string) => ClientInvitation | null;
+    sendConnectionRequest: (clientId: number, request: ConnectionRequest) => void;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -391,6 +399,39 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         return null;
     }, [invitations]);
 
+    const sendConnectionRequest = useCallback((clientId: number, request: ConnectionRequest) => {
+        // In a real app, this would write to a 'connectionRequests' collection in Firestore.
+        // For the demo, we'll add a new lead to the lawyer's CRM.
+        const client = clients.find(c => c.id === clientId);
+        const lawyer = teamMembers.find(t => t.id === request.lawyerId);
+
+        if (!client || !lawyer) {
+            console.error("Client or Lawyer not found for connection request");
+            return;
+        }
+
+        const newClientLead: ClientLead = {
+            id: Date.now(),
+            name: client.name,
+            email: client.email,
+            phone: client.phone,
+            status: 'New',
+            source: 'Platform Directory',
+            owner: { name: lawyer.name, avatar: lawyer.avatar },
+            lastContacted: new Date().toISOString(),
+            createdDate: new Date().toISOString(),
+            avatar: client.avatar,
+            activity: [{
+                id: Date.now(),
+                type: 'Note',
+                notes: `Connection request sent with message: "${request.message}". Proposed meeting: ${request.proposedDate}.`,
+                date: new Date().toISOString(),
+            }]
+        };
+        setClientLeads(prev => [newClientLead, ...prev]);
+        
+    }, [clients, teamMembers]);
+
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
@@ -398,7 +439,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             addLead, updateLead, convertLeadToFirm,
             updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logos, setWorkspaceLogo, isLoaded, theme, setTheme,
-            sendClientInvitation, consumeClientInvitation,
+            sendClientInvitation, consumeClientInvitation, sendConnectionRequest,
         }}>
             {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
             {children}
