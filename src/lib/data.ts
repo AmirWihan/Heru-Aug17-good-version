@@ -1,4 +1,5 @@
 
+
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
 import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
@@ -276,6 +277,26 @@ export type Lead = {
         date: string;
     }[];
 };
+
+export type ClientLead = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    company?: string;
+    status: 'New' | 'Contacted' | 'Qualified' | 'Unqualified';
+    source: string;
+    owner: { name: string; avatar: string; };
+    lastContacted: string;
+    createdDate: string;
+    avatar?: string;
+    activity?: {
+        id: number;
+        type: 'Call' | 'Email' | 'Note';
+        notes: string;
+        date: string;
+    }[];
+}
 
 export type AdminAppointment = {
     id: number;
@@ -1063,6 +1084,34 @@ export const leadsData: Lead[] = [
         createdDate: '2024-07-24T09:00:00Z',
         avatar: 'https://i.pravatar.cc/150?u=davidmiller',
         activity: []
+    }
+];
+
+export const clientLeadsData: ClientLead[] = [
+    {
+        id: 1,
+        name: 'John Applegate',
+        email: 'john.apple@example.com',
+        phone: '+1-555-0201',
+        company: 'Tech Innovators Inc.',
+        status: 'New',
+        source: 'Referral',
+        owner: teamMembers[0], // Sarah Johnson
+        lastContacted: '2024-07-23T10:00:00Z',
+        createdDate: '2024-07-23T10:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=johnapple',
+    },
+    {
+        id: 2,
+        name: 'Emily Carter',
+        email: 'emily.c@example.com',
+        phone: '+1-555-0202',
+        status: 'Contacted',
+        source: 'Website',
+        owner: teamMembers[1], // Michael Chen
+        lastContacted: '2024-07-22T11:00:00Z',
+        createdDate: '2024-07-21T11:00:00Z',
+        avatar: 'https://i.pravatar.cc/150?u=emilycarter',
     }
 ];
 

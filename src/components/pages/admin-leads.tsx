@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { type Lead } from '@/lib/data';
-import { PlusCircle, User, Building, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
+import { PlusCircle, Building, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
@@ -128,7 +128,7 @@ export function AdminLeadsPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Company</TableHead>
+                            <TableHead>Firm Name</TableHead>
                             <TableHead>Contact Person</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Owner</TableHead>
@@ -196,7 +196,7 @@ export function AdminLeadsPage() {
                         <div className="flex items-center gap-4 pt-4 flex-wrap">
                             <div className="relative flex-1 min-w-[240px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="Search by company or contact..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                                <Input placeholder="Search by firm or contact..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
                              <Select value={ownerFilter} onValueChange={setOwnerFilter}>
                                 <SelectTrigger className="w-full sm:w-[180px]">
@@ -234,7 +234,7 @@ export function AdminLeadsPage() {
              <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add New Lead</DialogTitle>
+                        <DialogTitle>Add New Firm Lead</DialogTitle>
                         <DialogDescription>Manually enter the details for a new law firm lead.</DialogDescription>
                     </DialogHeader>
                     <div className="py-4 space-y-4">

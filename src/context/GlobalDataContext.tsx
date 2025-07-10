@@ -9,6 +9,7 @@
 
 
 
+
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
@@ -23,7 +24,8 @@ import {
     invoicesData as staticInvoices,
     notifications as staticNotifications,
     leadsData as staticLeads,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead,
+    clientLeadsData as staticClientLeads,
+    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead, type ClientLead
 } from '@/lib/data';
 import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
@@ -50,7 +52,9 @@ interface GlobalDataContextType {
     invoicesData: Invoice[];
     notifications: Notification[];
     leads: Lead[];
-    setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
+    clientLeads: ClientLead[];
+    addClientLead: (lead: ClientLead) => void;
+    updateClientLead: (updatedLead: ClientLead) => void;
     addLead: (lead: Lead) => void;
     updateLead: (updatedLead: Lead) => void;
     convertLeadToFirm: (leadId: number) => void;
@@ -104,6 +108,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [invoicesData, setInvoicesData] = useState<Invoice[]>(staticInvoices);
     const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
     const [leads, setLeads] = useState<Lead[]>(staticLeads);
+    const [clientLeads, setClientLeads] = useState<ClientLead[]>(staticClientLeads);
     const [invitations, setInvitations] = useState<ClientInvitation[]>([]);
 
     const [logos, setLogos] = useState<{ [key: string]: string }>({});
@@ -297,6 +302,14 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
     }, []);
 
+    const addClientLead = useCallback((lead: ClientLead) => {
+        setClientLeads(prev => [lead, ...prev]);
+    }, []);
+
+    const updateClientLead = useCallback((updatedLead: ClientLead) => {
+        setClientLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
+    }, []);
+
     const addTeamMember = useCallback((member: TeamMember) => {
         setTeamMembers(prev => [...prev, member]);
     }, []);
@@ -381,7 +394,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     return (
         <GlobalDataContext.Provider value={{
             userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
-            teamMembers, clients, tasks, appointments, invoicesData, notifications, leads, setLeads, addLead, updateLead, convertLeadToFirm,
+            teamMembers, clients, tasks, appointments, invoicesData, notifications, leads, clientLeads, addClientLead, updateClientLead,
+            addLead, updateLead, convertLeadToFirm,
             updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
             logos, setWorkspaceLogo, isLoaded, theme, setTheme,
             sendClientInvitation, consumeClientInvitation,

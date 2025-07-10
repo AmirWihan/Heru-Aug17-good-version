@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { type Lead, type Client } from '@/lib/data';
+import { type ClientLead, type Client } from '@/lib/data';
 import { PlusCircle, User, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
@@ -13,16 +13,16 @@ import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { AdminLeadDetailSheet } from './admin-lead-detail-sheet';
+import { LeadDetailSheet } from './lead-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
-const statusTabs: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
+const statusTabs: ClientLead['status'][] = ['New', 'Contacted', 'Qualified', 'Unqualified'];
 
-const getStatusBadgeVariant = (status: Lead['status']) => {
+const getStatusBadgeVariant = (status: ClientLead['status']) => {
     switch (status) {
         case 'New': return 'info';
         case 'Contacted': return 'secondary';
@@ -33,9 +33,9 @@ const getStatusBadgeVariant = (status: Lead['status']) => {
 };
 
 export function LeadsPage() {
-    const { userProfile, leads, addLead, addClient } = useGlobalData();
+    const { userProfile, clientLeads, addClientLead, addClient } = useGlobalData();
     const { toast } = useToast();
-    const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+    const [selectedLead, setSelectedLead] = useState<ClientLead | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
     
@@ -44,7 +44,7 @@ export function LeadsPage() {
     const [ownershipFilter, setOwnershipFilter] = useState('all');
 
     const handleConvertLead = (leadId: number) => {
-        const lead = leads.find(l => l.id === leadId);
+        const lead = clientLeads.find(l => l.id === leadId);
         if (!lead) return;
 
         const newClient: Client = {
@@ -92,7 +92,7 @@ export function LeadsPage() {
         setIsSheetOpen(false);
     }
     
-    const handleViewLead = (lead: Lead) => {
+    const handleViewLead = (lead: ClientLead) => {
         setSelectedLead(lead);
         setIsSheetOpen(true);
     };
@@ -105,15 +105,15 @@ export function LeadsPage() {
         setIsImportOpen(false);
     };
     
-    const LeadsTable = ({ status }: { status?: Lead['status'] }) => {
+    const LeadsTable = ({ status }: { status?: ClientLead['status'] }) => {
         const filteredLeads = useMemo(() => {
-            return leads.filter(lead => {
+            return clientLeads.filter(lead => {
                 const statusMatch = !status || lead.status === status;
-                const searchMatch = searchTerm === '' || lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || lead.company.toLowerCase().includes(searchTerm.toLowerCase());
+                const searchMatch = searchTerm === '' || lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || (lead.company || '').toLowerCase().includes(searchTerm.toLowerCase());
                 const ownerMatch = ownershipFilter === 'all' || (ownershipFilter === 'mine' && lead.owner.name === userProfile?.name);
                 return statusMatch && searchMatch && ownerMatch;
             });
-        }, [status, searchTerm, ownershipFilter, userProfile, leads]);
+        }, [status, searchTerm, ownershipFilter, userProfile, clientLeads]);
 
         return (
             <div className="overflow-x-auto">
@@ -171,7 +171,7 @@ export function LeadsPage() {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <div>
-                                <CardTitle>Lead Management</CardTitle>
+                                <CardTitle>Client Leads</CardTitle>
                                 <CardDescription>Manage your pipeline of potential new clients.</CardDescription>
                             </div>
                             <div className="flex gap-2">
@@ -204,9 +204,9 @@ export function LeadsPage() {
                     <CardContent>
                          <Tabs defaultValue="all">
                             <TabsList>
-                                <TabsTrigger value="all">All ({leads.length})</TabsTrigger>
+                                <TabsTrigger value="all">All ({clientLeads.length})</TabsTrigger>
                                 {statusTabs.map(status => (
-                                    <TabsTrigger key={status} value={status}>{status} ({leads.filter(l => l.status === status).length})</TabsTrigger>
+                                    <TabsTrigger key={status} value={status}>{status} ({clientLeads.filter(l => l.status === status).length})</TabsTrigger>
                                 ))}
                             </TabsList>
                             <TabsContent value="all" className="mt-4"><LeadsTable /></TabsContent>
@@ -240,7 +240,7 @@ export function LeadsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {selectedLead && <AdminLeadDetailSheet lead={selectedLead} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} onConvert={handleConvertLead} />}
+            {selectedLead && <LeadDetailSheet lead={selectedLead} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} onConvert={handleConvertLead} />}
         </>
     );
 }
