@@ -152,8 +152,11 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                             <Card>
                                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /> Subscription</CardTitle></CardHeader>
                                 <CardContent className="space-y-2 text-sm">
-                                    <p><strong className="text-muted-foreground font-normal">Plan:</strong> {user.plan}</p>
-                                    <p><strong className="text-muted-foreground font-normal">Access Level:</strong> <Badge variant={user.accessLevel === 'Admin' ? 'destructive' : 'secondary'}>{user.accessLevel}</Badge></p>
+                                    <div><strong className="text-muted-foreground font-normal">Plan:</strong> {user.plan}</div>
+                                    <div className="flex items-center gap-2">
+                                        <strong className="text-muted-foreground font-normal">Access Level:</strong>
+                                        <Badge variant={user.accessLevel === 'Admin' ? 'destructive' : 'secondary'}>{user.accessLevel}</Badge>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
