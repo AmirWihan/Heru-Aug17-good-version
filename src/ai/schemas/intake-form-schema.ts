@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Defines the Zod schema and TypeScript types for the client intake form.
  * This schema is shared between multiple AI flows.
@@ -43,13 +44,6 @@ export const IntakeFormInputSchema = z.object({
     yearCompleted: z.string(),
     countryOfStudy: z.string(),
   })),
-   studyDetails: z.object({
-    schoolName: z.string(),
-    programName: z.string(),
-    dliNumber: z.string(),
-    tuitionFee: z.string(),
-    livingExpenses: z.string(),
-  }).optional(),
   workHistory: z.array(z.object({
     company: z.string(),
     position: z.string(),
