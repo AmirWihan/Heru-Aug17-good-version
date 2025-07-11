@@ -11,7 +11,7 @@ import { QuickBooksIcon } from "@/components/icons/QuickBooksIcon";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { DynamicLogoIcon } from "../icons/DynamicLogoIcon";
 import { Check, UploadCloud } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhatsappIcon } from "../icons/WhatsappIcon";
 import { plans, themes } from "@/lib/data";
@@ -21,7 +21,7 @@ import { GmailIcon } from "@/components/icons/GmailIcon";
 import { OutlookIcon } from "@/components/icons/OutlookIcon";
 
 export function PlatformSettingsPage() {
-    const { setWorkspaceLogo, theme, setTheme } = useGlobalData();
+    const { setWorkspaceLogo, theme, setTheme, userProfile } = useGlobalData();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -69,8 +69,9 @@ export function PlatformSettingsPage() {
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="general">
-                        <TabsList className="grid w-full grid-cols-3">
+                        <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="general">General</TabsTrigger>
+                            <TabsTrigger value="admin-account">Admin Account</TabsTrigger>
                             <TabsTrigger value="billing">Billing & Subscriptions</TabsTrigger>
                             <TabsTrigger value="integrations">Integrations</TabsTrigger>
                         </TabsList>
@@ -152,6 +153,43 @@ export function PlatformSettingsPage() {
                                             <p className="text-sm text-muted-foreground">Give all lawyer accounts access to AI features.</p>
                                         </div>
                                         <Switch defaultChecked />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="admin-account" className="mt-6 space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Admin Profile</CardTitle>
+                                    <CardDescription>Manage the main administrator account credentials.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="admin-name">Full Name</Label>
+                                        <Input id="admin-name" defaultValue={userProfile?.name} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="admin-email">Email Address</Label>
+                                        <Input id="admin-email" type="email" defaultValue={userProfile?.email} />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle>Change Password</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="current-password">Current Password</Label>
+                                        <Input id="current-password" type="password" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-password">New Password</Label>
+                                        <Input id="new-password" type="password" />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor="confirm-password">Confirm New Password</Label>
+                                        <Input id="confirm-password" type="password" />
                                     </div>
                                 </CardContent>
                             </Card>
