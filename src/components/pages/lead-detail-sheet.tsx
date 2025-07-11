@@ -60,7 +60,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
 
         const newActivity = {
             id: Date.now(),
-            type: activityTypes.find(t => t.id === newActivityType)?.label || 'Note' as 'Call' | 'Email' | 'Note',
+            type: (activityTypes.find(t => t.id === newActivityType)?.label || 'Note') as 'Call' | 'Email' | 'Note',
             notes: newActivityNotes,
             date: new Date(newActivityDate).toISOString(),
         };
