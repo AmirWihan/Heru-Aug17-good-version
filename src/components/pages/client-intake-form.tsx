@@ -88,7 +88,6 @@ export function ClientIntakeFormPage() {
             personal: { fullName: userProfile?.name || '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: userProfile?.email || '', phone: '', address: '' } },
             family: { maritalStatus: 'Single' },
             education: [{ institution: '', degree: '', yearCompleted: '', countryOfStudy: '' }],
-            studyDetails: { schoolName: '', programName: '', dliNumber: '', tuitionFee: '', livingExpenses: '' },
             workHistory: [{ company: '', position: '', duration: '', country: '' }],
             languageProficiency: { englishScores: { listening: 0, reading: 0, writing: 0, speaking: 0 }, frenchScores: { listening: 0, reading: 0, writing: 0, speaking: 0 } },
             travelHistory: [],
@@ -114,7 +113,7 @@ export function ClientIntakeFormPage() {
         setIsLoading(true);
         const data = form.getValues();
         try {
-            const analysis: IntakeFormAnalysis = await analyzeIntakeForm(data as IntakeFormInput);
+            const analysis = await analyzeIntakeForm(data);
             const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
 
             await updateUserProfile({ intakeForm });

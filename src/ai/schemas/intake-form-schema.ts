@@ -73,7 +73,7 @@ export const IntakeFormInputSchema = z.object({
     medicalIssuesDetails: z.string().optional(),
     hasOverstayed: z.enum(['yes', 'no']).optional(),
     overstayDetails: z.string().optional(),
-  }),
+  }).optional(),
 });
 
 export type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;
