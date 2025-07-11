@@ -17,11 +17,12 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useGlobalData, UserProfile } from '@/context/GlobalDataContext';
 import { plans, type TeamMember } from '@/lib/data';
-import { Switch } from '../ui/switch';
-import { Badge } from '../ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Checkbox } from '../ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const onboardingSchema = z.object({
     // Step 0
@@ -217,7 +218,7 @@ export function LawyerOnboarding() {
                                             <FormItem><FormLabel>Law Society License #</FormLabel><FormControl><Input placeholder="e.g., LSO-P12345" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="registrationNumber" render={({ field }) => (
-                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl></FormMessage>
+                                            <FormItem><FormLabel>ICCRC / CICC Registration #</FormLabel><FormControl><Input placeholder="e.g., R543210" {...field} value={field.value ?? ''} /></FormControl><FormMessage/></FormItem>
                                         )} />
                                     </div>
                                     <FormField control={form.control} name="governmentId" render={({ field: { onChange, onBlur, name, ref } }) => (
@@ -336,14 +337,14 @@ export function LawyerOnboarding() {
                                     <h3 className="font-semibold text-lg flex items-center"><CreditCard className="mr-2 h-5 w-5"/>Subscription Plan</h3>
                                      <FormField control={form.control} name="billingCycle" render={({ field }) => (
                                         <FormItem className="flex items-center justify-center gap-2 pt-2">
-                                            <FormLabel className={cn('transition-colors', field.value === 'monthly' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Monthly</FormLabel>
+                                            <Label className={cn('transition-colors', field.value === 'monthly' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Monthly</Label>
                                             <FormControl>
                                                 <Switch
                                                     checked={field.value === 'annually'}
                                                     onCheckedChange={(checked) => field.onChange(checked ? 'annually' : 'monthly')}
                                                 />
                                             </FormControl>
-                                            <FormLabel className={cn('transition-colors', field.value === 'annually' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Annually</FormLabel>
+                                            <Label className={cn('transition-colors', field.value === 'annually' ? 'text-foreground font-medium' : 'text-muted-foreground')}>Annually</Label>
                                             <Badge variant="success">Save 17%</Badge>
                                         </FormItem>
                                     )} />
@@ -352,7 +353,7 @@ export function LawyerOnboarding() {
                                             <FormControl>
                                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-center">
                                                     {plans.map((plan) => (
-                                                        <Card key={plan.id} onClick={() => field.onChange(plan.id)} className={cn('cursor-pointer flex flex-col', selectedPlanId === plan.id ? 'border-primary ring-2 ring-primary' : 'hover:shadow-md')}>
+                                                        <Card key={plan.id} onClick={() => field.onChange(plan.id as any)} className={cn('cursor-pointer flex flex-col', selectedPlanId === plan.id ? 'border-primary ring-2 ring-primary' : 'hover:shadow-md')}>
                                                             <CardHeader>
                                                                 <CardTitle>{plan.name}</CardTitle>
                                                                 <CardDescription className="min-h-[60px]">
@@ -360,7 +361,7 @@ export function LawyerOnboarding() {
                                                                         <>
                                                                             <span className="text-3xl font-bold text-foreground">${billingCycle === 'annually' ? Math.floor(plan.price.annually / 12) : plan.price.monthly}</span>
                                                                             <span className="text-muted-foreground">/mo</span>
-                                                                            {billingCycle === 'annually && <p className="text-xs text-primary">Billed as ${plan.price.annually} annually</p>}
+                                                                            {billingCycle === 'annually' && <p className="text-xs text-primary">Billed as ${plan.price.annually} annually</p>}
                                                                         </>
                                                                         : <span className="text-3xl font-bold text-foreground">Contact Us</span>
                                                                     }
@@ -410,7 +411,7 @@ export function LawyerOnboarding() {
                                                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                                 </FormControl>
                                                 <div className="space-y-1 leading-none">
-                                                    <FormLabel>
+                                                    <FormLabel className="text-sm font-normal">
                                                         I have read, understood, and agree to the Terms of Professional Responsibility. I acknowledge that I am solely responsible for all professional advice and decisions.
                                                     </FormLabel>
                                                     <FormMessage />
