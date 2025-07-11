@@ -89,7 +89,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             addTask(newTask); // Add to global tasks
         }
 
-        const updatedLead = {
+        const updatedLead: ClientLead = {
             ...lead,
             activity: updatedActivities,
             lastContacted: new Date().toISOString(),
