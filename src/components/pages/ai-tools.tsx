@@ -236,21 +236,8 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const apiInput: IntakeFormInput = {
-              ...client.intakeForm.data,
-              admissibility: {
-                ...client.intakeForm.data.admissibility,
-                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
-                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
-              },
-              immigrationHistory: {
-                  ...client.intakeForm.data.immigrationHistory,
-                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
-                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
-              },
-            };
-            const response = await buildResume(apiInput);
+            // Pass the data directly, as it matches the schema
+            const response = await buildResume(client.intakeForm.data);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -320,17 +307,6 @@ function CoverLetterBuilder() {
               jobTitle,
               companyName,
               jobDescription,
-              admissibility: {
-                ...client.intakeForm.data.admissibility,
-                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
-                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
-              },
-              immigrationHistory: {
-                  ...client.intakeForm.data.immigrationHistory,
-                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
-                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
-              },
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);
