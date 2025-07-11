@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { adminAppointmentsData } from '@/lib/data';
+import { adminAppointmentsData, type AdminAppointment } from '@/lib/data';
 import { format, isFuture, isPast } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '../ui/label';
@@ -17,9 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Appointment = typeof adminAppointmentsData[0];
-
-const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
+const AppointmentCard = ({ appointment }: { appointment: AdminAppointment }) => {
     return (
         <li className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-4">
@@ -46,7 +44,7 @@ export function AdminAppointmentsPage() {
     const [isScheduling, setIsScheduling] = useState(false);
     const { toast } = useToast();
     
-    const { upcomingAppointments, pastAppointments } = useMemo(() => {
+    const { upcomingAppointments, pastAppointments } = useMemo<{ upcomingAppointments: AdminAppointment[], pastAppointments: AdminAppointment[] }>(() => {
         const upcoming = appointments
             .filter(a => isFuture(new Date(a.dateTime)))
             .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
@@ -55,7 +53,7 @@ export function AdminAppointmentsPage() {
             .filter(a => isPast(new Date(a.dateTime)))
             .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 
-        return { upcomingAppointments, pastAppointments };
+        return { upcomingAppointments: upcoming, pastAppointments: past };
     }, [appointments]);
 
     const handleScheduleAppointment = () => {
