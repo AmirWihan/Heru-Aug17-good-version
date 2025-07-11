@@ -28,7 +28,7 @@ const AppointmentCard = ({ appointment }: { appointment: Appointment }) => {
                     <AvatarFallback>{appointment.firmName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <p className="font-semibold">{appointment.title} with {appointment.firmName}</p>
+                    <p className="font-semibold">{appointment.type} with {appointment.firmName}</p>
                     <p suppressHydrationWarning className="text-sm text-muted-foreground">{format(new Date(appointment.dateTime), "MMMM d, yyyy 'at' h:mm a")}</p>
                 </div>
             </div>
