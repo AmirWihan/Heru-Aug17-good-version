@@ -126,7 +126,7 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
           </Avatar>
           <div>
             <p className="font-semibold text-foreground">{userProfile?.name}</p>
-            <p className="text-xs text-muted-foreground">{userProfile?.role}</p>
+            <p className="text-xs text-muted-foreground">{teamMember?.role}</p>
           </div>
         </div>
 
