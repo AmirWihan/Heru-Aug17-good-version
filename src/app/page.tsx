@@ -10,6 +10,13 @@ import { useState } from 'react';
 import { Loader2, Shield, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 const adminUser = {
     name: 'Super Admin',
@@ -45,7 +52,6 @@ const RoleCard = ({
     description,
     onClick,
     isLoading,
-    isFullWidth = false,
 }: {
     className?: string;
     icon: React.ElementType;
@@ -53,12 +59,10 @@ const RoleCard = ({
     description: string;
     onClick: () => void;
     isLoading: boolean;
-    isFullWidth?: boolean;
 }) => (
     <Card
         className={cn(
             'text-white p-8 rounded-2xl flex flex-col justify-between shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1',
-            isFullWidth ? 'md:col-span-2' : '',
             className
         )}
     >
@@ -104,6 +108,7 @@ export default function UserSelectPage() {
                     description: `Could not log in as the ${role} user.`,
                     variant: 'destructive',
                 });
+                 setLoadingRole(null);
             }
         } catch (error) {
             console.error(error);
@@ -112,7 +117,6 @@ export default function UserSelectPage() {
                 description: "Something went wrong during login.",
                 variant: 'destructive',
             });
-        } finally {
             setLoadingRole(null);
         }
     };
@@ -123,6 +127,27 @@ export default function UserSelectPage() {
             <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent opacity-30 blur-3xl -translate-x-1/4"></div>
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-purple-200 via-indigo-100 to-transparent opacity-30 blur-3xl translate-x-1/4"></div>
             
+            <div className="absolute top-6 right-6 z-20">
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleLogin('admin')}
+                                disabled={loadingRole === 'admin'}
+                                className="bg-background/50 backdrop-blur-sm"
+                            >
+                                {loadingRole === 'admin' ? <Loader2 className="h-5 w-5 animate-spin" /> : <Shield className="h-5 w-5" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Super Admin Login</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
             <main className="w-full max-w-4xl space-y-8 z-10">
                 <div className="text-center mb-12">
                      <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground">Welcome to VisaFor</h1>
@@ -144,15 +169,6 @@ export default function UserSelectPage() {
                         description="Professional managing clients, cases, and their team within the CRM."
                          onClick={() => handleLogin('lawyer')}
                          isLoading={loadingRole === 'lawyer'}
-                    />
-                    <RoleCard
-                        className="bg-gradient-to-br from-slate-700 to-gray-800"
-                        icon={adminUser.icon}
-                        title="Super Admin"
-                        description="Platform administrator with global oversight and management tools."
-                        onClick={() => handleLogin('admin')}
-                        isLoading={loadingRole === 'admin'}
-                        isFullWidth={true}
                     />
                 </div>
                  <div className="text-center text-muted-foreground pt-4 text-sm">
