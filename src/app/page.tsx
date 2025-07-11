@@ -10,7 +10,6 @@ import { useState } from 'react';
 import { Loader2, Shield, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const adminUser = {
     name: 'Super Admin',
@@ -117,29 +116,6 @@ export default function UserSelectPage() {
 
     return (
         <div className="relative flex flex-col min-h-screen items-center justify-center bg-muted/20 p-4 overflow-hidden">
-            {/* Admin Login Button */}
-            <div className="absolute top-4 right-4 z-20">
-                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                             <Button
-                                variant="outline"
-                                size="icon"
-                                className="bg-background/50 backdrop-blur-sm rounded-full h-12 w-12"
-                                onClick={() => handleLogin('admin')}
-                                disabled={loadingRole === 'admin'}
-                                aria-label="Login as Super Admin"
-                            >
-                                {loadingRole === 'admin' ? <Loader2 className="h-5 w-5 animate-spin"/> : <Shield className="h-5 w-5" />}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Login as Super Admin</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-
             {/* Background Gradients */}
             <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent opacity-30 blur-3xl -translate-x-1/4"></div>
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-purple-200 via-indigo-100 to-transparent opacity-30 blur-3xl translate-x-1/4"></div>
@@ -167,8 +143,9 @@ export default function UserSelectPage() {
                          isLoading={loadingRole === 'lawyer'}
                     />
                 </div>
-                 <div className="text-center text-muted-foreground pt-4">
-                    <p>Or, <Link href="/login" className="font-semibold text-primary hover:underline">sign in manually</Link></p>
+                 <div className="text-center text-muted-foreground pt-4 text-sm">
+                    <p>Or, <Link href="/login" className="font-semibold text-primary hover:underline">sign in manually</Link>.</p>
+                    <p className="text-xs mt-1">(To access the admin portal, sign in with email: admin@heru.com)</p>
                 </div>
             </main>
         </div>
