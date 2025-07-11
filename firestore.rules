@@ -3,51 +3,39 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read their own profile.
-    // Creation is allowed for any authenticated user.
-    // Updates are restricted to the user themselves.
+    // Helper function to check if a user has a specific role
+    function hasRole(role) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.authRole == role;
+    }
+
+    // Admins can read all data but cannot write to prevent accidental changes.
+    // Write operations for admin should be handled via secure Cloud Functions.
+    match /{document=**} {
+      allow read: if request.auth != null && hasRole('admin');
+      allow write: if false; // Safeguard against accidental writes
+    }
+
+    // Users collection
     match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      // Users can read and update their own profile.
+      allow read, update: if request.auth.uid == userId;
+      // Allow creation of user profile document during registration.
       allow create: if request.auth != null;
     }
 
-    // Admins have full read/write access to all collections for management.
-    function isSuperAdmin() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.authRole == 'admin';
-    }
-
-    // Check if the requesting user is a member of the firm that owns the resource.
-    function isFirmMember(firmName) {
-      let userFirmName = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.firmName;
-      return userFirmName == firmName;
-    }
-
-    // Check if the user has Admin access level within their firm.
-    function isFirmAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accessLevel == 'Admin';
+    // Generic rule for collections where users should only access their own documents
+    // This could apply to collections like 'client_agreements', 'invoices', etc.
+    // assumes documents are keyed by userId or have a 'userId' field.
+    match /{collection}/{docId} {
+       // Example: if a document has a 'userId' field
+       allow read, write: if request.auth.uid == resource.data.userId;
     }
     
-    // Clients can only be accessed by members of their assigned firm or by Super Admins.
-    match /clients/{clientId} {
-      allow read, write: if isSuperAdmin() || isFirmMember(resource.data.firmName);
-    }
-
-    // Leads can be accessed by members of the assigned firm or Super Admins.
-    match /leads/{leadId} {
-      allow read, write: if isSuperAdmin() || isFirmMember(resource.data.firmName);
-    }
-    
-    // Tasks can be accessed by the assigned user or members of the client's firm.
-    match /tasks/{taskId} {
-      allow read, write: if isSuperAdmin() || request.auth.uid == resource.data.assignedTo.uid || isFirmMember(resource.data.client.firmName);
-    }
-
-    // All other collections are locked down by default unless explicitly allowed.
-    // Example for a 'notifications' collection
-    match /notifications/{notificationId} {
-      allow read: if request.auth != null; // Allow all authenticated users to read notifications
-      allow write: if isSuperAdmin(); // Only admins can create/update notifications
+    // Example for a shared collection like 'teamMembers' in a firm
+    match /teamMembers/{memberId} {
+        // Allow read if the user belongs to the same firm.
+        // This requires firmId to be stored on the user document.
+        allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.firmId == resource.data.firmId;
     }
   }
 }
