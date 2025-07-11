@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag, Save } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { analyzeIntakeForm, type IntakeFormAnalysis } from '@/ai/flows/intake-form-analyzer';
-import { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
+import { IntakeFormInput, IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { cn } from '@/lib/utils';
@@ -32,97 +32,7 @@ const familyMemberSchema = z.object({
     occupation: z.string().min(2, "Occupation is required."),
 });
 
-const intakeFormSchema = z.object({
-  personal: z.object({
-    fullName: z.string().min(2, "Full name is required."),
-    dateOfBirth: z.string().nonempty("Date of birth is required."),
-    countryOfBirth: z.string().min(2, "Country of birth is required."),
-    countryOfCitizenship: z.string().min(2, "Country of citizenship is required."),
-    passportNumber: z.string().min(6, "Valid passport number is required."),
-    passportExpiry: z.string().nonempty("Passport expiry date is required."),
-    height: z.string().min(2, "Height is required (e.g., 175cm or 5'9'')."),
-    eyeColor: z.string().min(3, "Eye color is required."),
-    contact: z.object({
-      email: z.string().email("A valid email is required."),
-      phone: z.string().min(10, "A valid phone number is required."),
-      address: z.string().min(10, "A valid address is required."),
-    }),
-  }),
-  family: z.object({
-    maritalStatus: z.enum(['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed']),
-    spouse: familyMemberSchema.optional(),
-    mother: familyMemberSchema.optional(),
-    father: familyMemberSchema.optional(),
-    children: z.array(familyMemberSchema).optional(),
-    siblings: z.array(familyMemberSchema).optional(),
-  }),
-  education: z.array(z.object({
-    institution: z.string().min(2, "Institution name is required."),
-    degree: z.string().min(2, "Degree/Diploma is required."),
-    yearCompleted: z.string().min(4, "Year must be 4 digits.").max(4),
-    countryOfStudy: z.string().min(2, "Country of study is required."),
-  })).min(1, "At least one education entry is required."),
-  studyDetails: z.object({
-    schoolName: z.string(),
-    programName: z.string(),
-    dliNumber: z.string(),
-    tuitionFee: z.string(),
-    livingExpenses: z.string(),
-  }).optional(),
-  workHistory: z.array(z.object({
-    company: z.string().min(2, "Company name is required."),
-    position: z.string().min(2, "Position is required."),
-    duration: z.string().min(1, "Duration is required."),
-    country: z.string().min(2, "Country is required."),
-  })).min(1, "At least one work history entry is required."),
-  languageProficiency: z.object({
-    englishScores: z.object({
-      listening: z.coerce.number().min(0).max(9),
-      reading: z.coerce.number().min(0).max(9),
-      writing: z.coerce.number().min(0).max(9),
-      speaking: z.coerce.number().min(0).max(9),
-    }).optional(),
-    frenchScores: z.object({
-      listening: z.coerce.number().min(0).max(9),
-      reading: z.coerce.number().min(0).max(9),
-      writing: z.coerce.number().min(0).max(9),
-      speaking: z.coerce.number().min(0).max(9),
-    }).optional(),
-  }),
-  travelHistory: z.array(z.object({
-    country: z.string().min(2, "Country is required."),
-    purpose: z.string().min(2, "Purpose of visit is required."),
-    duration: z.string().min(1, "Duration is required."),
-    year: z.string().min(4, "Year must be 4 digits.").max(4),
-  })),
-  immigrationHistory: z.object({
-    previouslyApplied: z.enum(['yes', 'no']),
-    previousApplicationDetails: z.string().optional(),
-    wasRefused: z.enum(['yes', 'no']),
-    refusalDetails: z.string().optional(),
-  }).refine(data => data.previouslyApplied === 'no' || (data.previouslyApplied === 'yes' && data.previousApplicationDetails), {
-    message: "Please provide details of your previous application.", path: ["previousApplicationDetails"]
-  }).refine(data => data.wasRefused === 'no' || (data.wasRefused === 'yes' && data.refusalDetails), {
-    message: "Please provide details of the refusal.", path: ["refusalDetails"]
-  }),
-  admissibility: z.object({
-    hasCriminalRecord: z.enum(['yes', 'no']),
-    criminalRecordDetails: z.string().optional(),
-    hasMedicalIssues: z.enum(['yes', 'no']),
-    medicalIssuesDetails: z.string().optional(),
-    hasOverstayed: z.enum(['yes', 'no']),
-    overstayDetails: z.string().optional(),
-  }).refine(data => data.hasCriminalRecord === 'no' || (data.hasCriminalRecord === 'yes' && data.criminalRecordDetails), {
-    message: "Please provide details of your criminal record.", path: ["criminalRecordDetails"]
-  }).refine(data => data.hasMedicalIssues === 'no' || (data.hasMedicalIssues === 'yes' && data.medicalIssuesDetails), {
-    message: "Please provide details of your medical issues.", path: ["medicalIssuesDetails"]
-  }).refine(data => data.hasOverstayed === 'no' || (data.hasOverstayed === 'yes' && data.overstayDetails), {
-    message: "Please provide details of your overstay.", path: ["overstayDetails"]
-  }),
-});
-
-
-type IntakeFormValues = z.infer<typeof intakeFormSchema>;
+type IntakeFormValues = z.infer<typeof IntakeFormInputSchema>;
 
 const steps = [
     { id: 'personal', name: 'Personal Details', fields: ['personal'] },
@@ -173,7 +83,7 @@ export function ClientIntakeFormPage() {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
     const form = useForm<IntakeFormValues>({
-        resolver: zodResolver(intakeFormSchema),
+        resolver: zodResolver(IntakeFormInputSchema),
         defaultValues: userProfile?.intakeForm?.data || {
             personal: { fullName: userProfile?.name || '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: userProfile?.email || '', phone: '', address: '' } },
             family: { maritalStatus: 'Single' },
@@ -204,21 +114,7 @@ export function ClientIntakeFormPage() {
         setIsLoading(true);
         const data = form.getValues();
         try {
-             const apiInput: IntakeFormInput = {
-              ...data,
-              admissibility: {
-                ...data.admissibility,
-                hasCriminalRecord: data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: data.admissibility.hasMedicalIssues === 'yes',
-                hasOverstayed: data.admissibility.hasOverstayed === 'yes',
-              },
-              immigrationHistory: {
-                  ...data.immigrationHistory,
-                  previouslyApplied: data.immigrationHistory.previouslyApplied === 'yes',
-                  wasRefused: data.immigrationHistory.wasRefused === 'yes',
-              },
-            };
-            const analysis: IntakeFormAnalysis = await analyzeIntakeForm(apiInput);
+            const analysis: IntakeFormAnalysis = await analyzeIntakeForm(data as IntakeFormInput);
             const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
 
             await updateUserProfile({ intakeForm });

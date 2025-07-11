@@ -15,7 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 // AI Flows
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
-import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/schemas/cover-letter-schema';
 import { type IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 import { Client } from '@/lib/data';
 
@@ -129,21 +129,7 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const apiInput: IntakeFormInput = {
-              ...client.intakeForm.data,
-              admissibility: {
-                ...client.intakeForm.data.admissibility,
-                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
-                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
-              },
-              immigrationHistory: {
-                  ...client.intakeForm.data.immigrationHistory,
-                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
-                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
-              },
-            };
-            const response = await buildResume(apiInput);
+            const response = await buildResume(client.intakeForm.data as IntakeFormInput);
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {
@@ -210,21 +196,10 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              ...client.intakeForm.data,
+              ...(client.intakeForm.data as IntakeFormInput),
               jobTitle,
               companyName,
               jobDescription,
-              admissibility: {
-                ...client.intakeForm.data.admissibility,
-                hasCriminalRecord: client.intakeForm.data.admissibility.hasCriminalRecord === 'yes',
-                hasMedicalIssues: client.intakeForm.data.admissibility.hasMedicalIssues === 'yes',
-                hasOverstayed: client.intakeForm.data.admissibility.hasOverstayed === 'yes',
-              },
-              immigrationHistory: {
-                  ...client.intakeForm.data.immigrationHistory,
-                  previouslyApplied: client.intakeForm.data.immigrationHistory.previouslyApplied === 'yes',
-                  wasRefused: client.intakeForm.data.immigrationHistory.wasRefused === 'yes',
-              },
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);
@@ -322,5 +297,3 @@ export function ClientAiAssistPage() {
         </div>
     );
 }
-
-    
