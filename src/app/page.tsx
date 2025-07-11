@@ -44,7 +44,8 @@ const RoleCard = ({
     title,
     description,
     onClick,
-    isLoading
+    isLoading,
+    isFullWidth = false,
 }: {
     className?: string;
     icon: React.ElementType;
@@ -52,10 +53,12 @@ const RoleCard = ({
     description: string;
     onClick: () => void;
     isLoading: boolean;
+    isFullWidth?: boolean;
 }) => (
     <Card
         className={cn(
-            'text-white p-8 rounded-2xl flex flex-col justify-between min-h-[300px] shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1',
+            'text-white p-8 rounded-2xl flex flex-col justify-between shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1',
+            isFullWidth ? 'md:col-span-2' : '',
             className
         )}
     >
@@ -142,10 +145,18 @@ export default function UserSelectPage() {
                          onClick={() => handleLogin('lawyer')}
                          isLoading={loadingRole === 'lawyer'}
                     />
+                    <RoleCard
+                        className="bg-gradient-to-br from-slate-700 to-gray-800"
+                        icon={adminUser.icon}
+                        title="Super Admin"
+                        description="Platform administrator with global oversight and management tools."
+                        onClick={() => handleLogin('admin')}
+                        isLoading={loadingRole === 'admin'}
+                        isFullWidth={true}
+                    />
                 </div>
                  <div className="text-center text-muted-foreground pt-4 text-sm">
                     <p>Or, <Link href="/login" className="font-semibold text-primary hover:underline">sign in manually</Link>.</p>
-                    <p className="text-xs mt-1">(Admin access via the shield icon in the header)</p>
                 </div>
             </main>
         </div>

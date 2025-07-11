@@ -11,27 +11,7 @@ import { useState } from 'react';
 
 export function MarketingHeader() {
   const router = useRouter();
-  const { login } = useGlobalData();
-  const { toast } = useToast();
-  const [isAdminLoading, setIsAdminLoading] = useState(false);
-
-  const handleAdminLogin = async () => {
-    setIsAdminLoading(true);
-    try {
-      const user = await login('admin@heru.com', 'password123');
-      if (user) {
-        toast({ title: 'Admin Login Successful' });
-        router.push('/dashboard-select');
-      } else {
-        toast({ title: 'Admin Login Failed', variant: 'destructive' });
-      }
-    } catch (error) {
-      toast({ title: 'An error occurred', variant: 'destructive' });
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-
+  
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -52,9 +32,6 @@ export function MarketingHeader() {
             Login
           </Button>
           <Button onClick={() => router.push('/register')}>Sign Up Free</Button>
-          <Button variant="outline" size="icon" onClick={handleAdminLogin} disabled={isAdminLoading} title="Admin Login">
-            <Shield className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </header>
