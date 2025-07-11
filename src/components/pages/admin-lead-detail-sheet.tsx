@@ -60,7 +60,7 @@ export function AdminLeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: 
 
         const newActivity = {
             id: Date.now(),
-            type: activityTypes.find(t => t.id === newActivityType)?.label || 'Note' as 'Call' | 'Email' | 'Note',
+            type: (activityTypes.find(t => t.id === newActivityType)?.label || 'Note') as 'Call' | 'Email' | 'Note',
             notes: newActivityNotes,
             date: new Date(newActivityDate).toISOString(),
         };
