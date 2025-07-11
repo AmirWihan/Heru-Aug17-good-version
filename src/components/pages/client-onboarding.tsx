@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { calculateCrsScore, CrsOutput } from '@/ai/flows/crs-calculator';
+import { calculateCrsScore, CrsInput, CrsOutput } from '@/ai/flows/crs-calculator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -119,12 +119,8 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
         setIsLoading(true);
         setResult(null);
 
-        const apiInput = {
+        const apiInput: CrsInput = {
             ...data,
-            studiedInCanada: data.studiedInCanada === 'yes',
-            hasJobOffer: data.hasJobOffer === 'yes',
-            hasProvincialNomination: data.hasProvincialNomination === 'yes',
-            hasSiblingInCanada: data.hasSiblingInCanada === 'yes',
             spouse: data.maritalStatus === 'married' ? data.spouse : undefined,
         };
 

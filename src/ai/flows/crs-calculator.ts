@@ -24,7 +24,7 @@ const CrsInputSchema = z.object({
   age: z.number().describe('The applicant\'s age in years.'),
   
   educationLevel: z.string().describe('The applicant\'s highest level of education.'),
-  studiedInCanada: z.boolean().describe('Whether the applicant has a Canadian degree, diploma or certificate.'),
+  studiedInCanada: z.enum(['yes', 'no']).describe('Whether the applicant has a Canadian degree, diploma or certificate.'),
 
   canadianWorkExperience: z.number().describe('Years of Canadian work experience.'),
   foreignWorkExperience: z.number().describe('Years of foreign work experience.'),
@@ -39,9 +39,9 @@ const CrsInputSchema = z.object({
     firstLanguageScores: LanguageScoresSchema.describe('Spouse\'s language test scores.'),
   }).optional().describe('Spouse/common-law partner\'s details, if applicable.'),
 
-  hasJobOffer: z.boolean().describe('Whether the applicant has a valid job offer in Canada.'),
-  hasProvincialNomination: z.boolean().describe('Whether the applicant has a provincial nomination.'),
-  hasSiblingInCanada: z.boolean().describe('Whether the applicant has a sibling living in Canada who is a citizen or permanent resident.'),
+  hasJobOffer: z.enum(['yes', 'no']).describe('Whether the applicant has a valid job offer in Canada.'),
+  hasProvincialNomination: z.enum(['yes', 'no']).describe('Whether the applicant has a provincial nomination.'),
+  hasSiblingInCanada: z.enum(['yes', 'no']).describe('Whether the applicant has a sibling living in Canada who is a citizen or permanent resident.'),
 });
 export type CrsInput = z.infer<typeof CrsInputSchema>;
 
