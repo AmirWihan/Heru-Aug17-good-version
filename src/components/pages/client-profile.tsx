@@ -464,10 +464,6 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     };
 
     const handleLogActivity = () => {
-        if (!userProfile) {
-            toast({ title: 'Error', description: 'You must be logged in to log activity.', variant: 'destructive' });
-            return;
-        }
         if (!newActivityType || !newActivityNotes) {
             toast({ title: 'Error', description: 'Please select an activity type and enter notes.', variant: 'destructive' });
             return;
@@ -482,7 +478,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             title: activityTypes.find(t => t.id === newActivityType)?.label || "Activity",
             description: newActivityNotes,
             timestamp: activityTimestamp,
-            teamMember: { name: userProfile.name, avatar: userProfile.avatar },
+            ...(userProfile && { teamMember: { name: userProfile.name, avatar: userProfile.avatar } }),
         };
         activitiesToAdd.push(newActivity);
 
@@ -515,7 +511,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 title: 'New Task Created',
                 description: `Task "${newTask.title}" assigned to ${assignee.name}.`,
                 timestamp: new Date().toISOString(),
-                teamMember: { name: userProfile.name, avatar: userProfile.avatar },
+                ...(userProfile && { teamMember: { name: userProfile.name, avatar: userProfile.avatar } }),
             };
             
             updatedClient = {
