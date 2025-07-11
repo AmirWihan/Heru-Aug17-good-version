@@ -65,24 +65,7 @@ const intakeFormAnalyzerFlow = ai.defineFlow(
     outputSchema: IntakeFormAnalysisSchema,
   },
   async input => {
-    // The schema now uses strings, so we convert them to booleans for the AI prompt logic.
-    // This is a safe transformation within the flow.
-    const analysisInput = {
-        ...input,
-        immigrationHistory: {
-            ...input.immigrationHistory,
-            previouslyApplied: input.immigrationHistory.previouslyApplied === 'yes',
-            wasRefused: input.immigrationHistory.wasRefused === 'yes',
-        },
-        admissibility: {
-            ...input.admissibility,
-            hasCriminalRecord: input.admissibility.hasCriminalRecord === 'yes',
-            hasMedicalIssues: input.admissibility.hasMedicalIssues === 'yes',
-            hasOverstayed: input.admissibility.hasOverstayed === 'yes',
-        },
-    };
-
-    const { output } = await prompt(analysisInput as any); // Cast as any to bypass internal type check after our transformation
+    const { output } = await prompt(input);
     return output!;
   }
 );
