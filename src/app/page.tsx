@@ -145,7 +145,7 @@ export default function UserSelectPage() {
                 </div>
                  <div className="text-center text-muted-foreground pt-4 text-sm">
                     <p>Or, <Link href="/login" className="font-semibold text-primary hover:underline">sign in manually</Link>.</p>
-                    <p className="text-xs mt-1">(To access the admin portal, sign in with email: admin@heru.com)</p>
+                    <p className="text-xs mt-1">(Access the admin portal via the shield icon in the header)</p>
                 </div>
             </main>
         </div>
