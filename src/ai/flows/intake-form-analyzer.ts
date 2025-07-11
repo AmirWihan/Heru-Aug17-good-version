@@ -45,8 +45,8 @@ const prompt = ai.definePrompt({
 
   Your analysis should focus on:
   1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline, family composition mismatch).
-  2.  **Inadmissibility:** Flag any answers that could lead to medical, criminal, or other inadmissibility. Give these a 'high' severity. Pay close attention to the 'admissibility' section.
-  3.  **Immigration History:** Pay close attention to previous applications and refusals. A past refusal is a significant flag that requires detailed explanation.
+  2.  **Inadmissibility:** Flag any answers that could lead to medical, criminal, or other inadmissibility. Give these a 'high' severity. Pay close attention to the 'admissibility' section where 'yes' indicates a potential issue.
+  3.  **Immigration History:** Pay close attention to previous applications and refusals. A 'yes' answer to a previous refusal is a significant flag that requires detailed explanation.
   4.  **Gaps in History:** Look for unexplained gaps in work or travel history.
   5.  **Completeness:** Identify areas that are incomplete or may require more detail for a successful application.
   6.  **Strengths & Weaknesses:** Briefly mention strong points (e.g., high education, Canadian work experience) or potential weak points (e.g., limited work experience, low language scores).
@@ -65,7 +65,24 @@ const intakeFormAnalyzerFlow = ai.defineFlow(
     outputSchema: IntakeFormAnalysisSchema,
   },
   async input => {
-    const { output } = await prompt(input);
+    // The schema now uses strings, so we convert them to booleans for the AI prompt logic.
+    // This is a safe transformation within the flow.
+    const analysisInput = {
+        ...input,
+        immigrationHistory: {
+            ...input.immigrationHistory,
+            previouslyApplied: input.immigrationHistory.previouslyApplied === 'yes',
+            wasRefused: input.immigrationHistory.wasRefused === 'yes',
+        },
+        admissibility: {
+            ...input.admissibility,
+            hasCriminalRecord: input.admissibility.hasCriminalRecord === 'yes',
+            hasMedicalIssues: input.admissibility.hasMedicalIssues === 'yes',
+            hasOverstayed: input.admissibility.hasOverstayed === 'yes',
+        },
+    };
+
+    const { output } = await prompt(analysisInput as any); // Cast as any to bypass internal type check after our transformation
     return output!;
   }
 );

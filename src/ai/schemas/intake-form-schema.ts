@@ -67,17 +67,17 @@ export const IntakeFormInputSchema = z.object({
     year: z.string(),
   })),
   immigrationHistory: z.object({
-    previouslyApplied: z.boolean(),
+    previouslyApplied: z.enum(['yes', 'no']),
     previousApplicationDetails: z.string().optional(),
-    wasRefused: z.boolean(),
+    wasRefused: z.enum(['yes', 'no']),
     refusalDetails: z.string().optional(),
   }),
   admissibility: z.object({
-    hasCriminalRecord: z.boolean(),
+    hasCriminalRecord: z.enum(['yes', 'no']),
     criminalRecordDetails: z.string().optional(),
-    hasMedicalIssues: z.boolean(),
+    hasMedicalIssues: z.enum(['yes', 'no']),
     medicalIssuesDetails: z.string().optional(),
-    hasOverstayed: z.boolean().optional(),
+    hasOverstayed: z.enum(['yes', 'no']).optional(),
     overstayDetails: z.string().optional(),
   }),
 });
