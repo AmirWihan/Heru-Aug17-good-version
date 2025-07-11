@@ -93,7 +93,6 @@ export function AdminLeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: 
             ...lead,
             activity: updatedActivities,
             lastContacted: new Date().toISOString(),
-            avatar: lead.avatar,
         };
 
         updateLead(updatedLead);
