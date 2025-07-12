@@ -45,7 +45,7 @@ const prompt = ai.definePrompt({
 
   **Client's Education:**
   {{#each clientEducation}}
-  - Degree: {{this.degree}}, Institution: {{this.institution}}, Year: {{this.yearCompleted}}, Country: {{this.countryOfStudy}}
+  - Degree: {{this.degree}}, Institution: {{this.institution}}, Year: {{this.year}}, Country: {{this.countryOfStudy}}
   {{/each}}
 
   **Job Description:**
