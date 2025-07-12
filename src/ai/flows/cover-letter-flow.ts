@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
 
   **Client Data:**
   \`\`\`json
-  {{{json this}}}
+  {{{json clientData}}}
   \`\`\`
 
   **Job Description:**

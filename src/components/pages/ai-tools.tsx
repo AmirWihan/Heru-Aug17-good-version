@@ -236,8 +236,7 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            // Pass the data directly, as it matches the schema
-            const response = await buildResume(client.intakeForm.data);
+            const response = await buildResume(client.intakeForm.data as IntakeFormInput);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -303,7 +302,7 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              ...client.intakeForm.data,
+              clientData: client.intakeForm.data as IntakeFormInput,
               jobTitle,
               companyName,
               jobDescription,

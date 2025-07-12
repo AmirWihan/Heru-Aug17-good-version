@@ -196,7 +196,7 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              ...(client.intakeForm.data as IntakeFormInput),
+              clientData: client.intakeForm.data as IntakeFormInput,
               jobTitle,
               companyName,
               jobDescription,

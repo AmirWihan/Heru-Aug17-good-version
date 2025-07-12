@@ -4,13 +4,12 @@
 import { z } from 'zod';
 import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
-const CoverLetterJobDetailsSchema = z.object({
+export const BuildCoverLetterInputSchema = z.object({
   jobTitle: z.string().describe("The title of the job being applied for."),
   companyName: z.string().describe("The name of the company."),
   jobDescription: z.string().describe("The full job description."),
+  clientData: IntakeFormInputSchema.describe("The client's full intake form data."),
 });
-
-export const BuildCoverLetterInputSchema = IntakeFormInputSchema.merge(CoverLetterJobDetailsSchema);
 export type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;
 
 export const BuildCoverLetterOutputSchema = z.object({
