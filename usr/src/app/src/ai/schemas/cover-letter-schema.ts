@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Defines the Zod schema and TypeScript types for the cover letter builder AI flow.
  */
@@ -8,11 +9,9 @@ export const BuildCoverLetterInputSchema = z.object({
   jobTitle: z.string().describe("The title of the job being applied for."),
   companyName: z.string().describe("The name of the company."),
   jobDescription: z.string().describe("The full job description."),
-  clientData: z.object({
-    fullName: z.string(),
-    workHistory: IntakeFormInputSchema.shape.workHistory,
-    education: IntakeFormInputSchema.shape.education,
-  }).describe("The client's relevant career and education data."),
+  clientName: z.string().describe("The client's full name."),
+  clientWorkHistory: IntakeFormInputSchema.shape.workHistory,
+  clientEducation: IntakeFormInputSchema.shape.education,
 });
 export type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;
 
