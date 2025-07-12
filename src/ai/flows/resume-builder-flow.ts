@@ -10,15 +10,14 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-import { type IntakeFormInput, IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
+import {
+    BuildResumeInputSchema,
+    BuildResumeOutputSchema,
+    type BuildResumeInput,
+    type BuildResumeOutput,
+} from '@/ai/schemas/resume-builder-schema';
 
-export type BuildResumeInput = IntakeFormInput;
-
-const BuildResumeOutputSchema = z.object({
-  resumeText: z.string().describe('The generated resume in Markdown format.'),
-});
-export type BuildResumeOutput = z.infer<typeof BuildResumeOutputSchema>;
+export { type BuildResumeInput, type BuildResumeOutput };
 
 export async function buildResume(input: BuildResumeInput): Promise<BuildResumeOutput> {
   return resumeBuilderFlow(input);
@@ -26,7 +25,7 @@ export async function buildResume(input: BuildResumeInput): Promise<BuildResumeO
 
 const prompt = ai.definePrompt({
   name: 'resumeBuilderPrompt',
-  input: { schema: IntakeFormInputSchema },
+  input: { schema: BuildResumeInputSchema },
   output: { schema: BuildResumeOutputSchema },
   prompt: `You are an expert resume writer specializing in creating professional resumes for the Canadian job market. Generate a resume in Markdown format based on the following client data.
 
@@ -43,10 +42,21 @@ const prompt = ai.definePrompt({
   - For education, list the most recent degree first.
   - Add a "Skills" section summarizing key technical and soft skills.
 
-  Client Data:
-  \`\`\`json
-  {{{json this}}}
-  \`\`\`
+  **Client Name:** {{{clientName}}}
+  **Contact:**
+  - Email: {{{clientContact.email}}}
+  - Phone: {{{clientContact.phone}}}
+  - Address: {{{clientContact.address}}}
+
+  **Work History:**
+  {{#each clientWorkHistory}}
+  - **{{this.position}}** at {{this.company}} ({{this.country}}) - *{{this.duration}}*
+  {{/each}}
+  
+  **Education:**
+  {{#each clientEducation}}
+  - **{{this.degree}}**, {{this.institution}} ({{this.countryOfStudy}}) - *Completed {{this.yearCompleted}}*
+  {{/each}}
 
   Generate a complete resume based on this data. Pay close attention to the work history and education sections to create a compelling professional narrative.
   `,
@@ -55,7 +65,7 @@ const prompt = ai.definePrompt({
 const resumeBuilderFlow = ai.defineFlow(
   {
     name: 'resumeBuilderFlow',
-    inputSchema: IntakeFormInputSchema,
+    inputSchema: BuildResumeInputSchema,
     outputSchema: BuildResumeOutputSchema,
   },
   async input => {
