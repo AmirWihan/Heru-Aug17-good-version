@@ -160,7 +160,7 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
                                         </FormItem>
                                     )} />
                                     <FormField control={form.control} name="age" render={({ field }) => (
-                                        <FormItem><FormLabel>What is your age?</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>What is your age?</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                             )}
@@ -231,18 +231,18 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
                                     <Separator />
                                     <h4 className="font-medium">English Test Scores (IELTS General)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField control={form.control} name="englishScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="englishScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="englishScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="englishScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="englishScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                     <Separator />
                                     <h4 className="font-medium">French Test Scores (TEF)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField control={form.control} name="frenchScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="frenchScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="frenchScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="frenchScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="frenchScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                 </div>
                             )}
@@ -276,10 +276,10 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
                                     )} />
                                     <h4 className="font-medium">Spouse's First Language Test Scores (IELTS)</h4>
                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <FormField control={form.control} name="spouse.firstLanguageScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="spouse.firstLanguageScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="spouse.firstLanguageScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="spouse.firstLanguageScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.listening" render={({ field }) => (<FormItem><FormLabel>Listening</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.reading" render={({ field }) => (<FormItem><FormLabel>Reading</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.writing" render={({ field }) => (<FormItem><FormLabel>Writing</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="spouse.firstLanguageScores.speaking" render={({ field }) => (<FormItem><FormLabel>Speaking</FormLabel><FormControl><Input type="number" step="0.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                 </div>
                             )}
