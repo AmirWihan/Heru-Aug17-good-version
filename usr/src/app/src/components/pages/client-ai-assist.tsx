@@ -16,7 +16,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
 import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
-import { type IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 import { Client } from '@/lib/data';
 
 const WRITING_ASSISTANT_COST = 5;
@@ -129,7 +128,12 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const response = await buildResume(client.intakeForm.data);
+            const response = await buildResume({
+                clientName: client.intakeForm.data.personal.fullName,
+                clientContact: client.intakeForm.data.personal.contact,
+                clientWorkHistory: client.intakeForm.data.workHistory,
+                clientEducation: client.intakeForm.data.education,
+            });
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {
@@ -196,14 +200,10 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              jobTitle,
-              companyName,
-              jobDescription,
-              clientData: {
-                fullName: client.intakeForm.data.personal.fullName,
-                workHistory: client.intakeForm.data.workHistory,
-                education: client.intakeForm.data.education,
-              }
+                jobTitle,
+                companyName,
+                jobDescription,
+                clientData: client.intakeForm.data,
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);

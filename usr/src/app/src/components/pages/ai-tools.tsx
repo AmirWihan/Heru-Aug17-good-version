@@ -13,15 +13,11 @@ import { Loader2, Sparkles, Wand2, Briefcase, FileText, PencilRuler, CaseSensiti
 import { applicationChecker, ApplicationCheckerOutput } from '@/ai/flows/application-checker';
 import { summarizeDocument, SummarizeDocumentOutput } from '@/ai/flows/document-summarization';
 import { composeMessage, ComposeMessageOutput } from '@/ai/flows/ai-assisted-messaging';
-import { buildResume } from '@/ai/flows/resume-builder-flow';
-import type { BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
-import { buildCoverLetter } from '@/ai/flows/cover-letter-flow';
-import type { BuildCoverLetterOutput } from '@/ai/schemas/cover-letter-schema';
-import { assistWithWriting } from '@/ai/flows/writing-assistant-flow';
-import type { WritingAssistantOutput } from '@/ai/schemas/writing-assistant-schema';
+import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
+import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -236,7 +232,12 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const response = await buildResume(client.intakeForm.data);
+            const response = await buildResume({
+                clientName: client.intakeForm.data.personal.fullName,
+                clientContact: client.intakeForm.data.personal.contact,
+                clientWorkHistory: client.intakeForm.data.workHistory,
+                clientEducation: client.intakeForm.data.education,
+            });
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -302,14 +303,12 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              jobTitle,
-              companyName,
-              jobDescription,
-              clientData: {
-                fullName: client.intakeForm.data.personal.fullName,
-                workHistory: client.intakeForm.data.workHistory,
-                education: client.intakeForm.data.education,
-              }
+                jobTitle,
+                companyName,
+                jobDescription,
+                clientName: client.intakeForm.data.personal.fullName,
+                clientWorkHistory: client.intakeForm.data.workHistory,
+                clientEducation: client.intakeForm.data.education,
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);
