@@ -29,16 +29,19 @@ const IntakeFormAnalysisSchema = z.object({
 export type IntakeFormAnalysis = z.infer<typeof IntakeFormAnalysisSchema>;
 
 export async function analyzeIntakeForm(input: IntakeFormInput): Promise<IntakeFormAnalysis> {
-  return intakeFormAnalyzerFlow(input);
+  // Stringify the complex object to pass it to the flow safely.
+  const result = await intakeFormAnalyzerFlow(JSON.stringify(input));
+  return result;
 }
 
 const prompt = ai.definePrompt({
   name: 'intakeFormAnalyzerPrompt',
-  input: { schema: IntakeFormInputSchema },
+  // The prompt now takes a simple string.
+  input: { schema: z.string() },
   output: { schema: IntakeFormAnalysisSchema },
   prompt: `You are an expert Canadian immigration case analyst. Your task is to review a client's submitted intake form data and identify any potential issues, red flags, or areas that require further clarification.
 
-  Analyze the following client data:
+  Analyze the following client data, which is provided as a JSON string:
   \`\`\`json
   {{{json this}}}
   \`\`\`
@@ -58,14 +61,15 @@ const prompt = ai.definePrompt({
   `,
 });
 
+// This flow is now internal and only accepts a string.
 const intakeFormAnalyzerFlow = ai.defineFlow(
   {
     name: 'intakeFormAnalyzerFlow',
-    inputSchema: IntakeFormInputSchema,
+    inputSchema: z.string(),
     outputSchema: IntakeFormAnalysisSchema,
   },
-  async input => {
-    const { output } = await prompt(input);
+  async (jsonString) => {
+    const { output } = await prompt(jsonString);
     return output!;
   }
 );

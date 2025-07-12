@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag, Save } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { analyzeIntakeForm, type IntakeFormAnalysis } from '@/ai/flows/intake-form-analyzer';
-import { IntakeFormInput, IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
+import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { cn } from '@/lib/utils';
@@ -391,13 +389,12 @@ export function ClientIntakeFormPage() {
                     <CardFooter className="flex justify-between border-t pt-6">
                         <Button variant="ghost" onClick={prev} disabled={currentStep === 0} type="button"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
                         <div className="flex gap-2">
-                            <Button variant="secondary" onClick={processAndSave} disabled={isLoading}>
+                            <Button variant="secondary" onClick={processAndSave} disabled={isLoading} type="button">
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
                                 Save Progress
                             </Button>
                             <Button onClick={next} type="button">
-                                {currentStep >= steps.length - 1 ? 'Finish' : 'Next Step'}
-                                {currentStep < steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
+                                {currentStep >= steps.length - 1 ? <><CheckCircle className="mr-2 h-4 w-4" />Finish & Submit</> : <>Next Step <ArrowRight className="ml-2 h-4 w-4" /></>}
                             </Button>
                         </div>
                     </CardFooter>
