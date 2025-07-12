@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { calculateCrsScore, CrsInput, CrsOutput } from '@/ai/flows/crs-calculator';
+import { calculateCrsScore, CrsInputSchema, CrsOutput } from '@/ai/flows/crs-calculator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -21,45 +21,7 @@ import { Label } from '@/components/ui/label';
 import { useGlobalData } from '@/context/GlobalDataContext';
 
 
-const crsSchema = z.object({
-    maritalStatus: z.enum(['single', 'married'], { required_error: 'Please select your marital status.' }),
-    age: z.coerce.number().min(17, 'Must be at least 17').max(60, 'Must be 60 or younger'),
-    
-    educationLevel: z.string({ required_error: 'Please select an education level.' }),
-    studiedInCanada: z.enum(['yes', 'no']),
-
-    canadianWorkExperience: z.coerce.number().min(0).max(10),
-    foreignWorkExperience: z.coerce.number().min(0).max(10),
-    
-    firstLanguage: z.enum(['english', 'french']),
-    englishScores: z.object({
-        listening: z.coerce.number().min(0).max(9),
-        reading: z.coerce.number().min(0).max(9),
-        writing: z.coerce.number().min(0).max(9),
-        speaking: z.coerce.number().min(0).max(9),
-    }),
-    frenchScores: z.object({
-        listening: z.coerce.number().min(0).max(9),
-        reading: z.coerce.number().min(0).max(9),
-        writing: z.coerce.number().min(0).max(9),
-        speaking: z.coerce.number().min(0).max(9),
-    }),
-    
-    spouse: z.object({
-        educationLevel: z.string({ required_error: "Spouse's education is required." }),
-        canadianWorkExperience: z.coerce.number().min(0).max(10),
-        firstLanguageScores: z.object({
-            listening: z.coerce.number().min(0).max(9),
-            reading: z.coerce.number().min(0).max(9),
-            writing: z.coerce.number().min(0).max(9),
-            speaking: z.coerce.number().min(0).max(9),
-        }),
-    }).optional(),
-
-    hasJobOffer: z.enum(['yes', 'no']),
-    hasProvincialNomination: z.enum(['yes', 'no']),
-    hasSiblingInCanada: z.enum(['yes', 'no']),
-}).refine(data => {
+const crsSchema = CrsInputSchema.refine(data => {
     if (data.maritalStatus === 'married') {
         return !!data.spouse;
     }
@@ -119,13 +81,8 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
         setIsLoading(true);
         setResult(null);
 
-        const apiInput: CrsInput = {
-            ...data,
-            spouse: data.maritalStatus === 'married' ? data.spouse : undefined,
-        };
-
         try {
-            const response = await calculateCrsScore(apiInput);
+            const response = await calculateCrsScore(data);
             setResult(response);
             setCurrentStep(steps.length);
             

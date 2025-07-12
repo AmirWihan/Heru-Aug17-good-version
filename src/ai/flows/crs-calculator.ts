@@ -19,7 +19,7 @@ const LanguageScoresSchema = z.object({
   speaking: z.number().min(0).max(9),
 });
 
-const CrsInputSchema = z.object({
+export const CrsInputSchema = z.object({
   maritalStatus: z.enum(['single', 'married']).describe('The applicant\'s marital status.'),
   age: z.number().describe('The applicant\'s age in years.'),
   
@@ -59,16 +59,17 @@ const CrsOutputSchema = z.object({
 export type CrsOutput = z.infer<typeof CrsOutputSchema>;
 
 export async function calculateCrsScore(input: CrsInput): Promise<CrsOutput> {
-  return crsCalculatorFlow(input);
+  const jsonString = JSON.stringify(input);
+  return crsCalculatorFlow(jsonString);
 }
 
 const prompt = ai.definePrompt({
   name: 'crsCalculatorPrompt',
-  input: { schema: CrsInputSchema },
+  input: { schema: z.string() }, // Expects a JSON string
   output: { schema: CrsOutputSchema },
   prompt: `You are an expert Canadian immigration consultant specializing in the Express Entry Comprehensive Ranking System (CRS). Your task is to calculate a user's CRS score with perfect accuracy based on the official IRCC guidelines. The maximum possible score is 1200.
 
-  Carefully analyze the user's input and calculate their total CRS score.
+  Carefully analyze the user's input from the provided JSON string and calculate their total CRS score.
   
   You must provide a breakdown of the score for each of the following sections according to the latest official IRCC rules:
   1.  **Core / Human Capital Factors:** Based on age, education, language proficiency (first and second), and Canadian work experience. The maximum points for a single applicant is 500.
@@ -86,35 +87,19 @@ const prompt = ai.definePrompt({
   
   Finally, provide a brief, helpful, and encouraging feedback summary for the user. Mention their strengths and potential areas for improvement (e.g., improving language scores, gaining more work experience).
 
-  User Input:
-  - Marital Status: {{{maritalStatus}}}
-  - Age: {{{age}}}
-  - Education: {{{educationLevel}}}
-  - Studied in Canada: {{{studiedInCanada}}}
-  - Canadian Work Experience: {{{canadianWorkExperience}}} years
-  - Foreign Work Experience: {{{foreignWorkExperience}}} years
-  - First Official Language: {{{firstLanguage}}}
-  - English Scores (L/R/W/S): {{#if englishScores}}{{englishScores.listening}}/{{englishScores.reading}}/{{englishScores.writing}}/{{englishScores.speaking}}{{else}}N/A{{/if}}
-  - French Scores (L/R/W/S): {{#if frenchScores}}{{frenchScores.listening}}/{{frenchScores.reading}}/{{frenchScores.writing}}/{{frenchScores.speaking}}{{else}}N/A{{/if}}
-  - Has Job Offer: {{{hasJobOffer}}}
-  - Has Provincial Nomination: {{{hasProvincialNomination}}}
-  - Has Sibling in Canada: {{{hasSiblingInCanada}}}
-  {{#if spouse}}
-  - Spouse Education: {{{spouse.educationLevel}}}
-  - Spouse Canadian Work Experience: {{{spouse.canadianWorkExperience}}} years
-  - Spouse Language Scores (L/R/W/S): {{spouse.firstLanguageScores.listening}}/{{spouse.firstLanguageScores.reading}}/{{spouse.firstLanguageScores.writing}}/{{spouse.firstLanguageScores.speaking}}
-  {{/if}}
+  User Input (JSON):
+  {{{json this}}}
   `,
 });
 
 const crsCalculatorFlow = ai.defineFlow(
   {
     name: 'crsCalculatorFlow',
-    inputSchema: CrsInputSchema,
+    inputSchema: z.string(), // Input is a JSON string
     outputSchema: CrsOutputSchema,
   },
-  async input => {
-    const { output } = await prompt(input);
+  async (jsonString) => {
+    const { output } = await prompt(jsonString);
     return output!;
   }
 );
