@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft, CheckCircle, HelpCircle, Send, PlusCircle, Trash2, Flag, Save } from 'lucide-react';
 import { useGlobalData } from '@/context/GlobalDataContext';
-import { analyzeIntakeForm, type IntakeFormAnalysis } from '@/ai/flows/intake-form-analyzer';
+import { intakeFormAnalyzerFlow } from '@/ai/flows/intake-form-analyzer';
 import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
@@ -111,7 +111,7 @@ export function ClientIntakeFormPage() {
         setIsLoading(true);
         const data = form.getValues();
         try {
-            const analysis = await analyzeIntakeForm(data);
+            const analysis = await intakeFormAnalyzerFlow(JSON.stringify(data));
             const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
 
             await updateUserProfile({ intakeForm });

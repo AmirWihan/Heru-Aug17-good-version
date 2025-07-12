@@ -3,14 +3,12 @@
 /**
  * @fileOverview An AI agent that analyzes a client's intake form for potential issues.
  *
- * - analyzeIntakeForm - A function that handles the intake form analysis.
+ * - intakeFormAnalyzerFlow - The Genkit flow that handles the intake form analysis.
  * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { IntakeFormInputSchema, type IntakeFormInput } from '@/ai/schemas/intake-form-schema';
-
 
 const FlagSchema = z.object({
   severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),
@@ -28,14 +26,9 @@ const IntakeFormAnalysisSchema = z.object({
 });
 export type IntakeFormAnalysis = z.infer<typeof IntakeFormAnalysisSchema>;
 
-export async function analyzeIntakeForm(input: IntakeFormInput): Promise<IntakeFormAnalysis> {
-  const result = await intakeFormAnalyzerFlow(JSON.stringify(input));
-  return result;
-}
-
 const prompt = ai.definePrompt({
   name: 'intakeFormAnalyzerPrompt',
-  input: { schema: z.string() },
+  input: { schema: z.string() }, // Expects a JSON string
   output: { schema: IntakeFormAnalysisSchema },
   prompt: `You are an expert Canadian immigration case analyst. Your task is to review a client's submitted intake form data and identify any potential issues, red flags, or areas that require further clarification.
 
@@ -59,10 +52,10 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const intakeFormAnalyzerFlow = ai.defineFlow(
+export const intakeFormAnalyzerFlow = ai.defineFlow(
   {
     name: 'intakeFormAnalyzerFlow',
-    inputSchema: z.string(),
+    inputSchema: z.string(), // Input is a JSON string
     outputSchema: IntakeFormAnalysisSchema,
   },
   async (jsonString) => {
