@@ -8,11 +8,7 @@ export const BuildCoverLetterInputSchema = z.object({
   jobTitle: z.string().describe("The title of the job being applied for."),
   companyName: z.string().describe("The name of the company."),
   jobDescription: z.string().describe("The full job description."),
-  clientData: z.object({
-    fullName: z.string(),
-    workHistory: IntakeFormInputSchema.shape.workHistory,
-    education: IntakeFormInputSchema.shape.education,
-  }).describe("The client's relevant career and education data."),
+  clientData: IntakeFormInputSchema.describe("The client's full intake form data."),
 });
 export type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;
 

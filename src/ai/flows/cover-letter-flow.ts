@@ -29,7 +29,7 @@ const prompt = ai.definePrompt({
 
   **Instructions:**
   1.  **Address the Company:** Start with a professional salutation addressed to the hiring manager at {{{companyName}}}. If no specific name is available, use a general title.
-  2.  **Introduction:** State the position being applied for ({{{jobTitle}}}) and where it was seen. Briefly introduce the client, {{{clientData.fullName}}}, and express enthusiasm.
+  2.  **Introduction:** State the position being applied for ({{{jobTitle}}}) and where it was seen. Briefly introduce the client, {{{clientData.personal.fullName}}}, and express enthusiasm.
   3.  **Body Paragraphs:**
       *   Analyze the client's work history and skills from their data.
       *   Compare these with the requirements in the job description.
