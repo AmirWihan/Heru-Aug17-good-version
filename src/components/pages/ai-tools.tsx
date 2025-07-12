@@ -236,7 +236,7 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const response = await buildResume(client.intakeForm.data as IntakeFormInput);
+            const response = await buildResume(client.intakeForm.data);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -302,10 +302,14 @@ function CoverLetterBuilder() {
 
          try {
              const apiInput = {
-              clientData: client.intakeForm.data as IntakeFormInput,
               jobTitle,
               companyName,
               jobDescription,
+              clientData: {
+                fullName: client.intakeForm.data.personal.fullName,
+                workHistory: client.intakeForm.data.workHistory,
+                education: client.intakeForm.data.education,
+              }
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);
