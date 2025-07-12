@@ -232,12 +232,13 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const response = await buildResume({
+            const apiInput = {
                 clientName: client.intakeForm.data.personal.fullName,
                 clientContact: client.intakeForm.data.personal.contact,
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
-            });
+            };
+            const response = await buildResume(apiInput);
             setResult(response);
         } catch (error) {
             console.error(error);

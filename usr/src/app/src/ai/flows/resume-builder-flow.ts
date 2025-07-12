@@ -68,7 +68,7 @@ const resumeBuilderFlow = ai.defineFlow(
     inputSchema: BuildResumeInputSchema,
     outputSchema: BuildResumeOutputSchema,
   },
-  async input => {
+  async (input) => {
     const { output } = await prompt(input);
     return output!;
   }
