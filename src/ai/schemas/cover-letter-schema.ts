@@ -5,6 +5,8 @@
 import { z } from 'zod';
 import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
+// This new schema only accepts the specific fields needed by the prompt,
+// preventing the serialization of the entire large intake form object.
 export const BuildCoverLetterInputSchema = z.object({
   jobTitle: z.string().describe("The title of the job being applied for."),
   companyName: z.string().describe("The name of the company."),
