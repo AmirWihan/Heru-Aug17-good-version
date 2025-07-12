@@ -36,11 +36,12 @@ const prompt = ai.definePrompt({
 
   Based on the provided context, generate a message for the client.
   The message should be professional, personalized, and tailored to the context.
-  Take into account the desired tone when composing the message.
+  {{#if tone}}
+  Take into account the desired tone of "{{{tone}}}" when composing the message.
+  {{/if}}
 
   Client Name: {{{clientName}}}
   Context: {{{messageContext}}}
-  Tone: {{{tone}}}
 
   Message:`, 
 });

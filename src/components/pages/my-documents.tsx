@@ -31,52 +31,44 @@ const getStatusBadgeVariant = (status: ClientDocument['status']) => {
     }
 };
 
-const DocumentItem = ({ doc, onSelect, isSelected }: { doc: ClientDocument, onSelect: () => void, isSelected: boolean }) => {
+const DocumentItem = ({ doc, onSelect, isSelected, onViewClick }: { doc: ClientDocument, onSelect: () => void, isSelected: boolean, onViewClick: () => void }) => {
     const { toast } = useToast();
-    const [isViewerOpen, setIsViewerOpen] = useState(false);
 
     return (
-        <>
-            <div
-                onClick={onSelect}
-                className={cn(
-                    "flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all",
-                    isSelected ? "bg-muted ring-2 ring-primary" : "hover:bg-muted/50"
-                )}
-            >
-                <FileText className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                    <p className="font-semibold">{doc.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                        <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
-                        {doc.isAiFilled && (
-                            <Badge variant="outline" className="text-primary border-primary/50">
-                                <Sparkles className="h-3 w-3 mr-1.5" />
-                                AI Pre-filled
-                            </Badge>
-                        )}
-                    </div>
-                </div>
-                <div className="flex items-center gap-1">
-                    {(doc.status === 'Uploaded' || doc.status === 'Pending Review' || doc.status === 'Approved' || doc.status === 'Pending Client Review') && (
-                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setIsViewerOpen(true); }}><Eye className="h-4 w-4" /></Button>
+        <div
+            onClick={onSelect}
+            className={cn(
+                "flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all",
+                isSelected ? "bg-muted ring-2 ring-primary" : "hover:bg-muted/50"
+            )}
+        >
+            <FileText className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+            <div className="flex-1">
+                <p className="font-semibold">{doc.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                    <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
+                    {doc.isAiFilled && (
+                        <Badge variant="outline" className="text-primary border-primary/50">
+                            <Sparkles className="h-3 w-3 mr-1.5" />
+                            AI Pre-filled
+                        </Badge>
                     )}
-                    {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: "Downloading...", description: `${doc.title}.pdf` })}}><Download className="h-4 w-4" /></Button>}
-                    {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
                 </div>
             </div>
-            <DocumentViewer
-                isOpen={isViewerOpen}
-                onOpenChange={setIsViewerOpen}
-                document={doc}
-            />
-        </>
+            <div className="flex items-center gap-1">
+                {(doc.status === 'Uploaded' || doc.status === 'Pending Review' || doc.status === 'Approved' || doc.status === 'Pending Client Review') && (
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onViewClick(); }}><Eye className="h-4 w-4" /></Button>
+                )}
+                {doc.status !== 'Requested' && <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: "Downloading...", description: `${doc.title}.pdf` })}}><Download className="h-4 w-4" /></Button>}
+                {doc.status === 'Requested' && <Button size="sm"><Upload className="mr-2 h-4 w-4" />Upload</Button>}
+            </div>
+        </div>
     );
 }
 
 export function MyDocumentsPage() {
     const { userProfile, updateClient } = useGlobalData();
-    const client = userProfile as Client; // We know this page is for clients
+    const client = userProfile as Client;
     const { toast } = useToast();
     
     const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
@@ -84,6 +76,7 @@ export function MyDocumentsPage() {
     const [newDocTitle, setNewDocTitle] = useState('');
     const [newDocType, setNewDocType] = useState<'form' | 'supporting'>('supporting');
     const [newDocCategory, setNewDocCategory] = useState('');
+    const [viewingDocument, setViewingDocument] = useState<ClientDocument | null>(null);
 
     useEffect(() => {
         if (client?.documents && client.documents.length > 0) {
@@ -149,12 +142,12 @@ export function MyDocumentsPage() {
                                 </TabsList>
                                 <TabsContent value="forms" className="mt-4 space-y-3">
                                     {officialForms.map(doc => (
-                                        <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} />
+                                        <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} onViewClick={() => setViewingDocument(doc)}/>
                                     ))}
                                 </TabsContent>
                                 <TabsContent value="supporting" className="mt-4 space-y-3">
                                     {supportingDocs.map(doc => (
-                                        <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} />
+                                        <DocumentItem key={doc.id} doc={doc} onSelect={() => setSelectedDocument(doc)} isSelected={selectedDocument?.id === doc.id} onViewClick={() => setViewingDocument(doc)}/>
                                     ))}
                                 </TabsContent>
                             </Tabs>
@@ -220,6 +213,12 @@ export function MyDocumentsPage() {
                     </Card>
                 </div>
             </div>
+
+            <DocumentViewer
+                isOpen={!!viewingDocument}
+                onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}
+                document={viewingDocument}
+            />
 
             <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogContent>
