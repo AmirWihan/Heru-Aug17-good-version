@@ -306,9 +306,11 @@ function CoverLetterBuilder() {
                 jobTitle,
                 companyName,
                 jobDescription,
-                clientName: client.intakeForm.data.personal.fullName,
-                clientWorkHistory: client.intakeForm.data.workHistory,
-                clientEducation: client.intakeForm.data.education,
+                clientData: {
+                  fullName: client.intakeForm.data.personal.fullName,
+                  workHistory: client.intakeForm.data.workHistory,
+                  education: client.intakeForm.data.education,
+                },
             };
             const response = await buildCoverLetter(apiInput);
             setResult(response);
