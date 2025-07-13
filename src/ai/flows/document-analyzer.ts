@@ -24,7 +24,8 @@ const DocumentAnalysisOutputSchema = z.object({
 export type DocumentAnalysisOutput = z.infer<typeof DocumentAnalysisOutputSchema>;
 
 export async function analyzeDocument(jsonString: string): Promise<DocumentAnalysisOutput> {
-  return documentAnalyzerFlow(jsonString);
+  const input = JSON.parse(jsonString);
+  return documentAnalyzerFlow(input);
 }
 
 const prompt = ai.definePrompt({
@@ -51,11 +52,10 @@ const prompt = ai.definePrompt({
 const documentAnalyzerFlow = ai.defineFlow(
   {
     name: 'documentAnalyzerFlow',
-    inputSchema: z.string(),
+    inputSchema: DocumentAnalysisInputSchema,
     outputSchema: DocumentAnalysisOutputSchema,
   },
-  async (jsonString) => {
-    const input = JSON.parse(jsonString);
+  async (input) => {
     const { output } = await prompt(input);
     return output!;
   }
