@@ -6,7 +6,7 @@
  * @fileOverview An AI agent that analyzes a client's profile to predict immigration application success.
  *
  * - predictSuccess - A function that handles the success prediction analysis.
- * - SuccessPredictorInput - The input type for the predictSuccess function.
+ * - SuccessPredictorInputSchema - The Zod schema for the detailed user input object.
  * - SuccessPredictorOutput - The return type for the predictSuccess function.
  */
 

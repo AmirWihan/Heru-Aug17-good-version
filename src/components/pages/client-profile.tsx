@@ -264,12 +264,13 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setIsProfileAnalyzing(true);
         setAnalysisResult(null);
         try {
-            const result = await predictSuccess({
+            const inputData = {
                 visaType: client.caseSummary.caseType,
                 countryOfOrigin: client.countryOfOrigin,
                 age: client.age,
                 educationLevel: client.educationLevel,
-            });
+            };
+            const result = await predictSuccess(inputData);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -1333,18 +1334,27 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                             <Label htmlFor="task-description">Description (Optional)</Label>
                             <Textarea id="task-description" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} placeholder="Add more details about the task..." />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="task-assignee">Assign To</Label>
-                            <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
-                                <SelectTrigger id="task-assignee">
-                                    <SelectValue placeholder="Select a team member" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(assignableMembers || []).map(member => (
-                                        <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="task-client">Client</Label>
+                                <Select value={newTaskClient} onValueChange={setNewTaskClient}>
+                                    <SelectTrigger id="task-client"><SelectValue placeholder="Select a client" /></SelectTrigger>
+                                    <SelectContent>{clients.map(client => (<SelectItem key={client.id} value={client.id.toString()}>{client.name}</SelectItem>))}</SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="task-assignee">Assign To</Label>
+                                <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
+                                    <SelectTrigger id="task-assignee">
+                                        <SelectValue placeholder="Select a team member" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {(assignableMembers || []).map(member => (
+                                            <SelectItem key={member.id} value={member.id.toString()}>{member.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
