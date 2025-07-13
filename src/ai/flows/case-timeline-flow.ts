@@ -33,7 +33,7 @@ export type CaseTimelineOutput = z.infer<typeof CaseTimelineOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'caseTimelinePrompt',
-  input: { schema: z.string() },
+  input: { schema: z.string() }, // Expects a JSON string
   output: { schema: CaseTimelineOutputSchema },
   prompt: `You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.
 
@@ -48,10 +48,22 @@ const prompt = ai.definePrompt({
   `,
 });
 
-export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
-    const {output} = await prompt(jsonString);
+const caseTimelineFlow = ai.defineFlow(
+  {
+    name: 'caseTimelineFlow',
+    inputSchema: z.string(), // Input is a JSON string
+    outputSchema: CaseTimelineOutputSchema,
+  },
+  async (jsonString) => {
+    const { output } = await prompt(jsonString);
     if (!output) {
       throw new Error("Failed to get timeline from AI.");
     }
     return output;
+  }
+);
+
+
+export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
+    return caseTimelineFlow(jsonString);
 }
