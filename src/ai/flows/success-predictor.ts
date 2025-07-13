@@ -66,4 +66,3 @@ export const successPredictorFlow = ai.defineFlow(
 export async function predictSuccess(jsonString: string): Promise<SuccessPredictorOutput> {
   return successPredictorFlow(jsonString);
 }
-

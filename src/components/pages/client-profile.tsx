@@ -271,8 +271,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const jsonString = JSON.stringify(inputData);
-            const result = await predictSuccess(jsonString);
+            const result = await predictSuccess(JSON.stringify(inputData));
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -1522,4 +1521,3 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         </div>
     );
 });
-
