@@ -3,8 +3,8 @@
 /**
  * @fileOverview An AI agent that generates a personalized immigration case timeline.
  *
- * - getCaseTimeline - A function that generates a timeline based on client data.
- * - CaseTimelineInput - The input type for the getCaseTimeline function.
+ * - getCaseTimeline - A function that generates a timeline based on a JSON string of client data.
+ * - CaseTimelineInput - The input type for the client data object before stringification.
  * - CaseTimelineOutput - The return type for the getCaseTimeline function.
  */
 
