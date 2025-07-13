@@ -31,24 +31,18 @@ const CaseTimelineOutputSchema = z.object({
 });
 export type CaseTimelineOutput = z.infer<typeof CaseTimelineOutputSchema>;
 
-export async function getCaseTimeline(input: CaseTimelineInput): Promise<CaseTimelineOutput> {
-  return caseTimelineFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'caseTimelinePrompt',
-  input: {schema: CaseTimelineInputSchema},
+  input: {schema: z.string()},
   output: {schema: CaseTimelineOutputSchema},
   prompt: `You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.
 
-  Analyze the client's data to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
+  Analyze the client's data from the provided JSON string to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
 
   The timeline must include critical milestones like document submission, biometrics, medical exams, and the final decision. Provide a helpful, client-friendly description for each step.
 
-  Client Profile:
-  - Visa Type: {{{visaType}}}
-  - Current Stage: {{{currentStage}}}
-  - Country of Origin: {{{countryOfOrigin}}}
+  Client Profile (JSON):
+  {{{json this}}}
 
   Generate a clear, step-by-step timeline based on this information.
   `,
@@ -57,11 +51,16 @@ const prompt = ai.definePrompt({
 const caseTimelineFlow = ai.defineFlow(
   {
     name: 'caseTimelineFlow',
-    inputSchema: CaseTimelineInputSchema,
+    inputSchema: z.string(),
     outputSchema: CaseTimelineOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (jsonString) => {
+    const {output} = await prompt(jsonString);
     return output!;
   }
 );
+
+
+export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
+    return caseTimelineFlow(jsonString);
+}

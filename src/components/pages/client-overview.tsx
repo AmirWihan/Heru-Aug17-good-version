@@ -31,11 +31,13 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
         if (client && client.authRole === 'client') {
             async function fetchTimeline() {
                 try {
-                    const response = await getCaseTimeline({
+                    const inputData = {
                         visaType: client.caseSummary.caseType,
                         currentStage: client.caseSummary.currentStatus,
                         countryOfOrigin: client.countryOfOrigin,
-                    });
+                    };
+                    const jsonString = JSON.stringify(inputData);
+                    const response = await getCaseTimeline(jsonString);
                     setTimelineData(response.timeline);
                 } catch (err) {
                     console.error("Failed to fetch timeline:", err);
