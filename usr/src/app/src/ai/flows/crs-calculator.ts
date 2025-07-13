@@ -4,8 +4,9 @@
 /**
  * @fileOverview An AI agent that calculates a user's Comprehensive Ranking System (CRS) score for Canadian Express Entry.
  *
- * - calculateCrsScore - A function that calculates a CRS score based on detailed user input.
- * - CrsInput - The input type for the calculateCrsScore function.
+ * - crsCalculatorFlow - A function that calculates a CRS score based on a JSON string of detailed user input.
+ * - CrsInputSchema - The Zod schema for the detailed user input object.
+ * - CrsInput - The TypeScript type for the input object.
  * - CrsOutput - The return type for the calculateCrsScore function.
  */
 
@@ -58,11 +59,6 @@ const CrsOutputSchema = z.object({
 });
 export type CrsOutput = z.infer<typeof CrsOutputSchema>;
 
-export async function calculateCrsScore(input: CrsInput): Promise<CrsOutput> {
-  const jsonString = JSON.stringify(input);
-  return crsCalculatorFlow(jsonString);
-}
-
 const prompt = ai.definePrompt({
   name: 'crsCalculatorPrompt',
   input: { schema: z.string() }, // Expects a JSON string
@@ -92,7 +88,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const crsCalculatorFlow = ai.defineFlow(
+export const crsCalculatorFlow = ai.defineFlow(
   {
     name: 'crsCalculatorFlow',
     inputSchema: z.string(), // Input is a JSON string
