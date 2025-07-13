@@ -56,7 +56,9 @@ function WritingAssistant() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await assistWithWriting({ textToImprove, instruction });
+            const apiInput = { textToImprove, instruction };
+            const jsonString = JSON.stringify(apiInput);
+            const response = await assistWithWriting(jsonString);
             setResult(response);
             handleUseCoins(WRITING_ASSISTANT_COST);
         } catch (error) {
@@ -128,12 +130,14 @@ function ResumeBuilder() {
         setResult(null);
 
         try {
-            const response = await buildResume({
+            const apiInput = {
                 clientName: client.intakeForm.data.personal.fullName,
                 clientContact: client.intakeForm.data.personal.contact,
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
-            });
+            };
+            const jsonString = JSON.stringify(apiInput);
+            const response = await buildResume(jsonString);
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {
@@ -207,7 +211,8 @@ function CoverLetterBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const response = await buildCoverLetter(apiInput);
+            const jsonString = JSON.stringify(apiInput);
+            const response = await buildCoverLetter(jsonString);
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {
