@@ -58,7 +58,10 @@ export const successPredictorFlow = ai.defineFlow(
   },
   async (jsonString) => {
     const { output } = await prompt(jsonString);
-    return output!;
+    if (!output) {
+      throw new Error("Failed to get prediction from AI.");
+    }
+    return output;
   }
 );
 
