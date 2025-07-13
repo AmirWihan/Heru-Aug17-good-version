@@ -33,8 +33,8 @@ export type CaseTimelineOutput = z.infer<typeof CaseTimelineOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'caseTimelinePrompt',
-  input: {schema: z.string()},
-  output: {schema: CaseTimelineOutputSchema},
+  input: { schema: z.string() },
+  output: { schema: CaseTimelineOutputSchema },
   prompt: `You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.
 
   Analyze the client's data from the provided JSON string to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
@@ -59,7 +59,6 @@ const caseTimelineFlow = ai.defineFlow(
     return output!;
   }
 );
-
 
 export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
     return caseTimelineFlow(jsonString);
