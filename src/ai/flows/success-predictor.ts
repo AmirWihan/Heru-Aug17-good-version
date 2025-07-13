@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
 });
 
 
-const successPredictorFlow = ai.defineFlow(
+export const successPredictorFlow = ai.defineFlow(
   {
     name: 'successPredictorFlow',
     inputSchema: z.string(),
