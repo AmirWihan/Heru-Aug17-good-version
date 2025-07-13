@@ -52,6 +52,8 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                 }
             }
             fetchTimeline();
+        } else {
+            setIsLoading(false);
         }
     }, [client, toast]);
 
