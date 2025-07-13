@@ -56,8 +56,7 @@ function WritingAssistant() {
         setIsLoading(true);
         setResult(null);
         try {
-            const apiInput = { textToImprove, instruction };
-            const jsonString = JSON.stringify(apiInput);
+            const jsonString = JSON.stringify({ textToImprove, instruction });
             const response = await assistWithWriting(jsonString);
             setResult(response);
             handleUseCoins(WRITING_ASSISTANT_COST);
