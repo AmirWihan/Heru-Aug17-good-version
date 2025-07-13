@@ -85,6 +85,9 @@ export const analyzeClientRisks = ai.defineFlow(
   },
   async (jsonString) => {
     const {output} = await prompt(jsonString);
-    return output!;
+    if (!output) {
+      throw new Error("Failed to analyze risks.");
+    }
+    return output;
   }
 );
