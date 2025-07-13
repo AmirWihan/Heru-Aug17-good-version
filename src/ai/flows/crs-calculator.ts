@@ -4,8 +4,8 @@
 /**
  * @fileOverview An AI agent that calculates a user's Comprehensive Ranking System (CRS) score for Canadian Express Entry.
  *
- * - calculateCrsScore - A function that calculates a CRS score based on detailed user input.
- * - CrsInput - The input type for the calculateCrsScore function.
+ * - calculateCrsScore - A function that calculates a CRS score based on a JSON string of detailed user input.
+ * - CrsInput - The TypeScript type for the input object.
  * - CrsOutput - The return type for the calculateCrsScore function.
  */
 
@@ -58,8 +58,7 @@ const CrsOutputSchema = z.object({
 });
 export type CrsOutput = z.infer<typeof CrsOutputSchema>;
 
-export async function calculateCrsScore(input: CrsInput): Promise<CrsOutput> {
-  const jsonString = JSON.stringify(input);
+export async function calculateCrsScore(jsonString: string): Promise<CrsOutput> {
   return crsCalculatorFlow(jsonString);
 }
 
@@ -83,7 +82,7 @@ const prompt = ai.definePrompt({
   - IELTS 7-7.5 = CLB 8
   - IELTS 6.5 = CLB 7
 
-  After calculating the score, determine if it is "competitive" (isEligible=true). A score above 450 is generally competitive.
+  After calculating the score, determine if it is "competitive" (isEligible=true). A score above 450 is generally considered competitive.
   
   Finally, provide a brief, helpful, and encouraging feedback summary for the user. Mention their strengths and potential areas for improvement (e.g., improving language scores, gaining more work experience).
 
