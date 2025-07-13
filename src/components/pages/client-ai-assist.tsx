@@ -123,7 +123,7 @@ function ResumeBuilder() {
             return;
         }
         if (!hasSufficientCoins) {
-            toast({ title: "Insufficient Coins", description: "You don't have enough coins for this feature.", variant: "destructive" });
+            toast({ title: "Insufficient Coins", description: "You don't have enough coins to use this feature.", variant: "destructive" });
             return;
         }
         setIsLoading(true);
@@ -195,7 +195,7 @@ function CoverLetterBuilder() {
             return;
         }
         if (!hasSufficientCoins) {
-            toast({ title: "Insufficient Coins", description: "You don't have enough coins for this feature.", variant: "destructive" });
+            toast({ title: "Insufficient Coins", description: "You don't have enough coins to use this feature.", variant: "destructive" });
             return;
         }
 
