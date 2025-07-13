@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -9,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
 const FlagSchema = z.object({
   severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),
@@ -52,14 +54,21 @@ const prompt = ai.definePrompt({
   `,
 });
 
-export const analyzeIntakeForm = ai.defineFlow(
+const intakeFormAnalyzerFlow = ai.defineFlow(
   {
-    name: 'analyzeIntakeForm',
+    name: 'intakeFormAnalyzerFlow',
     inputSchema: z.string(), // Input is a JSON string
     outputSchema: IntakeFormAnalysisSchema,
   },
   async (jsonString) => {
     const { output } = await prompt(jsonString);
-    return output!;
+    if (!output) {
+        throw new Error("AI analysis failed to produce an output.");
+    }
+    return output;
   }
 );
+
+export async function analyzeIntakeForm(jsonString: string): Promise<IntakeFormAnalysis> {
+    return intakeFormAnalyzerFlow(jsonString);
+}
