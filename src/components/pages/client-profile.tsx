@@ -33,7 +33,7 @@ import { Checkbox } from "../ui/checkbox";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { predictSuccess, SuccessPredictorOutput } from '@/ai/flows/success-predictor';
 import { cn } from "@/lib/utils";
-import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
+import { getCaseTimeline } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
 import { analyzeDocument, DocumentAnalysisOutput } from "@/ai/flows/document-analyzer";
 import { DocumentViewer } from "@/components/document-viewer";
@@ -208,7 +208,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
 
     const communications = (client.activity || []).filter(item => item.title.includes("Message") || item.title.includes("Email") || item.title.includes("Call"));
 
-    const [timelineData, setTimelineData] = useState<CaseTimelineOutput['timeline'] | null>(null);
+    const [timelineData, setTimelineData] = useState<Awaited<ReturnType<typeof getCaseTimeline>>['timeline'] | null>(null);
     const [isTimelineLoading, setIsTimelineLoading] = useState(true);
     const [timelineError, setTimelineError] = useState<string | null>(null);
 
@@ -234,11 +234,12 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             setIsTimelineLoading(true);
             setTimelineError(null);
             try {
-                const response = await getCaseTimeline({
+                const jsonString = JSON.stringify({
                     visaType: client.caseSummary.caseType,
                     currentStage: client.caseSummary.currentStatus,
                     countryOfOrigin: client.countryOfOrigin,
                 });
+                const response = await getCaseTimeline(jsonString);
                 setTimelineData(response.timeline);
             } catch (err) {
                 console.error("Failed to fetch timeline:", err);
@@ -271,7 +272,8 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const result = await predictSuccess(JSON.stringify(inputData));
+            const jsonString = JSON.stringify(inputData);
+            const result = await predictSuccess(jsonString);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -291,7 +293,8 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setAnalyzedDocTitle(doc.title);
         setIsAnalysisDialogOpen(true);
         try {
-            const result = await analyzeDocument({ title: doc.title, category: doc.category });
+            const jsonString = JSON.stringify({ title: doc.title, category: doc.category });
+            const result = await analyzeDocument(jsonString);
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);

@@ -21,7 +21,8 @@ const SummarizeDocumentOutputSchema = z.object({
 });
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
-export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
+export async function summarizeDocument(jsonString: string): Promise<SummarizeDocumentOutput> {
+  const input = JSON.parse(jsonString);
   return summarizeDocumentFlow(input);
 }
 

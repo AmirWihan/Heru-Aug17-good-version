@@ -30,7 +30,8 @@ const ApplicationCheckerOutputSchema = z.object({
 
 export type ApplicationCheckerOutput = z.infer<typeof ApplicationCheckerOutputSchema>;
 
-export async function applicationChecker(input: ApplicationCheckerInput): Promise<ApplicationCheckerOutput> {
+export async function applicationChecker(jsonString: string): Promise<ApplicationCheckerOutput> {
+  const input = JSON.parse(jsonString);
   return applicationCheckerFlow(input);
 }
 

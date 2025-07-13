@@ -24,7 +24,8 @@ const ComposeMessageOutputSchema = z.object({
 });
 export type ComposeMessageOutput = z.infer<typeof ComposeMessageOutputSchema>;
 
-export async function composeMessage(input: ComposeMessageInput): Promise<ComposeMessageOutput> {
+export async function composeMessage(jsonString: string): Promise<ComposeMessageOutput> {
+  const input = JSON.parse(jsonString);
   return composeMessageFlow(input);
 }
 
