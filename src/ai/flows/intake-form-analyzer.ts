@@ -3,7 +3,7 @@
 /**
  * @fileOverview An AI agent that analyzes a client's intake form for potential issues.
  *
- * - intakeFormAnalyzerFlow - The Genkit flow that handles the intake form analysis.
+ * - analyzeIntakeForm - The Genkit flow that handles the intake form analysis.
  * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.
  */
 
@@ -52,9 +52,9 @@ const prompt = ai.definePrompt({
   `,
 });
 
-export const intakeFormAnalyzerFlow = ai.defineFlow(
+export const analyzeIntakeForm = ai.defineFlow(
   {
-    name: 'intakeFormAnalyzerFlow',
+    name: 'analyzeIntakeForm',
     inputSchema: z.string(), // Input is a JSON string
     outputSchema: IntakeFormAnalysisSchema,
   },
