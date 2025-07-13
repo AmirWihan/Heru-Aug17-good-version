@@ -127,7 +127,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                         {documents.map(doc => (
                             <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
                                 <TableCell className="font-medium">{doc.title}</TableCell>
-                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
                                 <TableCell className="text-right space-x-1">
                                     <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
@@ -271,7 +271,8 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const result = await predictSuccess(inputData);
+            const jsonString = JSON.stringify(inputData);
+            const result = await predictSuccess(jsonString);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {

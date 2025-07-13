@@ -30,15 +30,12 @@ export type SuccessPredictorOutput = z.infer<typeof SuccessPredictorOutputSchema
 
 const prompt = ai.definePrompt({
   name: 'successPredictorPrompt',
-  input: { schema: SuccessPredictorInputSchema },
+  input: { schema: z.string() },
   output: { schema: SuccessPredictorOutputSchema },
-  prompt: `You are an expert Canadian immigration advisor with deep knowledge of immigration law, IRCC policies, and current processing trends. Your task is to provide a realistic, data-informed assessment of a client's immigration application profile.
+  prompt: `You are an expert Canadian immigration advisor with deep knowledge of immigration law, IRCC policies, and current processing trends. Your task is to provide a realistic, data-informed assessment of a client's immigration application profile based on the provided JSON data.
 
-  Analyze the following client profile:
-  - Visa Type: {{{visaType}}}
-  - Country of Origin: {{{countryOfOrigin}}}
-  - Age: {{{age}}}
-  - Education Level: {{{educationLevel}}}
+  Client Profile (JSON):
+  {{{json this}}}
 
   Based on this information, you must:
   1.  Calculate a **Success Probability** as a percentage. This should reflect the likely outcome based on factors like age points in Express Entry, education credential value, visa type requirements, and any known trends associated with the country of origin (like high volume or specific verification needs).
@@ -56,16 +53,16 @@ const prompt = ai.definePrompt({
 const successPredictorFlow = ai.defineFlow(
   {
     name: 'successPredictorFlow',
-    inputSchema: SuccessPredictorInputSchema,
+    inputSchema: z.string(),
     outputSchema: SuccessPredictorOutputSchema,
   },
-  async (input) => {
-    const { output } = await prompt(input);
+  async (jsonString) => {
+    const { output } = await prompt(jsonString);
     return output!;
   }
 );
 
 
-export async function predictSuccess(input: SuccessPredictorInput): Promise<SuccessPredictorOutput> {
-  return successPredictorFlow(input);
+export async function predictSuccess(jsonString: string): Promise<SuccessPredictorOutput> {
+  return successPredictorFlow(jsonString);
 }
