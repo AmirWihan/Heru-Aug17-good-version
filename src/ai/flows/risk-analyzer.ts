@@ -77,7 +77,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
-export const analyzeClientRisks = ai.defineFlow(
+const riskAnalyzerFlow = ai.defineFlow(
   {
     name: 'riskAnalyzerFlow',
     inputSchema: z.string(), // Input is a JSON string
@@ -91,3 +91,7 @@ export const analyzeClientRisks = ai.defineFlow(
     return output;
   }
 );
+
+export async function analyzeClientRisks(jsonString: string): Promise<RiskAnalysisOutput> {
+    return riskAnalyzerFlow(jsonString);
+}
