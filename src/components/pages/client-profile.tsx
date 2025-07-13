@@ -506,7 +506,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 client: { id: client.id, name: client.name, avatar: client.avatar },
                 assignedTo: { name: assignee.name, avatar: assignee.avatar },
                 dueDate: followUpTaskDueDate,
-                priority: followUpTaskPriority,
+                priority: newTaskPriority,
                 status: 'To Do',
             };
             
