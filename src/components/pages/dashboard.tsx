@@ -14,7 +14,7 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { useState } from "react";
 import { useGlobalData } from "@/context/GlobalDataContext";
-import { analyzeClientRisks, type ClientAlert } from "@/ai/flows/risk-analyzer";
+import { analyzeClientRisks, type ClientAlert, RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -98,21 +98,21 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
         setRiskAlerts(null);
         try {
             const activeClients = (clients || []).filter(c => c.status === 'Active');
-            const analysisInput = activeClients.map(c => ({
-                id: c.id,
-                name: c.name,
-                status: c.status,
-                activity: (c.activity || []).map(a => ({ title: a.title, timestamp: a.timestamp })),
-                documents: (c.documents || []).map(d => ({ title: d.title, status: d.status, dateAdded: d.dateAdded })),
-                caseSummary: {
-                    dueDate: c.caseSummary.dueDate,
-                }
-            }));
-
-            const response = await analyzeClientRisks({
-                clients: analysisInput,
+            const analysisInput: RiskAnalysisInput = {
+                clients: activeClients.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    status: c.status,
+                    activity: (c.activity || []).map(a => ({ title: a.title, timestamp: a.timestamp })),
+                    documents: (c.documents || []).map(d => ({ title: d.title, status: d.status, dateAdded: d.dateAdded })),
+                    caseSummary: {
+                        dueDate: c.caseSummary.dueDate,
+                    }
+                })),
                 currentDate: new Date().toISOString().split('T')[0]
-            });
+            };
+
+            const response = await analyzeClientRisks(analysisInput);
             setRiskAlerts(response.alerts);
             toast({
                 title: "Analysis Complete",

@@ -33,7 +33,7 @@ const ClientProfileForAnalysisSchema = z.object({
   }),
 });
 
-const RiskAnalysisInputSchema = z.object({
+export const RiskAnalysisInputSchema = z.object({
   clients: z.array(ClientProfileForAnalysisSchema),
   currentDate: z.string().describe('The current date in YYYY-MM-DD format.'),
 });
@@ -49,22 +49,21 @@ const ClientAlertSchema = z.object({
 export type ClientAlert = z.infer<typeof ClientAlertSchema>;
 
 
-const RiskAnalysisOutputSchema = z.object({
+export const RiskAnalysisOutputSchema = z.object({
   alerts: z.array(ClientAlertSchema),
 });
 export type RiskAnalysisOutput = z.infer<typeof RiskAnalysisOutputSchema>;
 
 export async function analyzeClientRisks(input: RiskAnalysisInput): Promise<RiskAnalysisOutput> {
-  return riskAnalyzerFlow(input);
+  const jsonString = JSON.stringify(input);
+  return riskAnalyzerFlow(jsonString);
 }
 
 const prompt = ai.definePrompt({
   name: 'riskAnalyzerPrompt',
-  input: {schema: RiskAnalysisInputSchema},
+  input: {schema: z.string()},
   output: {schema: RiskAnalysisOutputSchema},
   prompt: `You are an AI Risk System running inside a lawyer's immigration CRM dashboard. Your role is to review a list of active client files and flag any potential risks.
-
-  Today's date is {{{currentDate}}}.
 
   Analyze each client profile provided in the JSON input and identify any of the following risk factors:
 
@@ -76,7 +75,7 @@ const prompt = ai.definePrompt({
 
   Here is the list of clients to analyze:
   \`\`\`json
-  {{{json clients}}}
+  {{{json this}}}
   \`\`\`
 
   Return your findings as an array of alerts in the specified JSON format. If there are no risks, return an empty array.
@@ -86,11 +85,11 @@ const prompt = ai.definePrompt({
 const riskAnalyzerFlow = ai.defineFlow(
   {
     name: 'riskAnalyzerFlow',
-    inputSchema: RiskAnalysisInputSchema,
+    inputSchema: z.string(),
     outputSchema: RiskAnalysisOutputSchema,
   },
-  async (input) => {
-    const {output} = await prompt(input);
+  async (jsonString) => {
+    const {output} = await prompt(jsonString);
     return output!;
   }
 );
