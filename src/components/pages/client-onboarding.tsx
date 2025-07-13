@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { calculateCrsScore, CrsInputSchema, CrsOutput } from '@/ai/flows/crs-calculator';
+import { calculateCrsScore, CrsInputSchema, type CrsOutput } from '@/ai/flows/crs-calculator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
