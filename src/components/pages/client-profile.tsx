@@ -170,6 +170,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [isAddTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const [newTaskDescription, setNewTaskDescription] = useState("");
+    const [newTaskClient, setNewTaskClient] = useState("");
     const [newTaskAssignee, setNewTaskAssignee] = useState("");
     const [newTaskDueDate, setNewTaskDueDate] = useState("");
     const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
@@ -1448,7 +1449,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                     </div>
                                     <div className="space-y-2">
                                             <Label htmlFor="follow-up-priority">Priority</Label>
-                                        <Select value={followUpTaskPriority} onValueChange={(v: Task['priority']) => setFollowUpTaskPriority(v)}>
+                                        <Select value={followUpTaskPriority} onValueChange={(v: Task['priority']) => setNewTaskPriority(v)}>
                                             <SelectTrigger id="follow-up-priority">
                                                 <SelectValue />
                                             </SelectTrigger>
