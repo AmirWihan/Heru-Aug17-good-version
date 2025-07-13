@@ -18,6 +18,8 @@ import {
     type WritingAssistantOutput 
 } from '@/ai/schemas/writing-assistant-schema';
 
+export type { WritingAssistantInput, WritingAssistantOutput };
+
 export async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {
   const input: WritingAssistantInput = JSON.parse(jsonString);
   return writingAssistantFlow(input);
@@ -48,6 +50,9 @@ const writingAssistantFlow = ai.defineFlow(
   },
   async input => {
     const { output } = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("AI assistant failed to produce an output.");
+    }
+    return output;
   }
 );
