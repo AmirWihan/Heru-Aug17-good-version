@@ -915,7 +915,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant={getStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
+                                                <Badge variant={getPriorityBadgeVariant(agreement.status)}>{agreement.status}</Badge>
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenAgreementDialog(agreement)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -1522,3 +1522,4 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         </div>
     );
 });
+
