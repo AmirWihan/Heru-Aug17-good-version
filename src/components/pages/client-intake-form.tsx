@@ -112,7 +112,8 @@ export function ClientIntakeFormPage() {
         setIsLoading(true);
         const data = form.getValues();
         try {
-            const analysis = await analyzeIntakeForm(JSON.stringify(data));
+            const jsonString = JSON.stringify(data);
+            const analysis = await analyzeIntakeForm(jsonString);
             const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
 
             await updateUserProfile({ intakeForm });
