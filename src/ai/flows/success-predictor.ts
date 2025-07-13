@@ -1,5 +1,4 @@
 
-
 'use server';
 
 /**
@@ -30,15 +29,12 @@ export type SuccessPredictorOutput = z.infer<typeof SuccessPredictorOutputSchema
 
 const prompt = ai.definePrompt({
   name: 'successPredictorPrompt',
-  input: { schema: SuccessPredictorInputSchema },
+  input: { schema: z.string() }, // Expects a JSON string
   output: { schema: SuccessPredictorOutputSchema },
   prompt: `You are an expert Canadian immigration advisor with deep knowledge of immigration law, IRCC policies, and current processing trends. Your task is to provide a realistic, data-informed assessment of a client's immigration application profile based on the provided JSON data.
 
-  Client Profile:
-  - Visa Type: {{{visaType}}}
-  - Country of Origin: {{{countryOfOrigin}}}
-  - Age: {{{age}}}
-  - Education Level: {{{educationLevel}}}
+  Client Profile (JSON):
+  {{{json this}}}
 
 
   Based on this information, you must:
@@ -57,11 +53,11 @@ const prompt = ai.definePrompt({
 export const successPredictorFlow = ai.defineFlow(
   {
     name: 'successPredictorFlow',
-    inputSchema: SuccessPredictorInputSchema,
+    inputSchema: z.string(),
     outputSchema: SuccessPredictorOutputSchema,
   },
-  async (input) => {
-    const { output } = await prompt(input);
+  async (jsonString) => {
+    const { output } = await prompt(jsonString);
     if (!output) {
       throw new Error("Failed to get prediction from AI.");
     }
@@ -71,6 +67,5 @@ export const successPredictorFlow = ai.defineFlow(
 
 
 export async function predictSuccess(jsonString: string): Promise<SuccessPredictorOutput> {
-  const input = JSON.parse(jsonString);
-  return successPredictorFlow(input);
+  return successPredictorFlow(jsonString);
 }
