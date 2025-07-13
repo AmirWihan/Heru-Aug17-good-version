@@ -54,11 +54,10 @@ const prompt = ai.definePrompt({
 const caseTimelineFlow = ai.defineFlow(
   {
     name: 'caseTimelineFlow',
-    inputSchema: z.string(), // Input is a JSON string
+    inputSchema: CaseTimelineInputSchema,
     outputSchema: CaseTimelineOutputSchema,
   },
-  async (jsonString) => {
-    const input = JSON.parse(jsonString);
+  async (input) => {
     const { output } = await prompt(input);
     if (!output) {
       throw new Error("Failed to get timeline from AI.");
@@ -68,5 +67,6 @@ const caseTimelineFlow = ai.defineFlow(
 );
 
 export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
-    return caseTimelineFlow(jsonString);
+    const input = JSON.parse(jsonString);
+    return caseTimelineFlow(input);
 }
