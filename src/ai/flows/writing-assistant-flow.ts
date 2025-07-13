@@ -19,7 +19,8 @@ import {
 } from '@/ai/schemas/writing-assistant-schema';
 
 export async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {
-  return writingAssistantFlow(jsonString);
+  const input: WritingAssistantInput = JSON.parse(jsonString);
+  return writingAssistantFlow(input);
 }
 
 const prompt = ai.definePrompt({
@@ -42,11 +43,10 @@ const prompt = ai.definePrompt({
 const writingAssistantFlow = ai.defineFlow(
   {
     name: 'writingAssistantFlow',
-    inputSchema: z.string(),
+    inputSchema: WritingAssistantInputSchema,
     outputSchema: WritingAssistantOutputSchema,
   },
-  async jsonString => {
-    const input = JSON.parse(jsonString);
+  async input => {
     const { output } = await prompt(input);
     return output!;
   }

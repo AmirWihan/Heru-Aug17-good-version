@@ -16,10 +16,10 @@ import {
     type BuildCoverLetterInput, 
     type BuildCoverLetterOutput 
 } from '@/ai/schemas/cover-letter-schema';
-import { z } from 'zod';
 
 export async function buildCoverLetter(jsonString: string): Promise<BuildCoverLetterOutput> {
-  return coverLetterBuilderFlow(jsonString);
+  const input: BuildCoverLetterInput = JSON.parse(jsonString);
+  return coverLetterBuilderFlow(input);
 }
 
 const prompt = ai.definePrompt({
@@ -61,11 +61,10 @@ const prompt = ai.definePrompt({
 const coverLetterBuilderFlow = ai.defineFlow(
   {
     name: 'coverLetterBuilderFlow',
-    inputSchema: z.string(),
+    inputSchema: BuildCoverLetterInputSchema,
     outputSchema: BuildCoverLetterOutputSchema,
   },
-  async jsonString => {
-    const input = JSON.parse(jsonString);
+  async input => {
     const { output } = await prompt(input);
     return output!;
   }
