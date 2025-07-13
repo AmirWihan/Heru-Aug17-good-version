@@ -3,7 +3,6 @@
  * @fileOverview An AI agent that analyzes client files to identify risks and suggest actions.
  *
  * - analyzeClientRisks - A function that handles the risk analysis process.
- * - RiskAnalysisInputSchema - The input schema for the raw data before it's stringified.
  * - RiskAnalysisOutput - The return type for the analyzeClientRisks function.
  */
 
