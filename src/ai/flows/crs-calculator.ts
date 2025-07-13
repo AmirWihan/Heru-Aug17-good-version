@@ -58,6 +58,10 @@ const CrsOutputSchema = z.object({
 });
 export type CrsOutput = z.infer<typeof CrsOutputSchema>;
 
+export async function calculateCrsScore(jsonString: string): Promise<CrsOutput> {
+  return crsCalculatorFlow(jsonString);
+}
+
 const prompt = ai.definePrompt({
   name: 'crsCalculatorPrompt',
   input: { schema: z.string() }, // Expects a JSON string
@@ -87,9 +91,9 @@ const prompt = ai.definePrompt({
   `,
 });
 
-export const calculateCrsScore = ai.defineFlow(
+const crsCalculatorFlow = ai.defineFlow(
   {
-    name: 'calculateCrsScoreFlow',
+    name: 'crsCalculatorFlow',
     inputSchema: z.string(), // Input is a JSON string
     outputSchema: CrsOutputSchema,
   },
