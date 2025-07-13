@@ -28,10 +28,6 @@ const SuccessPredictorOutputSchema = z.object({
 });
 export type SuccessPredictorOutput = z.infer<typeof SuccessPredictorOutputSchema>;
 
-export async function predictSuccess(input: SuccessPredictorInput): Promise<SuccessPredictorOutput> {
-  return successPredictorFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'successPredictorPrompt',
   input: { schema: SuccessPredictorInputSchema },
@@ -56,6 +52,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
+
 const successPredictorFlow = ai.defineFlow(
   {
     name: 'successPredictorFlow',
@@ -67,3 +64,8 @@ const successPredictorFlow = ai.defineFlow(
     return output!;
   }
 );
+
+
+export async function predictSuccess(input: SuccessPredictorInput): Promise<SuccessPredictorOutput> {
+  return successPredictorFlow(input);
+}
