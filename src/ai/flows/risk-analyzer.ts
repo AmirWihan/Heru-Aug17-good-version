@@ -3,7 +3,7 @@
  * @fileOverview An AI agent that analyzes client files to identify risks and suggest actions.
  *
  * - analyzeClientRisks - A function that handles the risk analysis process.
- * - RiskAnalysisInput - The input type for the analyzeClientRisks function.
+ * - RiskAnalysisInputSchema - The input schema for the raw data before it's stringified.
  * - RiskAnalysisOutput - The return type for the analyzeClientRisks function.
  */
 
@@ -54,14 +54,9 @@ export const RiskAnalysisOutputSchema = z.object({
 });
 export type RiskAnalysisOutput = z.infer<typeof RiskAnalysisOutputSchema>;
 
-export async function analyzeClientRisks(input: RiskAnalysisInput): Promise<RiskAnalysisOutput> {
-  const jsonString = JSON.stringify(input);
-  return riskAnalyzerFlow(jsonString);
-}
-
 const prompt = ai.definePrompt({
   name: 'riskAnalyzerPrompt',
-  input: {schema: z.string()},
+  input: {schema: z.string()}, // Expects a JSON string
   output: {schema: RiskAnalysisOutputSchema},
   prompt: `You are an AI Risk System running inside a lawyer's immigration CRM dashboard. Your role is to review a list of active client files and flag any potential risks.
 
@@ -82,10 +77,10 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const riskAnalyzerFlow = ai.defineFlow(
+export const analyzeClientRisks = ai.defineFlow(
   {
     name: 'riskAnalyzerFlow',
-    inputSchema: z.string(),
+    inputSchema: z.string(), // Input is a JSON string
     outputSchema: RiskAnalysisOutputSchema,
   },
   async (jsonString) => {

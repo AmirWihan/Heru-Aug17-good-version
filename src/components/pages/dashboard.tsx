@@ -14,7 +14,7 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { useState } from "react";
 import { useGlobalData } from "@/context/GlobalDataContext";
-import { analyzeClientRisks, type ClientAlert, RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
+import { analyzeClientRisks, type ClientAlert, type RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -111,8 +111,8 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 })),
                 currentDate: new Date().toISOString().split('T')[0]
             };
-
-            const response = await analyzeClientRisks(analysisInput);
+            const jsonString = JSON.stringify(analysisInput);
+            const response = await analyzeClientRisks(jsonString);
             setRiskAlerts(response.alerts);
             toast({
                 title: "Analysis Complete",
