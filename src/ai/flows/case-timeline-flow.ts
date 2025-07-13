@@ -34,16 +34,18 @@ export type CaseTimelineOutput = z.infer<typeof CaseTimelineOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'caseTimelinePrompt',
-  input: { schema: z.string() }, // Expects a JSON string
+  input: { schema: CaseTimelineInputSchema },
   output: { schema: CaseTimelineOutputSchema },
   prompt: `You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.
 
-  Analyze the client's data from the provided JSON string to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
+  Analyze the client's data from the provided input to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
 
   The timeline must include critical milestones like document submission, biometrics, medical exams, and the final decision. Provide a helpful, client-friendly description for each step.
 
-  Client Profile (JSON):
-  {{{json this}}}
+  Client Profile:
+  - Visa Type: {{{visaType}}}
+  - Current Stage: {{{currentStage}}}
+  - Country of Origin: {{{countryOfOrigin}}}
 
   Generate a clear, step-by-step timeline based on this information.
   `,
@@ -56,14 +58,14 @@ const caseTimelineFlow = ai.defineFlow(
     outputSchema: CaseTimelineOutputSchema,
   },
   async (jsonString) => {
-    const { output } = await prompt(jsonString);
+    const input = JSON.parse(jsonString);
+    const { output } = await prompt(input);
     if (!output) {
       throw new Error("Failed to get timeline from AI.");
     }
     return output;
   }
 );
-
 
 export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
     return caseTimelineFlow(jsonString);
