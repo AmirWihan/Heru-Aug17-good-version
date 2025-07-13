@@ -89,7 +89,7 @@ const prompt = ai.definePrompt({
 
 export const calculateCrsScore = ai.defineFlow(
   {
-    name: 'crsCalculatorFlow',
+    name: 'calculateCrsScoreFlow',
     inputSchema: z.string(), // Input is a JSON string
     outputSchema: CrsOutputSchema,
   },
