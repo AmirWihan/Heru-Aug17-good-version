@@ -1,8 +1,10 @@
+
 'use server';
 /**
  * @fileOverview An AI agent that analyzes client files to identify risks and suggest actions.
  *
  * - analyzeClientRisks - A function that handles the risk analysis process.
+ * - RiskAnalysisInput - The input type for the analyzeClientRisks function.
  * - RiskAnalysisOutput - The return type for the analyzeClientRisks function.
  */
 
@@ -55,7 +57,7 @@ export type RiskAnalysisOutput = z.infer<typeof RiskAnalysisOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'riskAnalyzerPrompt',
-  input: {schema: z.string()}, // Expects a JSON string
+  input: {schema: RiskAnalysisInputSchema},
   output: {schema: RiskAnalysisOutputSchema},
   prompt: `You are an AI Risk System running inside a lawyer's immigration CRM dashboard. Your role is to review a list of active client files and flag any potential risks.
 
@@ -79,11 +81,11 @@ const prompt = ai.definePrompt({
 const riskAnalyzerFlow = ai.defineFlow(
   {
     name: 'riskAnalyzerFlow',
-    inputSchema: z.string(), // Input is a JSON string
+    inputSchema: RiskAnalysisInputSchema,
     outputSchema: RiskAnalysisOutputSchema,
   },
-  async (jsonString) => {
-    const {output} = await prompt(jsonString);
+  async (input) => {
+    const {output} = await prompt(input);
     if (!output) {
       throw new Error("Failed to analyze risks.");
     }
@@ -92,5 +94,6 @@ const riskAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeClientRisks(jsonString: string): Promise<RiskAnalysisOutput> {
-    return riskAnalyzerFlow(jsonString);
+    const input = JSON.parse(jsonString);
+    return riskAnalyzerFlow(input);
 }
