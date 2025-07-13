@@ -238,7 +238,8 @@ function ResumeBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const response = await buildResume(apiInput);
+            const jsonString = JSON.stringify(apiInput);
+            const response = await buildResume(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
