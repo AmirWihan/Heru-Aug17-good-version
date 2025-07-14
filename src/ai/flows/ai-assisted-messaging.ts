@@ -24,11 +24,6 @@ const ComposeMessageOutputSchema = z.object({
 });
 export type ComposeMessageOutput = z.infer<typeof ComposeMessageOutputSchema>;
 
-export async function composeMessage(jsonString: string): Promise<ComposeMessageOutput> {
-  const input: ComposeMessageInput = JSON.parse(jsonString);
-  return composeMessageFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'composeMessagePrompt',
   input: {schema: ComposeMessageInputSchema},
@@ -61,3 +56,9 @@ const composeMessageFlow = ai.defineFlow(
     return output;
   }
 );
+
+
+export async function composeMessage(jsonString: string): Promise<ComposeMessageOutput> {
+  const input = JSON.parse(jsonString) as ComposeMessageInput;
+  return composeMessageFlow(input);
+}
