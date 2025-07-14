@@ -21,11 +21,6 @@ const AskHeruOutputSchema = z.object({
 });
 export type AskHeruOutput = z.infer<typeof AskHeruOutputSchema>;
 
-export async function askHeru(jsonString: string): Promise<AskHeruOutput> {
-  const input: AskHeruInput = JSON.parse(jsonString);
-  return irccChatFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'irccChatPrompt',
   input: {schema: AskHeruInputSchema},
@@ -56,3 +51,9 @@ const irccChatFlow = ai.defineFlow(
     return output;
   }
 );
+
+
+export async function askHeru(jsonString: string): Promise<AskHeruOutput> {
+  const input: AskHeruInput = JSON.parse(jsonString);
+  return irccChatFlow(input);
+}

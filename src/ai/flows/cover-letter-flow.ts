@@ -17,11 +17,6 @@ import {
     type BuildCoverLetterOutput 
 } from '@/ai/schemas/cover-letter-schema';
 
-export async function buildCoverLetter(jsonString: string): Promise<BuildCoverLetterOutput> {
-  const input: BuildCoverLetterInput = JSON.parse(jsonString);
-  return coverLetterBuilderFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'coverLetterBuilderPrompt',
   input: { schema: BuildCoverLetterInputSchema },
@@ -69,3 +64,8 @@ const coverLetterBuilderFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function buildCoverLetter(jsonString: string): Promise<BuildCoverLetterOutput> {
+  const input: BuildCoverLetterInput = JSON.parse(jsonString);
+  return coverLetterBuilderFlow(input);
+}

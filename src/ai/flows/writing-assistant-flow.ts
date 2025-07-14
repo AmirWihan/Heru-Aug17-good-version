@@ -20,15 +20,6 @@ import {
 
 export type { WritingAssistantInput, WritingAssistantOutput };
 
-export async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {
-  const input: WritingAssistantInput = JSON.parse(jsonString);
-  const { output } = await writingAssistantPrompt(input);
-  if (!output) {
-    throw new Error("AI assistant failed to produce an output.");
-  }
-  return output;
-}
-
 const writingAssistantPrompt = ai.definePrompt({
   name: 'writingAssistantPrompt',
   input: { schema: WritingAssistantInputSchema },
@@ -45,3 +36,25 @@ const writingAssistantPrompt = ai.definePrompt({
   Return only the improved text in the 'improvedText' field.
   `,
 });
+
+
+const writingAssistantFlow = ai.defineFlow(
+    {
+        name: 'writingAssistantFlow',
+        inputSchema: WritingAssistantInputSchema,
+        outputSchema: WritingAssistantOutputSchema,
+    },
+    async (input) => {
+        const { output } = await writingAssistantPrompt(input);
+        if (!output) {
+            throw new Error("AI assistant failed to produce an output.");
+        }
+        return output;
+    }
+);
+
+
+export async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {
+  const input: WritingAssistantInput = JSON.parse(jsonString);
+  return writingAssistantFlow(input);
+}

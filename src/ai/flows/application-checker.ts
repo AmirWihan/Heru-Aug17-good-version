@@ -30,15 +30,6 @@ const ApplicationCheckerOutputSchema = z.object({
 
 export type ApplicationCheckerOutput = z.infer<typeof ApplicationCheckerOutputSchema>;
 
-export async function applicationChecker(jsonString: string): Promise<ApplicationCheckerOutput> {
-  const input: ApplicationCheckerInput = JSON.parse(jsonString);
-  const {output} = await prompt(input);
-  if (!output) {
-    throw new Error('Failed to get analysis from AI.');
-  }
-  return output;
-}
-
 const prompt = ai.definePrompt({
   name: 'applicationCheckerPrompt',
   input: {schema: ApplicationCheckerInputSchema},
@@ -60,3 +51,23 @@ Ensure that the output is well-formatted and easy to understand.
 
 Follow the schema to produce your output.`, 
 });
+
+const applicationCheckerFlow = ai.defineFlow(
+    {
+        name: 'applicationCheckerFlow',
+        inputSchema: ApplicationCheckerInputSchema,
+        outputSchema: ApplicationCheckerOutputSchema,
+    },
+    async (input) => {
+        const {output} = await prompt(input);
+        if (!output) {
+            throw new Error('Failed to get analysis from AI.');
+        }
+        return output;
+    }
+);
+
+export async function applicationChecker(jsonString: string): Promise<ApplicationCheckerOutput> {
+  const input: ApplicationCheckerInput = JSON.parse(jsonString);
+  return applicationCheckerFlow(input);
+}
