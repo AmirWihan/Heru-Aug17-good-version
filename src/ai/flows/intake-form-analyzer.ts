@@ -53,21 +53,10 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const intakeFormAnalyzerFlow = ai.defineFlow(
-  {
-    name: 'intakeFormAnalyzerFlow',
-    inputSchema: z.string(), // Input is a JSON string
-    outputSchema: IntakeFormAnalysisSchema,
-  },
-  async (jsonString) => {
+export async function analyzeIntakeForm(jsonString: string): Promise<IntakeFormAnalysis> {
     const { output } = await prompt(jsonString);
     if (!output) {
         throw new Error("AI analysis failed to produce an output.");
     }
     return output;
-  }
-);
-
-export async function analyzeIntakeForm(jsonString: string): Promise<IntakeFormAnalysis> {
-    return intakeFormAnalyzerFlow(jsonString);
 }
