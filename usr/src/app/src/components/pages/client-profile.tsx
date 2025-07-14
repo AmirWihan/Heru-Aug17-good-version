@@ -71,6 +71,7 @@ const getDocumentStatusBadgeVariant = (status: string) => {
         case 'approved': return 'success' as const;
         case 'uploaded': return 'info' as const;
         case 'pending review': return 'warning' as const;
+        case 'pending client review': return 'info' as const;
         case 'rejected': return 'destructive' as const;
         case 'requested': return 'secondary' as const;
         default: return 'secondary' as const;
