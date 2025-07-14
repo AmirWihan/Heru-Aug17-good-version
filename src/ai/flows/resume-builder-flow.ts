@@ -5,7 +5,7 @@
  * @fileOverview An AI agent that generates a resume based on a client's intake form.
  *
  * - buildResume - A function that handles the resume generation.
- * - BuildResumeInput - The input type for the buildResume function (reuses IntakeFormInput).
+ * - BuildResumeInput - The input type for the buildResume function.
  * - BuildResumeOutput - The return type for the buildResume function.
  */
 
@@ -18,7 +18,7 @@ import {
 } from '@/ai/schemas/resume-builder-schema';
 import { z } from 'zod';
 
-export { type BuildResumeInput, type BuildResumeOutput };
+export type { BuildResumeInput, BuildResumeOutput };
 
 export async function buildResume(jsonString: string): Promise<BuildResumeOutput> {
   const input: BuildResumeInput = JSON.parse(jsonString);
