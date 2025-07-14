@@ -1480,7 +1480,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "{analyzedDocTitle}"
+                            AI Analysis for "${analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.
