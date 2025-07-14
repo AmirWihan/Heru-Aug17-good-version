@@ -51,7 +51,7 @@ const irccChatFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     if (!output) {
-      throw new Error("Failed to get response from AI chat.");
+        throw new Error("Failed to get response from AI chat.");
     }
     return output;
   }
