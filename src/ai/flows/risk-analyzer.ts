@@ -94,6 +94,6 @@ const riskAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeClientRisks(jsonString: string): Promise<RiskAnalysisOutput> {
-    const input = JSON.parse(jsonString);
+    const input: RiskAnalysisInput = JSON.parse(jsonString);
     return riskAnalyzerFlow(input);
 }

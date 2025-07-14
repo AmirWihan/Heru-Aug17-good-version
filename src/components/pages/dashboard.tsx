@@ -14,7 +14,7 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { useState } from "react";
 import { useGlobalData } from "@/context/GlobalDataContext";
-import { analyzeClientRisks, type ClientAlert, type RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
+import { analyzeClientRisks, type RiskAnalysisOutput, type ClientAlert, type RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
