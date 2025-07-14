@@ -122,7 +122,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             </Avatar>
                             <div>
                                 <SheetTitle className="text-2xl font-bold">{lead.name}</SheetTitle>
-                                <SheetDescription className="flex items-center gap-2"><Building className="h-4 w-4" />{lead.company}</SheetDescription>
+                                {lead.company && <SheetDescription className="flex items-center gap-2"><Building className="h-4 w-4" />{lead.company}</SheetDescription>}
                             </div>
                         </div>
                         <SheetClose asChild>
