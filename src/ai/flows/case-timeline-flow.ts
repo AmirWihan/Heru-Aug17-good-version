@@ -67,6 +67,6 @@ const caseTimelineFlow = ai.defineFlow(
 );
 
 export async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {
-    const input = JSON.parse(jsonString) as CaseTimelineInput;
+    const input: CaseTimelineInput = JSON.parse(jsonString);
     return caseTimelineFlow(input);
 }
