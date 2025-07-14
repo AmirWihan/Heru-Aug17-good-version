@@ -11,16 +11,6 @@ import { useState } from 'react';
 
 export function MarketingHeader() {
   const router = useRouter();
-  const { toast } = useToast();
-
-  const handleDeploy = () => {
-    toast({
-        title: "Deployment Initiated",
-        description: "Your app is being deployed. This is a simulated action for demonstration purposes.",
-    });
-    // In a real scenario, this would trigger a backend process or CI/CD pipeline.
-    // Since we can't execute commands, we show a success message.
-  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,10 +28,6 @@ export function MarketingHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleDeploy}>
-            <Rocket className="mr-2 h-4 w-4" />
-            Deploy to Firebase
-          </Button>
           <Button variant="ghost" onClick={() => router.push('/login')}>
             Login
           </Button>

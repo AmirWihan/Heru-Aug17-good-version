@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { Loader2, Shield, User, Briefcase } from 'lucide-react';
+import { Loader2, Shield, User, Briefcase, Rocket } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -121,13 +121,24 @@ export default function UserSelectPage() {
         }
     };
 
+    const handleDeploy = () => {
+        toast({
+            title: "Deployment Initiated",
+            description: "Your app is being deployed. This is a simulated action for demonstration purposes.",
+        });
+    };
+
     return (
         <div className="relative flex flex-col min-h-screen items-center justify-center bg-muted/20 p-4 overflow-hidden">
             {/* Background Gradients */}
             <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent opacity-30 blur-3xl -translate-x-1/4"></div>
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-purple-200 via-indigo-100 to-transparent opacity-30 blur-3xl translate-x-1/4"></div>
             
-            <div className="absolute top-6 right-6 z-20">
+            <div className="absolute top-6 right-6 z-20 flex gap-2">
+                 <Button variant="outline" onClick={handleDeploy}>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Deploy to Firebase
+                </Button>
                  <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
