@@ -22,7 +22,7 @@ const AskHeruOutputSchema = z.object({
 export type AskHeruOutput = z.infer<typeof AskHeruOutputSchema>;
 
 export async function askHeru(jsonString: string): Promise<AskHeruOutput> {
-  const input = JSON.parse(jsonString);
+  const input: AskHeruInput = JSON.parse(jsonString);
   return irccChatFlow(input);
 }
 
