@@ -4,7 +4,7 @@
 /**
  * @fileOverview An AI agent that analyzes a client's intake form for potential issues.
  *
- * - analyzeIntakeForm - The Genkit flow that handles the intake form analysis.
+ * - analyzeIntakeForm - The exported server action that handles the intake form analysis.
  * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.
  */
 
