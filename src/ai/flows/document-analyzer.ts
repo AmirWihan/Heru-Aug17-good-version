@@ -24,7 +24,7 @@ const DocumentAnalysisOutputSchema = z.object({
 export type DocumentAnalysisOutput = z.infer<typeof DocumentAnalysisOutputSchema>;
 
 export async function analyzeDocument(jsonString: string): Promise<DocumentAnalysisOutput> {
-  const input = JSON.parse(jsonString);
+  const input: DocumentAnalysisInput = JSON.parse(jsonString);
   return documentAnalyzerFlow(input);
 }
 
