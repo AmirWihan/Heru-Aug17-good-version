@@ -24,7 +24,11 @@ export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSche
 
 export async function summarizeDocument(jsonString: string): Promise<SummarizeDocumentOutput> {
   const input: SummarizeDocumentInput = JSON.parse(jsonString);
-  return summarizeDocumentFlow(input);
+  const {output} = await prompt(input);
+    if (!output) {
+      throw new Error('Failed to get summary from AI.');
+    }
+  return output;
 }
 
 const prompt = ai.definePrompt({
@@ -33,18 +37,3 @@ const prompt = ai.definePrompt({
   output: {schema: SummarizeDocumentOutputSchema},
   prompt: `Summarize the following document in a concise manner:\n\n{{{documentText}}}`,
 });
-
-const summarizeDocumentFlow = ai.defineFlow(
-  {
-    name: 'summarizeDocumentFlow',
-    inputSchema: SummarizeDocumentInputSchema,
-    outputSchema: SummarizeDocumentOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    if (!output) {
-      throw new Error('Failed to get summary from AI.');
-    }
-    return output;
-  }
-);
