@@ -36,7 +36,8 @@ function ApplicationChecker() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await applicationChecker({ documentText, applicationType });
+            const jsonString = JSON.stringify({ documentText, applicationType });
+            const response = await applicationChecker(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -118,7 +119,8 @@ function DocumentSummarizer() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await summarizeDocument({ documentText });
+            const jsonString = JSON.stringify({ documentText });
+            const response = await summarizeDocument(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -164,7 +166,8 @@ function MessageComposer() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await composeMessage({ clientName, messageContext, tone });
+            const jsonString = JSON.stringify({ clientName, messageContext, tone });
+            const response = await composeMessage(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -238,7 +241,8 @@ function ResumeBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const response = await buildResume(apiInput);
+            const jsonString = JSON.stringify(apiInput);
+            const response = await buildResume(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -311,7 +315,8 @@ function CoverLetterBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const response = await buildCoverLetter(apiInput);
+            const jsonString = JSON.stringify(apiInput);
+            const response = await buildCoverLetter(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -382,7 +387,8 @@ function WritingAssistant() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await assistWithWriting({ textToImprove, instruction });
+            const jsonString = JSON.stringify({ textToImprove, instruction });
+            const response = await assistWithWriting(jsonString);
             setResult(response);
         } catch (error) {
             console.error(error);
