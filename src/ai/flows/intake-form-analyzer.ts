@@ -10,7 +10,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
 const FlagSchema = z.object({
   severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),
