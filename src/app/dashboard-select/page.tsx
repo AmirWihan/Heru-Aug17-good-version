@@ -22,7 +22,6 @@ export default function DashboardSelectPage() {
                     break;
                 case 'lawyer':
                     const lawyerProfile = userProfile as TeamMember;
-                    // Check if the essential onboarding field (licenseNumber) is filled.
                     if (lawyerProfile.licenseNumber && lawyerProfile.licenseNumber !== 'N/A') {
                         router.replace('/lawyer/dashboard');
                     } else {
