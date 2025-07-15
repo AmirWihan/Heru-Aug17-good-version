@@ -1,4 +1,5 @@
 
+
 'use client';
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from 'next/navigation';
@@ -88,12 +89,15 @@ const getPriorityBadgeVariant = (priority: string) => {
 
 const getAgreementStatusBadgeVariant = (status: Agreement['status']) => {
     switch (status) {
-        case 'Active': case 'Signed': return 'success';
-        case 'Pending Signature': return 'warning';
+        case 'Active':
+        case 'Signed':
+            return 'success';
+        case 'Completed': return 'default';
         case 'Terminated': return 'destructive';
+        case 'Pending Signature': return 'warning';
         default: return 'secondary';
     }
-}
+};
 
 const getTaskStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -323,8 +327,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setAnalyzedDocTitle(doc.title);
         setIsAnalysisDialogOpen(true);
         try {
-            const inputData = { title: doc.title, category: doc.category };
-            const result = await analyzeDocument(inputData);
+            const result = await analyzeDocument({ title: doc.title, category: doc.category });
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);

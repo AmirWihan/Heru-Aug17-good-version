@@ -40,7 +40,7 @@ export default function RoleSelectionPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                 <Card asChild>
+                <Card asChild>
                     <Link href="/login?role=client" passHref className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
                         <CardHeader className="flex-1">
                             <User className="h-16 w-16 mx-auto text-primary" />
