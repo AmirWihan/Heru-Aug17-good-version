@@ -1,7 +1,7 @@
 
 
 'use client';
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -111,10 +111,6 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
-    if (!documents || documents.length === 0) {
-        return null; // Return null if there are no documents for this section
-    }
-
     return (
         <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
@@ -224,6 +220,10 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             return acc;
         }, {} as Record<string, ClientDocument[]>);
     }, [client.documents]);
+
+    const visibleDocumentGroups = useMemo(() => {
+        return Object.entries(documentGroups).filter(([, docs]) => docs.length > 0);
+    }, [documentGroups]);
 
     useEffect(() => {
         setAnalysisResult(client.analysis || null);
@@ -846,22 +846,18 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {Object.keys(documentGroups).map((groupName) => {
-                                    const docs = documentGroups[groupName];
-                                    if (!docs || docs.length === 0) return null;
-                                    return (
-                                        <DocumentSection
-                                            key={groupName}
-                                            title={groupName}
-                                            documents={docs}
-                                            selectedDocId={selectedDocument?.id || null}
-                                            onSelect={setSelectedDocument}
-                                            onStatusChange={handleDocumentStatusChange}
-                                            onViewClick={setViewingDocument}
-                                            onAnalyze={handleAnalyzeDocument}
-                                        />
-                                    );
-                                })}
+                                {visibleDocumentGroups.map(([groupName, docs]) => (
+                                    <DocumentSection
+                                        key={groupName}
+                                        title={groupName}
+                                        documents={docs}
+                                        selectedDocId={selectedDocument?.id || null}
+                                        onSelect={setSelectedDocument}
+                                        onStatusChange={handleDocumentStatusChange}
+                                        onViewClick={setViewingDocument}
+                                        onAnalyze={handleAnalyzeDocument}
+                                    />
+                                ))}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">
