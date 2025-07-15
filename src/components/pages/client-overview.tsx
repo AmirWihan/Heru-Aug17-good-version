@@ -36,8 +36,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                         currentStage: client.caseSummary.currentStatus,
                         countryOfOrigin: client.countryOfOrigin,
                     };
-                    const jsonString = JSON.stringify(inputData);
-                    const response = await getCaseTimeline(jsonString);
+                    const response = await getCaseTimeline(inputData);
                     setTimelineData(response.timeline);
                 } catch (err) {
                     console.error("Failed to fetch timeline:", err);
