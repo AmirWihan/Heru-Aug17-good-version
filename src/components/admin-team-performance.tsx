@@ -1,3 +1,4 @@
+
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { salesPerformanceData } from "@/lib/data";
 import { ArrowUp, UserPlus, Zap, Target } from "lucide-react";
 
-export function SalesTeamPerformance() {
+export function AdminTeamPerformance() {
     return (
         <Card>
             <CardHeader>
@@ -46,7 +47,7 @@ export function SalesTeamPerformance() {
                                     <p className="font-medium">{performer.name}</p>
                                     <p className="text-sm text-muted-foreground">{performer.performance}</p>
                                 </div>
-                                {performer.isTop && <Badge variant="warning">Top Performer</Badge>}
+                                {performer.isTop && <Badge variant="destructive">Top Performer</Badge>}
                             </div>
                         ))}
                     </div>

@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   output: { schema: CaseTimelineOutputSchema },
   prompt: `You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.
 
-  Analyze the client's data from the provided input to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
+  Analyze the client's data from the provided input to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and countryOfOrigin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.
 
   The timeline must include critical milestones like document submission, biometrics, medical exams, and the final decision. Provide a helpful, client-friendly description for each step.
 
@@ -67,5 +67,10 @@ const caseTimelineFlow = ai.defineFlow(
 );
 
 export async function getCaseTimeline(input: CaseTimelineInput): Promise<CaseTimelineOutput> {
-    return caseTimelineFlow(input);
+    try {
+        return await caseTimelineFlow(input);
+    } catch(e) {
+        console.error(e);
+        throw new Error('An error occurred while generating the timeline.');
+    }
 }

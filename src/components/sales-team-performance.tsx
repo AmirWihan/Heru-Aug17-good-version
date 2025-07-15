@@ -4,7 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { ArrowUp, DollarSign, Percent, UserPlus, Zap, Target } from "lucide-react"
 
@@ -37,6 +37,7 @@ export function TeamPerformance() {
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-lg">Team Performance</CardTitle>
+                <CardDescription>Monthly key performance indicators for your growth team.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -22,8 +22,6 @@ export default function DashboardSelectPage() {
                     break;
                 case 'lawyer':
                     const lawyerProfile = userProfile as TeamMember;
-                    // A simple check to see if onboarding might be complete. 
-                    // In a real app, this might be a dedicated 'onboardingComplete' flag.
                     if (lawyerProfile.status !== 'Pending Activation' && lawyerProfile.licenseNumber) {
                         router.replace('/lawyer/dashboard');
                     } else {
