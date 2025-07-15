@@ -38,12 +38,12 @@ export default function DashboardSelectPage() {
                     }
                     break;
                 default:
-                    router.replace('/login');
+                    router.replace('/');
             }
         } else {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
-                router.replace('/login');
+                router.replace('/');
             }, 1500);
             return () => clearTimeout(timer);
         }

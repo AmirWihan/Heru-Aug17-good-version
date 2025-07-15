@@ -116,7 +116,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
     }
 
     return (
-        <div className="space-y-3">
+        <>
             <h4 className="font-semibold">{title}</h4>
             <div className="border rounded-lg">
                 <Table>
@@ -143,7 +143,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </>
     );
 };
 
@@ -215,6 +215,15 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [timelineData, setTimelineData] = useState<Awaited<ReturnType<typeof getCaseTimeline>>['timeline'] | null>(null);
     const [isTimelineLoading, setIsTimelineLoading] = useState(true);
     const [timelineError, setTimelineError] = useState<string | null>(null);
+    
+    const documentGroups = useMemo(() => {
+        return (client.documents || []).reduce((acc, doc) => {
+            const group = doc.submissionGroup || 'Additional Document';
+            if (!acc[group]) acc[group] = [];
+            acc[group].push(doc);
+            return acc;
+        }, {} as Record<string, ClientDocument[]>);
+    }, [client.documents]);
 
     useEffect(() => {
         setAnalysisResult(client.analysis || null);
@@ -837,28 +846,18 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {Object.entries(
-                                  (client.documents || []).reduce((acc, doc) => {
-                                    const group = doc.submissionGroup || 'Additional Document';
-                                    if (!acc[group]) acc[group] = [];
-                                    acc[group].push(doc);
-                                    return acc;
-                                  }, {} as Record<string, ClientDocument[]>)
-                                ).map(([group, docs]) => {
-                                  if (docs.length === 0) return null;
-                                  return (
+                                {Object.keys(documentGroups).map((group) => (
                                     <DocumentSection
                                       key={group}
                                       title={group}
-                                      documents={docs}
+                                      documents={documentGroups[group]}
                                       selectedDocId={selectedDocument?.id || null}
                                       onSelect={setSelectedDocument}
                                       onStatusChange={handleDocumentStatusChange}
                                       onViewClick={setViewingDocument}
                                       onAnalyze={handleAnalyzeDocument}
                                     />
-                                  );
-                                })}
+                                  ))}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">

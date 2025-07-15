@@ -18,8 +18,8 @@ export default function RoleSelectionPage() {
     const handleAdminLogin = async () => {
         try {
             await login('admin@heru.com', 'password123');
+            toast({ title: 'Admin Login Successful' });
             router.push('/admin/dashboard');
-             toast({ title: 'Admin Login Successful' });
         } catch (error) {
             toast({ title: 'Admin Login Failed', variant: 'destructive' });
         }
