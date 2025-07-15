@@ -88,12 +88,15 @@ const getPriorityBadgeVariant = (priority: string) => {
 
 const getAgreementStatusBadgeVariant = (status: Agreement['status']) => {
     switch (status) {
-        case 'Active': case 'Signed': return 'success';
-        case 'Pending Signature': return 'warning';
+        case 'Active':
+        case 'Signed':
+            return 'success';
+        case 'Completed': return 'default';
         case 'Terminated': return 'destructive';
+        case 'Pending Signature': return 'warning';
         default: return 'secondary';
     }
-}
+};
 
 const getTaskStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
