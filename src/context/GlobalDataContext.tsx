@@ -173,28 +173,23 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             }
             return null;
         } else {
-            const allUsers = [...staticTeamMembers, ...staticClients];
-            let foundUser: Client | TeamMember | undefined;
-            let authRole: 'client' | 'lawyer' | 'admin' = 'client';
-
+            // Simulate auth for static data
             const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (foundTeamMember) {
-                foundUser = foundTeamMember;
-                authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-            } else {
-                const foundClient = staticClients.find(u => u.email.toLowerCase() === email.toLowerCase());
-                if (foundClient) {
-                    foundUser = foundClient;
-                    authRole = 'client';
-                }
-            }
-            
-            if (foundUser && (email.endsWith('@example.com') || email.endsWith('@heru.com') || foundUser.password === pass)) {
-                const profile = { ...foundUser, authRole };
+            if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
+                const profile = { ...foundTeamMember, authRole: foundTeamMember.type === 'admin' ? 'admin' : 'lawyer' as 'admin' | 'lawyer' };
                 setUserProfile(profile);
                 setLoadingProfile(false);
                 return profile;
             }
+    
+            const foundClient = staticClients.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (foundClient && (foundClient.password === pass || pass === 'password123')) {
+                const profile = { ...foundClient, authRole: 'client' as 'client' };
+                setUserProfile(profile);
+                setLoadingProfile(false);
+                return profile;
+            }
+    
             return null;
         }
     }, []);
