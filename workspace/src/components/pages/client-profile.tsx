@@ -110,6 +110,9 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
+    if (!documents || documents.length === 0) {
+      return <></>; // Return an empty fragment instead of null
+    }
     return (
         <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
@@ -126,7 +129,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                         {documents.map(doc => (
                             <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
                                 <TableCell className="font-medium">{doc.title}</TableCell>
-                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
                                 <TableCell className="text-right space-x-1">
                                     <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
@@ -852,19 +855,20 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {visibleDocumentGroups.map(([groupName, docs]) => 
-                                    <DocumentSection
-                                        key={groupName}
-                                        title={groupName}
-                                        documents={docs}
-                                        selectedDocId={selectedDocument?.id || null}
-                                        onSelect={setSelectedDocument}
-                                        onStatusChange={handleDocumentStatusChange}
-                                        onViewClick={setViewingDocument}
-                                        onAnalyze={handleAnalyzeDocument}
-                                    />
-                                )}
-                                {visibleDocumentGroups.length === 0 && (
+                                {visibleDocumentGroups.length > 0 ? (
+                                    visibleDocumentGroups.map(([groupName, docs]) => 
+                                        <DocumentSection
+                                            key={groupName}
+                                            title={groupName}
+                                            documents={docs}
+                                            selectedDocId={selectedDocument?.id || null}
+                                            onSelect={setSelectedDocument}
+                                            onStatusChange={handleDocumentStatusChange}
+                                            onViewClick={setViewingDocument}
+                                            onAnalyze={handleAnalyzeDocument}
+                                        />
+                                    )
+                                ) : (
                                      <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>
                                 )}
                             </div>
@@ -1088,7 +1092,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                             <div className="flex justify-between items-center">
                                 <div>
                                     <CardTitle className="text-lg">Client Tasks</CardTitle>
-                                    <CardDescription>All tasks associated with {client.name}.</CardDescription>
+                                    <CardDescription>All tasks associated with ${client.name}.</CardDescription>
                                 </div>
                                 <Button onClick={() => setAddTaskDialogOpen(true)}>
                                     <Plus className="mr-2 h-4 w-4" /> Add Task
@@ -1230,7 +1234,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Upload Document</DialogTitle>
-                        <DialogDescription>Add a new document to {client.name}'s profile.</DialogDescription>
+                        <DialogDescription>Add a new document to ${client.name}'s profile.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1266,7 +1270,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Assign Document</DialogTitle>
-                        <DialogDescription>Request a document from {client.name}.</DialogDescription>
+                        <DialogDescription>Request a document from ${client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1336,7 +1340,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Add New Task</DialogTitle>
-                        <DialogDescription>Assign a new task for {client.name}.</DialogDescription>
+                        <DialogDescription>Assign a new task for ${client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1485,7 +1489,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "{analyzedDocTitle}"
+                            AI Analysis for "${analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.
@@ -1530,3 +1534,4 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         </div>
     );
 });
+
