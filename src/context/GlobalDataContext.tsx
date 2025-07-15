@@ -174,21 +174,22 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             return null;
         } else {
             const allUsers = [...staticTeamMembers, ...staticClients];
-            let foundUser;
+            let foundUser: Client | TeamMember | undefined;
+            let authRole: 'client' | 'lawyer' | 'admin' = 'client';
 
-            // "Dumb" login for demo purposes. Ignores password for any @example.com or @heru.com email.
-            if (email.endsWith('@example.com') || email.endsWith('@heru.com')) {
-                foundUser = allUsers.find(u => u.email?.toLowerCase() === email.toLowerCase());
+            const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (foundTeamMember) {
+                foundUser = foundTeamMember;
+                authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
             } else {
-                 foundUser = allUsers.find(
-                    (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === pass
-                );
+                const foundClient = staticClients.find(u => u.email.toLowerCase() === email.toLowerCase());
+                if (foundClient) {
+                    foundUser = foundClient;
+                    authRole = 'client';
+                }
             }
             
-            if (foundUser) {
-                const isTeamMember = 'accessLevel' in foundUser;
-                const isAdmin = isTeamMember && (foundUser as TeamMember).type === 'admin';
-                const authRole = isAdmin ? 'admin' : isTeamMember ? 'lawyer' : 'client';
+            if (foundUser && (email.endsWith('@example.com') || email.endsWith('@heru.com') || foundUser.password === pass)) {
                 const profile = { ...foundUser, authRole };
                 setUserProfile(profile);
                 setLoadingProfile(false);
@@ -239,13 +240,13 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 phone: '', caseType: 'Unassigned', status: 'Active', portalStatus: 'Active', lastContact: new Date().toISOString().split('T')[0],
                 avatar: `https://i.pravatar.cc/150?u=${email}`, countryOfOrigin: 'Unknown', currentLocation: 'Unknown',
                 joined: new Date().toISOString().split('T')[0], age: 0, educationLevel: 'Unknown',
-                caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
-                activity: [], documents: [], tasks: [], agreements: [],
-                intakeForm: { status: 'not_started' },
                 coins: 25, // Welcome bonus
                 onboardingComplete: false, // <-- New flag
                 connectedLawyerId: connectedLawyerId,
                 connectionRequestFromLawyerId: null,
+                caseSummary: { priority: 'Medium', caseType: 'Unassigned', currentStatus: 'New', nextStep: 'Onboarding', dueDate: '' },
+                activity: [], documents: [], tasks: [], agreements: [],
+                intakeForm: { status: 'not_started' },
             };
             setClients(prev => [...prev, newProfile as Client]);
         } else { // Lawyer
