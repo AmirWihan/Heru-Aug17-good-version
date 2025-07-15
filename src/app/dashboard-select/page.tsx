@@ -22,7 +22,9 @@ export default function DashboardSelectPage() {
                     break;
                 case 'lawyer':
                     const lawyerProfile = userProfile as TeamMember;
-                    if (lawyerProfile.licenseNumber && lawyerProfile.licenseNumber !== 'N/A') {
+                    // A simple check to see if onboarding might be complete. 
+                    // In a real app, this might be a dedicated 'onboardingComplete' flag.
+                    if (lawyerProfile.licenseNumber && lawyerProfile.licenseNumber !== '') {
                         router.replace('/lawyer/dashboard');
                     } else {
                         router.replace('/lawyer/onboarding');
@@ -37,12 +39,15 @@ export default function DashboardSelectPage() {
                     }
                     break;
                 default:
-                    router.replace('/');
+                    // Fallback to login if role is unknown
+                    router.replace('/login');
             }
         } else {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
-                router.replace('/login');
+                if (!userProfile) {
+                    router.replace('/login');
+                }
             }, 1500);
             return () => clearTimeout(timer);
         }
