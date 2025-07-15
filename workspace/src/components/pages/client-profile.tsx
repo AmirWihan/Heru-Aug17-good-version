@@ -86,6 +86,15 @@ const getPriorityBadgeVariant = (priority: string) => {
     }
 };
 
+const getAgreementStatusBadgeVariant = (status: Agreement['status']) => {
+    switch (status) {
+        case 'Active': case 'Signed': return 'success';
+        case 'Pending Signature': return 'warning';
+        case 'Terminated': return 'destructive';
+        default: return 'secondary';
+    }
+}
+
 const getTaskStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
         case 'completed': return 'success' as const;
@@ -111,7 +120,7 @@ interface ClientProfileProps {
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (!documents || documents.length === 0) {
-      return <></>; // Return an empty fragment instead of null
+      return null;
     }
     return (
         <div className="space-y-3">
@@ -256,12 +265,12 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             setIsTimelineLoading(true);
             setTimelineError(null);
             try {
-                const jsonString = JSON.stringify({
+                const inputData = {
                     visaType: client.caseSummary.caseType,
                     currentStage: client.caseSummary.currentStatus,
                     countryOfOrigin: client.countryOfOrigin,
-                });
-                const response = await getCaseTimeline(jsonString);
+                };
+                const response = await getCaseTimeline(inputData);
                 setTimelineData(response.timeline);
             } catch (err) {
                 console.error("Failed to fetch timeline:", err);
@@ -294,8 +303,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const jsonString = JSON.stringify(inputData);
-            const result = await predictSuccess(jsonString);
+            const result = await predictSuccess(inputData);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -315,8 +323,8 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setAnalyzedDocTitle(doc.title);
         setIsAnalysisDialogOpen(true);
         try {
-            const jsonString = JSON.stringify({ title: doc.title, category: doc.category });
-            const result = await analyzeDocument(jsonString);
+            const inputData = { title: doc.title, category: doc.category };
+            const result = await analyzeDocument(inputData);
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);
@@ -855,25 +863,26 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {visibleDocumentGroups.length > 0 ? (
-                                    visibleDocumentGroups.map(([groupName, docs]) => 
-                                        <DocumentSection
-                                            key={groupName}
-                                            title={groupName}
-                                            documents={docs}
-                                            selectedDocId={selectedDocument?.id || null}
-                                            onSelect={setSelectedDocument}
-                                            onStatusChange={handleDocumentStatusChange}
-                                            onViewClick={setViewingDocument}
-                                            onAnalyze={handleAnalyzeDocument}
-                                        />
-                                    )
-                                ) : (
-                                     <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>
+                                {visibleDocumentGroups.map(([groupName, docs]) => 
+                                    <DocumentSection
+                                        key={groupName}
+                                        title={groupName}
+                                        documents={docs}
+                                        selectedDocId={selectedDocument?.id || null}
+                                        onSelect={setSelectedDocument}
+                                        onStatusChange={handleDocumentStatusChange}
+                                        onViewClick={setViewingDocument}
+                                        onAnalyze={handleAnalyzeDocument}
+                                    />
+                                )}
+                                {visibleDocumentGroups.length === 0 && (
+                                     <div className="text-center text-muted-foreground py-8">
+                                        <p>No documents assigned to this client yet.</p>
+                                    </div>
                                 )}
                             </div>
                              <div className="lg:col-span-1">
-                                <Card className="sticky top-24">
+                                <Card className="sticky top-20">
                                     <CardHeader className="flex-row gap-2 items-center">
                                         <CheckSquare className="h-5 w-5 text-primary"/>
                                         <div>
@@ -930,7 +939,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant={getPriorityBadgeVariant(agreement.status as any)}>{agreement.status}</Badge>
+                                                <Badge variant={getAgreementStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenAgreementDialog(agreement)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -1489,7 +1498,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "${analyzedDocTitle}"
+                            AI Analysis for "{analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.
@@ -1534,4 +1543,3 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         </div>
     );
 });
-
