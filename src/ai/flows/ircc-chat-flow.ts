@@ -54,10 +54,5 @@ const irccChatFlow = ai.defineFlow(
 
 
 export async function askHeru(input: AskHeruInput): Promise<AskHeruOutput> {
-  try {
-    return irccChatFlow(input);
-  } catch(e) {
-    console.error(e);
-    throw new Error('An error occurred while getting a response from the AI chat.');
-  }
+  return irccChatFlow(input);
 }

@@ -224,7 +224,11 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [timelineError, setTimelineError] = useState<string | null>(null);
     
     const documentGroups = useMemo(() => {
-        const groups: { [key: string]: ClientDocument[] } = {};
+        const groups: Record<string, ClientDocument[]> = {
+            'Main Form': [],
+            'Supporting Document': [],
+            'Additional Document': [],
+        };
         (client.documents || []).forEach(doc => {
             const groupName = doc.submissionGroup || 'Additional Document';
             if (!groups[groupName]) {
@@ -261,12 +265,12 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             setIsTimelineLoading(true);
             setTimelineError(null);
             try {
-                const jsonString = JSON.stringify({
+                const inputData = {
                     visaType: client.caseSummary.caseType,
                     currentStage: client.caseSummary.currentStatus,
                     countryOfOrigin: client.countryOfOrigin,
-                });
-                const response = await getCaseTimeline(jsonString);
+                };
+                const response = await getCaseTimeline(inputData);
                 setTimelineData(response.timeline);
             } catch (err) {
                 console.error("Failed to fetch timeline:", err);
@@ -299,8 +303,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const jsonString = JSON.stringify(inputData);
-            const result = await predictSuccess(jsonString);
+            const result = await predictSuccess(inputData);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -320,8 +323,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setAnalyzedDocTitle(doc.title);
         setIsAnalysisDialogOpen(true);
         try {
-            const jsonString = JSON.stringify({ title: doc.title, category: doc.category });
-            const result = await analyzeDocument(jsonString);
+            const result = await analyzeDocument({ title: doc.title, category: doc.category });
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);
@@ -879,7 +881,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                 )}
                             </div>
                              <div className="lg:col-span-1">
-                                <Card className="sticky top-24">
+                                <Card className="sticky top-20">
                                     <CardHeader className="flex-row gap-2 items-center">
                                         <CheckSquare className="h-5 w-5 text-primary"/>
                                         <div>
@@ -1495,7 +1497,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "${analyzedDocTitle}"
+                            AI Analysis for "{analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.

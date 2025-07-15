@@ -17,6 +17,9 @@ const pageTitles: { [key: string]: string } = {
     'notifications': 'System Notifications',
     'support-tickets': 'Support Tickets',
     'settings': 'Platform Settings',
+    'leads': 'Firm Leads',
+    'ai-tools': 'AI Tools',
+    'appointments': 'Appointments',
 };
 
 function AdminDashboardLayoutContent({ children }: { children: React.ReactNode }) {

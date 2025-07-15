@@ -20,10 +20,6 @@ import { z } from 'zod';
 
 export type { BuildResumeInput, BuildResumeOutput };
 
-export async function buildResume(input: BuildResumeInput): Promise<BuildResumeOutput> {
-  return resumeBuilderFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'resumeBuilderPrompt',
   input: { schema: BuildResumeInputSchema },
@@ -74,3 +70,8 @@ const resumeBuilderFlow = ai.defineFlow(
     return output!;
   }
 );
+
+
+export async function buildResume(input: BuildResumeInput): Promise<BuildResumeOutput> {
+  return resumeBuilderFlow(input);
+}

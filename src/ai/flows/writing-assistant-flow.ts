@@ -20,15 +20,6 @@ import {
 
 export type { WritingAssistantInput, WritingAssistantOutput };
 
-export async function assistWithWriting(input: WritingAssistantInput): Promise<WritingAssistantOutput> {
-  try {
-    return writingAssistantFlow(input);
-  } catch(e) {
-    console.error(e);
-    throw new Error('An error occurred while using the writing assistant.');
-  }
-}
-
 const writingAssistantPrompt = ai.definePrompt({
   name: 'writingAssistantPrompt',
   input: { schema: WritingAssistantInputSchema },
@@ -61,3 +52,8 @@ const writingAssistantFlow = ai.defineFlow(
         return output;
     }
 );
+
+
+export async function assistWithWriting(input: WritingAssistantInput): Promise<WritingAssistantOutput> {
+  return writingAssistantFlow(input);
+}

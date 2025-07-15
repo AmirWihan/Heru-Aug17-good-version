@@ -2,16 +2,17 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
-import { DashboardScreenshot } from '@/components/screenshots/DashboardScreenshot';
+import { LawyerDashboardScreenshot } from '@/components/screenshots/DashboardScreenshot';
 import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
-import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
+import { ClientDashboardScreenshot } from '../screenshots/client-dashboard-screenshot';
+
 
 const features = [
     {
         icon: ShieldAlert,
         title: "Proactive Risk Alerts",
         description: "Our AI scans active cases for approaching deadlines and missing documents, giving you actionable alerts before they become problems.",
-        visual: <DashboardScreenshot />
+        visual: <LawyerDashboardScreenshot />
     },
     {
         icon: FileStack,

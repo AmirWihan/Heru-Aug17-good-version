@@ -23,7 +23,7 @@ const IntakeFormAnalysisSchema = z.object({
   summary: z.string().describe("A brief, overall summary of the AI's findings from the form review."),
   flags: z.array(FlagSchema).describe("An array of potential issues, inconsistencies, or red flags found in the form."),
   educationAnalysis: z.object({
-    equivalencySuggestion: z.string().describe("Suggest the Canadian education equivalency level (e.g., 'Bachelor's degree', 'Two or more certificates') based on the degrees provided."),
+    equivalencySuggestion: z.string().describe("Suggest the Canadian education equivalency level (e.g., 'Bachelor\\'s degree', 'Two or more certificates') based on the degrees provided."),
     notes: z.string().describe("Any brief notes or observations about the client's education history."),
   }).optional(),
 });
@@ -69,10 +69,5 @@ const intakeFormAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeIntakeForm(input: IntakeFormInput): Promise<IntakeFormAnalysis> {
-    try {
-        return intakeFormAnalyzerFlow(input);
-    } catch(e) {
-        console.error(e);
-        throw new Error('An error occurred while analyzing the intake form.');
-    }
+    return intakeFormAnalyzerFlow(input);
 }
