@@ -40,8 +40,8 @@ export default function RoleSelectionPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                <Card asChild>
-                    <Link href="/login?role=client" passHref className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                    <Link href="/login?role=client" passHref className="flex flex-col flex-1">
                         <CardHeader className="flex-1">
                             <User className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
@@ -55,8 +55,8 @@ export default function RoleSelectionPage() {
                     </Link>
                 </Card>
 
-                 <Card asChild>
-                    <Link href="/login?role=lawyer" passHref className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                 <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                    <Link href="/login?role=lawyer" passHref className="flex flex-col flex-1">
                         <CardHeader className="flex-1">
                             <Briefcase className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>
