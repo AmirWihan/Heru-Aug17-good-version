@@ -53,7 +53,6 @@ const irccChatFlow = ai.defineFlow(
 );
 
 
-export async function askHeru(jsonString: string): Promise<AskHeruOutput> {
-  const input: AskHeruInput = JSON.parse(jsonString);
+export async function askHeru(input: AskHeruInput): Promise<AskHeruOutput> {
   return irccChatFlow(input);
 }

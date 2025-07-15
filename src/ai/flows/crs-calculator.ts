@@ -60,11 +60,11 @@ export type CrsOutput = z.infer<typeof CrsOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'crsCalculatorPrompt',
-  input: { schema: z.string() }, // Expects a JSON string
+  input: { schema: CrsInputSchema }, 
   output: { schema: CrsOutputSchema },
   prompt: `You are an expert Canadian immigration consultant specializing in the Express Entry Comprehensive Ranking System (CRS). Your task is to calculate a user's CRS score with perfect accuracy based on the official IRCC guidelines. The maximum possible score is 1200.
 
-  Carefully analyze the user's input from the provided JSON string and calculate their total CRS score.
+  Carefully analyze the user's input from the provided JSON object and calculate their total CRS score.
   
   You must provide a breakdown of the score for each of the following sections according to the latest official IRCC rules:
   1.  **Core / Human Capital Factors:** Based on age, education, language proficiency (first and second), and Canadian work experience. The maximum points for a single applicant is 500.
@@ -90,11 +90,11 @@ const prompt = ai.definePrompt({
 const crsCalculatorFlow = ai.defineFlow(
   {
     name: 'crsCalculatorFlow',
-    inputSchema: z.string(), // Input is a JSON string
+    inputSchema: CrsInputSchema,
     outputSchema: CrsOutputSchema,
   },
-  async (jsonString) => {
-    const { output } = await prompt(jsonString);
+  async (input) => {
+    const { output } = await prompt(input);
     if (!output) {
       throw new Error("Failed to get CRS score from AI.");
     }
@@ -102,6 +102,6 @@ const crsCalculatorFlow = ai.defineFlow(
   }
 );
 
-export async function calculateCrsScore(jsonString: string): Promise<CrsOutput> {
-  return crsCalculatorFlow(jsonString);
+export async function calculateCrsScore(input: CrsInput): Promise<CrsOutput> {
+  return crsCalculatorFlow(input);
 }

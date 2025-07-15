@@ -19,7 +19,7 @@ export default function RoleSelectionPage() {
         try {
             await login('admin@heru.com', 'password123');
             toast({ title: 'Admin Login Successful' });
-            router.push('/admin/dashboard');
+            router.push('/dashboard-select');
         } catch (error) {
             toast({ title: 'Admin Login Failed', variant: 'destructive' });
         }
@@ -41,7 +41,7 @@ export default function RoleSelectionPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 <Link href="/login?role=client" passHref>
-                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                    <Card as="a" className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
                         <CardHeader className="flex-1">
                             <User className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
@@ -56,7 +56,7 @@ export default function RoleSelectionPage() {
                 </Link>
 
                 <Link href="/login?role=lawyer" passHref>
-                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                    <Card as="a" className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
                         <CardHeader className="flex-1">
                             <Briefcase className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>

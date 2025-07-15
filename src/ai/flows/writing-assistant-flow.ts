@@ -20,6 +20,10 @@ import {
 
 export type { WritingAssistantInput, WritingAssistantOutput };
 
+export async function assistWithWriting(input: WritingAssistantInput): Promise<WritingAssistantOutput> {
+  return writingAssistantFlow(input);
+}
+
 const writingAssistantPrompt = ai.definePrompt({
   name: 'writingAssistantPrompt',
   input: { schema: WritingAssistantInputSchema },
@@ -52,9 +56,3 @@ const writingAssistantFlow = ai.defineFlow(
         return output;
     }
 );
-
-
-export async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {
-  const input: WritingAssistantInput = JSON.parse(jsonString);
-  return writingAssistantFlow(input);
-}

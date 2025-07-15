@@ -44,7 +44,6 @@ const summarizeDocumentFlow = ai.defineFlow(
     }
 );
 
-export async function summarizeDocument(jsonString: string): Promise<SummarizeDocumentOutput> {
-  const input: SummarizeDocumentInput = JSON.parse(jsonString);
+export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
   return summarizeDocumentFlow(input);
 }

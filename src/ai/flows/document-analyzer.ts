@@ -59,7 +59,6 @@ const documentAnalyzerFlow = ai.defineFlow(
   }
 );
 
-export async function analyzeDocument(jsonString: string): Promise<DocumentAnalysisOutput> {
-  const input: DocumentAnalysisInput = JSON.parse(jsonString);
+export async function analyzeDocument(input: DocumentAnalysisInput): Promise<DocumentAnalysisOutput> {
   return documentAnalyzerFlow(input);
 }

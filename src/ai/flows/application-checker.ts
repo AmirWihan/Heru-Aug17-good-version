@@ -67,7 +67,6 @@ const applicationCheckerFlow = ai.defineFlow(
     }
 );
 
-export async function applicationChecker(jsonString: string): Promise<ApplicationCheckerOutput> {
-  const input: ApplicationCheckerInput = JSON.parse(jsonString);
+export async function applicationChecker(input: ApplicationCheckerInput): Promise<ApplicationCheckerOutput> {
   return applicationCheckerFlow(input);
 }

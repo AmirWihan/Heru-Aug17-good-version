@@ -70,9 +70,7 @@ const prompt = ai.definePrompt({
   For each client you flag, you must provide a concise summary of the issue and a clear, suggested action for the lawyer. If a client has multiple issues, create a separate alert for each.
 
   Here is the list of clients to analyze:
-  \`\`\`json
   {{{json this}}}
-  \`\`\`
 
   Return your findings as an array of alerts in the specified JSON format. If there are no risks, return an empty array.
   `,
@@ -93,7 +91,6 @@ const riskAnalyzerFlow = ai.defineFlow(
   }
 );
 
-export async function analyzeClientRisks(jsonString: string): Promise<RiskAnalysisOutput> {
-    const input: RiskAnalysisInput = JSON.parse(jsonString);
+export async function analyzeClientRisks(input: RiskAnalysisInput): Promise<RiskAnalysisOutput> {
     return riskAnalyzerFlow(input);
 }

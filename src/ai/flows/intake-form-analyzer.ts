@@ -10,6 +10,8 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import type { IntakeFormInput } from '@/ai/schemas/intake-form-schema';
+import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
 
 const FlagSchema = z.object({
   severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),
@@ -29,14 +31,12 @@ export type IntakeFormAnalysis = z.infer<typeof IntakeFormAnalysisSchema>;
 
 const prompt = ai.definePrompt({
   name: 'intakeFormAnalyzerPrompt',
-  input: { schema: z.string() }, // Expects a JSON string
+  input: { schema: IntakeFormInputSchema },
   output: { schema: IntakeFormAnalysisSchema },
   prompt: `You are an expert Canadian immigration case analyst. Your task is to review a client's submitted intake form data and identify any potential issues, red flags, or areas that require further clarification.
 
-  Analyze the following client data, which is provided as a JSON string:
-  \`\`\`json
+  Analyze the following client data, which is provided as a JSON object:
   {{{json this}}}
-  \`\`\`
 
   Your analysis should focus on:
   1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline, family composition mismatch).
@@ -56,11 +56,11 @@ const prompt = ai.definePrompt({
 const intakeFormAnalyzerFlow = ai.defineFlow(
     {
         name: 'intakeFormAnalyzerFlow',
-        inputSchema: z.string(),
+        inputSchema: IntakeFormInputSchema,
         outputSchema: IntakeFormAnalysisSchema,
     },
-    async (jsonString) => {
-        const { output } = await prompt(jsonString);
+    async (input) => {
+        const { output } = await prompt(input);
         if (!output) {
             throw new Error("AI analysis failed to produce an output.");
         }
@@ -68,6 +68,6 @@ const intakeFormAnalyzerFlow = ai.defineFlow(
     }
 );
 
-export async function analyzeIntakeForm(jsonString: string): Promise<IntakeFormAnalysis> {
-    return intakeFormAnalyzerFlow(jsonString);
+export async function analyzeIntakeForm(input: IntakeFormInput): Promise<IntakeFormAnalysis> {
+    return intakeFormAnalyzerFlow(input);
 }

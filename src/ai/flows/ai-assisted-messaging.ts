@@ -58,7 +58,6 @@ const composeMessageFlow = ai.defineFlow(
 );
 
 
-export async function composeMessage(jsonString: string): Promise<ComposeMessageOutput> {
-  const input = JSON.parse(jsonString) as ComposeMessageInput;
+export async function composeMessage(input: ComposeMessageInput): Promise<ComposeMessageOutput> {
   return composeMessageFlow(input);
 }
