@@ -113,7 +113,7 @@ interface ClientProfileProps {
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (documents.length === 0) return null;
     return (
-        <>
+        <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
             <div className="border rounded-lg">
                 <Table>
@@ -140,7 +140,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                     </TableBody>
                 </Table>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -638,7 +638,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             <DocumentViewer
                 isOpen={!!viewingDocument}
                 onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}
-                document={viewingDocument ? {title: viewingDocument.title, url: viewingDocument.url} : null}
+                document={viewingDocument}
             />
             
             <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -1346,7 +1346,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                 <Label htmlFor="task-client">Client</Label>
                                 <Select value={newTaskClient} onValueChange={setNewTaskClient}>
                                     <SelectTrigger id="task-client"><SelectValue placeholder="Select a client" /></SelectTrigger>
-                                    <SelectContent>{clients.map(client => (<SelectItem key={client.id} value={client.id.toString()}>{client.name}</SelectItem>))}</SelectContent>
+                                    <SelectContent>{allClients.map(client => (<SelectItem key={client.id} value={client.id.toString()}>{client.name}</SelectItem>))}</SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
@@ -1482,7 +1482,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-primary" />
-                            AI Analysis for "${analyzedDocTitle}"
+                            AI Analysis for "{analyzedDocTitle}"
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                            Here are the key items to check for this document based on standard immigration procedures.
