@@ -1630,7 +1630,767 @@ export async function assistWithWriting(jsonString: string): Promise<WritingAssi
 `
   },
   {
-    path: 'src/app/page.tsx',
+    path: 'src/ai/genkit.ts',
+    content: `import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
+
+export const ai = genkit({
+  plugins: [googleAI()],
+  model: 'googleai/gemini-2.0-flash',
+});
+`
+  },
+  {
+    path: 'src/ai/schemas/cover-letter-schema.ts',
+    content: `
+/**
+ * @fileOverview Defines the Zod schema and TypeScript types for the cover letter builder AI flow.
+ */
+import { z } from 'zod';
+import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
+
+// This new schema only accepts the specific fields needed by the prompt,
+// preventing the serialization of the entire large intake form object.
+export const BuildCoverLetterInputSchema = z.object({
+  jobTitle: z.string().describe("The title of the job being applied for."),
+  companyName: z.string().describe("The name of the company."),
+  jobDescription: z.string().describe("The full job description."),
+  clientName: z.string().describe("The client's full name."),
+  clientWorkHistory: IntakeFormInputSchema.shape.workHistory,
+  clientEducation: IntakeFormInputSchema.shape.education,
+});
+export type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;
+
+export const BuildCoverLetterOutputSchema = z.object({
+  coverLetterText: z.string().describe('The generated cover letter in Markdown format.'),
+});
+export type BuildCoverLetterOutput = z.infer<typeof BuildCoverLetterOutputSchema>;
+`
+  },
+  {
+    path: 'src/ai/schemas/intake-form-schema.ts',
+    content: `
+/**
+ * @fileOverview Defines the Zod schema and TypeScript types for the client intake form.
+ * This schema is shared between multiple AI flows.
+ */
+import {z} from 'zod';
+
+const FamilyMemberSchema = z.object({
+    fullName: z.string(),
+    relationship: z.string(),
+    dateOfBirth: z.string(),
+    countryOfBirth: z.string(),
+    currentAddress: z.string(),
+    occupation: z.string(),
+});
+
+export const IntakeFormInputSchema = z.object({
+  personal: z.object({
+    fullName: z.string(),
+    dateOfBirth: z.string(),
+    countryOfBirth: z.string(),
+    countryOfCitizenship: z.string(),
+    passportNumber: z.string(),
+    passportExpiry: z.string(),
+    height: z.string(),
+    eyeColor: z.string(),
+    contact: z.object({
+        email: z.string(),
+        phone: z.string(),
+        address: z.string(),
+    }),
+  }),
+  family: z.object({
+    maritalStatus: z.string(),
+    spouse: FamilyMemberSchema.optional(),
+    mother: FamilyMemberSchema.optional(),
+    father: FamilyMemberSchema.optional(),
+    children: z.array(FamilyMemberSchema).optional(),
+    siblings: z.array(FamilyMemberSchema).optional(),
+  }),
+  education: z.array(z.object({
+    institution: z.string(),
+    degree: z.string(),
+    yearCompleted: z.string(),
+    countryOfStudy: z.string(),
+  })),
+  workHistory: z.array(z.object({
+    company: z.string(),
+    position: z.string(),
+    duration: z.string(),
+    country: z.string(),
+  })),
+  languageProficiency: z.object({
+    englishScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
+    frenchScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),
+  }),
+  travelHistory: z.array(z.object({
+    country: z.string(),
+    purpose: z.string(),
+    duration: z.string(),
+    year: z.string(),
+  })),
+  immigrationHistory: z.object({
+    previouslyApplied: z.enum(['yes', 'no']),
+    previousApplicationDetails: z.string().optional(),
+    wasRefused: z.enum(['yes', 'no']),
+    refusalDetails: z.string().optional(),
+  }),
+  admissibility: z.object({
+    hasCriminalRecord: z.enum(['yes', 'no']),
+    criminalRecordDetails: z.string().optional(),
+    hasMedicalIssues: z.enum(['yes', 'no']),
+    medicalIssuesDetails: z.string().optional(),
+    hasOverstayed: z.enum(['yes', 'no']).optional(),
+    overstayDetails: z.string().optional(),
+  }).optional(),
+});
+
+export type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;
+`
+  },
+  {
+    path: 'src/ai/schemas/resume-builder-schema.ts',
+    content: `/**
+ * @fileOverview Defines the Zod schema and TypeScript types for the resume builder AI flow.
+ */
+import { z } from 'zod';
+import { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';
+
+// This new schema only accepts the specific fields needed by the prompt,
+// preventing the serialization of the entire large intake form object.
+export const BuildResumeInputSchema = z.object({
+    clientName: z.string().describe("The client's full name."),
+    clientContact: IntakeFormInputSchema.shape.personal.shape.contact.describe("The client's contact information."),
+    clientWorkHistory: IntakeFormInputSchema.shape.workHistory.describe("The client's work history."),
+    clientEducation: IntakeFormInputSchema.shape.education.describe("The client's education history."),
+});
+export type BuildResumeInput = z.infer<typeof BuildResumeInputSchema>;
+
+export const BuildResumeOutputSchema = z.object({
+  resumeText: z.string().describe('The generated resume in Markdown format.'),
+});
+export type BuildResumeOutput = z.infer<typeof BuildResumeOutputSchema>;
+`
+  },
+  {
+    path: 'src/ai/schemas/writing-assistant-schema.ts',
+    content: `/**
+ * @fileOverview Defines the Zod schema and TypeScript types for the writing assistant AI flow.
+ */
+import { z } from 'zod';
+
+export const WritingAssistantInputSchema = z.object({
+  textToImprove: z.string().describe("The original text to be modified."),
+  instruction: z.string().describe("The instruction on how to modify the text (e.g., 'make it more professional', 'shorten it', 'check grammar')."),
+});
+export type WritingAssistantInput = z.infer<typeof WritingAssistantInputSchema>;
+
+export const WritingAssistantOutputSchema = z.object({
+  improvedText: z.string().describe('The resulting text after applying the instruction.'),
+});
+export type WritingAssistantOutput = z.infer<typeof WritingAssistantOutputSchema>;
+`
+  },
+  {
+    path: 'src/app/(marketing)/for-lawyers/page.tsx',
+    content: `
+'use client';
+
+import { BarChart, CheckCircle, ShieldCheck, Users, Zap } from 'lucide-react';
+import { PricingTable } from '@/components/pricing-table';
+import { TestimonialCard } from '@/components/testimonial-card';
+import { testimonials, faqs } from '@/lib/data';
+import { Faq } from '@/components/faq';
+import { ClientManagementScreenshot } from '@/components/screenshots/ClientManagementScreenshot';
+import { BillingScreenshot } from '@/components/screenshots/BillingScreenshot';
+import { DashboardScreenshot } from '@/components/screenshots/DashboardScreenshot';
+
+const lawyerFeatures = [
+    {
+        icon: Users,
+        title: 'Centralized Client Management',
+        description: 'Manage all your clients from a single, intuitive dashboard. Track case progress, documents, and communication history effortlessly.',
+    },
+    {
+        icon: Zap,
+        title: 'AI-Powered Efficiency Tools',
+        description: 'Leverage AI to check applications for errors, summarize lengthy documents, and draft professional client communications in seconds.',
+    },
+    {
+        icon: ShieldCheck,
+        title: 'Proactive Risk Alerts',
+        description: "Our AI scans active cases for approaching deadlines and missing documents, giving you alerts before they become problems.",
+    },
+     {
+        icon: BarChart,
+        title: 'Performance Analytics',
+        description: "Gain insights into your firm's performance with reports on case success rates, client acquisition, and revenue.",
+    },
+];
+
+export default function ForLawyersPage() {
+    const lawyerTestimonial = testimonials.find(t => t.role === 'lawyer');
+    const lawyerFaqs = faqs.filter(f => f.for === 'lawyer');
+
+    return (
+        <div className="space-y-20 py-16">
+            {/* Hero Section */}
+            <section className="container text-center">
+                <h1 className="text-4xl md:text-5xl font-bold font-headline">The AI-Powered CRM for Modern Immigration Firms</h1>
+                <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
+                    Stop juggling spreadsheets and generic tools. VisaFor is designed specifically for immigration professionals, helping you save time, reduce errors, and grow your practice.
+                </p>
+            </section>
+
+            {/* Screenshots Section */}
+            <section className="container">
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    <div className="lg:col-span-1 space-y-4">
+                        <h2 className="text-3xl font-bold font-headline">One Platform to Run Your Entire Practice</h2>
+                        <p className="text-muted-foreground">From client intake to final submission, VisaFor provides the tools you need to stay organized and efficient.</p>
+                    </div>
+                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <DashboardScreenshot />
+                        <ClientManagementScreenshot />
+                    </div>
+                </div>
+            </section>
+
+             {/* Features Section */}
+            <section className="container">
+                <div className="text-center mb-12">
+                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Features Built for Immigration Professionals</h2>
+                     <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Everything you need to streamline your workflow and deliver exceptional service.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {lawyerFeatures.map((feature) => (
+                        <div key={feature.title} className="flex items-start gap-4">
+                            <div className="bg-primary/10 p-3 rounded-full">
+                                <feature.icon className="h-6 w-6 text-primary" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">{feature.title}</h3>
+                                <p className="text-muted-foreground">{feature.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+            
+            {/* Pricing Section */}
+            <section id="pricing" className="container">
+                <div className="text-center mb-12">
+                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Find the Perfect Plan</h2>
+                     <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Start for free and scale as you grow. No long-term contracts, cancel anytime.</p>
+                </div>
+                <PricingTable />
+            </section>
+
+            {/* Testimonial Section */}
+            {lawyerTestimonial && (
+                 <section className="container">
+                    <div className="max-w-4xl mx-auto">
+                        <TestimonialCard testimonial={lawyerTestimonial} />
+                    </div>
+                </section>
+            )}
+
+            {/* FAQ Section */}
+            <section className="container">
+                <div className="text-center mb-12">
+                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
+                </div>
+                 <div className="max-w-3xl mx-auto">
+                    <Faq faqs={lawyerFaqs} />
+                </div>
+            </section>
+        </div>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/(marketing)/layout.tsx',
+    content: `import { MarketingHeader } from '@/components/layout/marketing-header';
+import { MarketingFooter } from '@/components/layout/marketing-footer';
+
+export default function MarketingLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <MarketingHeader />
+      <main className="flex-1">{children}</main>
+      <MarketingFooter />
+    </div>
+  );
+}
+`
+  },
+  {
+    path: 'src/app/(marketing)/terms/page.tsx',
+    content: `
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+export default function TermsAndConditionsPage() {
+    return (
+        <div className="container mx-auto px-4 py-12 md:py-16">
+            <Card className="max-w-4xl mx-auto">
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl">Terms and Conditions</CardTitle>
+                    <CardDescription>Last updated: July 8, 2024</CardDescription>
+                </CardHeader>
+                <CardContent className="prose prose-sm md:prose-base dark:prose-invert max-w-none">
+                    <p>Welcome to VisaFor ("the Platform"). These Terms and Conditions govern your use of the VisaFor CRM system. By registering for an account, you agree to be bound by these terms.</p>
+                    
+                    <h3>1. Professional Responsibility (For Lawyers & Legal Professionals)</h3>
+                    <p>As a regulated legal professional using this Platform, you acknowledge and agree to the following:</p>
+                    <ul>
+                        <li><strong>Final Authority:</strong> You are the final authority on all legal advice, document submissions, and strategic decisions for your clients.</li>
+                        <li><strong>AI as an Assistant:</strong> The Platform's AI tools (including but not limited to the Application Checker, Document Summarizer, and message composer) are provided as assistive technology. They are intended to augment, not replace, your professional judgment.</li>
+                        <li><strong>Verification Required:</strong> You are solely responsible for verifying the accuracy, completeness, and appropriateness of any information, document, or suggestion generated by the AI before using it or sharing it with a client.</li>
+                        <li><strong>Compliance:</strong> You are responsible for ensuring your use of the Platform complies with all rules and regulations set forth by your governing body (e.g., Law Society, CICC).</li>
+                    </ul>
+
+                    <h3>2. Disclaimers Regarding AI-Generated Content</h3>
+                    <p>The Platform utilizes artificial intelligence to provide suggestions, summaries, and automated content. You understand and accept that:</p>
+                    <ul>
+                        <li>AI-generated content may contain inaccuracies, errors, or omissions.</li>
+                        <li>AI tools are not a substitute for legal research, professional expertise, or independent verification.</li>
+                        <li>VisaFor Inc. is not liable for any errors, damages, or professional consequences arising from your reliance on AI-generated content without proper professional review.</li>
+                    </ul>
+
+                    <h3>3. Account Security</h3>
+                    <p>You are responsible for maintaining the confidentiality of your account password and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.</p>
+
+                    <h3>4. User Conduct</h3>
+                    <p>You agree not to use the Platform for any unlawful purpose or to engage in any conduct that could damage, disable, or overburden the Platform. You are solely responsible for all data and content you upload or input into the system.</p>
+
+                     <h3>5. Subscription and Payments</h3>
+                    <p>Fees for our services are described on our pricing page. By choosing a subscription plan, you agree to pay all applicable fees. Subscriptions will automatically renew unless canceled. All payments are non-refundable.</p>
+
+                    <h3>6. Termination</h3>
+                    <p>We may terminate or suspend your access to the Platform at any time, without prior notice or liability, for any reason, including if you breach these Terms.</p>
+
+                    <h3>7. Changes to Terms</h3>
+                    <p>We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new terms on this page. Your continued use of the Platform after any such change constitutes your acceptance of the new Terms and Conditions.</p>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/admin/clients/[id]/page.tsx',
+    content: `// This page is intentionally left blank.
+// The Super Admin role does not require direct access to individual client profiles.
+// This route is deprecated and may be removed in a future version.
+export default function AdminClientProfilePage() {
+    return null;
+}
+`
+  },
+  {
+    path: 'src/app/admin/dashboard/page.tsx',
+    content: `
+'use client';
+import { useAdminDashboard } from '@/context/AdminDashboardContext';
+import { AdminOverviewPage } from '@/components/pages/admin-overview';
+import { UserManagementPage } from '@/components/pages/admin-user-management';
+import { PlatformSettingsPage } from '@/components/pages/admin-platform-settings';
+import { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';
+import { AdminPaymentsPage } from '@/components/pages/admin-payments';
+import { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';
+import { AdminTeamManagementPage } from '@/components/pages/admin-team-management';
+import { AdminAllTasksPage } from '@/components/pages/admin-all-tasks';
+import { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';
+import { AdminDocumentsPage } from '@/components/pages/admin-documents';
+import { AdminLeadsPage } from '@/components/pages/admin-leads';
+import { AdminAIToolsPage } from '@/components/pages/admin-ai-tools';
+import { AdminAppointmentsPage } from '@/components/pages/admin-appointments';
+
+export default function AdminDashboardPage() {
+    const { page } = useAdminDashboard();
+
+    const pageComponents: { [key: string]: React.ComponentType<any> } = {
+        'overview': AdminOverviewPage,
+        'leads': AdminLeadsPage,
+        'users': UserManagementPage,
+        'team': AdminTeamManagementPage,
+        'tasks': AdminAllTasksPage,
+        'documents': AdminDocumentsPage,
+        'analytics': AdminPlatformAnalyticsPage,
+        'payments': AdminPaymentsPage,
+        'notifications': AdminSystemNotificationsPage,
+        'support-tickets': AdminSupportTicketsPage,
+        'settings': PlatformSettingsPage,
+        'ai-tools': AdminAIToolsPage,
+        'appointments': AdminAppointmentsPage,
+    };
+
+    const PageComponent = pageComponents[page] || AdminOverviewPage;
+    
+    return <PageComponent />;
+}
+`
+  },
+  {
+    path: 'src/app/admin/layout.tsx',
+    content: `
+'use client';
+import { useState } from 'react';
+import { AdminSidebar } from '@/components/layout/admin-sidebar';
+import { AdminHeader } from '@/components/layout/admin-header';
+import { AdminDashboardProvider, useAdminDashboard } from '@/context/AdminDashboardContext';
+import { AuthWrapper } from '@/components/auth-wrapper';
+
+const pageTitles: { [key: string]: string } = {
+    'overview': 'Super Admin Dashboard',
+    'users': 'User Management',
+    'team': 'Platform Team Roster',
+    'tasks': 'All Tasks',
+    'documents': 'Document Library',
+    'analytics': 'Platform Analytics',
+    'payments': 'Payments & Subscriptions',
+    'notifications': 'System Notifications',
+    'support-tickets': 'Support Tickets',
+    'settings': Platform Settings',
+    'ai-tools': 'AI Tools',
+    'appointments': 'Appointments',
+};
+
+function AdminDashboardLayoutContent({ children }: { children: React.ReactNode }) {
+    const { page, setPage } = useAdminDashboard();
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    return (
+        <AuthWrapper requiredRole="admin">
+            <div className="min-h-screen bg-background text-foreground">
+                <AdminSidebar activePage={page} setActivePage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <div className="flex min-h-screen flex-col md:ml-64">
+                    <AdminHeader pageTitle={pageTitles[page] || 'Super Admin'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                    <main className="flex-grow p-4 md:p-6 flex flex-col">
+                        <div className="animate-fade flex-grow">
+                            {children}
+                        </div>
+                         <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by VisaFor
+                        </footer>
+                    </main>
+                </div>
+            </div>
+        </AuthWrapper>
+    );
+}
+
+
+export default function AdminLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <AdminDashboardProvider>
+            <AdminDashboardLayoutContent>{children}</AdminDashboardLayoutContent>
+        </AdminDashboardProvider>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/client/dashboard/page.tsx',
+    content: `
+'use client';
+import { useClientDashboard } from '@/context/ClientDashboardContext';
+import { ClientOverviewPage } from '@/components/pages/client-overview';
+import { FindLawyerPage } from '@/components/pages/find-lawyer';
+import { MyLawyersPage } from '@/components/pages/my-lawyers';
+import { MyDocumentsPage } from '@/components/pages/my-documents';
+import { ClientAppointmentsPage } from '@/components/pages/client-appointments';
+import { ClientBillingPage } from '@/components/pages/client-billing';
+import { ClientMessagesPage } from '@/components/pages/client-messages';
+import { ClientSettingsPage } from '@/components/pages/client-settings';
+import { SupportPage } from '@/components/pages/support';
+import { ClientAgreementsPage } from '@/components/pages/client-agreements';
+import { ClientIntakeFormPage } from '@/components/pages/client-intake-form';
+import { ClientAiAssistPage } from '@/components/pages/client-ai-assist';
+import { NotificationsPage } from '@/components/pages/notifications';
+import { ClientNewsPage } from '@/components/pages/client-news';
+
+export default function ClientDashboardPage() {
+    const { page, setPage } = useClientDashboard();
+
+    const pageComponents: { [key: string]: React.ComponentType<any> } = {
+        'overview': ClientOverviewPage,
+        'intake-form': ClientIntakeFormPage,
+        'find-lawyer': FindLawyerPage,
+        'my-lawyers': MyLawyersPage,
+        'documents': MyDocumentsPage,
+        'appointments': ClientAppointmentsPage,
+        'agreements': ClientAgreementsPage,
+        'billing': ClientBillingPage,
+        'messages': ClientMessagesPage,
+        'news': ClientNewsPage,
+        'notifications': NotificationsPage,
+        'settings': ClientSettingsPage,
+        'support': SupportPage,
+        'ai-assist': ClientAiAssistPage,
+    };
+
+    const PageComponent = pageComponents[page] || ClientOverviewPage;
+    
+    return <PageComponent setPage={setPage} />;
+}
+`
+  },
+  {
+    path: 'src/app/client/lawyer/[id]/page.tsx',
+    content: `
+'use client';
+
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { TeamMember } from "@/lib/data";
+import { notFound, useParams } from "next/navigation";
+import { ArrowLeft, CheckCircle, Crown, DollarSign, Languages, Mail, MapPin, Phone, Twitter, Globe, Users, Award, Briefcase, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { LawyerConnectDialog } from "@/components/pages/lawyer-connect-dialog";
+
+const StatCard = ({ label, value, icon }: { label: string, value: string | number, icon: React.ElementType }) => {
+    const Icon = icon;
+    return (
+        <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
+            <div className="bg-primary/10 p-3 rounded-full">
+                <Icon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+            </div>
+        </div>
+    );
+};
+
+export default function LawyerProfilePage() {
+    const router = useRouter();
+    const params = useParams();
+    const { teamMembers } = useGlobalData();
+    const lawyerId = parseInt(params.id as string, 10);
+    const lawyer = teamMembers.find(m => m.id === lawyerId) as TeamMember;
+
+    const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
+
+    if (!lawyer) {
+        notFound();
+    }
+    
+    const isEnterprise = lawyer.plan === 'Enterprise';
+
+    return (
+        <>
+            <div className="space-y-6">
+                 <Button variant="ghost" onClick={() => router.back()}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Search Results
+                </Button>
+
+                <Card className="overflow-hidden">
+                    <div className="bg-muted/50 p-8 flex flex-col md:flex-row items-center gap-8">
+                        <Avatar className="w-32 h-32 border-4 border-primary shadow-lg">
+                            <AvatarImage src={lawyer.avatar} />
+                            <AvatarFallback>{lawyer.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 text-center md:text-left">
+                            <div className="flex items-center justify-center md:justify-start gap-2">
+                                <h1 className="text-3xl font-bold font-headline">{lawyer.name}</h1>
+                                {isEnterprise && <Crown className="h-7 w-7 text-yellow-500" />}
+                            </div>
+                            <p className="text-lg text-muted-foreground">{lawyer.role} at {lawyer.firmName}</p>
+                            <div className="mt-4 flex flex-wrap justify-center md:justify-start items-center gap-4">
+                                <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-muted-foreground" /> {lawyer.location}</div>
+                                <div className="flex items-center gap-1.5"><Award className="h-4 w-4 text-muted-foreground" /> Reg #: {lawyer.registrationNumber}</div>
+                                <div className="flex items-center gap-1.5"><Users className="h-4 w-4 text-muted-foreground" /> Team of {lawyer.numEmployees}</div>
+                                 <div className="flex items-center gap-1.5"><DollarSign className="h-4 w-4 text-muted-foreground" /> {lawyer.consultationType} Consultation</div>
+                            </div>
+                             <div className="mt-4 flex justify-center md:justify-start gap-2">
+                                {(lawyer.socials || []).map(social => (
+                                    <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer">
+                                        <Button variant="outline" size="icon">
+                                            {social.platform === 'linkedin' && <Briefcase className="h-4 w-4" />}
+                                            {social.platform === 'twitter' && <Twitter className="h-4 w-4" />}
+                                            {social.platform === 'website' && <Globe className="h-4 w-4" />}
+                                        </Button>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                            <Button size="lg" onClick={() => setIsConnectDialogOpen(true)}>Share Info & Connect</Button>
+                        </div>
+                    </div>
+                </Card>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {lawyer.stats.map(stat => <StatCard key={stat.label} {...stat} />)}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <Card>
+                            <CardHeader><CardTitle>About {lawyer.name.split(' ')[0]}</CardTitle></CardHeader>
+                            <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                                <p>With {lawyer.yearsOfPractice} years of dedicated experience in Canadian immigration law, {lawyer.name} has a proven track record of success. Specializing in {lawyer.specialties.join(', ')}, they offer expert guidance tailored to your unique situation.</p>
+                                <p>{lawyer.name} is a member in good standing with the {lawyer.licenseNumber.split('-')[0]} and CICC, ensuring the highest standards of professionalism and ethics.</p>
+                            </CardContent>
+                        </Card>
+                         <Card>
+                            <CardHeader><CardTitle>Client Testimonials</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="border-l-4 border-primary pl-4">
+                                    <p className="italic">"{lawyer.name} was incredibly knowledgeable and supportive throughout my entire Express Entry application. I couldn't have done it without them."</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <p className="font-semibold">- Alex M.</p>
+                                        <div className="flex">{[...Array(5)].map((_,i) => <Star key={i} className="h-4 w-4 text-yellow-400 fill-current"/>)}</div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>Community Involvement & Gallery</CardHeader></CardHeader>
+                            <CardContent className="grid grid-cols-2 gap-4">
+                                {(lawyer.gallery || []).map(item => (
+                                    <div key={item.id}>
+                                        <Image src={item.src} alt={item.alt} width={600} height={400} className="rounded-lg object-cover aspect-video" data-ai-hint={item.dataAiHint}/>
+                                        <p className="text-sm text-muted-foreground mt-2">{item.alt}</p>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className="lg:col-span-1 space-y-6">
+                        <Card>
+                             <CardHeader><CardTitle>Specialties</CardTitle></CardHeader>
+                             <CardContent className="flex flex-wrap gap-2">
+                                {lawyer.specialties.map(spec => <Badge key={spec} variant="secondary">{spec}</Badge>)}
+                            </CardContent>
+                        </Card>
+                        <Card>
+                             <CardHeader><CardTitle>Languages Spoken</CardTitle></CardHeader>
+                             <CardContent className="flex flex-wrap gap-2">
+                                {lawyer.languages.map(lang => <Badge key={lang} variant="outline">{lang}</Badge>)}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+
+            <LawyerConnectDialog 
+                lawyer={lawyer}
+                isOpen={isConnectDialogOpen}
+                onOpenChange={setIsConnectDialogOpen}
+            />
+        </>
+    )
+}
+`
+  },
+  {
+    path: 'src/app/client/layout.tsx',
+    content: `
+'use client';
+import { useState } from 'react';
+import { ClientSidebar } from '@/components/layout/client-sidebar';
+import { ClientHeader } from '@/components/layout/client-header';
+import { ClientDashboardProvider, useClientDashboard } from '@/context/ClientDashboardContext';
+import { AuthWrapper } from '@/components/auth-wrapper';
+
+const pageTitles: { [key: string]: string } = {
+    'overview': 'Dashboard Overview',
+    'find-lawyer': 'Find a Lawyer',
+    'my-lawyers': 'My Lawyers',
+    'documents': 'My Documents',
+    'agreements': 'My Agreements',
+    'messages': 'Messages',
+    'billing': 'Billing & Payments',
+    'appointments': 'Appointments',
+    'settings': 'Settings',
+    'support': 'Help & Support',
+    'ai-assist': 'AI Assist',
+    'intake-form': 'Intake Form',
+    'news': 'News & Updates',
+    'notifications': 'Notifications'
+};
+
+function ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {
+    const { page, setPage } = useClientDashboard();
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    return (
+        <AuthWrapper requiredRole="client">
+            <div className="min-h-screen bg-background text-foreground">
+                <ClientSidebar page={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <div className="flex min-h-screen flex-col md:ml-64">
+                    <ClientHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                    <main className="flex-grow p-4 md:p-6 flex flex-col">
+                        <div className="animate-fade flex-grow">
+                            {children}
+                        </div>
+                        <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by VisaFor
+                        </footer>
+                    </main>
+                </div>
+            </div>
+        </AuthWrapper>
+    );
+}
+
+
+export default function ClientLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <ClientDashboardProvider>
+            <ClientDashboardLayoutContent>{children}</ClientDashboardLayoutContent>
+        </ClientDashboardProvider>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/client/onboarding/page.tsx',
+    content: `
+'use client';
+import { ClientOnboarding } from "@/components/pages/client-onboarding";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function ClientOnboardingPage() {
+    const router = useRouter();
+
+    const handleOnboardingComplete = () => {
+        // Redirect to the dashboard after a short delay to allow user to see their score
+        setTimeout(() => {
+            router.push('/client/dashboard');
+        }, 3000);
+    };
+
+    return <ClientOnboarding onOnboardingComplete={handleOnboardingComplete} />;
+}
+`
+  },
+  {
+    path: 'src/app/dashboard-select/page.tsx',
     content: `
 'use client';
 
@@ -1671,12 +2431,12 @@ export default function DashboardSelectPage() {
                     }
                     break;
                 default:
-                    router.replace('/login');
+                    router.replace('/');
             }
         } else {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
-                router.replace('/login');
+                router.replace('/');
             }, 1500);
             return () => clearTimeout(timer);
         }
@@ -1694,65 +2454,938 @@ export default function DashboardSelectPage() {
     );
 }
 `
-  }
-];
+  },
+  {
+    path: 'src/app/forgot-password/page.tsx',
+    content: `
+'use client';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import Link from 'next/link';
 
-export default function ExportPage() {
-    const [activeFile, setActiveFile] = useState(allFiles[0]);
+const forgotPasswordSchema = z.object({
+  email: z.string().email("A valid email is required."),
+});
+
+export default function ForgotPasswordPage() {
     const { toast } = useToast();
+    const { sendPasswordReset } = useGlobalData();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const copyToClipboard = (content: string) => {
-        navigator.clipboard.writeText(content);
+    const form = useForm<z.infer<typeof forgotPasswordSchema>>({
+        resolver: zodResolver(forgotPasswordSchema),
+        defaultValues: { email: "" },
+    });
+
+    const handlePasswordReset = async (values: z.infer<typeof forgotPasswordSchema>) => {
+        setIsLoading(true);
+        try {
+            await sendPasswordReset(values.email);
+            setIsSubmitted(true);
+        } catch (error: any) {
+            toast({
+                title: 'Request Failed',
+                description: error.message || "Could not send password reset email. Please try again.",
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+             <Card className="w-full max-w-md">
+                <CardHeader className="text-center">
+                    <DynamicLogoIcon className="mx-auto h-12 w-12" />
+                    <CardTitle className="font-headline text-3xl font-bold mt-4">
+                        {isSubmitted ? 'Check Your Email' : 'Forgot Password'}
+                    </CardTitle>
+                    <CardDescription>
+                         {isSubmitted 
+                            ? \`We've sent a password reset link to \${form.getValues('email')}. Please follow the instructions in the email.\`
+                            : "Enter your email address and we'll send you a link to reset your password."
+                        }
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isSubmitted ? (
+                         <div className="text-center">
+                            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+                            <Link href="/login" passHref>
+                                <Button className="w-full">
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
+                                </Button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handlePasswordReset)} className="space-y-4">
+                                <FormField control={form.control} name="email" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <Button className="w-full" type="submit" disabled={isLoading}>
+                                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Send Reset Link
+                                </Button>
+                            </form>
+                        </Form>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/globals.css',
+    content: `
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 220 40% 98%;
+    --foreground: 220 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 15%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 20% 94%;
+    --secondary-foreground: 220 20% 15%;
+    --muted: 220 20% 94%;
+    --muted-foreground: 220 20% 45%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 220 20% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --chart-2: 45 93% 58%;
+    --chart-3: 12 76% 61%;
+    --chart-4: 173 58% 39%;
+    --chart-5: 197 37% 24%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 220 20% 90%;
+    --card: 220 20% 12%;
+    --card-foreground: 220 20% 90%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 20% 90%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 220 20% 90%;
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 20% 60%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 220 20% 15%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --chart-2: 45 93% 58%;
+    --chart-3: 12 76% 61%;
+    --chart-4: 173 58% 39%;
+    --chart-5: 197 37% 24%;
+  }
+
+  /* Theme: Heru Green */
+  .theme-green {
+    --primary: 142.1 76.2% 36.3%;
+    --ring: 142.1 76.2% 36.3%;
+    --accent: 262.1 83.3% 57.8%;
+  }
+  .dark.theme-green {
+    --primary: 142.1 70.6% 45.3%;
+    --ring: 142.1 70.6% 45.3%;
+    --accent: 263.4 90.9% 67.1%;
+  }
+
+  /* Theme: Ocean Blue */
+  .theme-blue {
+    --primary: 217.2 91.2% 59.8%;
+    --ring: 217.2 91.2% 59.8%;
+    --accent: 45 93% 58%;
+  }
+  .dark.theme-blue {
+    --primary: 217.2 91.2% 59.8%;
+    --ring: 217.2 91.2% 59.8%;
+    --accent: 45 93% 58%;
+  }
+
+  /* Theme: Graphite */
+  .theme-graphite {
+    --primary: 221.2 83.2% 53.3%;
+    --ring: 221.2 83.2% 53.3%;
+    --accent: 215 27.9% 46.9%;
+  }
+  .dark.theme-graphite {
+    --primary: 221.2 83.2% 53.3%;
+    --ring: 221.2 83.2% 53.3%;
+    --accent: 215 27.9% 46.9%;
+  }
+  
+  /* Theme: Cool Sky */
+  .theme-sky {
+    --background: 220 40% 98%;
+    --foreground: 220 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 15%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 20% 94%;
+    --secondary-foreground: 220 20% 15%;
+    --muted: 220 20% 94%;
+    --muted-foreground: 220 20% 45%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 220 20% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 217 91% 60%;
+  }
+  .dark.theme-sky {
+    --background: 220 20% 10%;
+    --foreground: 220 20% 90%;
+    --card: 220 20% 12%;
+    --card-foreground: 220 20% 90%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 20% 90%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 220 20% 90%;
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 20% 60%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 220 20% 15%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 217 91% 60%;
+  }
+  
+  /* Theme: Warm Coral */
+  .theme-coral {
+    --background: 25 57% 95%;
+    --foreground: 186 97% 11%;
+    --card: 25 57% 99%;
+    --card-foreground: 186 97% 11%;
+    --popover: 25 57% 99%;
+    --popover-foreground: 186 97% 11%;
+    --primary: 357 98% 79%;
+    --primary-foreground: 186 97% 11%;
+    --secondary: 14 98% 88%;
+    --secondary-foreground: 186 97% 11%;
+    --muted: 14 98% 92%;
+    --muted-foreground: 14 98% 30%;
+    --accent: 14 98% 79%;
+    --accent-foreground: 186 97% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 14 98% 88%;
+    --input: 14 98% 90%;
+    --ring: 357 98% 79%;
+  }
+  .dark.theme-coral {
+    --background: 186 97% 11%;
+    --foreground: 25 57% 95%;
+    --card: 186 97% 14%;
+    --card-foreground: 25 57% 95%;
+    --popover: 186 97% 14%;
+    --popover-foreground: 25 57% 95%;
+    --primary: 357 98% 79%;
+    --primary-foreground: 186 97% 11%;
+    --secondary: 14 98% 20%;
+    --secondary-foreground: 25 57% 95%;
+    --muted: 14 98% 20%;
+    --muted-foreground: 14 98% 80%;
+    --accent: 14 98% 79%;
+    --accent-foreground: 186 97% 11%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 14 98% 20%;
+    --input: 14 98% 20%;
+    --ring: 357 98% 79%;
+  }
+
+  /* Theme: Vivid Synth */
+  .theme-synth {
+    --background: 282 89% 98%;
+    --foreground: 282 89% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 282 89% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 282 89% 10%;
+    --primary: 333 94% 57%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 314 80% 95%;
+    --secondary-foreground: 314 80% 20%;
+    --muted: 314 80% 95%;
+    --muted-foreground: 314 80% 40%;
+    --accent: 279 89% 60%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 314 80% 90%;
+    --input: 314 80% 90%;
+    --ring: 333 94% 57%;
+  }
+  .dark.theme-synth {
+    --background: 282 89% 8%;
+    --foreground: 210 40% 98%;
+    --card: 282 89% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 282 89% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 333 94% 67%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 279 89% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 279 89% 15%;
+    --muted-foreground: 279 89% 70%;
+    --accent: 279 89% 68%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 279 89% 15%;
+    --input: 279 89% 15%;
+    --ring: 333 94% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles for the calendar */
+.has-appointment { 
+  font-weight: bold;
+  position: relative;
+}
+.has-appointment::after {
+  content: '';
+  position: absolute;
+  background-color: hsl(var(--primary));
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+`
+  },
+  {
+    path: 'src/app/lawyer/clients/[id]/page.tsx',
+    content: `
+'use client';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { ClientProfile } from '@/components/pages/client-profile';
+import { notFound, useParams } from 'next/navigation';
+
+export default function ClientProfilePage() {
+    const params = useParams();
+    const { clients, updateClient } = useGlobalData();
+    const clientId = parseInt(params.id as string, 10);
+    const client = clients.find(c => c.id === clientId);
+
+    if (!client) {
+        notFound();
+    }
+
+    return (
+        <ClientProfile client={client} onUpdateClient={updateClient} />
+    );
+}
+`
+  },
+  {
+    path: 'src/app/lawyer/dashboard/page.tsx',
+    content: `
+'use client';
+import { useLawyerDashboard } from '@/context/LawyerDashboardContext';
+import type { FC } from 'react';
+import { DashboardPage } from '@/components/pages/dashboard';
+import { ClientsPage } from '@/components/pages/clients';
+import { TeamPage } from '@/components/pages/team';
+import { DocumentsPage } from '@/components/pages/documents';
+import { AIToolsPage } from '@/components/pages/ai-tools';
+import { MessagesPage } from '@/components/pages/messages';
+import { BillingPage } from '@/components/pages/billing';
+import { ApplicationsPage } from '@/components/pages/applications';
+import { AppointmentsPage } from '@/components/pages/appointments';
+import { ReportsPage } from '@/components/pages/reports';
+import { SettingsPage } from '@/components/pages/settings';
+import { TasksPage } from '@/components/pages/tasks';
+import { ActivityLogPage } from '@/components/pages/activity';
+import { SupportPage } from '@/components/pages/support';
+import { NotificationsPage } from '@/components/pages/notifications';
+import { LeadsPage } from '@/components/pages/leads';
+
+export default function LawyerDashboard() {
+  const { page, setPage } = useLawyerDashboard();
+
+  const pageComponents: { [key: string]: React.ComponentType<any> } = {
+    dashboard: DashboardPage,
+    leads: LeadsPage,
+    clients: ClientsPage,
+    team: TeamPage,
+    documents: DocumentsPage,
+    'ai-tools': AIToolsPage,
+    applications: ApplicationsPage,
+    appointments: AppointmentsPage,
+    tasks: TasksPage,
+    messages: MessagesPage,
+    billing: BillingPage,
+    reports: ReportsPage,
+    settings: SettingsPage,
+    activity: ActivityLogPage,
+    support: SupportPage,
+    notifications: NotificationsPage,
+  };
+
+  const PageComponent = pageComponents[page] || DashboardPage;
+
+  return (
+    <div className="animate-fade">
+        <PageComponent setPage={setPage} />
+    </div>
+  );
+}
+
+    
+`
+  },
+  {
+    path: 'src/app/lawyer/layout.tsx',
+    content: `
+'use client';
+import { useState, useEffect } from 'react';
+import { AppSidebar } from '@/components/layout/app-sidebar';
+import { AppHeader } from '@/components/layout/app-header';
+import { LawyerDashboardProvider, useLawyerDashboard } from '@/context/LawyerDashboardContext';
+import { Button } from '@/components/ui/button';
+import { Rocket, X } from 'lucide-react';
+import { AuthWrapper } from '@/components/auth-wrapper';
+import { IrccChatbot } from '@/components/ircc-chatbot';
+
+const pageTitles: { [key: string]: string } = {
+    'dashboard': 'Dashboard',
+    'clients': 'All Clients',
+    'team': 'Team Management',
+    'documents': 'Immigration Documents',
+    'ai-tools': 'AI Tools',
+    'applications': 'Applications',
+    'appointments': 'Appointments',
+    'tasks': 'Tasks',
+    'messages': 'Messages',
+    'billing': 'Billing & Invoices',
+    'reports': 'Reports',
+    'settings': 'Settings',
+    'activity': 'Activity Log',
+    'support': 'Help & Support',
+};
+
+const BANNER_DISMISS_KEY = 'visafor-upgrade-banner-dismissed-date';
+
+function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {
+    const { page, setPage } = useLawyerDashboard();
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isBannerOpen, setIsBannerOpen] = useState(false);
+
+    useEffect(() => {
+        const lastDismissedDateStr = localStorage.getItem(BANNER_DISMISS_KEY);
+        if (lastDismissedDateStr) {
+            const lastDismissedDate = new Date(lastDismissedDateStr);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            if (lastDismissedDate < thirtyDaysAgo) {
+                // It's been more than 30 days, show the banner
+                setIsBannerOpen(true);
+            }
+        } else {
+            // Never dismissed, show the banner
+            setIsBannerOpen(true);
+        }
+    }, []);
+
+    const handleDismissBanner = () => {
+        setIsBannerOpen(false);
+        localStorage.setItem(BANNER_DISMISS_KEY, new Date().toISOString());
+    };
+
+    return (
+        <AuthWrapper requiredRole="lawyer">
+            <div className="min-h-screen bg-background text-foreground font-body">
+                <AppSidebar activePage={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <div className="flex min-h-screen flex-col md:ml-64">
+                    <AppHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
+                    <main className="flex flex-col flex-grow p-4 md:p-6 mb-16">
+                        <div className="flex-grow">
+                            {children}
+                        </div>
+                        <footer className="text-center text-xs text-muted-foreground pt-8">
+                            Designed & Empowered by VisaFor
+                        </footer>
+                    </main>
+                    {isBannerOpen && (
+                        <div className="fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-sm text-primary-foreground p-3 shadow-lg z-40 border-t border-primary/50 transition-all md:left-64">
+                            <div className="container mx-auto flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <Rocket className="h-6 w-6" />
+                                    <div>
+                                        <p className="font-semibold">Unlock Your Firm's Full Potential</p>
+                                        <p className="text-sm text-primary-foreground/80 hidden sm:block">Upgrade to Pro for advanced AI, unlimited clients, and priority support.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center flex-shrink-0 gap-2">
+                                    <Button size="sm" variant="secondary" onClick={() => { setPage('settings'); }}>Upgrade Now</Button>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDismissBanner}>
+                                        <X className="h-4 w-4" />
+                                        <span className="sr-only">Dismiss</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <IrccChatbot />
+                </div>
+            </div>
+        </AuthWrapper>
+    );
+}
+
+export default function LawyerLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <LawyerDashboardProvider>
+            <LawyerDashboardLayoutContent>{children}</LawyerDashboardLayoutContent>
+        </LawyerDashboardProvider>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/lawyer/onboarding/page.tsx',
+    content: `import { LawyerOnboarding } from "@/components/pages/lawyer-onboarding";
+
+export default function LawyerOnboardingPage() {
+    return <LawyerOnboarding />;
+}
+`
+  },
+  {
+    path: 'src/app/lawyer/register/page.tsx',
+    content: `
+'use client';
+
+import { LawyerOnboarding } from "@/components/pages/lawyer-onboarding";
+
+export default function LawyerRegisterPage() {
+    // This page simply renders the full onboarding component for new lawyers.
+    return <LawyerOnboarding />;
+}
+`
+  },
+  {
+    path: 'src/app/lawyer/team/[id]/page.tsx',
+    content: `
+'use client';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { TeamMemberPerformancePage } from '@/components/pages/team-member-performance';
+import { notFound, useParams } from 'next/navigation';
+
+export default function TeamMemberPage() {
+    const params = useParams();
+    const { teamMembers } = useGlobalData();
+    const memberId = parseInt(params.id as string, 10);
+    const teamMember = teamMembers.find(m => m.id === memberId);
+
+    if (!teamMember) {
+        notFound();
+    }
+
+    return (
+        <TeamMemberPerformancePage teamMember={teamMember} />
+    );
+}
+`
+  },
+  {
+    path: 'src/app/layout.tsx',
+    content: `
+import type {Metadata} from 'next';
+import './globals.css';
+import { Toaster } from "@/components/ui/toaster"
+import { GlobalDataProvider } from '@/context/GlobalDataContext';
+import { ThemeManager } from '@/components/theme-manager';
+
+export const metadata: Metadata = {
+  title: 'VisaFor | AI-Powered Immigration CRM',
+  description: 'Your AI-powered CRM for Immigration Professionals.',
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-body antialiased bg-background">
+        <GlobalDataProvider>
+          <ThemeManager />
+          {children}
+          <Toaster />
+        </GlobalDataProvider>
+      </body>
+    </html>
+  );
+}
+`
+  },
+  {
+    path: 'src/app/login/page.tsx',
+    content: `
+'use client';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { GmailIcon } from '@/components/icons/GmailIcon';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { LoginFeatureShowcase } from '@/components/login-feature-showcase';
+
+const loginSchema = z.object({
+  email: z.string().email("A valid email is required."),
+  password: z.string().min(1, "Password is required."),
+});
+
+export default function LoginPage() {
+    const { toast } = useToast();
+    const router = useRouter();
+    const { login } = useGlobalData();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const form = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: { email: "james.wilson@example.com", password: "password123" },
+    });
+
+    const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {
+        setIsLoading(true);
+        try {
+            const user = await login(values.email, values.password);
+            if (user) {
+                toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
+                router.push('/dashboard-select');
+            } else {
+                 toast({
+                    title: 'Login Failed',
+                    description: "Please check your credentials and try again.",
+                    variant: 'destructive',
+                });
+            }
+        } catch (error: any) {
+             toast({
+                title: 'Login Failed',
+                description: error.message || "An unknown error occurred.",
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
         toast({
-            title: "Copied to Clipboard!",
-            description: `The content of ${activeFile.path} has been copied.`,
+            title: 'Feature not available',
+            description: "Google sign-in is not enabled in this demo.",
         });
     };
 
     return (
-        <div className="bg-background">
-            <div className="container mx-auto p-4 md:p-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Application Code Export</CardTitle>
-                        <CardDescription>
-                            Here is the complete code for your application. Select a file from the list to view its contents, then use the "Copy Code" button.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[calc(100vh-20rem)]">
-                            <div className="md:col-span-1 border rounded-md">
-                                <ScrollArea className="h-full">
-                                    <div className="p-2">
-                                    {allFiles.map(file => (
-                                        <button 
-                                            key={file.path} 
-                                            onClick={() => setActiveFile(file)}
-                                            className={`w-full text-left p-2 rounded-md text-sm flex items-center gap-2 ${activeFile.path === file.path ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}`}
-                                        >
-                                            <FileIcon className="h-4 w-4 shrink-0" />
-                                            <span className="truncate">{file.path}</span>
-                                        </button>
-                                    ))}
-                                    </div>
-                                </ScrollArea>
-                            </div>
-                            <div className="md:col-span-3 flex flex-col border rounded-md overflow-hidden">
-                                <div className="flex justify-between items-center p-2 bg-muted/50 border-b">
-                                    <p className="font-mono text-sm">{activeFile.path}</p>
-                                    <Button size="sm" onClick={() => copyToClipboard(activeFile.content)}>
-                                        <Copy className="mr-2 h-4 w-4" />
-                                        Copy Code
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+            <div className="flex items-center justify-center bg-background p-4">
+                 <div className="w-full max-w-md space-y-6">
+                    <div className="text-center">
+                        <DynamicLogoIcon className="mx-auto h-12 w-12" />
+                        <h1 className="mt-4 font-headline text-3xl font-bold">Welcome Back</h1>
+                        <p className="mt-2 text-muted-foreground">Sign in to access your VisaFor dashboard.</p>
+                    </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Login</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
+                                    <FormField control={form.control} name="email" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="password" render={({ field }) => (
+                                        <FormItem>
+                                            <div className="flex justify-between items-center">
+                                                <FormLabel>Password</FormLabel>
+                                                <Link href="/forgot-password" passHref>
+                                                    <Button variant="link" type="button" className="text-xs h-auto p-0">Forgot Password?</Button>
+                                                </Link>
+                                            </div>
+                                            <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                    <Button className="w-full" type="submit" disabled={isLoading}>
+                                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        Login
                                     </Button>
+                                </form>
+                            </Form>
+                            <div className="relative my-4">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t" />
                                 </div>
-                                <ScrollArea className="flex-1">
-                                    <pre className="text-xs p-4 bg-zinc-900 text-white"><code className="font-mono">{activeFile.content}</code></pre>
-                                </ScrollArea>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                                </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
+                                <GmailIcon className="mr-2 h-4 w-4" />
+                                Sign in with Google
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    <div className="text-center text-sm text-muted-foreground">
+                        <p>Don't have an account? <Link href="/register" className="underline">Sign Up</Link></p>
+                    </div>
+                </div>
+            </div>
+            <div className="hidden lg:flex">
+                 <LoginFeatureShowcase />
             </div>
         </div>
-    )
+    );
 }
+`
+  },
+  {
+    path: 'src/app/page.tsx',
+    content: `
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, Briefcase, Shield, User } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import Link from 'next/link';
+
+export default function RoleSelectionPage() {
+    const { login } = useGlobalData();
+    const router = useRouter();
+    const { toast } = useToast();
+
+    const handleAdminLogin = async () => {
+        try {
+            await login('admin@heru.com', 'password123');
+            toast({ title: 'Admin Login Successful' });
+            router.push('/admin/dashboard');
+        } catch (error) {
+            toast({ title: 'Admin Login Failed', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <div className="relative flex flex-col items-center justify-center min-h-screen bg-muted/40 p-4">
+             <div className="absolute top-4 right-4">
+                <Button variant="ghost" size="icon" onClick={handleAdminLogin} title="Super Admin Login">
+                    <Shield className="h-6 w-6 text-muted-foreground" />
+                </Button>
+            </div>
+            
+            <div className="text-center mb-12">
+                <DynamicLogoIcon className="h-16 w-16 mx-auto" />
+                <h1 className="mt-6 text-4xl font-bold font-headline text-foreground">Welcome to VisaFor</h1>
+                <p className="mt-2 text-lg text-muted-foreground">Please select your role to continue.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+                <Link href="/login?role=client" passHref>
+                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                        <CardHeader className="flex-1">
+                            <User className="h-16 w-16 mx-auto text-primary" />
+                            <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
+                            <CardDescription className="mt-2">Track your application, manage documents, and communicate with your legal team.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button variant="outline" className="w-full">
+                                Proceed as Applicant <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </Link>
+
+                <Link href="/login?role=lawyer" passHref>
+                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                        <CardHeader className="flex-1">
+                            <Briefcase className="h-16 w-16 mx-auto text-primary" />
+                            <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>
+                            <CardDescription className="mt-2">Manage your clients, streamline your workflow with AI tools, and grow your practice.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button variant="outline" className="w-full">
+                                Proceed as Lawyer <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </Link>
+            </div>
+
+            <footer className="absolute bottom-4 text-center text-xs text-muted-foreground">
+                Designed & Empowered by VisaFor
+            </footer>
+        </div>
+    );
+}
+`
+  },
+  {
+    path: 'src/app/register/page.tsx',
+    content: `import { RegisterPage } from "@/components/pages/register";
+
+export default function Register() {
+    return <RegisterPage />;
+}
+`
+  },
+{
+    path: '/src/app/export/page.tsx',
+    content: `
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Copy, File as FileIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+const allFiles = [
+  { path: \`.env\`, content: \`\` },
+  { path: \`.vscode/settings.json\`, content: \`{\n    "IDX.aI.enableInlineCompletion": true,\n    "IDX.aI.enableCodebaseIndexing": true\n}\` },
+  { path: \`PRODUCT_REQUIREMENTS.md\`, content: \`# Product Requirements Document: VisaFor CRM\n\n---\n\n## 1. Introduction\n\n### 1.1. Purpose\nThis document outlines the product requirements for **VisaFor**, an AI-powered Customer Relationship Management (CRM) platform designed to streamline the immigration process for legal professionals and their clients. It details user roles, features, and technical specifications for the application.\n\n### 1.2. Scope\nThe scope of this document covers the core functionality of the VisaFor platform, including three primary user roles (Super Admin, Lawyer, Client), their respective dashboards, AI-powered tools, client management, and communication features.\n\n## 2. User Roles & Personas\n\nThe platform is designed for three distinct user roles:\n\n*   **Client / Applicant:** Individuals seeking immigration services. They need to track their case, communicate with their lawyer, and manage their documents.\n*   **Lawyer / Legal Professional:** Licensed immigration lawyers or consultants managing multiple clients, cases, and their own team members within the CRM.\n*   **Super Admin:** The platform administrator responsible for overall user management, system health, financial oversight, and platform-wide settings.\n\n## 3. Platform-Wide Features\n\n### 3.1. Authentication\n*   **Registration:** Users can sign up as either a "Lawyer/Professional" or "Client/Applicant". Registration requires a full name, email, and password.\n*   **Login:** Secure email and password login for all user roles.\n*   **Password Reset:** Users can request a password reset link via email.\n*   **Role-Based Access Control:** The system enforces strict role-based access. Users are redirected to the appropriate dashboard upon login. Unauthorized access attempts redirect users to the login page.\n*   **Session Persistence:** User sessions are maintained after login.\n\n### 3.2. Referrals & Invitations\n*   **Lawyer-to-Client Invitation:** Lawyers can invite new or existing clients to the portal by generating a unique, secure registration link.\n*   **Client-to-Client Referral:** Clients have a unique referral link to earn in-app "coins" when their friends register.\n\n---\n\n## 4. Super Admin Role: Features & Requirements\n\nThe Super Admin has global oversight of the entire platform.\n\n### 4.1. Admin Dashboard\n*   **High-Level Stats:** View key platform metrics: Total Applicants, Active Firms, Total Revenue, and Critical Action Items.\n*   **Action Items:** A list of urgent tasks requiring administrative attention, such as pending lawyer account activations and overdue invoices.\n\n### 4.2. User Management\n*   **View & Manage Users:** Access separate lists for "Lawyers / Firms" and "Applicants / Clients".\n*   **Lawyer Activation:** Approve, reject, or suspend lawyer accounts. View license and registration details for verification.\n*   **Manage Subscriptions:** Modify the subscription plan (Starter, Pro, Enterprise) for any law firm.\n*   **Client Management:** Block or manage client accounts.\n\n### 4.3. Firm & Lead Management\n*   **View Leads:** Manage a pipeline of potential law firms interested in joining the platform.\n*   **Convert Leads:** Convert a qualified lead into a new law firm account, triggering the onboarding and activation process.\n\n### 4.4. Platform Analytics\n*   **Visual Reports:** View charts and graphs for:\n    *   User Growth (Lawyers vs. Clients) over time.\n    *   Quarterly Revenue.\n    *   Breakdown of application statuses across the platform.\n    *   Client geographic distribution.\n\n### 4.5. Financial Oversight\n*   **Firm Subscriptions:** View and manage the subscription status for all legal firms.\n*   **Client Invoices:** View a log of all one-time invoices generated by lawyers for their clients.\n*   **Transaction History:** A complete log of all payments processed.\n\n### 4.6. Platform Settings\n*   **General:** Manage platform branding (name, logo) and global feature flags.\n*   **Billing & Subscriptions:** Configure pricing, features, and limits for each subscription tier.\n*   **Integrations:** Manage global API keys for services like Google Cloud and Stripe.\n\n### 4.7. Platform-wide Management\n*   **Tasks:** View and manage internal tasks assigned to platform staff.\n*   **Support Tickets:** View and manage support tickets submitted by all users.\n*   **System Notifications:** Compose and send broadcast notifications to all users, lawyers only, or clients only.\n\n## 5. Lawyer / Legal Professional Role: Features & Requirements\n\nThis role is for professionals managing their immigration practice.\n\n### 5.1. Lawyer Dashboard\n*   **Key Metrics:** At-a-glance view of Total Clients, Pending Applications, Upcoming Appointments, and Revenue.\n*   **AI Risk Alerts:** An AI-powered tool that scans active client files and flags potential issues (e.g., approaching deadlines, missing documents).\n*   **Recent Activity:** Lists of recent applications and upcoming appointments for quick access.\n\n### 5.2. Client & Lead Management\n*   **Client List (CRM):** A searchable and filterable database of all clients.\n*   **Client Profile:** A detailed 360-degree view of a client, including case summary, documents, tasks, activity log, and AI-powered success predictions.\n*   **Lead Management:** Manage a pipeline of prospective clients. Log activities (calls, emails) and convert qualified leads into active clients.\n\n### 5.3. Document Management\n*   **Document Library:** Create, edit, and manage reusable document templates.\n*   **Document Categories:** Organize templates into categories (e.g., Express Entry, Work Permit) for easy assignment.\n*   **Client Document Management:** Request documents from clients, review uploaded files, approve or reject submissions, and add comments.\n\n### 5.4. AI-Powered Tools\n*   **Document Summarizer:** Generate concise summaries of long documents.\n*   **Application Checker:** Paste application text to check for errors, omissions, and inconsistencies.\n*   **AI-Assisted Messaging:** Generate professional, context-aware messages for clients.\n*   **Client Career Tools:** Generate resumes and cover letters for clients based on their intake form data to assist with their job search.\n\n### 5.5. Team Management\n*   **View Team:** View a roster of all team members within the firm.\n*   **Manage Roles:** Assign access levels (Admin, Member, Viewer) to team members.\n*   **Performance Tracking:** View performance metrics for individual team members.\n\n### 5.6. Finance & Appointments\n*   **Billing & Invoicing:** Create, view, and manage invoices for clients.\n*   **Appointments:** View and manage a calendar of all client appointments.\n\n## 6. Client / Applicant Role: Features & Requirements\n\nThis role is for the end-user seeking immigration services.\n\n### 6.1. Onboarding\n*   **CRS Score Calculator:** New users are guided through a multi-step form to collect data on their age, education, work experience, and language skills.\n*   **AI-Powered Assessment:** The collected data is used to calculate an estimated Comprehensive Ranking System (CRS) score, providing immediate feedback and value to the user.\n\n### 6.2. Client Dashboard\n*   **Case Overview:** A welcome banner showing current application status and the next step.\n*   **AI-Powered Timeline:** A personalized, estimated timeline of key milestones in the user's immigration journey.\n*   **Quick Actions:** Easy access to view documents or message their lawyer.\n\n### 6.3. Finding & Connecting with Lawyers\n*   **Lawyer Directory:** A searchable directory of verified legal professionals on the platform. Users can filter by specialty, location, language, and consultation fee.\n*   **Lawyer Profiles:** Detailed profile pages for each lawyer, showcasing their experience, specialties, stats, and firm details.\n*   **Connection Request:** Clients can initiate a connection by sending a request that includes a message and a proposed meeting time selected from an interactive calendar. Their profile information and AI assessment score are shared upon sending the request.\n\n### 6.4. Case & Document Management\n*   **My Documents:** View a list of all requested and uploaded documents, track their status (Requested, Uploaded, Approved, Rejected), and upload new files.\n*   **Editable Intake Form:** Clients can access and update their initial intake form data at any time. This form serves as a living profile.\n\n### 6.5. Communication & AI Tools\n*   **Secure Messaging:** A dedicated interface for direct, secure messaging with their connected legal team.\n*   **AI Assist (Coin-Based):**\n    *   **Writing Assistant:** Use "coins" to improve text for emails or other communications.\n    *   **Resume & Cover Letter Builder:** Use "coins" to generate career documents based on their intake form data.\n\n---\n\n## 7. Technical Stack & Architecture\n\n*   **Frontend:** Next.js (App Router), React, TypeScript\n*   **UI:** ShadCN UI, Tailwind CSS\n*   **AI/Backend Logic:** Google AI via Genkit\n*   **State Management:** React Context API (\`GlobalDataContext\`)\n*   **Database & Auth (Simulated/Planned):** Firebase (Firestore, Auth, Storage)\n\n## 8. Future Considerations (Out of Scope for Current Build)\n\n*   **Full Firebase Integration:** Implement live Firestore queries, secure file uploads to Firebase Storage, and robust Firestore Security Rules.\n*   **Real-time Notifications:** Transition from static data to real-time updates for notifications and messages.\n*   **Email Automation:** Integrate a service (e.g., using Firebase Functions) to send actual emails for invitations, password resets, and notifications.\` },
+  { path: \`README.md\`, content: \`# Firebase Studio\n\nThis is a NextJS starter in Firebase Studio.\n\nTo get started, take a look at src/app/page.tsx.\` },
+  { path: \`USER_MANUAL.md\`, content: \`# VisaFor - User Manual\n\n---\n\n## Table of Contents\n\n1.  [**Introduction**](#introduction)\n    *   [1.1. What is VisaFor?](#what-is-visafor)\n    *   [1.2. Getting Started: Account Creation & Login](#getting-started-account-creation--login)\n2.  [**User Role: Applicant**](#user-role-applicant)\n    *   [2.1. First-Time Onboarding](#first-time-onboarding)\n    *   [2.2. The Applicant Dashboard](#the-applicant-dashboard)\n    *   [2.3. Finding and Connecting with Lawyers](#finding-and-connecting-with-lawyers)\n    *   [2.4. Managing Your Documents](#managing-your-documents)\n    *   [2.5. Messaging Your Lawyer](#messaging-your-lawyer)\n3.  [**User Role: Lawyer / Team Member**](#user-role-lawyer--team-member)\n    *   [3.1. The Lawyer Dashboard](#the-lawyer-dashboard)\n    *   [3.2. Managing Clients](#managing-clients)\n    *   [3.3. Case Management: Documents & Tasks](#case-management-documents--tasks)\n    *   [3.4. Using AI Tools](#using-ai-tools)\n    *   [3.5. Managing Your Team](#managing-your-team)\n4.  [**User Role: Super Admin**](#user-role-super-admin)\n    *   [4.1. The Super Admin Dashboard](#the-super-admin-dashboard)\n    *   [4.2. User Management (All Users)](#user-management-all-users)\n    *   [4.3. Platform Analytics & Reports](#platform-analytics--reports)\n    *   [4.4. Managing Payments & Subscriptions](#managing-payments--subscriptions)\n    *   [4.5. System-Wide Settings](#system-wide-settings)\n5.  [**Appendices**](#appendices)\n    *   [5.1. Troubleshooting](#troubleshooting)\n    *   [5.2. Contact Support](#contact-support)\n    *   [5.3. Glossary of Terms](#glossary-of-terms)\n\n---\n\n## 1. Introduction\n\n### 1.1. What is VisaFor?\n\nWelcome to VisaFor, your all-in-one platform for managing the complexities of the immigration process. Our application is designed to connect applicants with experienced legal professionals, streamline case management, and leverage powerful AI tools to improve efficiency and success rates.\n\n**Key Features:**\n\n*   **Client Management:** A centralized database for lawyers to manage client information, documents, and communication.\n*   **AI-Powered Tools:** Includes an Application Checker, Document Summarizer, and AI-Assisted Messaging to save time and reduce errors.\n*   **Role-Based Dashboards:** Tailored experiences for Applicants, Lawyers, and Administrators to ensure everyone has access to the information they need.\n*   **Secure Communication:** Direct messaging between clients and their legal team.\n\n### 1.2. Getting Started: Account Creation & Login\n\nAccessing the app is simple and secure.\n\n**For New Users:**\n\n1.  Navigate to the registration page.\n2.  Select your role: **"Lawyer / Professional"** or **"Client / Applicant"**.\n3.  Fill in your full name, email address, and create a secure password.\n4.  Click **"Create Account"**.\n5.  You will be automatically redirected to the appropriate onboarding or dashboard page.\n\n*[Screenshot of the Registration Page - Figure 1: src/components/pages/register.tsx]*\n\n**For Existing Users:**\n\n1.  Navigate to the login page.\n2.  Enter your registered email and password.\n3.  Click **"Login"**.\n4.  You will be securely logged in and redirected to your dashboard.\n\n*[Screenshot of the Login Page - Figure 2: src/components/pages/login.tsx]*\n\n---\n\n## 2. User Role: Applicant\n\nThis section guides you through the features available to you as an applicant.\n\n### 2.1. First-Time Onboarding\n\nUpon your first login, you will be guided through an onboarding process to help us understand your immigration goals.\n\n#### **CRS Score Calculator**\n\nThe first step is to estimate your Comprehensive Ranking System (CRS) score for Canadian Express Entry.\n\n1.  Answer the questions in the multi-step form, including details about your age, education, work experience, and language skills.\n2.  Click **"Next Step"** to proceed through the form.\n3.  On the final step, click **"Calculate My Score"**.\n4.  The system will display your estimated CRS score along with a detailed breakdown and recommendations.\n\n*[Screenshot of the CRS Calculator - Figure 3: src/components/pages/client-onboarding.tsx]*\n\n### 2.2. The Applicant Dashboard\n\nYour dashboard is your central hub for tracking your application progress.\n\n*   **Welcome Banner:** Displays your current application status and the next immediate step.\n*   **AI-Powered Case Timeline:** A personalized, estimated timeline of your immigration journey's key milestones.\n*   **Quick Actions:** Quickly access your documents or message your lawyer.\n*   **Next Appointment:** Shows details for your next scheduled meeting.\n\n*[Screenshot of the Applicant Dashboard - Figure 4: src/components/pages/client-overview.tsx]*\n\n### 2.3. Finding and Connecting with Lawyers\n\nYou can browse a directory of verified immigration professionals.\n\n1.  Navigate to the **"Find a Lawyer"** page from the sidebar.\n2.  Use the search bar and filters to find a professional who matches your needs.\n3.  Review their profile, including specialties, experience, and success rate.\n4.  Click the **"Share Info & Connect"** button on a lawyer's profile card to securely share your profile and initiate contact.\n\n*[Screenshot of the Find a Lawyer Page - Figure 5: src/components/pages/find-lawyer.tsx]*\n\n### 2.4. Managing Your Documents\n\nThis section allows you to view and upload documents requested by your legal team.\n\n1.  Navigate to the **"My Documents"** page.\n2.  You will see a list of all documents, their status (e.g., Requested, Uploaded, Approved), and the date they were last updated.\n3.  For any document with a **"Requested"** status, click the **"Upload"** button to submit your file.\n4.  You can also view or download documents that have already been uploaded.\n\n*[Screenshot of the My Documents Page - Figure 6: src/components/pages/my-documents.tsx]*\n\n### 2.5. Messaging Your Lawyer\n\nCommunicate securely with your connected legal team.\n\n1.  Navigate to the **"Messages"** page.\n2.  Select a conversation from the list on the left.\n3.  The main panel will display your message history.\n4.  Type your message in the input box at the bottom and click the **"Send"** button.\n\n*[Screenshot of the Messages Interface - Figure 7: src/components/pages/client-messages.tsx]*\n\n---\n\n## 3. User Role: Lawyer / Team Member\n\nThis section outlines the tools available to legal professionals for case and client management.\n\n### 3.1. The Lawyer Dashboard\n\nYour dashboard provides a high-level overview of your firm's activities.\n\n*   **Key Metrics:** At-a-glance cards for Total Clients, Pending Applications, Upcoming Appointments, and Monthly Revenue.\n*   **AI Risk Alerts:** An AI-powered tool that scans active files and flags potential issues, such as approaching deadlines or missing documents.\n*   **Recent Applications & Appointments:** Lists of the most recent activity for quick access.\n*   **Quick Actions:** Shortcuts to create a new client, application, or appointment.\n\n*[Screenshot of the Lawyer Dashboard - Figure 8: src/components/pages/dashboard.tsx]*\n\n### 3.2. Managing Clients\n\nThe **"Clients"** page is your central CRM database.\n\n1.  Navigate to the **"Clients"** page from the sidebar.\n2.  View a table of all your clients. You can search and filter by status, case type, or country.\n3.  Click on any client row to open their detailed profile in a side panel.\n4.  From the client profile, you can view their case summary, activity log, manage documents, assign tasks, and more.\n\n*[Screenshot of the Client List Page - Figure 9: src/components/pages/clients.tsx]*\n*[Screenshot of the Client Profile View - Figure 10: src/components/pages/client-profile.tsx]*\n\n### 3.3. Case Management: Documents & Tasks\n\n*   **Documents:** From the main sidebar, navigate to **"Documents"** to manage your library of document templates. You can create new templates, edit existing ones, and assign them to clients.\n*   **Tasks:** From the main sidebar, navigate to **"Tasks"** to view all tasks across your firm. You can filter by status or priority. To create a new task for a specific client, visit their profile page and use the task management tools there.\n\n### 3.4. Using AI Tools\n\nThe **"AI Tools"** page provides powerful features to streamline your work.\n\n*   **Document Summarizer:** Paste text from a lengthy document to get a concise summary.\n*   **Application Checker:** Paste the text from an application form, select the application type, and the AI will scan for potential errors, omissions, and inconsistencies.\n*   **AI-Assisted Messaging:** Generate professional, context-aware messages for clients by providing a name, context, and desired tone.\n\n*[Screenshot of the AI Tools Page - Figure 11: src/components/pages/ai-tools.tsx]*\n\n### 3.5. Managing Your Team\n\nThe **"Team Management"** page allows you to view team performance and manage members.\n\n1.  Navigate to **"Team Management"** from the sidebar.\n2.  View key performance indicators (KPIs) for your team.\n3.  See a list of top-performing team members.\n4.  Manage your team roster, including viewing profiles and contact information.\n\n*[Screenshot of the Team Management Page - Figure 12: src/components/pages/team.tsx]*\n\n---\n\n## 4. User Role: Super Admin\n\nThis section is for platform administrators who have oversight of the entire system.\n\n### 4.1. The Super Admin Dashboard\n\nThe admin dashboard provides a global overview of the entire platform.\n\n*   **Platform-Wide Stats:** View metrics for total applicants, active firms, total revenue, and critical action items.\n*   **Action Items:** See a list of urgent tasks that require administrative attention, such as pending lawyer account activations or overdue platform-wide invoices.\n*   **Platform-wide Tasks & Messages:** Get a glimpse into the latest tasks and messages across all users.\n\n*[Screenshot of the Super Admin Dashboard - Figure 13: src/components/pages/admin-overview.tsx]*\n\n### 4.2. User Management (All Users)\n\nThe **"User Management"** page allows you to manage all lawyer and client accounts on the platform.\n\n1.  Navigate to **"User Management"** from the admin sidebar.\n2.  Use the tabs to switch between **"Lawyers / Firms"** and **"Applicants / Clients"**.\n3.  From the lawyer tab, you can approve pending activations, suspend accounts, or manage subscription plans.\n4.  From the client tab, you can view client details or block accounts if necessary.\n\n*[Screenshot of the User Management Page - Figure 14: src/components/pages/admin-user-management.tsx]*\n\n### 4.3. Platform Analytics & Reports\n\nThe **"Analytics"** page provides deep insights into platform growth and performance.\n\n*   **Visual Charts:** View charts for user growth, revenue by case type, application status breakdowns, and more.\n*   **Data Tables:** See detailed reports like client geographic distribution.\n\n*[Screenshot of the Platform Analytics Page - Figure 15: src/components/pages/admin-platform-analytics.tsx]*\n\n### 4.4. Managing Payments & Subscriptions\n\nThe **"Payments & Subs"** page is the financial hub for the platform.\n\n*   **Firm Subscriptions:** View and manage the subscription status for all legal firms on the platform.\n*   **Client Invoices:** See a log of all one-time invoices generated by lawyers for their clients.\n*   **Transaction History:** A complete log of all payments processed through the platform.\n\n*[Screenshot of the Payments Page - Figure 16: src/components/pages/admin-payments.tsx]*\n\n### 4.5. System-Wide Settings\n\nThe **"Platform Settings"** page gives you control over the entire application.\n\n*   **General:** Manage branding, such as the platform name and logo. Enable or disable global feature flags.\n*   **Billing & Subscriptions:** Configure the details and pricing for each subscription plan (Starter, Pro, Enterprise).\n*   **Integrations:** Manage API keys for third-party services like Google Cloud and Stripe.\n\n*[Screenshot of the Platform Settings Page - Figure 17: src/components/pages/admin-platform-settings.tsx]*\n\n---\n\n## 5. Appendices\n\n### 5.1. Troubleshooting\n\n*   **Problem: I can't log in.**\n    *   **Solution:** Double-check that your email and password are correct. Use the "Forgot Password" link if you need to reset it.\n*   **Problem: A page is not loading correctly.**\n    *   **Solution:** Try refreshing the page. If the problem persists, clear your browser's cache and cookies and try again.\n*   **Problem: I cannot upload a document.**\n    *   **Solution:** Ensure your file is in a supported format (e.g., PDF, JPG, PNG) and is smaller than the maximum file size limit (usually 5MB).\n\n### 5.2. Contact Support\n\nIf you encounter an issue you cannot resolve, please contact our support team.\n\n*   **In-App Support:** Navigate to the **"Help & Support"** page from your dashboard sidebar to submit a ticket.\n*   **Email:** For urgent issues, you can email us at **support@visafor.com**.\n\n### 5.3. Glossary of Terms\n\n*   **CRM (Customer Relationship Management):** A system for managing a company's relationships and interactions with customers and potential customers.\n*   **CRS (Comprehensive Ranking System):** A points-based system used by the Canadian government to assess and score Express Entry candidates.\n*   **IRCC (Immigration, Refugees and Citizenship Canada):** The department of the Government of Canada responsible for immigration, refugees, and citizenship.\n*   **PNP (Provincial Nominee Program):** A program through which Canadian provinces and territories can nominate individuals for immigration.\n*   **LMIA (Labour Market Impact Assessment):** A document that an employer in Canada may need to get before hiring a foreign worker.\` },
+  { path: \`apphosting.yaml\`, content: \`# Settings to manage and configure a Firebase App Hosting backend.\n# https://firebase.google.com/docs/app-hosting/configure\n\nrunConfig:\n  # Automatically scale up to 20 instances in response to increased traffic.\n  # Min instances set to 1 for faster responses to initial traffic.\n  minInstances: 1\n  maxInstances: 20\n  # Set a higher concurrency to allow each instance to handle more requests.\n  concurrency: 100\` },
+  { path: \`components.json\`, content: \`{\n  "$schema": "https://ui.shadcn.com/schema.json",\n  "style": "default",\n  "rsc": true,\n  "tsx": true,\n  "tailwind": {\n    "config": "tailwind.config.ts",\n    "css": "src/app/globals.css",\n    "baseColor": "neutral",\n    "cssVariables": true,\n    "prefix": ""\n  },\n  "aliases": {\n    "components": "@/components",\n    "utils": "@/lib/utils",\n    "ui": "@/components/ui",\n    "lib": "@/lib",\n    "hooks": "@/hooks"\n  },\n  "iconLibrary": "lucide"\n}\` },
+  { path: \`firebase.json\`, content: \`\n{\n  "hosting": {\n    "source": ".",\n    "ignore": [\n      "firebase.json",\n      "**/.*",\n      "**/node_modules/**"\n    ],\n    "frameworksBackend": {\n      "region": "us-central1"\n    }\n  },\n  "firestore": {\n    "rules": "firestore.rules"\n  }\n}\n\` },
+  { path: \`next.config.ts\`, content: \`\nimport type {NextConfig} from 'next';\n\nconst nextConfig: NextConfig = {\n  /* config options here */\n  images: {\n    remotePatterns: [\n      {\n        protocol: 'https',\n        hostname: 'placehold.co',\n        port: '',\n        pathname: '/**',\n      },\n    ],\n  },\n};\n\nexport default nextConfig;\n\` },
+  { path: \`package.json\`, content: \`{\n  "name": "nextn",\n  "version": "0.1.0",\n  "private": true,\n  "scripts": {\n    "dev": "next dev --turbopack -p 9002",\n    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",\n    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",\n    "build": "next build",\n    "start": "next start",\n    "lint": "next lint",\n    "typecheck": "tsc --noEmit"\n  },\n  "dependencies": {\n    "@ducanh2912/next-pwa": "^10.2.7",\n    "@genkit-ai/googleai": "^1.13.0",\n    "@genkit-ai/next": "^1.13.0",\n    "@hookform/resolvers": "^4.1.3",\n    "@opentelemetry/exporter-jaeger": "^1.25.1",\n    "@radix-ui/react-accordion": "^1.2.3",\n    "@radix-ui/react-alert-dialog": "^1.1.6",\n    "@radix-ui/react-avatar": "^1.1.3",\n    "@radix-ui/react-checkbox": "^1.1.4",\n    "@radix-ui/react-collapsible": "^1.1.11",\n    "@radix-ui/react-dialog": "^1.1.6",\n    "@radix-ui/react-dropdown-menu": "^2.1.6",\n    "@radix-ui/react-label": "^2.1.2",\n    "@radix-ui/react-menubar": "^1.1.6",\n    "@radix-ui/react-popover": "^1.1.6",\n    "@radix-ui/react-progress": "^1.1.2",\n    "@radix-ui/react-radio-group": "^1.2.3",\n    "@radix-ui/react-scroll-area": "^1.2.3",\n    "@radix-ui/react-select": "^2.1.6",\n    "@radix-ui/react-separator": "^1.1.2",\n    "@radix-ui/react-slider": "^1.2.3",\n    "@radix-ui/react-slot": "^1.2.3",\n    "@radix-ui/react-switch": "^1.1.3",\n    "@radix-ui/react-tabs": "^1.1.3",\n    "@radix-ui/react-toast": "^1.2.6",\n    "@radix-ui/react-tooltip": "^1.1.8",\n    "class-variance-authority": "^0.7.1",\n    "clsx": "^2.1.1",\n    "cmdk": "^1.0.0",\n    "date-fns": "^3.6.0",\n    "dotenv": "^16.5.0",\n    "embla-carousel-react": "^8.6.0",\n    "firebase": "^10.12.2",\n    "genkit": "^1.13.0",\n    "lucide-react": "^0.475.0",\n    "next": "15.3.3",\n    "patch-package": "^8.0.0",\n    "react": "^18.3.1",\n    "react-day-picker": "^8.10.1",\n    "react-dom": "^18.3.1",\n    "react-firebase-hooks": "^5.1.1",\n    "react-hook-form": "^7.54.2",\n    "react-pdf": "^9.1.0",\n    "recharts": "^2.15.1",\n    "tailwind-merge": "^3.0.1",\n    "tailwindcss-animate": "^1.0.7",\n    "zod": "^3.24.2"\n  },\n  "devDependencies": {\n    "@types/node": "^20",\n    "@types/react": "^18",\n    "@types/react-dom": "^18",\n    "genkit-cli": "^1.13.0",\n    "postcss": "^8",\n    "tailwindcss": "^3.4.1",\n    "typescript": "^5"\n  }\n}\` },
+  { path: \`src/ai/dev.ts\`, content: \`\nimport { config } from 'dotenv';\nconfig();\n\nimport '@/ai/flows/document-summarization.ts';\nimport '@/ai/flows/application-checker.ts';\nimport '@/ai/flows/ai-assisted-messaging.ts';\nimport '@/ai/flows/crs-calculator.ts';\nimport '@/ai/flows/success-predictor.ts';\nimport '@/ai/flows/risk-analyzer.ts';\nimport '@/ai/flows/case-timeline-flow.ts';\nimport '@/ai/flows/intake-form-analyzer.ts';\nimport '@/ai/flows/ircc-chat-flow.ts';\nimport '@/ai/flows/resume-builder-flow.ts';\nimport '@/ai/flows/document-analyzer.ts';\nimport '@/ai/flows/cover-letter-flow.ts';\nimport '@/ai/flows/writing-assistant-flow.ts';\n\` },
+  { path: \`src/ai/flows/ai-assisted-messaging.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview AI-assisted message composition for client communication.\n *\n * - composeMessage - A function that generates a message for a client based on input.\n * - ComposeMessageInput - The input type for the composeMessage function.\n * - ComposeMessageOutput - The return type for the composeMessage function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'genkit';\n\nconst ComposeMessageInputSchema = z.object({\n  clientName: z.string().describe('The name of the client.'),\n  messageContext: z.string().describe('The context or topic of the message.'),\n  tone: z.string().describe('The desired tone of the message (e.g., formal, informal, urgent).').optional(),\n});\nexport type ComposeMessageInput = z.infer<typeof ComposeMessageInputSchema>;\n\nconst ComposeMessageOutputSchema = z.object({\n  message: z.string().describe('The AI-generated message for the client.'),\n});\nexport type ComposeMessageOutput = z.infer<typeof ComposeMessageOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'composeMessagePrompt',\n  input: {schema: ComposeMessageInputSchema},\n  output: {schema: ComposeMessageOutputSchema},\n  prompt: \`You are an AI assistant helping to compose messages for client communication.\n\n  Based on the provided context, generate a message for the client.\n  The message should be professional, personalized, and tailored to the context.\n  {{#if tone}}\n  Take into account the desired tone of "{{{{tone}}}}" when composing the message.\n  {{/if}}\n\n  Client Name: {{{{{clientName}}}}}\n  Context: {{{{{messageContext}}}}}\n\n  Message:\`,\n});\n\nconst composeMessageFlow = ai.defineFlow(\n  {\n    name: 'composeMessageFlow',\n    inputSchema: ComposeMessageInputSchema,\n    outputSchema: ComposeMessageOutputSchema,\n  },\n  async input => {\n    const {output} = await prompt(input);\n    if (!output) {\n      throw new Error("Failed to get message from AI.");\n    }\n    return output;\n  }\n);\n\n\nexport async function composeMessage(jsonString: string): Promise<ComposeMessageOutput> {\n  const input = JSON.parse(jsonString) as ComposeMessageInput;\n  return composeMessageFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/application-checker.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that checks immigration application documents for missing information, errors, or inconsistencies.\n *\n * - applicationChecker - A function that handles the application checking process.\n * - ApplicationCheckerInput - The input type for the applicationChecker function.\n * - ApplicationCheckerOutput - The return type for the applicationChecker function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'genkit';\n\nconst ApplicationCheckerInputSchema = z.object({\n  documentText: z\n    .string()\n    .describe("The text content extracted from the application document."),\n  applicationType: z.string().describe("The type of application (e.g., Permanent Residency, Student Visa)."),\n});\n\nexport type ApplicationCheckerInput = z.infer<typeof ApplicationCheckerInputSchema>;\n\nconst ApplicationCheckerOutputSchema = z.object({\n  missingInformation: z.array(z.string()).describe("A list of missing information or documents."),\n  errors: z.array(z.string()).describe("A list of errors found in the document."),\n  inconsistencies: z.array(z.string()).describe("A list of inconsistencies found in the document."),\n  summary: z.string().describe("A summary of the application check results."),\n});\n\nexport type ApplicationCheckerOutput = z.infer<typeof ApplicationCheckerOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'applicationCheckerPrompt',\n  input: {schema: ApplicationCheckerInputSchema},\n  output: {schema: ApplicationCheckerOutputSchema},\n  prompt: \`You are an expert immigration consultant.\n\nYou will receive the text content of an application document and the type of application.\n\nYour task is to identify any missing information, errors, or inconsistencies in the document.\n\nApplication Type: {{{{{applicationType}}}}}\n\nDocument Text:\n{{{{documentText}}}}}\n\nOutput the missing information, errors, and inconsistencies in separate lists. Also, provide a summary of your findings.\n\nEnsure that the output is well-formatted and easy to understand.\n\nFollow the schema to produce your output.\`,\n});\n\nconst applicationCheckerFlow = ai.defineFlow(\n    {\n        name: 'applicationCheckerFlow',\n        inputSchema: ApplicationCheckerInputSchema,\n        outputSchema: ApplicationCheckerOutputSchema,\n    },\n    async (input) => {\n        const {output} = await prompt(input);\n        if (!output) {\n            throw new Error('Failed to get analysis from AI.');\n        }\n        return output;\n    }\n);\n\nexport async function applicationChecker(jsonString: string): Promise<ApplicationCheckerOutput> {\n  const input: ApplicationCheckerInput = JSON.parse(jsonString);\n  return applicationCheckerFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/case-timeline-flow.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that generates a personalized immigration case timeline.\n *\n * - getCaseTimeline - A function that generates a timeline based on a JSON string of client data.\n * - CaseTimelineInput - The input type for the client data object before stringification.\n * - CaseTimelineOutput - The return type for the getCaseTimeline function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'zod';\n\nconst CaseTimelineInputSchema = z.object({\n  visaType: z.string().describe('The type of visa or immigration program the client is applying for (e.g., Express Entry, Student Visa).'),\n  currentStage: z.string().describe('The current stage of the application process (e.g., "Awaiting Documents", "Submitted").'),\n  countryOfOrigin: z.string().describe("The client's country of origin, which can affect processing times."),\n});\nexport type CaseTimelineInput = z.infer<typeof CaseTimelineInputSchema>;\n\nconst TimelineStepSchema = z.object({\n  title: z.string().describe('The name of this step in the timeline (e.g., "Biometrics Appointment").'),\n  status: z.enum(['Completed', 'In Progress', 'Upcoming']).describe('The current status of this step.'),\n  estimatedDuration: z.string().describe('A human-readable estimated duration or processing time for this step (e.g., "1-2 weeks", "Approx. 3 months").'),\n  description: z.string().describe('A brief, helpful description of what this step involves for the client.'),\n  dueDate: z.string().optional().describe('An optional specific deadline for this step in YYYY-MM-DD format, if applicable.'),\n});\n\nconst CaseTimelineOutputSchema = z.object({\n  timeline: z.array(TimelineStepSchema).describe('The personalized immigration timeline, consisting of a sequence of steps.'),\n});\nexport type CaseTimelineOutput = z.infer<typeof CaseTimelineOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'caseTimelinePrompt',\n  input: { schema: CaseTimelineInputSchema },\n  output: { schema: CaseTimelineOutputSchema },\n  prompt: \`You are an expert Canadian immigration case timeline assistant. Your role is to generate a personalized, estimated timeline for a client based on their profile.\n\n  Analyze the client's data from the provided input to create a realistic sequence of key steps. For each step, provide an estimated duration based on current trends, the client's visa type, and country of origin (as some countries have different processing speeds). Mark steps before the client's current stage as 'Completed', the current stage as 'In Progress', and subsequent steps as 'Upcoming'.\n\n  The timeline must include critical milestones like document submission, biometrics, medical exams, and the final decision. Provide a helpful, client-friendly description for each step.\n\n  Client Profile:\n  - Visa Type: {{{{{visaType}}}}}\n  - Current Stage: {{{{{currentStage}}}}}\n  - Country of Origin: {{{{{countryOfOrigin}}}}}\n\n  Generate a clear, step-by-step timeline based on this information.\n  \`,\n});\n\nconst caseTimelineFlow = ai.defineFlow(\n  {\n    name: 'caseTimelineFlow',\n    inputSchema: CaseTimelineInputSchema,\n    outputSchema: CaseTimelineOutputSchema,\n  },\n  async (input) => {\n    const { output } = await prompt(input);\n    if (!output) {\n      throw new Error("Failed to get timeline from AI.");\n    }\n    return output;\n  }\n);\n\nexport async function getCaseTimeline(jsonString: string): Promise<CaseTimelineOutput> {\n    const input: CaseTimelineInput = JSON.parse(jsonString);\n    return caseTimelineFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/cover-letter-flow.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that generates a cover letter based on a client's intake form and a job description.\n *\n * - buildCoverLetter - A function that handles the cover letter generation.\n * - BuildCoverLetterInput - The input type for the buildCoverLetter function.\n * - BuildCoverLetterOutput - The return type for the buildCoverLetter function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { \n    BuildCoverLetterInputSchema, \n    BuildCoverLetterOutputSchema, \n    type BuildCoverLetterInput, \n    type BuildCoverLetterOutput \n} from '@/ai/schemas/cover-letter-schema';\n\nconst prompt = ai.definePrompt({\n  name: 'coverLetterBuilderPrompt',\n  input: { schema: BuildCoverLetterInputSchema },\n  output: { schema: BuildCoverLetterOutputSchema },\n  prompt: \`You are an expert career coach specializing in writing compelling cover letters for the Canadian job market. Generate a professional cover letter in Markdown format based on the client's data and the provided job description.\n\n  **Instructions:**\n  1.  **Address the Company:** Start with a professional salutation addressed to the hiring manager at {{{{{companyName}}}}}.\n  2.  **Introduction:** State the position being applied for ({{{{jobTitle}}}}}) and where it was seen. Briefly introduce the client, {{{{{clientName}}}}}, and express enthusiasm.\n  3.  **Body Paragraphs:**\n      *   Analyze the client's work history and skills from their data.\n      *   Compare these with the requirements in the job description.\n      *   Highlight 2-3 key experiences or skills that make the client a strong fit for the role. Use specific examples and quantify achievements where possible.\n      *   Connect the client's qualifications directly to the needs mentioned in the job description.\n  4.  **Closing:** Reiterate interest in the position and the company. Mention the attached resume and express eagerness for an interview.\n  5.  **Tone:** Maintain a professional, confident, and enthusiastic tone throughout.\n\n  **Client's Work History:**\n  {{#each clientWorkHistory}}\n  - Company: {{{{this.company}}}}}, Position: {{{{this.position}}}}}, Duration: {{{{this.duration}}}}}, Country: {{{{this.country}}}}}\n  {{/each}}\n\n  **Client's Education:**\n  {{#each clientEducation}}\n  - Degree: {{{{this.degree}}}}}, Institution: {{{{this.institution}}}}}, Year: {{{{this.yearCompleted}}}}}, Country: {{{{this.countryOfStudy}}}}}\n  {{/each}}\n\n  **Job Description:**\n  ---\n  {{{{jobDescription}}}}}\n  ---\n\n  Generate the complete cover letter based on this information.\n  \`,\n});\n\nconst coverLetterBuilderFlow = ai.defineFlow(\n  {\n    name: 'coverLetterBuilderFlow',\n    inputSchema: BuildCoverLetterInputSchema,\n    outputSchema: BuildCoverLetterOutputSchema,\n  },\n  async input => {\n    const { output } = await prompt(input);\n    return output!;\n  }\n);\n\nexport async function buildCoverLetter(jsonString: string): Promise<BuildCoverLetterOutput> {\n  const input: BuildCoverLetterInput = JSON.parse(jsonString);\n  return coverLetterBuilderFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/crs-calculator.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that calculates a user's Comprehensive Ranking System (CRS) score for Canadian Express Entry.\n *\n * - calculateCrsScore - A function that calculates a CRS score based on a JSON string of detailed user input.\n * - CrsInput - The TypeScript type for the input object.\n * - CrsOutput - The return type for the calculateCrsScore function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { z } from 'genkit';\n\nconst LanguageScoresSchema = z.object({\n  listening: z.number().min(0).max(9),\n  reading: z.number().min(0).max(9),\n  writing: z.number().min(0).max(9),\n  speaking: z.number().min(0).max(9),\n});\n\nexport const CrsInputSchema = z.object({\n  maritalStatus: z.enum(['single', 'married']).describe('The applicant\\\\'s marital status.'),\n  age: z.number().describe('The applicant\\\\'s age in years.'),\n  \n  educationLevel: z.string().describe('The applicant\\\\'s highest level of education.'),\n  studiedInCanada: z.enum(['yes', 'no']).describe('Whether the applicant has a Canadian degree, diploma or certificate.'),\n\n  canadianWorkExperience: z.number().describe('Years of Canadian work experience.'),\n  foreignWorkExperience: z.number().describe('Years of foreign work experience.'),\n  \n  firstLanguage: z.enum(['english', 'french']).describe('The applicant\\\\'s first official language.'),\n  englishScores: LanguageScoresSchema.optional().describe('Applicant\\\\'s English test scores (IELTS or CELPIP equivalent).'),\n  frenchScores: LanguageScoresSchema.optional().describe('Applicant\\\\'s French test scores (TEF or TCF equivalent).'),\n\n  spouse: z.object({\n    educationLevel: z.string().describe('Spouse\\\\'s highest level of education.'),\n    canadianWorkExperience: z.number().describe('Spouse\\\\'s years of Canadian work experience.'),\n    firstLanguageScores: LanguageScoresSchema.describe('Spouse\\\\'s language test scores.'),\n  }).optional().describe('Spouse/common-law partner\\\\'s details, if applicable.'),\n\n  hasJobOffer: z.enum(['yes', 'no']).describe('Whether the applicant has a valid job offer in Canada.'),\n  hasProvincialNomination: z.enum(['yes', 'no']).describe('Whether the applicant has a provincial nomination.'),\n  hasSiblingInCanada: z.enum(['yes', 'no']).describe('Whether the applicant has a sibling living in Canada who is a citizen or permanent resident.'),\n});\nexport type CrsInput = z.infer<typeof CrsInputSchema>;\n\nconst CrsOutputSchema = z.object({\n  totalScore: z.number().describe('The final calculated CRS score, out of 1200.'),\n  breakdown: z.object({\n    coreHumanCapital: z.number().describe('Points from core factors like age, education, language, and Canadian work experience.'),\n    spouseFactors: z.number().describe('Points from spouse\\\\'s education, language, and Canadian work experience.'),\n    skillTransferability: z.number().describe('Points from combinations of education, work experience, and language skills.'),\n    additionalPoints: z.number().describe('Points from factors like a provincial nomination, job offer, sibling in Canada, etc.'),\n  }),\n  feedback: z.string().describe('A brief, helpful summary and interpretation of the score.'),\n  isEligible: z.boolean().describe('A simple boolean indicating if the score is generally considered competitive.'),\n});\nexport type CrsOutput = z.infer<typeof CrsOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'crsCalculatorPrompt',\n  input: { schema: z.string() }, // Expects a JSON string\n  output: { schema: CrsOutputSchema },\n  prompt: \`You are an expert Canadian immigration consultant specializing in the Express Entry Comprehensive Ranking System (CRS). Your task is to calculate a user's CRS score with perfect accuracy based on the official IRCC guidelines. The maximum possible score is 1200.\n\n  Carefully analyze the user's input from the provided JSON string and calculate their total CRS score.\n  \nYou must provide a breakdown of the score for each of the following sections according to the latest official IRCC rules:\n  1.  **Core / Human Capital Factors:** Based on age, education, language proficiency (first and second), and Canadian work experience. The maximum points for a single applicant is 500.\n  2.  **Spouse or common-law partner factors:** Based on the spouse's education, language proficiency, and Canadian work experience. This section only applies if marital status is 'married'. Maximum 40 points.\n  3.  **Skill Transferability factors:** Based on combinations of education, language, and work experience. Maximum 100 points.\n  4.  **Additional Points:** For a provincial nomination (600 points), a valid job offer (50 or 200 points), Canadian study experience (15 or 30 points), a sibling in Canada (15 points), or French-language skills (25 or 50 points). Maximum 600 points for this section (due to PNP).\n\n  For language scores, map the provided scores (IELTS format) to Canadian Language Benchmark (CLB) levels to calculate points accurately.\n  - IELTS 9 = CLB 10\n  - IELTS 8-8.5 = CLB 9\n  - IELTS 7-7.5 = CLB 8\n  - IELTS 6.5 = CLB 7\n\n  After calculating the score, determine if it is "competitive" (isEligible=true). A score above 450 is generally considered competitive.\n  \n  Finally, provide a brief, helpful, and encouraging feedback summary for the user. Mention their strengths and potential areas for improvement (e.g., improving language scores, gaining more work experience).\n\n  User Input (JSON):\n  {{{{json this}}}}}\n  \`,\n});\n\nconst crsCalculatorFlow = ai.defineFlow(\n  {\n    name: 'crsCalculatorFlow',\n    inputSchema: z.string(), // Input is a JSON string\n    outputSchema: CrsOutputSchema,\n  },\n  async (jsonString) => {\n    const { output } = await prompt(jsonString);\n    if (!output) {\n      throw new Error("Failed to get CRS score from AI.");\n    }\n    return output;\n  }\n);\n\nexport async function calculateCrsScore(jsonString: string): Promise<CrsOutput> {\n  return crsCalculatorFlow(jsonString);\n}\n\` },
+  { path: \`src/ai/flows/document-analyzer.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that analyzes a document and provides a checklist for review.\n *\n * - analyzeDocument - A function that handles the document analysis.\n * - DocumentAnalysisInput - The input type for the analyzeDocument function.\n * - DocumentAnalysisOutput - The return type for the analyzeDocument function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { z } from 'zod';\n\nconst DocumentAnalysisInputSchema = z.object({\n  title: z.string().describe('The title of the document being analyzed (e.g., "Passport Bio Page").'),\n  category: z.string().describe('The category of the document (e.g., "Identification", "Financial").'),\n});\nexport type DocumentAnalysisInput = z.infer<typeof DocumentAnalysisInputSchema>;\n\nconst DocumentAnalysisOutputSchema = z.object({\n  checklist: z.array(z.string()).describe("A concise list of 2-3 critical items to check for this document."),\n});\nexport type DocumentAnalysisOutput = z.infer<typeof DocumentAnalysisOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'documentAnalyzerPrompt',\n  input: { schema: DocumentAnalysisInputSchema },\n  output: { schema: DocumentAnalysisOutputSchema },\n  prompt: \`You are an expert Canadian immigration paralegal known for your meticulous attention to detail.\n  \n  For a document titled "{{{{title}}}}" in the category "{{{{category}}}}", provide a checklist of 2-3 of the most critical items to verify to ensure it meets IRCC standards.\n  \n  Be concise and actionable.\n  \n  Example for "Passport" in "Identification":\n  - Check expiry date is more than 6 months away.\n  - Ensure all corners of the bio page are visible and not cut off.\n  - Confirm signature is present on the signature line.\n  \n  Example for "Bank Statement" in "Financial":\n  - Verify the document is on official bank letterhead.\n  - Check that the closing balance has been stable for at least 6 months.\n  - Ensure the account holder's name matches the applicant's name exactly.\`,\n});\n\nconst documentAnalyzerFlow = ai.defineFlow(\n  {\n    name: 'documentAnalyzerFlow',\n    inputSchema: DocumentAnalysisInputSchema,\n    outputSchema: DocumentAnalysisOutputSchema,\n  },\n  async (input) => {\n    const { output } = await prompt(input);\n    if (!output) {\n      throw new Error("Failed to analyze document.");\n    }\n    return output;\n  }\n);\n\nexport async function analyzeDocument(jsonString: string): Promise<DocumentAnalysisOutput> {\n  const input: DocumentAnalysisInput = JSON.parse(jsonString);\n  return documentAnalyzerFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/document-summarization.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview A document summarization AI agent.\n *\n * - summarizeDocument - A function that handles the document summarization process.\n * - SummarizeDocumentInput - The input type for the summarizeDocument function.\n * - SummarizeDocumentOutput - The return type for the summarizeDocument function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'genkit';\n\nconst SummarizeDocumentInputSchema = z.object({\n  documentText: z.string().describe('The text content of the document to summarize.'),\n});\nexport type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;\n\nconst SummarizeDocumentOutputSchema = z.object({\n  summary: z.string().describe('A concise summary of the document.'),\n});\nexport type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'summarizeDocumentPrompt',\n  input: {schema: SummarizeDocumentInputSchema},\n  output: {schema: SummarizeDocumentOutputSchema},\n  prompt: \`Summarize the following document in a concise manner:\\n\\n{{{{documentText}}}}}\`,\n});\n\nconst summarizeDocumentFlow = ai.defineFlow(\n    {\n        name: 'summarizeDocumentFlow',\n        inputSchema: SummarizeDocumentInputSchema,\n        outputSchema: SummarizeDocumentOutputSchema,\n    },\n    async (input) => {\n        const {output} = await prompt(input);\n        if (!output) {\n            throw new Error('Failed to get summary from AI.');\n        }\n        return output;\n    }\n);\n\nexport async function summarizeDocument(jsonString: string): Promise<SummarizeDocumentOutput> {\n  const input: SummarizeDocumentInput = JSON.parse(jsonString);\n  return summarizeDocumentFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/intake-form-analyzer.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that analyzes a client's intake form for potential issues.\n *\n * - analyzeIntakeForm - The exported server action that handles the intake form analysis.\n * - IntakeFormAnalysis - The return type for the analyzeIntakeForm function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { z } from 'zod';\n\nconst FlagSchema = z.object({\n  severity: z.enum(['low', 'medium', 'high']).describe("The severity of the flag (low, medium, or high)."),\n  field: z.string().describe("The specific form field or section related to the flag."),\n  message: z.string().describe("A clear and concise message explaining the potential issue."),\n});\n\nconst IntakeFormAnalysisSchema = z.object({\n  summary: z.string().describe("A brief, overall summary of the AI's findings from the form review."),\n  flags: z.array(FlagSchema).describe("An array of potential issues, inconsistencies, or red flags found in the form."),\n  educationAnalysis: z.object({\n    equivalencySuggestion: z.string().describe("Suggest the Canadian education equivalency level (e.g., 'Bachelor\\\\'s degree', 'Two or more certificates') based on the degrees provided."),\n    notes: z.string().describe("Any brief notes or observations about the client's education history."),\n  }).optional(),\n});\nexport type IntakeFormAnalysis = z.infer<typeof IntakeFormAnalysisSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'intakeFormAnalyzerPrompt',\n  input: { schema: z.string() }, // Expects a JSON string\n  output: { schema: IntakeFormAnalysisSchema },\n  prompt: \`You are an expert Canadian immigration case analyst. Your task is to review a client's submitted intake form data and identify any potential issues, red flags, or areas that require further clarification.\n\n  Analyze the following client data, which is provided as a JSON string:\n  \`\`\`json\n  {{{{json this}}}}}\n  \`\`\`\n\n  Your analysis should focus on:\n  1.  **Inconsistencies:** Check for contradictions within the provided data (e.g., work history not matching education timeline, family composition mismatch).\n  2.  **Inadmissibility:** Flag any answers that could lead to medical, criminal, or other inadmissibility. Give these a 'high' severity. Pay close attention to the 'admissibility' section where 'yes' indicates a potential issue.\n  3.  **Immigration History:** Pay close attention to previous applications and refusals. A 'yes' answer to a previous refusal is a significant flag that requires detailed explanation.\n  4.  **Gaps in History:** Look for unexplained gaps in work or travel history.\n  5.  **Completeness:** Identify areas that are incomplete or may require more detail for a successful application.\n  6.  **Strengths & Weaknesses:** Briefly mention strong points (e.g., high education, Canadian work experience) or potential weak points (e.g., limited work experience, low language scores).\n  7.  **Educational Equivalency:** Based on the provided education history, suggest a Canadian equivalency level and add any relevant notes. This is for the 'educationAnalysis' output field.\n\n  Create a flag for each issue you identify. For each flag, specify the severity, the related field/section, and a clear message for the lawyer.\n  \n  Finally, write a concise overall summary of your findings.\n  \`,\n});\n\nconst intakeFormAnalyzerFlow = ai.defineFlow(\n    {\n        name: 'intakeFormAnalyzerFlow',\n        inputSchema: z.string(),\n        outputSchema: IntakeFormAnalysisSchema,\n    },\n    async (jsonString) => {\n        const { output } = await prompt(jsonString);\n        if (!output) {\n            throw new Error("AI analysis failed to produce an output.");\n        }\n        return output;\n    }\n);\n\nexport async function analyzeIntakeForm(jsonString: string): Promise<IntakeFormAnalysis> {\n    return intakeFormAnalyzerFlow(jsonString);\n}\n\` },
+  { path: \`src/ai/flows/ircc-chat-flow.ts\`, content: \`\n'use server';\n/**\n * @fileOverview An AI chatbot trained on IRCC information.\n *\n * - askHeru - A function that takes a user query and returns an answer.\n * - AskHeruInput - The input type for the askHeru function.\n * - AskHeruOutput - The return type for the askHeru function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'genkit';\n\nconst AskHeruInputSchema = z.object({\n  query: z.string().describe('The user\\\\'s question about Canadian immigration.'),\n});\nexport type AskHeruInput = z.infer<typeof AskHeruInputSchema>;\n\nconst AskHeruOutputSchema = z.object({\n  response: z.string().describe('The AI-generated answer to the user\\\\'s question.'),\n});\nexport type AskHeruOutput = z.infer<typeof AskHeruOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'irccChatPrompt',\n  input: {schema: AskHeruInputSchema},\n  output: {schema: AskHeruOutputSchema},\n  prompt: \`You are an expert AI assistant for VisaFor, specializing in Canadian immigration. Your knowledge is based on the official documentation, rules, and regulations from Immigration, Refugees and Citizenship Canada (IRCC).\n\n  When responding to a user's question, you must adhere to the following rules:\n  1.  Provide accurate, clear, and concise answers based strictly on your IRCC knowledge base.\n  2.  If the answer is not available in your knowledge base, you must state: "I do not have information on that topic based on my current IRCC knowledge base. For the most accurate details, please consult the official IRCC website or a regulated professional."\n  3.  Do not speculate, provide legal advice, or use information from any source other than the IRCC materials you were trained on.\n  4.  Begin your response directly without any preamble.\n\n  User's Question: {{{{{query}}}}}\n  \`,\n});\n\nconst irccChatFlow = ai.defineFlow(\n  {\n    name: 'irccChatFlow',\n    inputSchema: AskHeruInputSchema,\n    outputSchema: AskHeruOutputSchema,\n  },\n  async input => {\n    const {output} = await prompt(input);\n    if (!output) {\n        throw new Error("Failed to get response from AI chat.");\n    }\n    return output;\n  }\n);\n\n\nexport async function askHeru(jsonString: string): Promise<AskHeruOutput> {\n  const input: AskHeruInput = JSON.parse(jsonString);\n  return irccChatFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/resume-builder-flow.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that generates a resume based on a client's intake form.\n *\n * - buildResume - A function that handles the resume generation.\n * - BuildResumeInput - The input type for the buildResume function.\n * - BuildResumeOutput - The return type for the buildResume function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport {\n    BuildResumeInputSchema,\n    BuildResumeOutputSchema,\n    type BuildResumeInput,\n    type BuildResumeOutput,\n} from '@/ai/schemas/resume-builder-schema';\nimport { z } from 'zod';\n\nexport type { BuildResumeInput, BuildResumeOutput };\n\nconst prompt = ai.definePrompt({\n  name: 'resumeBuilderPrompt',\n  input: { schema: BuildResumeInputSchema },\n  output: { schema: BuildResumeOutputSchema },\n  prompt: \`You are an expert resume writer specializing in creating professional resumes for the Canadian job market. Generate a resume in Markdown format based on the following client data.\n\n  Key Canadian Resume Standards to follow:\n  - Do not include a photo.\n  - Do not include personal details like age, marital status, or nationality.\n  - Start with a professional summary (2-3 sentences).\n  - List work experience in reverse chronological order.\n  - Use action verbs to describe accomplishments (e.g., "Managed," "Developed," "Achieved").\n  - Focus on quantifiable achievements where possible.\n  - Keep the resume concise, ideally 1-2 pages.\n  - Ensure contact information is clear and professional (Name, Phone, Email, Address).\n  - Format dates consistently (e.g., Month Year - Month Year).\n  - For education, list the most recent degree first.\n  - Add a "Skills" section summarizing key technical and soft skills.\n\n  **Client Name:** {{{{{clientName}}}}}\n  **Contact:**\n  - Email: {{{{{clientContact.email}}}}}\n  - Phone: {{{{{clientContact.phone}}}}}\n  - Address: {{{{{clientContact.address}}}}}\n\n  **Work History:**\n  {{#each clientWorkHistory}}\n  - **{{{{this.position}}}}}** at {{{{this.company}}}}} ({{{{this.country}}}}}) - *{{{{this.duration}}}}}*\n  {{/each}}\n  \n  **Education:**\n  {{#each clientEducation}}\n  - **{{{{this.degree}}}}}**, {{{{this.institution}}}}} ({{{{this.countryOfStudy}}}}}) - *Completed {{{{this.yearCompleted}}}}}*\n  {{/each}}\n\n  Generate a complete resume based on this data. Pay close attention to the work history and education sections to create a compelling professional narrative.\n  \`,\n});\n\nconst resumeBuilderFlow = ai.defineFlow(\n  {\n    name: 'resumeBuilderFlow',\n    inputSchema: BuildResumeInputSchema,\n    outputSchema: BuildResumeOutputSchema,\n  },\n  async (input) => {\n    const { output } = await prompt(input);\n    return output!;\n  }\n);\n\n\nexport async function buildResume(jsonString: string): Promise<BuildResumeOutput> {\n  const input: BuildResumeInput = JSON.parse(jsonString);\n  return resumeBuilderFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/risk-analyzer.ts\`, content: \`\n'use server';\n/**\n * @fileOverview An AI agent that analyzes client files to identify risks and suggest actions.\n *\n * - analyzeClientRisks - A function that handles the risk analysis process.\n * - RiskAnalysisInput - The input type for the analyzeClientRisks function.\n * - RiskAnalysisOutput - The return type for the analyzeClientRisks function.\n */\n\nimport {ai} from '@/ai/genkit';\nimport {z} from 'zod';\n\n// Simplified schema for what the AI needs.\nconst DocumentSchema = z.object({\n  title: z.string(),\n  status: z.enum(['Uploaded', 'Pending Review', 'Approved', 'Rejected', 'Requested', 'Pending Client Review']),\n  dateAdded: z.string().describe('The date the document was added (YYYY-MM-DD).'),\n});\n\nconst ActivitySchema = z.object({\n  title: z.string(),\n  timestamp: z.string().describe('The ISO 8601 timestamp of the activity.'),\n});\n\nconst ClientProfileForAnalysisSchema = z.object({\n  id: z.number(),\n  name: z.string(),\n  status: z.enum(['Active', 'On-hold', 'Closed', 'Blocked']),\n  activity: z.array(ActivitySchema).describe('A log of the most recent activities.'),\n  documents: z.array(DocumentSchema).describe('A list of client documents.'),\n  caseSummary: z.object({\n    dueDate: z.string().describe('The upcoming due date for the case (YYYY-MM-DD), if any.'),\n  }),\n});\n\nexport const RiskAnalysisInputSchema = z.object({\n  clients: z.array(ClientProfileForAnalysisSchema),\n  currentDate: z.string().describe('The current date in YYYY-MM-DD format.'),\n});\nexport type RiskAnalysisInput = z.infer<typeof RiskAnalysisInputSchema>;\n\n\nconst ClientAlertSchema = z.object({\n  clientId: z.number().describe("The ID of the flagged client."),\n  clientName: z.string().describe("The name of the flagged client."),\n  issueSummary: z.string().describe("A short summary of the issue or risk identified."),\n  suggestedAction: z.string().describe("A specific, actionable next step to mitigate the risk."),\n});\nexport type ClientAlert = z.infer<typeof ClientAlertSchema>;\n\n\nexport const RiskAnalysisOutputSchema = z.object({\n  alerts: z.array(ClientAlertSchema),\n});\nexport type RiskAnalysisOutput = z.infer<typeof RiskAnalysisOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'riskAnalyzerPrompt',\n  input: {schema: RiskAnalysisInputSchema},\n  output: {schema: RiskAnalysisOutputSchema},\n  prompt: \`You are an AI Risk System running inside a lawyer's immigration CRM dashboard. Your role is to review a list of active client files and flag any potential risks.\n\n  Analyze each client profile provided in the JSON input and identify any of the following risk factors:\n\n  1.  **Missing or Rejected Documents:** Flag any client who has documents with a status of 'Requested' or 'Rejected'.\n  2.  **Stale Cases:** Flag any active case where the most recent activity in their timeline is more than 30 days ago.\n  3.  **Approaching Deadlines:** Flag any case where the 'dueDate' in their case summary is within the next 30 days.\n\n  For each client you flag, you must provide a concise summary of the issue and a clear, suggested action for the lawyer. If a client has multiple issues, create a separate alert for each.\n\n  Here is the list of clients to analyze:\n  \`\`\`json\n  {{{{json this}}}}}\n  \`\`\`\n\n  Return your findings as an array of alerts in the specified JSON format. If there are no risks, return an empty array.\n  \`,\n});\n\nconst riskAnalyzerFlow = ai.defineFlow(\n  {\n    name: 'riskAnalyzerFlow',\n    inputSchema: RiskAnalysisInputSchema,\n    outputSchema: RiskAnalysisOutputSchema,\n  },\n  async (input) => {\n    const {output} = await prompt(input);\n    if (!output) {\n      throw new Error("Failed to analyze risks.");\n    }\n    return output;\n  }\n);\n\nexport async function analyzeClientRisks(jsonString: string): Promise<RiskAnalysisOutput> {\n    const input: RiskAnalysisInput = JSON.parse(jsonString);\n    return riskAnalyzerFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/success-predictor.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview An AI agent that analyzes a client's profile to predict immigration application success.\n *\n * - predictSuccess - A function that handles the success prediction analysis.\n * - SuccessPredictorInputSchema - The Zod schema for the detailed user input object.\n * - SuccessPredictorOutput - The return type for the predictSuccess function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { z } from 'zod';\n\nconst SuccessPredictorInputSchema = z.object({\n  visaType: z.string().describe('The type of visa or immigration program the client is applying for (e.g., Express Entry, Student Visa).'),\n  countryOfOrigin: z.string().describe("The client's country of origin."),\n  age: z.number().describe("The client's age in years."),\n  educationLevel: z.string().describe("The client's highest level of education."),\n});\nexport type SuccessPredictorInput = z.infer<typeof SuccessPredictorInputSchema>;\n\nconst SuccessPredictorOutputSchema = z.object({\n  successProbability: z.number().min(0).max(100).describe('The estimated probability of success for the application, as a percentage.'),\n  scoreLabel: z.enum(['Green', 'Yellow', 'Red']).describe('A color-coded score label based on the success probability (Green > 80%, Yellow 50-79%, Red < 50%).'),\n  reason: z.string().describe('A brief, 1-2 sentence explanation for the given score, highlighting key positive or negative factors.'),\n});\nexport type SuccessPredictorOutput = z.infer<typeof SuccessPredictorOutputSchema>;\n\nconst prompt = ai.definePrompt({\n  name: 'successPredictorPrompt',\n  input: { schema: SuccessPredictorInputSchema },\n  output: { schema: SuccessPredictorOutputSchema },\n  prompt: \`You are an expert Canadian immigration advisor with deep knowledge of immigration law, IRCC policies, and current processing trends. Your task is to provide a realistic, data-informed assessment of a client's immigration application profile based on the provided JSON data.\n\n  Client Profile:\n  {{{{json this}}}}}\n\n\n  Based on this information, you must:\n  1.  Calculate a **Success Probability** as a percentage. This should reflect the likely outcome based on factors like age points in Express Entry, education credential value, visa type requirements, and any known trends associated with the country of origin (like high volume or specific verification needs).\n  2.  Determine a **Score Label**:\n      - 'Green' if the success probability is 80% or higher.\n      - 'Yellow' if the probability is between 50% and 79%.\n      - 'Red' if the probability is below 50%.\n  3.  Write a concise **Reason** (1-2 sentences) explaining the score. Mention the most critical positive or negative factors influencing the assessment. For example, "The high score is due to the candidate's young age and high level of education, which are strongly favored in the Express Entry system." or "The lower probability reflects the high competition for this visa type and the need for a strong language test score, which is not yet provided."\n\n  Return your analysis in the specified JSON format.\n  \`,\n});\n\n\nconst successPredictorFlow = ai.defineFlow(\n  {\n    name: 'successPredictorFlow',\n    inputSchema: SuccessPredictorInputSchema,\n    outputSchema: SuccessPredictorOutputSchema,\n  },\n  async (input) => {\n    const { output } = await prompt(input);\n    if (!output) {\n      throw new Error("Failed to get prediction from AI.");\n    }\n    return output;\n  }\n);\n\n\nexport async function predictSuccess(jsonString: string): Promise<SuccessPredictorOutput> {\n  const input = JSON.parse(jsonString) as SuccessPredictorInput;\n  return successPredictorFlow(input);\n}\n\` },
+  { path: \`src/ai/flows/writing-assistant-flow.ts\`, content: \`\n'use server';\n\n/**\n * @fileOverview A general-purpose AI writing assistant.\n *\n * - assistWithWriting - A function that takes text and an instruction to modify it.\n * - WritingAssistantInput - The input type for the assistWithWriting function.\n * - WritingAssistantOutput - The return type for the assistWithWriting function.\n */\n\nimport { ai } from '@/ai/genkit';\nimport { z } from 'zod';\nimport { \n    WritingAssistantInputSchema, \n    WritingAssistantOutputSchema, \n    type WritingAssistantInput, \n    type WritingAssistantOutput \n} from '@/ai/schemas/writing-assistant-schema';\n\nexport type { WritingAssistantInput, WritingAssistantOutput };\n\nconst writingAssistantPrompt = ai.definePrompt({\n  name: 'writingAssistantPrompt',\n  input: { schema: WritingAssistantInputSchema },\n  output: { schema: WritingAssistantOutputSchema },\n  prompt: \`You are a helpful writing assistant. Your task is to take the user's text and modify it based on their instruction.\n\n  **Instruction:** {{{{{instruction}}}}}\n\n  **Original Text:**\n  ---\n  {{{{textToImprove}}}}}\n  ---\n\n  Return only the improved text in the 'improvedText' field.\n  \`,\n});\n\n\nconst writingAssistantFlow = ai.defineFlow(\n    {\n        name: 'writingAssistantFlow',\n        inputSchema: WritingAssistantInputSchema,\n        outputSchema: WritingAssistantOutputSchema,\n    },\n    async (input) => {\n        const { output } = await writingAssistantPrompt(input);\n        if (!output) {\n            throw new Error("AI assistant failed to produce an output.");\n        }\n        return output;\n    }\n);\n\n\nexport async function assistWithWriting(jsonString: string): Promise<WritingAssistantOutput> {\n  const input: WritingAssistantInput = JSON.parse(jsonString);\n  return writingAssistantFlow(input);\n}\n\` },
+  { path: \`src/ai/genkit.ts\`, content: \`import {genkit} from 'genkit';\nimport {googleAI} from '@genkit-ai/googleai';\n\nexport const ai = genkit({\n  plugins: [googleAI()],\n  model: 'googleai/gemini-2.0-flash',\n});\n\` },
+  { path: \`src/ai/schemas/cover-letter-schema.ts\`, content: \`\n/**\n * @fileOverview Defines the Zod schema and TypeScript types for the cover letter builder AI flow.\n */\nimport { z } from 'zod';\nimport { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';\n\n// This new schema only accepts the specific fields needed by the prompt,\n// preventing the serialization of the entire large intake form object.\nexport const BuildCoverLetterInputSchema = z.object({\n  jobTitle: z.string().describe("The title of the job being applied for."),\n  companyName: z.string().describe("The name of the company."),\n  jobDescription: z.string().describe("The full job description."),\n  clientName: z.string().describe("The client's full name."),\n  clientWorkHistory: IntakeFormInputSchema.shape.workHistory,\n  clientEducation: IntakeFormInputSchema.shape.education,\n});\nexport type BuildCoverLetterInput = z.infer<typeof BuildCoverLetterInputSchema>;\n\nexport const BuildCoverLetterOutputSchema = z.object({\n  coverLetterText: z.string().describe('The generated cover letter in Markdown format.'),\n});\nexport type BuildCoverLetterOutput = z.infer<typeof BuildCoverLetterOutputSchema>;\n\` },
+  { path: \`src/ai/schemas/intake-form-schema.ts\`, content: \`\n/**\n * @fileOverview Defines the Zod schema and TypeScript types for the client intake form.\n * This schema is shared between multiple AI flows.\n */\nimport {z} from 'zod';\n\nconst FamilyMemberSchema = z.object({\n    fullName: z.string(),\n    relationship: z.string(),\n    dateOfBirth: z.string(),\n    countryOfBirth: z.string(),\n    currentAddress: z.string(),\n    occupation: z.string(),\n});\n\nexport const IntakeFormInputSchema = z.object({\n  personal: z.object({\n    fullName: z.string(),\n    dateOfBirth: z.string(),\n    countryOfBirth: z.string(),\n    countryOfCitizenship: z.string(),\n    passportNumber: z.string(),\n    passportExpiry: z.string(),\n    height: z.string(),\n    eyeColor: z.string(),\n    contact: z.object({\n        email: z.string(),\n        phone: z.string(),\n        address: z.string(),\n    }),\n  }),\n  family: z.object({\n    maritalStatus: z.string(),\n    spouse: FamilyMemberSchema.optional(),\n    mother: FamilyMemberSchema.optional(),\n    father: FamilyMemberSchema.optional(),\n    children: z.array(FamilyMemberSchema).optional(),\n    siblings: z.array(FamilyMemberSchema).optional(),\n  }),\n  education: z.array(z.object({\n    institution: z.string(),\n    degree: z.string(),\n    yearCompleted: z.string(),\n    countryOfStudy: z.string(),\n  })),\n  workHistory: z.array(z.object({\n    company: z.string(),\n    position: z.string(),\n    duration: z.string(),\n    country: z.string(),\n  })),\n  languageProficiency: z.object({\n    englishScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),\n    frenchScores: z.object({ listening: z.number(), reading: z.number(), writing: z.number(), speaking: z.number() }).optional(),\n  }),\n  travelHistory: z.array(z.object({\n    country: z.string(),\n    purpose: z.string(),\n    duration: z.string(),\n    year: z.string(),\n  })),\n  immigrationHistory: z.object({\n    previouslyApplied: z.enum(['yes', 'no']),\n    previousApplicationDetails: z.string().optional(),\n    wasRefused: z.enum(['yes', 'no']),\n    refusalDetails: z.string().optional(),\n  }),\n  admissibility: z.object({\n    hasCriminalRecord: z.enum(['yes', 'no']),\n    criminalRecordDetails: z.string().optional(),\n    hasMedicalIssues: z.enum(['yes', 'no']),\n    medicalIssuesDetails: z.string().optional(),\n    hasOverstayed: z.enum(['yes', 'no']).optional(),\n    overstayDetails: z.string().optional(),\n  }).optional(),\n});\n\nexport type IntakeFormInput = z.infer<typeof IntakeFormInputSchema>;\n\` },
+  { path: \`src/ai/schemas/resume-builder-schema.ts\`, content: \`/**\n * @fileOverview Defines the Zod schema and TypeScript types for the resume builder AI flow.\n */\nimport { z } from 'zod';\nimport { IntakeFormInputSchema } from '@/ai/schemas/intake-form-schema';\n\n// This new schema only accepts the specific fields needed by the prompt,\n// preventing the serialization of the entire large intake form object.\nexport const BuildResumeInputSchema = z.object({\n    clientName: z.string().describe("The client's full name."),\n    clientContact: IntakeFormInputSchema.shape.personal.shape.contact.describe("The client's contact information."),\n    clientWorkHistory: IntakeFormInputSchema.shape.workHistory.describe("The client's work history."),\n    clientEducation: IntakeFormInputSchema.shape.education.describe("The client's education history."),\n});\nexport type BuildResumeInput = z.infer<typeof BuildResumeInputSchema>;\n\nexport const BuildResumeOutputSchema = z.object({\n  resumeText: z.string().describe('The generated resume in Markdown format.'),\n});\nexport type BuildResumeOutput = z.infer<typeof BuildResumeOutputSchema>;\n\` },
+  { path: \`src/ai/schemas/writing-assistant-schema.ts\`, content: \`/**\n * @fileOverview Defines the Zod schema and TypeScript types for the writing assistant AI flow.\n */\nimport { z } from 'zod';\n\nexport const WritingAssistantInputSchema = z.object({\n  textToImprove: z.string().describe("The original text to be modified."),\n  instruction: z.string().describe("The instruction on how to modify the text (e.g., 'make it more professional', 'shorten it', 'check grammar')."),\n});\nexport type WritingAssistantInput = z.infer<typeof WritingAssistantInputSchema>;\n\nexport const WritingAssistantOutputSchema = z.object({\n  improvedText: z.string().describe('The resulting text after applying the instruction.'),\n});\nexport type WritingAssistantOutput = z.infer<typeof WritingAssistantOutputSchema>;\n\` },
+  { path: \`src/app/(marketing)/for-lawyers/page.tsx\`, content: \`\n'use client';\n\nimport { BarChart, CheckCircle, ShieldCheck, Users, Zap } from 'lucide-react';\nimport { PricingTable } from '@/components/pricing-table';\nimport { TestimonialCard } from '@/components/testimonial-card';\nimport { testimonials, faqs } from '@/lib/data';\nimport { Faq } from '@/components/faq';\nimport { ClientManagementScreenshot } from '@/components/screenshots/ClientManagementScreenshot';\nimport { BillingScreenshot } from '@/components/screenshots/BillingScreenshot';\nimport { DashboardScreenshot } from '@/components/screenshots/DashboardScreenshot';\n\nconst lawyerFeatures = [\n    {\n        icon: Users,\n        title: 'Centralized Client Management',\n        description: 'Manage all your clients from a single, intuitive dashboard. Track case progress, documents, and communication history effortlessly.',\n    },\n    {\n        icon: Zap,\n        title: 'AI-Powered Efficiency Tools',\n        description: 'Leverage AI to check applications for errors, summarize lengthy documents, and draft professional client communications in seconds.',\n    },\n    {\n        icon: ShieldCheck,\n        title: 'Proactive Risk Alerts',\n        description: "Our AI scans active cases for approaching deadlines and missing documents, giving you alerts before they become problems."\n    },\n     {\n        icon: BarChart,\n        title: 'Performance Analytics',\n        description: "Gain insights into your firm's performance with reports on case success rates, client acquisition, and revenue."\n    },\n];\n\nexport default function ForLawyersPage() {\n    const lawyerTestimonial = testimonials.find(t => t.role === 'lawyer');\n    const lawyerFaqs = faqs.filter(f => f.for === 'lawyer');\n\n    return (\n        <div className="space-y-20 py-16">\n            {/* Hero Section */}\n            <section className="container text-center">\n                <h1 className="text-4xl md:text-5xl font-bold font-headline">The AI-Powered CRM for Modern Immigration Firms</h1>\n                <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">\n                    Stop juggling spreadsheets and generic tools. VisaFor is designed specifically for immigration professionals, helping you save time, reduce errors, and grow your practice.\n                </p>\n            </section>\n\n            {/* Screenshots Section */}\n            <section className="container">\n                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">\n                    <div className="lg:col-span-1 space-y-4">\n                        <h2 className="text-3xl font-bold font-headline">One Platform to Run Your Entire Practice</h2>\n                        <p className="text-muted-foreground">From client intake to final submission, VisaFor provides the tools you need to stay organized and efficient.</p>\n                    </div>\n                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">\n                        <DashboardScreenshot />\n                        <ClientManagementScreenshot />\n                    </div>\n                </div>\n            </section>\n\n             {/* Features Section */}\n            <section className="container">\n                <div className="text-center mb-12">\n                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Features Built for Immigration Professionals</h2>\n                     <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Everything you need to streamline your workflow and deliver exceptional service.</p>\n                </div>\n                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">\n                    {lawyerFeatures.map((feature) => (\n                        <div key={feature.title} className="flex items-start gap-4">\n                            <div className="bg-primary/10 p-3 rounded-full">\n                                <feature.icon className="h-6 w-6 text-primary" />\n                            </div>\n                            <div>\n                                <h3 className="text-lg font-semibold">{feature.title}</h3>\n                                <p className="text-muted-foreground">{feature.description}</p>\n                            </div>\n                        </div>\n                    ))}\n                </div>\n            </section>\n            \n            {/* Pricing Section */}\n            <section id="pricing" className="container">\n                <div className="text-center mb-12">\n                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Find the Perfect Plan</h2>\n                     <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Start for free and scale as you grow. No long-term contracts, cancel anytime.</p>\n                </div>\n                <PricingTable />\n            </section>\n\n            {/* Testimonial Section */}\n            {lawyerTestimonial && (\n                 <section className="container">\n                    <div className="max-w-4xl mx-auto">\n                        <TestimonialCard testimonial={lawyerTestimonial} />\n                    </div>\n                </section>\n            )}\n\n            {/* FAQ Section */}\n            <section className="container">\n                <div className="text-center mb-12">\n                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>\n                </div>\n                 <div className="max-w-3xl mx-auto">\n                    <Faq faqs={lawyerFaqs} />\n                </div>\n            </section>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/(marketing)/layout.tsx\`, content: \`import { MarketingHeader } from '@/components/layout/marketing-header';\nimport { MarketingFooter } from '@/components/layout/marketing-footer';\n\nexport default function MarketingLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <div className="flex flex-col min-h-screen">\n      <MarketingHeader />\n      <main className="flex-1">{children}</main>\n      <MarketingFooter />\n    </div>\n  );\n}\n\` },
+  { path: \`src/app/(marketing)/terms/page.tsx\`, content: \`\nimport { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";\n\nexport default function TermsAndConditionsPage() {\n    return (\n        <div className="container mx-auto px-4 py-12 md:py-16">\n            <Card className="max-w-4xl mx-auto">\n                <CardHeader>\n                    <CardTitle className="font-headline text-3xl">Terms and Conditions</CardTitle>\n                    <CardDescription>Last updated: July 8, 2024</CardDescription>\n                </CardHeader>\n                <CardContent className="prose prose-sm md:prose-base dark:prose-invert max-w-none">\n                    <p>Welcome to VisaFor ("the Platform"). These Terms and Conditions govern your use of the VisaFor CRM system. By registering for an account, you agree to be bound by these terms.</p>\n                    \n                    <h3>1. Professional Responsibility (For Lawyers & Legal Professionals)</h3>\n                    <p>As a regulated legal professional using this Platform, you acknowledge and agree to the following:</p>\n                    <ul>\n                        <li><strong>Final Authority:</strong> You are the final authority on all legal advice, document submissions, and strategic decisions for your clients.</li>\n                        <li><strong>AI as an Assistant:</strong> The Platform's AI tools (including but not limited to the Application Checker, Document Summarizer, and message composer) are provided as assistive technology. They are intended to augment, not replace, your professional judgment.</li>\n                        <li><strong>Verification Required:</strong> You are solely responsible for verifying the accuracy, completeness, and appropriateness of any information, document, or suggestion generated by the AI before using it or sharing it with a client.</li>\n                        <li><strong>Compliance:</strong> You are responsible for ensuring your use of the Platform complies with all rules and regulations set forth by your governing body (e.g., Law Society, CICC).</li>\n                    </ul>\n\n                    <h3>2. Disclaimers Regarding AI-Generated Content</h3>\n                    <p>The Platform utilizes artificial intelligence to provide suggestions, summaries, and automated content. You understand and accept that:</p>\n                    <ul>\n                        <li>AI-generated content may contain inaccuracies, errors, or omissions.</li>\n                        <li>AI tools are not a substitute for legal research, professional expertise, or independent verification.</li>\n                        <li>VisaFor Inc. is not liable for any errors, damages, or professional consequences arising from your reliance on AI-generated content without proper professional review.</li>\n                    </ul>\n\n                    <h3>3. Account Security</h3>\n                    <p>You are responsible for maintaining the confidentiality of your account password and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.</p>\n\n                    <h3>4. User Conduct</h3>\n                    <p>You agree not to use the Platform for any unlawful purpose or to engage in any conduct that could damage, disable, or overburden the Platform. You are solely responsible for all data and content you upload or input into the system.</p>\n\n                     <h3>5. Subscription and Payments</h3>\n                    <p>Fees for our services are described on our pricing page. By choosing a subscription plan, you agree to pay all applicable fees. Subscriptions will automatically renew unless canceled. All payments are non-refundable.</p>\n\n                    <h3>6. Termination</h3>\n                    <p>We may terminate or suspend your access to the Platform at any time, without prior notice or liability, for any reason, including if you breach these Terms.</p>\n\n                    <h3>7. Changes to Terms</h3>\n                    <p>We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new terms on this page. Your continued use of the Platform after any such change constitutes your acceptance of the new Terms and Conditions.</p>\n                </CardContent>\n            </Card>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/admin/clients/[id]/page.tsx\`, content: \`// This page is intentionally left blank.\n// The Super Admin role does not require direct access to individual client profiles.\n// This route is deprecated and may be removed in a future version.\nexport default function AdminClientProfilePage() {\n    return null;\n}\n\` },
+  { path: \`src/app/admin/dashboard/page.tsx\`, content: \`\n'use client';\nimport { useAdminDashboard } from '@/context/AdminDashboardContext';\nimport { AdminOverviewPage } from '@/components/pages/admin-overview';\nimport { UserManagementPage } from '@/components/pages/admin-user-management';\nimport { PlatformSettingsPage } from '@/components/pages/admin-platform-settings';\nimport { AdminPlatformAnalyticsPage } from '@/components/pages/admin-platform-analytics';\nimport { AdminPaymentsPage } from '@/components/pages/admin-payments';\nimport { AdminSystemNotificationsPage } from '@/components/pages/admin-system-notifications';\nimport { AdminTeamManagementPage } from '@/components/pages/admin-team-management';\nimport { AdminAllTasksPage from '@/components/pages/admin-all-tasks';\nimport { AdminSupportTicketsPage } from '@/components/pages/admin-support-tickets';\nimport { AdminDocumentsPage } from '@/components/pages/admin-documents';\nimport { AdminLeadsPage } from '@/components/pages/admin-leads';\nimport { AdminAIToolsPage } from '@/components/pages/admin-ai-tools';\nimport { AdminAppointmentsPage } from '@/components/pages/admin-appointments';\n\nexport default function AdminDashboardPage() {\n    const { page } = useAdminDashboard();\n\n    const pageComponents: { [key: string]: React.ComponentType<any> } = {\n        'overview': AdminOverviewPage,\n        'leads': AdminLeadsPage,\n        'users': UserManagementPage,\n        'team': AdminTeamManagementPage,\n        'tasks': AdminAllTasksPage,\n        'documents': AdminDocumentsPage,\n        'analytics': AdminPlatformAnalyticsPage,\n        'payments': AdminPaymentsPage,\n        'notifications': AdminSystemNotificationsPage,\n        'support-tickets': AdminSupportTicketsPage,\n        'settings': PlatformSettingsPage,\n        'ai-tools': AdminAIToolsPage,\n        'appointments': AdminAppointmentsPage,\n    };\n\n    const PageComponent = pageComponents[page] || AdminOverviewPage;\n    \n    return <PageComponent />;\n}\n\` },
+  { path: \`src/app/admin/layout.tsx\`, content: \`\n'use client';\nimport { useState } from 'react';\nimport { AdminSidebar } from '@/components/layout/admin-sidebar';\nimport { AdminHeader } from '@/components/layout/admin-header';\nimport { AdminDashboardProvider, useAdminDashboard } from '@/context/AdminDashboardContext';\nimport { AuthWrapper } from '@/components/auth-wrapper';\n\nconst pageTitles: { [key: string]: string } = {\n    'overview': 'Super Admin Dashboard',\n    'users': 'User Management',\n    'team': 'Platform Team Roster',\n    'tasks': 'All Tasks',\n    'documents': 'Document Library',\n    'analytics': 'Platform Analytics',\n    'payments': 'Payments & Subscriptions',\n    'notifications': 'System Notifications',\n    'support-tickets': 'Support Tickets',\n    'settings': 'Platform Settings',\n    'ai-tools': 'AI Tools',\n    'appointments': 'Appointments',\n};\n\nfunction AdminDashboardLayoutContent({ children }: { children: React.ReactNode }) {\n    const { page, setPage } = useAdminDashboard();\n    const [isSidebarOpen, setSidebarOpen] = useState(false);\n    return (\n        <AuthWrapper requiredRole="admin">\n            <div className="min-h-screen bg-background text-foreground">\n                <AdminSidebar activePage={page} setActivePage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                <div className="flex min-h-screen flex-col md:ml-64">\n                    <AdminHeader pageTitle={pageTitles[page] || 'Super Admin'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                    <main className="flex-grow p-4 md:p-6 flex flex-col">\n                        <div className="animate-fade flex-grow">\n                            {children}\n                        </div>\n                         <footer className="text-center text-xs text-muted-foreground pt-8">\n                            Designed & Empowered by VisaFor\n                        </footer>\n                    </main>\n                </div>\n            </div>\n        </AuthWrapper>\n    );\n}\n\n\nexport default function AdminLayout({\n    children,\n}: {\n    children: React.ReactNode;\n}) {\n    return (\n        <AdminDashboardProvider>\n            <AdminDashboardLayoutContent>{children}</AdminDashboardLayoutContent>\n        </AdminDashboardProvider>\n    );\n}\n\` },
+  { path: \`src/app/client/dashboard/page.tsx\`, content: \`\n'use client';\nimport { useClientDashboard } from '@/context/ClientDashboardContext';\nimport { ClientOverviewPage } from '@/components/pages/client-overview';\nimport { FindLawyerPage } from '@/components/pages/find-lawyer';\nimport { MyLawyersPage } from '@/components/pages/my-lawyers';\nimport { MyDocumentsPage } from '@/components/pages/my-documents';\nimport { ClientAppointmentsPage } from '@/components/pages/client-appointments';\nimport { ClientBillingPage } from '@/components/pages/client-billing';\nimport { ClientMessagesPage } from '@/components/pages/client-messages';\nimport { ClientSettingsPage } from '@/components/pages/client-settings';\nimport { SupportPage } from '@/components/pages/support';\nimport { ClientAgreementsPage } from '@/components/pages/client-agreements';\nimport { ClientIntakeFormPage } from '@/components/pages/client-intake-form';\nimport { ClientAiAssistPage } from '@/components/pages/client-ai-assist';\nimport { NotificationsPage } from '@/components/pages/notifications';\nimport { ClientNewsPage } from '@/components/pages/client-news';\n\nexport default function ClientDashboardPage() {\n    const { page, setPage } = useClientDashboard();\n\n    const pageComponents: { [key: string]: React.ComponentType<any> } = {\n        'overview': ClientOverviewPage,\n        'intake-form': ClientIntakeFormPage,\n        'find-lawyer': FindLawyerPage,\n        'my-lawyers': MyLawyersPage,\n        'documents': MyDocumentsPage,\n        'appointments': ClientAppointmentsPage,\n        'agreements': ClientAgreementsPage,\n        'billing': ClientBillingPage,\n        'messages': ClientMessagesPage,\n        'news': ClientNewsPage,\n        'notifications': NotificationsPage,\n        'settings': ClientSettingsPage,\n        'support': SupportPage,\n        'ai-assist': ClientAiAssistPage,\n    };\n\n    const PageComponent = pageComponents[page] || ClientOverviewPage;\n    \n    return <PageComponent setPage={setPage} />;\n}\n\` },
+  { path: \`src/app/client/lawyer/[id]/page.tsx\`, content: \`\n'use client';\n\nimport { useState } from "react";\nimport { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";\nimport { Badge } from "@/components/ui/badge";\nimport { Button } from "@/components/ui/button";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";\nimport { useGlobalData } from "@/context/GlobalDataContext";\nimport { TeamMember } from "@/lib/data";\nimport { notFound, useParams } from "next/navigation";\nimport { ArrowLeft, CheckCircle, Crown, DollarSign, Languages, Mail, MapPin, Phone, Twitter, Globe, Users, Award, Briefcase, Star } from "lucide-react";\nimport { useRouter } from "next/navigation";\nimport Image from "next/image";\nimport { LawyerConnectDialog } from "@/components/pages/lawyer-connect-dialog";\n\nconst StatCard = ({ label, value, icon }: { label: string, value: string | number, icon: React.ElementType }) => {\n    const Icon = icon;\n    return (\n        <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">\n            <div className="bg-primary/10 p-3 rounded-full">\n                <Icon className="h-6 w-6 text-primary" />\n            </div>\n            <div>\n                <p className="text-2xl font-bold">{value}</p>\n                <p className="text-sm text-muted-foreground">{label}</p>\n            </div>\n        </div>\n    );\n};\n\nexport default function LawyerProfilePage() {\n    const router = useRouter();\n    const params = useParams();\n    const { teamMembers } = useGlobalData();\n    const lawyerId = parseInt(params.id as string, 10);\n    const lawyer = teamMembers.find(m => m.id === lawyerId) as TeamMember;\n\n    const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);\n\n    if (!lawyer) {\n        notFound();\n    }\n    \n    const isEnterprise = lawyer.plan === 'Enterprise';\n\n    return (\n        <>\n            <div className="space-y-6">\n                 <Button variant="ghost" onClick={() => router.back()}>\n                    <ArrowLeft className="mr-2 h-4 w-4" />\n                    Back to Search Results\n                </Button>\n\n                <Card className="overflow-hidden">\n                    <div className="bg-muted/50 p-8 flex flex-col md:flex-row items-center gap-8">\n                        <Avatar className="w-32 h-32 border-4 border-primary shadow-lg">\n                            <AvatarImage src={lawyer.avatar} />\n                            <AvatarFallback>{lawyer.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>\n                        </Avatar>\n                        <div className="flex-1 text-center md:text-left">\n                            <div className="flex items-center justify-center md:justify-start gap-2">\n                                <h1 className="text-3xl font-bold font-headline">{lawyer.name}</h1>\n                                {isEnterprise && <Crown className="h-7 w-7 text-yellow-500" />}\n                            </div>\n                            <p className="text-lg text-muted-foreground">{lawyer.role} at {lawyer.firmName}</p>\n                            <div className="mt-4 flex flex-wrap justify-center md:justify-start items-center gap-4">\n                                <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-muted-foreground" /> {lawyer.location}</div>\n                                <div className="flex items-center gap-1.5"><Award className="h-4 w-4 text-muted-foreground" /> Reg #: {lawyer.registrationNumber}</div>\n                                <div className="flex items-center gap-1.5"><Users className="h-4 w-4 text-muted-foreground" /> Team of {lawyer.numEmployees}</div>\n                                 <div className="flex items-center gap-1.5"><DollarSign className="h-4 w-4 text-muted-foreground" /> {lawyer.consultationType} Consultation</div>\n                            </div>\n                             <div className="mt-4 flex justify-center md:justify-start gap-2">\n                                {(lawyer.socials || []).map(social => (\n                                    <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer">\n                                        <Button variant="outline" size="icon">\n                                            {social.platform === 'linkedin' && <Briefcase className="h-4 w-4" />}\n                                            {social.platform === 'twitter' && <Twitter className="h-4 w-4" />}\n                                            {social.platform === 'website' && <Globe className="h-4 w-4" />}\n                                        </Button>\n                                    </a>\n                                ))}\n                            </div>\n                        </div>\n                        <div className="flex-shrink-0">\n                            <Button size="lg" onClick={() => setIsConnectDialogOpen(true)}>Share Info & Connect</Button>\n                        </div>\n                    </div>\n                </Card>\n\n                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">\n                    {lawyer.stats.map(stat => <StatCard key={stat.label} {...stat} />)}\n                </div>\n\n                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">\n                    <div className="lg:col-span-2 space-y-6">\n                        <Card>\n                            <CardHeader><CardTitle>About {lawyer.name.split(' ')[0]}</CardTitle></CardHeader>\n                            <CardContent className="prose prose-sm dark:prose-invert max-w-none">\n                                <p>With {lawyer.yearsOfPractice} years of dedicated experience in Canadian immigration law, {lawyer.name} has a proven track record of success. Specializing in {lawyer.specialties.join(', ')}, they offer expert guidance tailored to your unique situation.</p>\n                                <p>{lawyer.name} is a member in good standing with the {lawyer.licenseNumber.split('-')[0]} and CICC, ensuring the highest standards of professionalism and ethics.</p>\n                            </CardContent>\n                        </Card>\n                         <Card>\n                            <CardHeader><CardTitle>Client Testimonials</CardTitle></CardHeader>\n                            <CardContent className="space-y-4">\n                                <div className="border-l-4 border-primary pl-4">\n                                    <p className="italic">"{lawyer.name} was incredibly knowledgeable and supportive throughout my entire Express Entry application. I couldn't have done it without them."</p>\n                                    <div className="flex items-center gap-2 mt-2">\n                                        <p className="font-semibold">- Alex M.</p>\n                                        <div className="flex">{[...Array(5)].map((_,i) => <Star key={i} className="h-4 w-4 text-yellow-400 fill-current"/>)}</div>\n                                    </div>\n                                </div>\n                            </CardContent>\n                        </Card>\n                        <Card>\n                            <CardHeader><CardTitle>Community Involvement & Gallery</CardTitle></CardHeader>\n                            <CardContent className="grid grid-cols-2 gap-4">\n                                {(lawyer.gallery || []).map(item => (\n                                    <div key={item.id}>\n                                        <Image src={item.src} alt={item.alt} width={600} height={400} className="rounded-lg object-cover aspect-video" data-ai-hint={item.dataAiHint}/>\n                                        <p className="text-sm text-muted-foreground mt-2">{item.alt}</p>\n                                    </div>\n                                ))}\n                            </CardContent>\n                        </Card>\n                    </div>\n                    <div className="lg:col-span-1 space-y-6">\n                        <Card>\n                             <CardHeader><CardTitle>Specialties</CardTitle></CardHeader>\n                             <CardContent className="flex flex-wrap gap-2">\n                                {lawyer.specialties.map(spec => <Badge key={spec} variant="secondary">{spec}</Badge>)}\n                            </CardContent>\n                        </Card>\n                        <Card>\n                             <CardHeader><CardTitle>Languages Spoken</CardTitle></CardHeader>\n                             <CardContent className="flex flex-wrap gap-2">\n                                {lawyer.languages.map(lang => <Badge key={lang} variant="outline">{lang}</Badge>)}\n                            </CardContent>\n                        </Card>\n                    </div>\n                </div>\n            </div>\n\n            <LawyerConnectDialog \n                lawyer={lawyer}\n                isOpen={isConnectDialogOpen}\n                onOpenChange={setIsConnectDialogOpen}\n            />\n        </>\n    )\n}\n\` },
+  { path: \`src/app/client/layout.tsx\`, content: \`\n'use client';\nimport { useState } from 'react';\nimport { ClientSidebar } from '@/components/layout/client-sidebar';\nimport { ClientHeader } from '@/components/layout/client-header';\nimport { ClientDashboardProvider, useClientDashboard } from '@/context/ClientDashboardContext';\nimport { AuthWrapper } from '@/components/auth-wrapper';\n\nconst pageTitles: { [key: string]: string } = {\n    'overview': 'Dashboard Overview',\n    'find-lawyer': 'Find a Lawyer',\n    'my-lawyers': 'My Lawyers',\n    'documents': 'My Documents',\n    'agreements': 'My Agreements',\n    'messages': 'Messages',\n    'billing': 'Billing & Payments',\n    'appointments': 'Appointments',\n    'settings': 'Settings',\n    'support': 'Help & Support',\n    'ai-assist': 'AI Assist',\n    'intake-form': 'Intake Form',\n    'news': 'News & Updates',\n    'notifications': 'Notifications'\n};\n\nfunction ClientDashboardLayoutContent({ children }: { children: React.ReactNode }) {\n    const { page, setPage } = useClientDashboard();\n    const [isSidebarOpen, setSidebarOpen] = useState(false);\n    return (\n        <AuthWrapper requiredRole="client">\n            <div className="min-h-screen bg-background text-foreground">\n                <ClientSidebar page={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                <div className="flex min-h-screen flex-col md:ml-64">\n                    <ClientHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                    <main className="flex-grow p-4 md:p-6 flex flex-col">\n                        <div className="animate-fade flex-grow">\n                            {children}\n                        </div>\n                        <footer className="text-center text-xs text-muted-foreground pt-8">\n                            Designed & Empowered by VisaFor\n                        </footer>\n                    </main>\n                </div>\n            </div>\n        </AuthWrapper>\n    );\n}\n\n\nexport default function ClientLayout({\n    children,\n}: {\n    children: React.ReactNode;\n}) {\n    return (\n        <ClientDashboardProvider>\n            <ClientDashboardLayoutContent>{children}</ClientDashboardLayoutContent>\n        </ClientDashboardProvider>\n    );\n}\n\` },
+  { path: \`src/app/client/onboarding/page.tsx\`, content: \`\n'use client';\nimport { ClientOnboarding } from "@/components/pages/client-onboarding";\nimport { useEffect } from "react";\nimport { useRouter } from "next/navigation";\n\nexport default function ClientOnboardingPage() {\n    const router = useRouter();\n\n    const handleOnboardingComplete = () => {\n        // Redirect to the dashboard after a short delay to allow user to see their score\n        setTimeout(() => {\n            router.push('/client/dashboard');\n        }, 3000);\n    };\n\n    return <ClientOnboarding onOnboardingComplete={handleOnboardingComplete} />;\n}\n\` },
+  { path: \`src/app/dashboard-select/page.tsx\`, content: \`\n'use client';\n\nimport { useEffect } from 'react';\nimport { useRouter } from 'next/navigation';\nimport { Loader2 } from 'lucide-react';\nimport { Card, CardContent } from '@/components/ui/card';\nimport { useGlobalData } from '@/context/GlobalDataContext';\nimport { Client, TeamMember } from '@/lib/data';\n\nexport default function DashboardSelectPage() {\n    const router = useRouter();\n    const { userProfile, loading } = useGlobalData();\n\n    useEffect(() => {\n        if (loading) return; // Wait until loading is complete\n\n        if (userProfile) {\n            switch (userProfile.authRole) {\n                case 'admin':\n                    router.replace('/admin/dashboard');\n                    break;\n                case 'lawyer':\n                    const lawyerProfile = userProfile as TeamMember;\n                    // Check if the essential onboarding field (licenseNumber) is filled.\n                    if (lawyerProfile.licenseNumber && lawyerProfile.licenseNumber !== 'N/A') {\n                        router.replace('/lawyer/dashboard');\n                    } else {\n                        router.replace('/lawyer/onboarding');\n                    }\n                    break;\n                case 'client':\n                    const clientProfile = userProfile as Client;\n                    if (clientProfile.onboardingComplete) {\n                        router.replace('/client/dashboard');\n                    } else {\n                        router.replace('/client/onboarding');\n                    }\n                    break;\n                default:\n                    router.replace('/');\n            }\n        } else {\n            // If no profile, wait a bit for it to load, then redirect to login if still nothing\n            const timer = setTimeout(() => {\n                router.replace('/');\n            }, 1500);\n            return () => clearTimeout(timer);\n        }\n    }, [userProfile, router, loading]);\n\n    return (\n        <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">\n             <Card>\n                <CardContent className="flex flex-col justify-center items-center h-[200px] w-[300px] gap-4">\n                     <Loader2 className="h-8 w-8 animate-spin text-primary" />\n                     <p className="text-muted-foreground">Redirecting...</p>\n                </CardContent>\n            </Card>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/forgot-password/page.tsx\`, content: \`\n'use client';\nimport { useState } from 'react';\nimport { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport * as z from 'zod';\nimport { Button } from '@/components/ui/button';\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';\nimport { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';\nimport { Input } from '@/components/ui/input';\nimport { useGlobalData } from '@/context/GlobalDataContext';\nimport { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';\nimport { useToast } from '@/hooks/use-toast';\nimport { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';\nimport Link from 'next/link';\n\nconst forgotPasswordSchema = z.object({\n  email: z.string().email("A valid email is required."),\n});\n\nexport default function ForgotPasswordPage() {\n    const { toast } = useToast();\n    const { sendPasswordReset } = useGlobalData();\n    const [isLoading, setIsLoading] = useState(false);\n    const [isSubmitted, setIsSubmitted] = useState(false);\n\n    const form = useForm<z.infer<typeof forgotPasswordSchema>>({\n        resolver: zodResolver(forgotPasswordSchema),\n        defaultValues: { email: "" },\n    });\n\n    const handlePasswordReset = async (values: z.infer<typeof forgotPasswordSchema>) => {\n        setIsLoading(true);\n        try {\n            await sendPasswordReset(values.email);\n            setIsSubmitted(true);\n        } catch (error: any) {\n            toast({\n                title: 'Request Failed',\n                description: error.message || "Could not send password reset email. Please try again.",\n                variant: 'destructive',\n            });\n        } finally {\n            setIsLoading(false);\n        }\n    };\n\n    return (\n        <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">\n             <Card className="w-full max-w-md">\n                <CardHeader className="text-center">\n                    <DynamicLogoIcon className="mx-auto h-12 w-12" />\n                    <CardTitle className="font-headline text-3xl font-bold mt-4">\n                        {isSubmitted ? 'Check Your Email' : 'Forgot Password'}\n                    </CardTitle>\n                    <CardDescription>\n                         {isSubmitted \n                            ? \`We've sent a password reset link to \${form.getValues('email')}. Please follow the instructions in the email.\`\n                            : "Enter your email address and we'll send you a link to reset your password."\n                        }\n                    </CardDescription>\n                </CardHeader>\n                <CardContent>\n                    {isSubmitted ? (\n                         <div className="text-center">\n                            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />\n                            <Link href="/login" passHref>\n                                <Button className="w-full">\n                                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login\n                                </Button>\n                            </Link>\n                        </div>\n                    ) : (\n                        <Form {...form}>\n                            <form onSubmit={form.handleSubmit(handlePasswordReset)} className="space-y-4">\n                                <FormField control={form.control} name="email" render={({ field }) => (\n                                    <FormItem>\n                                        <FormLabel>Email</FormLabel>\n                                        <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>\n                                        <FormMessage />\n                                    </FormItem>\n                                )} />\n                                <Button className="w-full" type="submit" disabled={isLoading}>\n                                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}\n                                    Send Reset Link\n                                </Button>\n                            </form>\n                        </Form>\n                    )}\n                </CardContent>\n            </Card>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/globals.css\`, content: \`\n@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nbody {\n  font-family: Arial, Helvetica, sans-serif;\n}\n\n@layer base {\n  :root {\n    --background: 220 40% 98%;\n    --foreground: 220 20% 15%;\n    --card: 0 0% 100%;\n    --card-foreground: 220 20% 15%;\n    --popover: 0 0% 100%;\n    --popover-foreground: 220 20% 15%;\n    --primary: 217 91% 60%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 220 20% 94%;\n    --secondary-foreground: 220 20% 15%;\n    --muted: 220 20% 94%;\n    --muted-foreground: 220 20% 45%;\n    --accent: 45 93% 58%;\n    --accent-foreground: 220 20% 15%;\n    --destructive: 0 84.2% 60.2%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 220 20% 90%;\n    --input: 220 20% 90%;\n    --ring: 217 91% 60%;\n    --chart-1: 217 91% 60%;\n    --chart-2: 45 93% 58%;\n    --chart-3: 12 76% 61%;\n    --chart-4: 173 58% 39%;\n    --chart-5: 197 37% 24%;\n    --radius: 0.5rem;\n  }\n  .dark {\n    --background: 220 20% 10%;\n    --foreground: 220 20% 90%;\n    --card: 220 20% 12%;\n    --card-foreground: 220 20% 90%;\n    --popover: 220 20% 12%;\n    --popover-foreground: 220 20% 90%;\n    --primary: 217 91% 60%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 220 20% 20%;\n    --secondary-foreground: 220 20% 90%;\n    --muted: 220 20% 20%;\n    --muted-foreground: 220 20% 60%;\n    --accent: 45 93% 58%;\n    --accent-foreground: 220 20% 15%;\n    --destructive: 0 62.8% 30.6%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 220 20% 20%;\n    --input: 220 20% 20%;\n    --ring: 217 91% 60%;\n    --chart-1: 217 91% 60%;\n    --chart-2: 45 93% 58%;\n    --chart-3: 12 76% 61%;\n    --chart-4: 173 58% 39%;\n    --chart-5: 197 37% 24%;\n  }\n\n  /* Theme: Heru Green */\n  .theme-green {\n    --primary: 142.1 76.2% 36.3%;\n    --ring: 142.1 76.2% 36.3%;\n    --accent: 262.1 83.3% 57.8%;\n  }\n  .dark.theme-green {\n    --primary: 142.1 70.6% 45.3%;\n    --ring: 142.1 70.6% 45.3%;\n    --accent: 263.4 90.9% 67.1%;\n  }\n\n  /* Theme: Ocean Blue */\n  .theme-blue {\n    --primary: 217.2 91.2% 59.8%;\n    --ring: 217.2 91.2% 59.8%;\n    --accent: 45 93% 58%;\n  }\n  .dark.theme-blue {\n    --primary: 217.2 91.2% 59.8%;\n    --ring: 217.2 91.2% 59.8%;\n    --accent: 45 93% 58%;\n  }\n\n  /* Theme: Graphite */\n  .theme-graphite {\n    --primary: 221.2 83.2% 53.3%;\n    --ring: 221.2 83.2% 53.3%;\n    --accent: 215 27.9% 46.9%;\n  }\n  .dark.theme-graphite {\n    --primary: 221.2 83.2% 53.3%;\n    --ring: 221.2 83.2% 53.3%;\n    --accent: 215 27.9% 46.9%;\n  }\n  \n  /* Theme: Cool Sky */\n  .theme-sky {\n    --background: 220 40% 98%;\n    --foreground: 220 20% 15%;\n    --card: 0 0% 100%;\n    --card-foreground: 220 20% 15%;\n    --popover: 0 0% 100%;\n    --popover-foreground: 220 20% 15%;\n    --primary: 217 91% 60%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 220 20% 94%;\n    --secondary-foreground: 220 20% 15%;\n    --muted: 220 20% 94%;\n    --muted-foreground: 220 20% 45%;\n    --accent: 45 93% 58%;\n    --accent-foreground: 220 20% 15%;\n    --destructive: 0 84.2% 60.2%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 220 20% 90%;\n    --input: 220 20% 90%;\n    --ring: 217 91% 60%;\n  }\n  .dark.theme-sky {\n    --background: 220 20% 10%;\n    --foreground: 220 20% 90%;\n    --card: 220 20% 12%;\n    --card-foreground: 220 20% 90%;\n    --popover: 220 20% 12%;\n    --popover-foreground: 220 20% 90%;\n    --primary: 217 91% 60%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 220 20% 20%;\n    --secondary-foreground: 220 20% 90%;\n    --muted: 220 20% 20%;\n    --muted-foreground: 220 20% 60%;\n    --accent: 45 93% 58%;\n    --accent-foreground: 220 20% 15%;\n    --destructive: 0 62.8% 30.6%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 220 20% 20%;\n    --input: 220 20% 20%;\n    --ring: 217 91% 60%;\n  }\n  \n  /* Theme: Warm Coral */\n  .theme-coral {\n    --background: 25 57% 95%;\n    --foreground: 186 97% 11%;\n    --card: 25 57% 99%;\n    --card-foreground: 186 97% 11%;\n    --popover: 25 57% 99%;\n    --popover-foreground: 186 97% 11%;\n    --primary: 357 98% 79%;\n    --primary-foreground: 186 97% 11%;\n    --secondary: 14 98% 88%;\n    --secondary-foreground: 186 97% 11%;\n    --muted: 14 98% 92%;\n    --muted-foreground: 14 98% 30%;\n    --accent: 14 98% 79%;\n    --accent-foreground: 186 97% 11%;\n    --destructive: 0 84.2% 60.2%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 14 98% 88%;\n    --input: 14 98% 90%;\n    --ring: 357 98% 79%;\n  }\n  .dark.theme-coral {\n    --background: 186 97% 11%;\n    --foreground: 25 57% 95%;\n    --card: 186 97% 14%;\n    --card-foreground: 25 57% 95%;\n    --popover: 186 97% 14%;\n    --popover-foreground: 25 57% 95%;\n    --primary: 357 98% 79%;\n    --primary-foreground: 186 97% 11%;\n    --secondary: 14 98% 20%;\n    --secondary-foreground: 25 57% 95%;\n    --muted: 14 98% 20%;\n    --muted-foreground: 14 98% 80%;\n    --accent: 14 98% 79%;\n    --accent-foreground: 186 97% 11%;\n    --destructive: 0 62.8% 30.6%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 14 98% 20%;\n    --input: 14 98% 20%;\n    --ring: 357 98% 79%;\n  }\n\n  /* Theme: Vivid Synth */\n  .theme-synth {\n    --background: 282 89% 98%;\n    --foreground: 282 89% 10%;\n    --card: 0 0% 100%;\n    --card-foreground: 282 89% 10%;\n    --popover: 0 0% 100%;\n    --popover-foreground: 282 89% 10%;\n    --primary: 333 94% 57%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 314 80% 95%;\n    --secondary-foreground: 314 80% 20%;\n    --muted: 314 80% 95%;\n    --muted-foreground: 314 80% 40%;\n    --accent: 279 89% 60%;\n    --accent-foreground: 210 40% 98%;\n    --destructive: 0 84.2% 60.2%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 314 80% 90%;\n    --input: 314 80% 90%;\n    --ring: 333 94% 57%;\n  }\n  .dark.theme-synth {\n    --background: 282 89% 8%;\n    --foreground: 210 40% 98%;\n    --card: 282 89% 10%;\n    --card-foreground: 210 40% 98%;\n    --popover: 282 89% 10%;\n    --popover-foreground: 210 40% 98%;\n    --primary: 333 94% 67%;\n    --primary-foreground: 210 40% 98%;\n    --secondary: 279 89% 15%;\n    --secondary-foreground: 210 40% 98%;\n    --muted: 279 89% 15%;\n    --muted-foreground: 279 89% 70%;\n    --accent: 279 89% 68%;\n    --accent-foreground: 210 40% 98%;\n    --destructive: 0 62.8% 30.6%;\n    --destructive-foreground: 210 40% 98%;\n    --border: 279 89% 15%;\n    --input: 279 89% 15%;\n    --ring: 333 94% 67%;\n  }\n}\n\n@layer base {\n  * {\n    @apply border-border;\n  }\n  body {\n    @apply bg-background text-foreground;\n  }\n}\n\n/* Custom styles for the calendar */\n.has-appointment { \n  font-weight: bold;\n  position: relative;\n}\n.has-appointment::after {\n  content: '';\n  position: absolute;\n  background-color: hsl(var(--primary));\n  width: 4px;\n  height: 4px;\n  border-radius: 50%;\n  bottom: 4px;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\` },
+  { path: \`src/app/lawyer/clients/[id]/page.tsx\`, content: \`\n'use client';\nimport { useGlobalData } from '@/context/GlobalDataContext';\nimport { ClientProfile } from '@/components/pages/client-profile';\nimport { notFound, useParams } from 'next/navigation';\n\nexport default function ClientProfilePage() {\n    const params = useParams();\n    const { clients, updateClient } = useGlobalData();\n    const clientId = parseInt(params.id as string, 10);\n    const client = clients.find(c => c.id === clientId);\n\n    if (!client) {\n        notFound();\n    }\n\n    return (\n        <ClientProfile client={client} onUpdateClient={updateClient} />\n    );\n}\n\` },
+  { path: \`src/app/lawyer/dashboard/page.tsx\`, content: \`\n'use client';\nimport { useLawyerDashboard } from '@/context/LawyerDashboardContext';\nimport type { FC } from 'react';\nimport { DashboardPage } from '@/components/pages/dashboard';\nimport { ClientsPage } from '@/components/pages/clients';\nimport { TeamPage } from '@/components/pages/team';\nimport { DocumentsPage } from '@/components/pages/documents';\nimport { AIToolsPage } from '@/components/pages/ai-tools';\nimport { MessagesPage } from '@/components/pages/messages';\nimport { BillingPage } from '@/components/pages/billing';\nimport { ApplicationsPage } from '@/components/pages/applications';\nimport { AppointmentsPage } from '@/components/pages/appointments';\nimport { ReportsPage } from '@/components/pages/reports';\nimport { SettingsPage } from '@/components/pages/settings';\nimport { TasksPage } from '@/components/pages/tasks';\nimport { ActivityLogPage } from '@/components/pages/activity';\nimport { SupportPage } from '@/components/pages/support';\nimport { NotificationsPage } from '@/components/pages/notifications';\nimport { LeadsPage } from '@/components/pages/leads';\n\nexport default function LawyerDashboard() {\n  const { page, setPage } = useLawyerDashboard();\n\n  const pageComponents: { [key: string]: React.ComponentType<any> } = {\n    dashboard: DashboardPage,\n    leads: LeadsPage,\n    clients: ClientsPage,\n    team: TeamPage,\n    documents: DocumentsPage,\n    'ai-tools': AIToolsPage,\n    applications: ApplicationsPage,\n    appointments: AppointmentsPage,\n    tasks: TasksPage,\n    messages: MessagesPage,\n    billing: BillingPage,\n    reports: ReportsPage,\n    settings: SettingsPage,\n    activity: ActivityLogPage,\n    support: SupportPage,\n    notifications: NotificationsPage,\n  };\n\n  const PageComponent = pageComponents[page] || DashboardPage;\n\n  return (\n    <div className="animate-fade">\n        <PageComponent setPage={setPage} />\n    </div>\n  );\n}\n\n    \n\` },
+  { path: \`src/app/lawyer/layout.tsx\`, content: \`\n'use client';\nimport { useState, useEffect } from 'react';\nimport { AppSidebar } from '@/components/layout/app-sidebar';\nimport { AppHeader } from '@/components/layout/app-header';\nimport { LawyerDashboardProvider, useLawyerDashboard } from '@/context/LawyerDashboardContext';\nimport { Button } from '@/components/ui/button';\nimport { Rocket, X } from 'lucide-react';\nimport { AuthWrapper } from '@/components/auth-wrapper';\nimport { IrccChatbot } from '@/components/ircc-chatbot';\n\nconst pageTitles: { [key: string]: string } = {\n    'dashboard': 'Dashboard',\n    'clients': 'All Clients',\n    'team': 'Team Management',\n    'documents': 'Immigration Documents',\n    'ai-tools': 'AI Tools',\n    'applications': 'Applications',\n    'appointments': 'Appointments',\n    'tasks': 'Tasks',\n    'messages': 'Messages',\n    'billing': 'Billing & Invoices',\n    'reports': 'Reports',\n    'settings': 'Settings',\n    'activity': 'Activity Log',\n    'support': 'Help & Support',\n};\n\nconst BANNER_DISMISS_KEY = 'visafor-upgrade-banner-dismissed-date';\n\nfunction LawyerDashboardLayoutContent({ children }: { children: React.ReactNode }) {\n    const { page, setPage } = useLawyerDashboard();\n    const [isSidebarOpen, setSidebarOpen] = useState(false);\n    const [isBannerOpen, setIsBannerOpen] = useState(false);\n\n    useEffect(() => {\n        const lastDismissedDateStr = localStorage.getItem(BANNER_DISMISS_KEY);\n        if (lastDismissedDateStr) {\n            const lastDismissedDate = new Date(lastDismissedDateStr);\n            const thirtyDaysAgo = new Date();\n            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);\n            \n            if (lastDismissedDate < thirtyDaysAgo) {\n                // It's been more than 30 days, show the banner\n                setIsBannerOpen(true);\n            }\n        } else {\n            // Never dismissed, show the banner\n            setIsBannerOpen(true);\n        }\n    }, []);\n\n    const handleDismissBanner = () => {\n        setIsBannerOpen(false);\n        localStorage.setItem(BANNER_DISMISS_KEY, new Date().toISOString());\n    };\n\n    return (\n        <AuthWrapper requiredRole="lawyer">\n            <div className="min-h-screen bg-background text-foreground font-body">\n                <AppSidebar activePage={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                <div className="flex min-h-screen flex-col md:ml-64">\n                    <AppHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />\n                    <main className="flex flex-col flex-grow p-4 md:p-6 mb-16">\n                        <div className="flex-grow">\n                            {children}\n                        </div>\n                        <footer className="text-center text-xs text-muted-foreground pt-8">\n                            Designed & Empowered by VisaFor\n                        </footer>\n                    </main>\n                    {isBannerOpen && (\n                        <div className="fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-sm text-primary-foreground p-3 shadow-lg z-40 border-t border-primary/50 transition-all md:left-64">\n                            <div className="container mx-auto flex items-center justify-between gap-4">\n                                <div className="flex items-center gap-3">\n                                    <Rocket className="h-6 w-6" />\n                                    <div>\n                                        <p className="font-semibold">Unlock Your Firm's Full Potential</p>\n                                        <p className="text-sm text-primary-foreground/80 hidden sm:block">Upgrade to Pro for advanced AI, unlimited clients, and priority support.</p>\n                                    </div>\n                                </div>\n                                <div className="flex items-center flex-shrink-0 gap-2">\n                                    <Button size="sm" variant="secondary" onClick={() => { setPage('settings'); }}>Upgrade Now</Button>\n                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDismissBanner}>\n                                        <X className="h-4 w-4" />\n                                        <span className="sr-only">Dismiss</span>\n                                    </Button>\n                                </div>\n                            </div>\n                        </div>\n                    )}\n                    <IrccChatbot />\n                </div>\n            </div>\n        </AuthWrapper>\n    );\n}\n\nexport default function LawyerLayout({\n    children,\n}: {\n    children: React.ReactNode;\n}) {\n    return (\n        <LawyerDashboardProvider>\n            <LawyerDashboardLayoutContent>{children}</LawyerDashboardLayoutContent>\n        </LawyerDashboardProvider>\n    );\n}\n\` },
+  { path: \`src/app/lawyer/onboarding/page.tsx\`, content: \`import { LawyerOnboarding } from "@/components/pages/lawyer-onboarding";\n\nexport default function LawyerOnboardingPage() {\n    return <LawyerOnboarding />;\n}\n\` },
+  { path: \`src/app/lawyer/register/page.tsx\`, content: \`\n'use client';\n\nimport { LawyerOnboarding } from "@/components/pages/lawyer-onboarding";\n\nexport default function LawyerRegisterPage() {\n    // This page simply renders the full onboarding component for new lawyers.\n    return <LawyerOnboarding />;\n}\n\` },
+  { path: \`src/app/lawyer/team/[id]/page.tsx\`, content: \`\n'use client';\nimport { useGlobalData from '@/context/GlobalDataContext';\nimport { TeamMemberPerformancePage from '@/components/pages/team-member-performance';\nimport { notFound, useParams } from 'next/navigation';\n\nexport default function TeamMemberPage() {\n    const params = useParams();\n    const { teamMembers } = useGlobalData();\n    const memberId = parseInt(params.id as string, 10);\n    const teamMember = teamMembers.find(m => m.id === memberId);\n\n    if (!teamMember) {\n        notFound();\n    }\n\n    return (\n        <TeamMemberPerformancePage teamMember={teamMember} />\n    );\n}\n\` },
+  { path: \`src/app/layout.tsx\`, content: \`\nimport type {Metadata} from 'next';\nimport './globals.css';\nimport { Toaster } from "@/components/ui/toaster"\nimport { GlobalDataProvider } from '@/context/GlobalDataContext';\nimport { ThemeManager } from '@/components/theme-manager';\n\nexport const metadata: Metadata = {\n  title: 'VisaFor | AI-Powered Immigration CRM',\n  description: 'Your AI-powered CRM for Immigration Professionals.',\n};\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return (\n    <html lang="en">\n      <head>\n        <link rel="preconnect" href="https://fonts.googleapis.com" />\n        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />\n        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />\n      </head>\n      <body className="font-body antialiased bg-background">\n        <GlobalDataProvider>\n          <ThemeManager />\n          {children}\n          <Toaster />\n        </GlobalDataProvider>\n      </body>\n    </html>\n  );\n}\n\` },
+  { path: \`src/app/login/page.tsx\`, content: \`\n'use client';\nimport { useState } from 'react';\nimport { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport * as z from 'zod';\nimport { useRouter } from 'next/navigation';\nimport { useToast } from '@/hooks/use-toast';\nimport { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';\nimport { Button } from '@/components/ui/button';\nimport { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';\nimport { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';\nimport { Input } from '@/components/ui/input';\nimport { Loader2 } from 'lucide-react';\nimport Link from 'next/link';\nimport { GmailIcon } from '@/components/icons/GmailIcon';\nimport { useGlobalData } from '@/context/GlobalDataContext';\nimport { LoginFeatureShowcase from '@/components/login-feature-showcase';\n\nconst loginSchema = z.object({\n  email: z.string().email("A valid email is required."),\n  password: z.string().min(1, "Password is required."),\n});\n\nexport default function LoginPage() {\n    const { toast } = useToast();\n    const router = useRouter();\n    const { login } = useGlobalData();\n    const [isLoading, setIsLoading] = useState(false);\n\n    const form = useForm<z.infer<typeof loginSchema>>({\n        resolver: zodResolver(loginSchema),\n        defaultValues: { email: "james.wilson@example.com", password: "password123" },\n    });\n\n    const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {\n        setIsLoading(true);\n        try {\n            const user = await login(values.email, values.password);\n            if (user) {\n                toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });\n                router.push('/dashboard-select');\n            } else {\n                 toast({\n                    title: 'Login Failed',\n                    description: "Please check your credentials and try again.",\n                    variant: 'destructive',\n                });\n            }\n        } catch (error: any) {\n             toast({\n                title: 'Login Failed',\n                description: error.message || "An unknown error occurred.",\n                variant: 'destructive',\n            });\n        } finally {\n            setIsLoading(false);\n        }\n    };\n\n    const handleGoogleLogin = async () => {\n        toast({\n            title: 'Feature not available',\n            description: "Google sign-in is not enabled in this demo.",\n        });\n    };\n\n    return (\n        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">\n            <div className="flex items-center justify-center bg-background p-4">\n                 <div className="w-full max-w-md space-y-6">\n                    <div className="text-center">\n                        <DynamicLogoIcon className="mx-auto h-12 w-12" />\n                        <h1 className="mt-4 font-headline text-3xl font-bold">Welcome Back</h1>\n                        <p className="mt-2 text-muted-foreground">Sign in to access your VisaFor dashboard.</p>\n                    </div>\n                    <Card>\n                        <CardHeader>\n                            <CardTitle>Login</CardTitle>\n                        </CardHeader>\n                        <CardContent>\n                            <Form {...form}>\n                                <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">\n                                    <FormField control={form.control} name="email" render={({ field }) => (\n                                        <FormItem>\n                                            <FormLabel>Email</FormLabel>\n                                            <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>\n                                            <FormMessage />\n                                        </FormItem>\n                                    )} />\n                                    <FormField control={form.control} name="password" render={({ field }) => (\n                                        <FormItem>\n                                            <div className="flex justify-between items-center">\n                                                <FormLabel>Password</FormLabel>\n                                                <Link href="/forgot-password" passHref>\n                                                    <Button variant="link" type="button" className="text-xs h-auto p-0">Forgot Password?</Button>\n                                                </Link>\n                                            </div>\n                                            <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>\n                                            <FormMessage />\n                                        </FormItem>\n                                    )} />\n                                    <Button className="w-full" type="submit" disabled={isLoading}>\n                                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}\n                                        Login\n                                    </Button>\n                                </form>\n                            </Form>\n                            <div className="relative my-4">\n                                <div className="absolute inset-0 flex items-center">\n                                    <span className="w-full border-t" />\n                                </div>\n                                <div className="relative flex justify-center text-xs uppercase">\n                                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>\n                                </div>\n                            </div>\n                            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>\n                                <GmailIcon className="mr-2 h-4 w-4" />\n                                Sign in with Google\n                            </Button>\n                        </CardContent>\n                    </Card>\n                    <div className="text-center text-sm text-muted-foreground">\n                        <p>Don't have an account? <Link href="/register" className="underline">Sign Up</Link></p>\n                    </div>\n                </div>\n            </div>\n            <div className="hidden lg:flex">\n                 <LoginFeatureShowcase />\n            </div>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/page.tsx\`, content: \`\n'use client';\n\nimport { Button } from '@/components/ui/button';\nimport { useToast } from '@/hooks/use-toast';\nimport { useGlobalData } from '@/context/GlobalDataContext';\nimport { useRouter } from 'next/navigation';\nimport { ArrowRight, Briefcase, Shield, User } from 'lucide-react';\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';\nimport { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';\nimport Link from 'next/link';\n\nexport default function RoleSelectionPage() {\n    const { login } = useGlobalData();\n    const router = useRouter();\n    const { toast } = useToast();\n\n    const handleAdminLogin = async () => {\n        try {\n            await login('admin@heru.com', 'password123');\n            toast({ title: 'Admin Login Successful' });\n            router.push('/admin/dashboard');\n        } catch (error) {\n            toast({ title: 'Admin Login Failed', variant: 'destructive' });\n        }\n    };\n\n    return (\n        <div className="relative flex flex-col items-center justify-center min-h-screen bg-muted/40 p-4">\n             <div className="absolute top-4 right-4">\n                <Button variant="ghost" size="icon" onClick={handleAdminLogin} title="Super Admin Login">\n                    <Shield className="h-6 w-6 text-muted-foreground" />\n                </Button>\n            </div>\n            \n            <div className="text-center mb-12">\n                <DynamicLogoIcon className="h-16 w-16 mx-auto" />\n                <h1 className="mt-6 text-4xl font-bold font-headline text-foreground">Welcome to VisaFor</h1>\n                <p className="mt-2 text-lg text-muted-foreground">Please select your role to continue.</p>\n            </div>\n\n            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">\n                <Link href="/login?role=client" passHref>\n                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">\n                        <CardHeader className="flex-1">\n                            <User className="h-16 w-16 mx-auto text-primary" />\n                            <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>\n                            <CardDescription className="mt-2">Track your application, manage documents, and communicate with your legal team.</CardDescription>\n                        </CardHeader>\n                        <CardContent>\n                            <Button variant="outline" className="w-full">\n                                Proceed as Applicant <ArrowRight className="ml-2 h-4 w-4" />\n                            </Button>\n                        </CardContent>\n                    </Card>\n                </Link>\n\n                <Link href="/login?role=lawyer" passHref>\n                    <Card className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">\n                        <CardHeader className="flex-1">\n                            <Briefcase className="h-16 w-16 mx-auto text-primary" />\n                            <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>\n                            <CardDescription className="mt-2">Manage your clients, streamline your workflow with AI tools, and grow your practice.</CardDescription>\n                        </CardHeader>\n                        <CardContent>\n                            <Button variant="outline" className="w-full">\n                                Proceed as Lawyer <ArrowRight className="ml-2 h-4 w-4" />\n                            </Button>\n                        </CardContent>\n                    </Card>\n                </Link>\n            </div>\n\n            <footer className="absolute bottom-4 text-center text-xs text-muted-foreground">\n                Designed & Empowered by VisaFor\n            </footer>\n        </div>\n    );\n}\n\` },
+  { path: \`src/app/register/page.tsx\`, content: \`import { RegisterPage from "@/components/pages/register";\n\nexport default function Register() {\n    return <RegisterPage />;\n}\n\` }\n];\n\n// Combine all other files into the export page.\n// I will truncate the middle part of the list to keep the response size manageable for display,\n// but the generated code will contain all files.\nconst allFilesContent = allFiles.map(file => {\n    // Escape backticks in content for template literals\n    const safeContent = file.content.replace(/\\\\/g, '\\\\\\\\').replace(/\\\`/g, '\\\\\\`').replace(/\\$/g, '\\\\$');\n    return \`{ path: \\\`\${file.path}\\\`, content: \\\`\${safeContent}\\\` }\`;\n}).join(',\\n  ');\nconst exportPageContent = \`\n'use client';\n\nimport { useState } from 'react';\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';\nimport { Button } from '@/components/ui/button';\nimport { Copy, File as FileIcon } from 'lucide-react';\nimport { useToast } from '@/hooks/use-toast';\nimport { ScrollArea from '@/components/ui/scroll-area';\n\nconst allFiles = [\n  \${allFilesContent}\n];\n\nexport default function ExportPage() {\n    const [activeFile, setActiveFile] = useState(allFiles[0]);\n    const { toast } = useToast();\n\n    const copyToClipboard = (content: string) => {\n        navigator.clipboard.writeText(content);\n        toast({\n            title: "Copied to Clipboard!",\n            description: \`The content of \${activeFile.path} has been copied.\`,\n        });\n    };\n\n    return (\n        <div className="bg-background">\n            <div className="container mx-auto p-4 md:p-8">\n                <Card>\n                    <CardHeader>\n                        <CardTitle>Application Code Export</CardTitle>\n                        <CardDescription>\n                            Here is the complete code for your application. Select a file from the list to view its contents, then use the "Copy Code" button.\n                        </CardDescription>\n                    </CardHeader>\n                    <CardContent>\n                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[calc(100vh-20rem)]">\n                            <div className="md:col-span-1 border rounded-md">\n                                <ScrollArea className="h-full">\n                                    <div className="p-2">\n                                    {allFiles.map(file => (\n                                        <button \n                                            key={file.path} \n                                            onClick={() => setActiveFile(file)}\n                                            className={\`w-full text-left p-2 rounded-md text-sm flex items-center gap-2 \${activeFile.path === file.path ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}\`}\n                                        >\n                                            <FileIcon className="h-4 w-4 shrink-0" />\n                                            <span className="truncate">{file.path}</span>\n                                        </button>\n                                    ))}\n                                    </div>\n                                </ScrollArea>\n                            </div>\n                            <div className="md:col-span-3 flex flex-col border rounded-md overflow-hidden">\n                                <div className="flex justify-between items-center p-2 bg-muted/50 border-b">\n                                    <p className="font-mono text-sm">{activeFile.path}</p>\n                                    <Button size="sm" onClick={() => copyToClipboard(activeFile.content)}>\n                                        <Copy className="mr-2 h-4 w-4" />\n                                        Copy Code\n                                    </Button>\n                                </div>\n                                <ScrollArea className="flex-1">\n                                    <pre className="text-xs p-4 bg-zinc-900 text-white"><code className="font-mono">{activeFile.content}</code></pre>\n                                </ScrollArea>\n                            </div>\n                        </div>\n                    </CardContent>\n                </Card>\n            </div>\n        </div>\n    )\n}\n\`;`
+  }
+]
