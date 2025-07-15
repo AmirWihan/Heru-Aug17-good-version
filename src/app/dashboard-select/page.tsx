@@ -43,7 +43,7 @@ export default function DashboardSelectPage() {
         } else {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
-                router.replace('/');
+                router.replace('/login');
             }, 1500);
             return () => clearTimeout(timer);
         }
