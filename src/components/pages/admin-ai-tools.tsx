@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
 import { DashboardScreenshot } from '@/components/screenshots/DashboardScreenshot';
 import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
-import { ClientDashboardScreenshot } from '@/components/screenshots/ClientDashboardScreenshot';
+import { ClientDashboardScreenshot } from '@/components/client-dashboard-screenshot';
 
 const features = [
     {

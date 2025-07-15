@@ -111,7 +111,7 @@ interface ClientProfileProps {
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (!documents || documents.length === 0) {
-      return null;
+      return <></>;
     }
     return (
         <div className="space-y-3">
@@ -855,22 +855,19 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {visibleDocumentGroups.length > 0 ? (
-                                    visibleDocumentGroups.map(([groupName, docs]) => 
-                                        <DocumentSection
-                                            key={groupName}
-                                            title={groupName}
-                                            documents={docs}
-                                            selectedDocId={selectedDocument?.id || null}
-                                            onSelect={setSelectedDocument}
-                                            onStatusChange={handleDocumentStatusChange}
-                                            onViewClick={setViewingDocument}
-                                            onAnalyze={handleAnalyzeDocument}
-                                        />
-                                    )
-                                ) : (
-                                     <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>
+                                {visibleDocumentGroups.map(([groupName, docs]) => 
+                                    <DocumentSection
+                                        key={groupName}
+                                        title={groupName}
+                                        documents={docs}
+                                        selectedDocId={selectedDocument?.id || null}
+                                        onSelect={setSelectedDocument}
+                                        onStatusChange={handleDocumentStatusChange}
+                                        onViewClick={setViewingDocument}
+                                        onAnalyze={handleAnalyzeDocument}
+                                    />
                                 )}
+                                {visibleDocumentGroups.length === 0 && <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">
