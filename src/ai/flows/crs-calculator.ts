@@ -4,7 +4,7 @@
 /**
  * @fileOverview An AI agent that calculates a user's Comprehensive Ranking System (CRS) score for Canadian Express Entry.
  *
- * - calculateCrsScore - A function that calculates a CRS score based on a JSON string of detailed user input.
+ * - calculateCrsScore - A function that calculates a CRS score based on a detailed user input object.
  * - CrsInput - The TypeScript type for the input object.
  * - CrsOutput - The return type for the calculateCrsScore function.
  */
@@ -103,5 +103,10 @@ const crsCalculatorFlow = ai.defineFlow(
 );
 
 export async function calculateCrsScore(input: CrsInput): Promise<CrsOutput> {
-  return crsCalculatorFlow(input);
+  try {
+    return await crsCalculatorFlow(input);
+  } catch(e) {
+    console.error(e);
+    throw new Error('An error occurred while calculating the CRS score.');
+  }
 }

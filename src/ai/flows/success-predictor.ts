@@ -67,5 +67,10 @@ const successPredictorFlow = ai.defineFlow(
 
 
 export async function predictSuccess(input: SuccessPredictorInput): Promise<SuccessPredictorOutput> {
-  return successPredictorFlow(input);
+  try {
+    return successPredictorFlow(input);
+  } catch(e) {
+    console.error(e);
+    throw new Error('An error occurred while predicting the success rate.');
+  }
 }

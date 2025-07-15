@@ -1,9 +1,10 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { ShieldAlert, Wand2, FileStack } from 'lucide-react';
-import { LawyerDashboardScreenshot } from '@/components/screenshots/DashboardScreenshot'; // Corrected import
+import { LawyerDashboardScreenshot } from '@/components/lawyer-dashboard-screenshot';
 import { DocumentManagementScreenshot } from '@/components/document-management-screenshot';
-import { ClientDashboardScreenshot } from './client-dashboard-screenshot';
+import { ClientDashboardScreenshot } from '../client-dashboard-screenshot';
 
 const features = [
     {

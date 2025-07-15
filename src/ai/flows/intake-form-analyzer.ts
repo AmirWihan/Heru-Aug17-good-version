@@ -69,5 +69,10 @@ const intakeFormAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeIntakeForm(input: IntakeFormInput): Promise<IntakeFormAnalysis> {
-    return intakeFormAnalyzerFlow(input);
+    try {
+        return intakeFormAnalyzerFlow(input);
+    } catch(e) {
+        console.error(e);
+        throw new Error('An error occurred while analyzing the intake form.');
+    }
 }

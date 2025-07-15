@@ -92,5 +92,10 @@ const riskAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeClientRisks(input: RiskAnalysisInput): Promise<RiskAnalysisOutput> {
+  try {
     return riskAnalyzerFlow(input);
+  } catch(e) {
+    console.error(e);
+    throw new Error('An error occurred while analyzing client risks.');
+  }
 }

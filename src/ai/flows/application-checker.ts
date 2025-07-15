@@ -68,5 +68,10 @@ const applicationCheckerFlow = ai.defineFlow(
 );
 
 export async function applicationChecker(input: ApplicationCheckerInput): Promise<ApplicationCheckerOutput> {
-  return applicationCheckerFlow(input);
+  try {
+    return applicationCheckerFlow(input);
+  } catch (e) {
+    console.error(e);
+    throw new Error('An error occurred while checking the application.');
+  }
 }
