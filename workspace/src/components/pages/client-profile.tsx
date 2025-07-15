@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from 'next/navigation';
@@ -109,9 +110,6 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
-    if (!documents || documents.length === 0) {
-        return null;
-    }
     return (
         <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
@@ -128,7 +126,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                         {documents.map(doc => (
                             <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
                                 <TableCell className="font-medium">{doc.title}</TableCell>
-                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
                                 <TableCell className="text-right space-x-1">
                                     <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
