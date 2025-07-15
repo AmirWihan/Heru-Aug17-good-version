@@ -1,5 +1,3 @@
-
-
 'use client';
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from 'next/navigation';
@@ -111,38 +109,38 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
-    if (documents.length === 0) return null;
+    if (!documents || documents.length === 0) {
+        return null;
+    }
     return (
-        <>
-            <div className="space-y-3">
-                <h4 className="font-semibold">{title}</h4>
-                <div className="border rounded-lg">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Document</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+        <div className="space-y-3">
+            <h4 className="font-semibold">{title}</h4>
+            <div className="border rounded-lg">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Document</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {documents.map(doc => (
+                            <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
+                                <TableCell className="font-medium">{doc.title}</TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
+                                <TableCell className="text-right space-x-1">
+                                    <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
+                                    <Button variant="ghost" size="icon" title="Approve" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Approved')}}><CheckCircle className="h-4 w-4 text-green-600" /></Button>
+                                    <Button variant="ghost" size="icon" title="Reject" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Rejected')}}><XCircle className="h-4 w-4 text-red-600" /></Button>
+                                </TableCell>
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {documents.map(doc => (
-                                <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
-                                    <TableCell className="font-medium">{doc.title}</TableCell>
-                                    <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
-                                    <TableCell className="text-right space-x-1">
-                                        <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
-                                        <Button variant="ghost" size="icon" title="Approve" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Approved')}}><CheckCircle className="h-4 w-4 text-green-600" /></Button>
-                                        <Button variant="ghost" size="icon" title="Reject" onClick={(e) => { e.stopPropagation(); onStatusChange(doc.id, 'Rejected')}}><XCircle className="h-4 w-4 text-red-600" /></Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -216,12 +214,19 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [timelineError, setTimelineError] = useState<string | null>(null);
     
     const documentGroups = useMemo(() => {
-        return (client.documents || []).reduce((acc, doc) => {
-            const group = doc.submissionGroup || 'Additional Document';
-            if (!acc[group]) acc[group] = [];
-            acc[group].push(doc);
-            return acc;
-        }, {} as Record<string, ClientDocument[]>);
+        const groups: Record<string, ClientDocument[]> = {
+            'Main Form': [],
+            'Supporting Document': [],
+            'Additional Document': [],
+        };
+        (client.documents || []).forEach(doc => {
+            const groupName = doc.submissionGroup || 'Additional Document';
+            if (!groups[groupName]) {
+                groups[groupName] = [];
+            }
+            groups[groupName].push(doc);
+        });
+        return groups;
     }, [client.documents]);
 
     const visibleDocumentGroups = useMemo(() => {
@@ -849,21 +854,20 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {visibleDocumentGroups.length > 0 ? (
-                                    visibleDocumentGroups.map(([groupName, docs]) => (
-                                        <DocumentSection
-                                            key={groupName}
-                                            title={groupName}
-                                            documents={docs}
-                                            selectedDocId={selectedDocument?.id || null}
-                                            onSelect={setSelectedDocument}
-                                            onStatusChange={handleDocumentStatusChange}
-                                            onViewClick={setViewingDocument}
-                                            onAnalyze={handleAnalyzeDocument}
-                                        />
-                                    ))
-                                ) : (
-                                    <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>
+                                {visibleDocumentGroups.map(([groupName, docs]) => 
+                                    <DocumentSection
+                                        key={groupName}
+                                        title={groupName}
+                                        documents={docs}
+                                        selectedDocId={selectedDocument?.id || null}
+                                        onSelect={setSelectedDocument}
+                                        onStatusChange={handleDocumentStatusChange}
+                                        onViewClick={setViewingDocument}
+                                        onAnalyze={handleAnalyzeDocument}
+                                    />
+                                )}
+                                {visibleDocumentGroups.length === 0 && (
+                                     <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>
                                 )}
                             </div>
                              <div className="lg:col-span-1">
