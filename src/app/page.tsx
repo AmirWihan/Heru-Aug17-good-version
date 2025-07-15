@@ -8,15 +8,21 @@ import { ArrowRight, User, Briefcase, Shield } from 'lucide-react';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RoleSelectionPage() {
     const { login } = useGlobalData();
     const router = useRouter();
+    const { toast } = useToast();
 
     const handleAdminLogin = async () => {
-        // For demo purposes, this directly logs in the admin user.
-        await login('admin@heru.com', 'password123');
-        router.push('/admin/dashboard');
+        try {
+            await login('admin@heru.com', 'password123');
+            router.push('/admin/dashboard');
+             toast({ title: 'Admin Login Successful' });
+        } catch (error) {
+            toast({ title: 'Admin Login Failed', variant: 'destructive' });
+        }
     };
 
     return (

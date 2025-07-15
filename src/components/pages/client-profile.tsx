@@ -26,7 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { documentCategories, documents as documentTemplates, activityTypes, clients as allClients } from "@/lib/data";
+import { documentCategories, documents as documentTemplates, activityTypes } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
@@ -111,9 +111,12 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
-    if (documents.length === 0) return null;
+    if (documents.length === 0) {
+        return null;
+    }
+
     return (
-        <>
+        <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
             <div className="border rounded-lg">
                 <Table>
@@ -140,7 +143,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                     </TableBody>
                 </Table>
             </div>
-        </>
+        </div>
     );
 };
 
