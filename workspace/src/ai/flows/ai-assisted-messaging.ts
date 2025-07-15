@@ -59,5 +59,10 @@ const composeMessageFlow = ai.defineFlow(
 
 
 export async function composeMessage(input: ComposeMessageInput): Promise<ComposeMessageOutput> {
-  return composeMessageFlow(input);
+  try {
+    return composeMessageFlow(input);
+  } catch (e) {
+    console.error(e);
+    throw new Error('An error occurred while composing the message.');
+  }
 }

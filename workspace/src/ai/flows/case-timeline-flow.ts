@@ -67,5 +67,10 @@ const caseTimelineFlow = ai.defineFlow(
 );
 
 export async function getCaseTimeline(input: CaseTimelineInput): Promise<CaseTimelineOutput> {
-    return caseTimelineFlow(input);
+    try {
+        return caseTimelineFlow(input);
+    } catch(e) {
+        console.error(e);
+        throw new Error('An error occurred while generating the timeline.');
+    }
 }

@@ -66,5 +66,10 @@ const coverLetterBuilderFlow = ai.defineFlow(
 );
 
 export async function buildCoverLetter(input: BuildCoverLetterInput): Promise<BuildCoverLetterOutput> {
-  return coverLetterBuilderFlow(input);
+    try {
+        return coverLetterBuilderFlow(input);
+    } catch(e) {
+        console.error(e);
+        throw new Error('An error occurred while generating the cover letter.');
+    }
 }

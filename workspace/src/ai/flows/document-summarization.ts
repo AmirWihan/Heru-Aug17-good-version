@@ -45,5 +45,10 @@ const summarizeDocumentFlow = ai.defineFlow(
 );
 
 export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
-  return summarizeDocumentFlow(input);
+  try {
+    return summarizeDocumentFlow(input);
+  } catch(e) {
+    console.error(e);
+    throw new Error('An error occurred while summarizing the document.');
+  }
 }
