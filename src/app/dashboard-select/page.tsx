@@ -22,7 +22,7 @@ export default function DashboardSelectPage() {
                     break;
                 case 'lawyer':
                     const lawyerProfile = userProfile as TeamMember;
-                    if (lawyerProfile.status !== 'Pending Activation' && lawyerProfile.licenseNumber) {
+                    if (lawyerProfile.status === 'Active' && lawyerProfile.licenseNumber) {
                         router.replace('/lawyer/dashboard');
                     } else {
                         router.replace('/lawyer/onboarding');
