@@ -86,6 +86,15 @@ const getPriorityBadgeVariant = (priority: string) => {
     }
 };
 
+const getAgreementStatusBadgeVariant = (status: Agreement['status']) => {
+    switch (status) {
+        case 'Active': case 'Signed': return 'success';
+        case 'Pending Signature': return 'warning';
+        case 'Terminated': return 'destructive';
+        default: return 'secondary';
+    }
+}
+
 const getTaskStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
         case 'completed': return 'success' as const;
@@ -111,7 +120,7 @@ interface ClientProfileProps {
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (!documents || documents.length === 0) {
-      return <></>;
+      return null;
     }
     return (
         <div className="space-y-3">
@@ -215,11 +224,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const [timelineError, setTimelineError] = useState<string | null>(null);
     
     const documentGroups = useMemo(() => {
-        const groups: Record<string, ClientDocument[]> = {
-            'Main Form': [],
-            'Supporting Document': [],
-            'Additional Document': [],
-        };
+        const groups: { [key: string]: ClientDocument[] } = {};
         (client.documents || []).forEach(doc => {
             const groupName = doc.submissionGroup || 'Additional Document';
             if (!groups[groupName]) {
@@ -867,7 +872,11 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                         onAnalyze={handleAnalyzeDocument}
                                     />
                                 )}
-                                {visibleDocumentGroups.length === 0 && <p className="text-center text-muted-foreground py-8">No documents assigned to this client yet.</p>}
+                                {visibleDocumentGroups.length === 0 && (
+                                     <div className="text-center text-muted-foreground py-8">
+                                        <p>No documents assigned to this client yet.</p>
+                                    </div>
+                                )}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">
@@ -927,7 +936,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant={getPriorityBadgeVariant(agreement.status as any)}>{agreement.status}</Badge>
+                                                <Badge variant={getAgreementStatusBadgeVariant(agreement.status)}>{agreement.status}</Badge>
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenAgreementDialog(agreement)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
