@@ -113,7 +113,7 @@ interface ClientProfileProps {
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
     if (documents.length === 0) return null;
     return (
-        <div className="space-y-3">
+        <>
             <h4 className="font-semibold">{title}</h4>
             <div className="border rounded-lg">
                 <Table>
@@ -140,7 +140,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </>
     );
 };
 
@@ -317,12 +317,13 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             return;
         }
 
-        const newDocument = {
+        const newDocument: ClientDocument = {
             id: Date.now(),
             title: newDocTitle,
             category: newDocCategory,
             dateAdded: new Date().toISOString().split('T')[0],
-            status: 'Uploaded' as const,
+            status: 'Uploaded',
+            type: 'supporting',
         };
 
         const updatedClient = {
@@ -347,12 +348,13 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
              toast({ title: 'Error', description: 'Selected template not found.', variant: 'destructive' });
             return;
         }
-        const newDocument = {
+        const newDocument: ClientDocument = {
             id: Date.now(),
             title: template.title,
             category: template.category,
             dateAdded: new Date().toISOString().split('T')[0],
-            status: 'Requested' as const,
+            status: 'Requested',
+            type: 'form',
         };
          const updatedClient = {
             ...client,
@@ -636,7 +638,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             <DocumentViewer
                 isOpen={!!viewingDocument}
                 onOpenChange={(isOpen) => !isOpen && setViewingDocument(null)}
-                document={viewingDocument}
+                document={viewingDocument ? {title: viewingDocument.title, url: viewingDocument.url} : null}
             />
             
             <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -918,7 +920,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant={getPriorityBadgeVariant(agreement.status)}>{agreement.status}</Badge>
+                                                <Badge variant={getPriorityBadgeVariant(agreement.status as any)}>{agreement.status}</Badge>
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenAgreementDialog(agreement)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -1080,7 +1082,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                             <div className="flex justify-between items-center">
                                 <div>
                                     <CardTitle className="text-lg">Client Tasks</CardTitle>
-                                    <CardDescription>All tasks associated with ${client.name}.</CardDescription>
+                                    <CardDescription>All tasks associated with {client.name}.</CardDescription>
                                 </div>
                                 <Button onClick={() => setAddTaskDialogOpen(true)}>
                                     <Plus className="mr-2 h-4 w-4" /> Add Task
@@ -1222,7 +1224,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Upload Document</DialogTitle>
-                        <DialogDescription>Add a new document to ${client.name}'s profile.</DialogDescription>
+                        <DialogDescription>Add a new document to {client.name}'s profile.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1258,7 +1260,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Assign Document</DialogTitle>
-                        <DialogDescription>Request a document from ${client.name}.</DialogDescription>
+                        <DialogDescription>Request a document from {client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -1328,7 +1330,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Add New Task</DialogTitle>
-                        <DialogDescription>Assign a new task for ${client.name}.</DialogDescription>
+                        <DialogDescription>Assign a new task for {client.name}.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
