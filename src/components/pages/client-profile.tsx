@@ -111,12 +111,12 @@ interface ClientProfileProps {
 }
 
 const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusChange, onAnalyze, onViewClick }: { title: string, documents: ClientDocument[], onSelect: (doc: ClientDocument) => void, selectedDocId: number | null, onStatusChange: (docId: number, status: ClientDocument['status']) => void, onAnalyze: (doc: ClientDocument) => void, onViewClick: (doc: ClientDocument) => void }) => {
-    if (documents.length === 0) {
-        return null;
+    if (!documents || documents.length === 0) {
+        return null; // Return null if there are no documents for this section
     }
 
     return (
-        <>
+        <div className="space-y-3">
             <h4 className="font-semibold">{title}</h4>
             <div className="border rounded-lg">
                 <Table>
@@ -143,7 +143,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                     </TableBody>
                 </Table>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -846,18 +846,22 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                {Object.keys(documentGroups).map((group) => (
-                                    <DocumentSection
-                                      key={group}
-                                      title={group}
-                                      documents={documentGroups[group]}
-                                      selectedDocId={selectedDocument?.id || null}
-                                      onSelect={setSelectedDocument}
-                                      onStatusChange={handleDocumentStatusChange}
-                                      onViewClick={setViewingDocument}
-                                      onAnalyze={handleAnalyzeDocument}
-                                    />
-                                  ))}
+                                {Object.keys(documentGroups).map((groupName) => {
+                                    const docs = documentGroups[groupName];
+                                    if (!docs || docs.length === 0) return null;
+                                    return (
+                                        <DocumentSection
+                                            key={groupName}
+                                            title={groupName}
+                                            documents={docs}
+                                            selectedDocId={selectedDocument?.id || null}
+                                            onSelect={setSelectedDocument}
+                                            onStatusChange={handleDocumentStatusChange}
+                                            onViewClick={setViewingDocument}
+                                            onAnalyze={handleAnalyzeDocument}
+                                        />
+                                    );
+                                })}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">
