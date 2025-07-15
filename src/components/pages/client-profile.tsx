@@ -837,33 +837,28 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div className="lg:col-span-2 space-y-6">
-                                <DocumentSection
-                                    title="Main Forms"
-                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Main Form')}
-                                    selectedDocId={selectedDocument?.id || null}
-                                    onSelect={setSelectedDocument}
-                                    onStatusChange={handleDocumentStatusChange}
-                                    onViewClick={setViewingDocument}
-                                    onAnalyze={handleAnalyzeDocument}
-                                />
-                                 <DocumentSection
-                                    title="Supporting Documents"
-                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Supporting Document')}
-                                    selectedDocId={selectedDocument?.id || null}
-                                    onSelect={setSelectedDocument}
-                                    onStatusChange={handleDocumentStatusChange}
-                                    onViewClick={setViewingDocument}
-                                    onAnalyze={handleAnalyzeDocument}
-                                />
-                                 <DocumentSection
-                                    title="Additional Documents"
-                                    documents={(client.documents || []).filter(d => d.submissionGroup === 'Additional Document')}
-                                    selectedDocId={selectedDocument?.id || null}
-                                    onSelect={setSelectedDocument}
-                                    onStatusChange={handleDocumentStatusChange}
-                                    onViewClick={setViewingDocument}
-                                    onAnalyze={handleAnalyzeDocument}
-                                />
+                                {Object.entries(
+                                  (client.documents || []).reduce((acc, doc) => {
+                                    const group = doc.submissionGroup || 'Additional Document';
+                                    if (!acc[group]) acc[group] = [];
+                                    acc[group].push(doc);
+                                    return acc;
+                                  }, {} as Record<string, ClientDocument[]>)
+                                ).map(([group, docs]) => {
+                                  if (docs.length === 0) return null;
+                                  return (
+                                    <DocumentSection
+                                      key={group}
+                                      title={group}
+                                      documents={docs}
+                                      selectedDocId={selectedDocument?.id || null}
+                                      onSelect={setSelectedDocument}
+                                      onStatusChange={handleDocumentStatusChange}
+                                      onViewClick={setViewingDocument}
+                                      onAnalyze={handleAnalyzeDocument}
+                                    />
+                                  );
+                                })}
                             </div>
                              <div className="lg:col-span-1">
                                 <Card className="sticky top-24">

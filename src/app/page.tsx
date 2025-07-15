@@ -1,14 +1,14 @@
 
 'use client';
 
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowRight, User, Briefcase, Shield } from 'lucide-react';
-import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
+import { ArrowRight, Briefcase, Shield, User } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
+import Link from 'next/link';
 
 export default function RoleSelectionPage() {
     const { login } = useGlobalData();
@@ -27,7 +27,7 @@ export default function RoleSelectionPage() {
 
     return (
         <div className="relative flex flex-col items-center justify-center min-h-screen bg-muted/40 p-4">
-            <div className="absolute top-4 right-4">
+             <div className="absolute top-4 right-4">
                 <Button variant="ghost" size="icon" onClick={handleAdminLogin} title="Super Admin Login">
                     <Shield className="h-6 w-6 text-muted-foreground" />
                 </Button>
