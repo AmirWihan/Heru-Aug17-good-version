@@ -175,30 +175,27 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         } else {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
-            let foundProfile: UserProfile | null = null;
-
-            // Prioritize checking for TeamMember (Lawyer/Admin) first
-            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
+            
+            // Check team members first
+            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail && (u.password === pass || pass === 'password123'));
+            if (foundTeamMember) {
                 const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                foundProfile = { ...foundTeamMember, authRole };
-            }
-
-            // If no lawyer/admin found, check for a Client
-            if (!foundProfile) {
-                 const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
-                 if (foundClient && (foundClient.password === pass || pass === 'password123')) {
-                    foundProfile = { ...foundClient, authRole: 'client' };
-                }
-            }
-
-            if (foundProfile) {
-                setUserProfile(foundProfile);
+                const profile = { ...foundTeamMember, authRole };
+                setUserProfile(profile);
                 setLoadingProfile(false);
-                return foundProfile;
+                return profile;
             }
 
-            // If neither is found, return null
+            // If no team member, check clients
+            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail && (u.password === pass || pass === 'password123'));
+            if (foundClient) {
+                const profile = { ...foundClient, authRole: 'client' as const };
+                setUserProfile(profile);
+                setLoadingProfile(false);
+                return profile;
+            }
+
+            // If no user found, throw an error
             throw new Error("Invalid credentials.");
         }
     }, [clients, teamMembers]);
