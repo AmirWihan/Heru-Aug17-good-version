@@ -1,10 +1,10 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
 import { Button } from '@/components/ui/button';
@@ -25,13 +25,23 @@ const loginSchema = z.object({
 export default function LoginPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { login } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { email: "james.wilson@example.com", password: "password123" },
+        defaultValues: { email: "", password: "password123" },
     });
+
+    useEffect(() => {
+        const role = searchParams.get('role');
+        if (role === 'lawyer') {
+            form.setValue('email', 'sarah.johnson@example.com');
+        } else {
+            form.setValue('email', 'james.wilson@example.com');
+        }
+    }, [searchParams, form]);
 
     const handleEmailLogin = async (values: z.infer<typeof loginSchema>) => {
         setIsLoading(true);
