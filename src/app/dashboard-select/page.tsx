@@ -15,32 +15,7 @@ export default function DashboardSelectPage() {
     useEffect(() => {
         if (loading) return; // Wait until loading is complete
 
-        if (userProfile) {
-            switch (userProfile.authRole) {
-                case 'admin':
-                    router.replace('/admin/dashboard');
-                    break;
-                case 'lawyer':
-                    const lawyerProfile = userProfile as TeamMember;
-                    if (lawyerProfile.status === 'Active' && lawyerProfile.licenseNumber) {
-                        router.replace('/lawyer/dashboard');
-                    } else {
-                        router.replace('/lawyer/onboarding');
-                    }
-                    break;
-                case 'client':
-                    const clientProfile = userProfile as Client;
-                    if (clientProfile.onboardingComplete) {
-                        router.replace('/client/dashboard');
-                    } else {
-                        router.replace('/client/onboarding');
-                    }
-                    break;
-                default:
-                    // Fallback to login if role is unknown
-                    router.replace('/login');
-            }
-        } else {
+        if (!userProfile) {
             // If no profile, wait a bit for it to load, then redirect to login if still nothing
             const timer = setTimeout(() => {
                 if (!userProfile) {
@@ -48,6 +23,31 @@ export default function DashboardSelectPage() {
                 }
             }, 1500);
             return () => clearTimeout(timer);
+        }
+
+        switch (userProfile.authRole) {
+            case 'admin':
+                router.replace('/admin/dashboard');
+                break;
+            case 'lawyer':
+                const lawyerProfile = userProfile as TeamMember;
+                if (lawyerProfile.status === 'Active' && lawyerProfile.licenseNumber) {
+                    router.replace('/lawyer/dashboard');
+                } else {
+                    router.replace('/lawyer/onboarding');
+                }
+                break;
+            case 'client':
+                const clientProfile = userProfile as Client;
+                if (clientProfile.onboardingComplete) {
+                    router.replace('/client/dashboard');
+                } else {
+                    router.replace('/client/onboarding');
+                }
+                break;
+            default:
+                // Fallback to login if role is unknown or not set
+                router.replace('/login');
         }
     }, [userProfile, router, loading]);
 

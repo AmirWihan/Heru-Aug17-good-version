@@ -174,22 +174,25 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             return null;
         } else {
             // Simulate auth for static data
-            const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === email.toLowerCase());
+            const lowerCaseEmail = email.toLowerCase();
+            const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
+            const foundClient = staticClients.find(u => u.email.toLowerCase() === lowerCaseEmail);
+
+            let profileToSet: UserProfile | null = null;
+            
             if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
-                const profile = { ...foundTeamMember, authRole: foundTeamMember.type === 'admin' ? 'admin' : 'lawyer' as 'admin' | 'lawyer' };
-                setUserProfile(profile);
-                setLoadingProfile(false);
-                return profile;
+                const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
+                profileToSet = { ...foundTeamMember, authRole };
+            } else if (foundClient && (foundClient.password === pass || pass === 'password123')) {
+                profileToSet = { ...foundClient, authRole: 'client' };
             }
     
-            const foundClient = staticClients.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (foundClient && (foundClient.password === pass || pass === 'password123')) {
-                const profile = { ...foundClient, authRole: 'client' as 'client' };
-                setUserProfile(profile);
+            if (profileToSet) {
+                setUserProfile(profileToSet);
                 setLoadingProfile(false);
-                return profile;
+                return profileToSet;
             }
-    
+
             return null;
         }
     }, []);
