@@ -175,30 +175,33 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         } else {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
-            
+            let foundProfile: UserProfile | null = null;
+
             // Prioritize checking for TeamMember (Lawyer/Admin) first
-            const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
+            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
                 const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                const profileToSet = { ...foundTeamMember, authRole };
-                setUserProfile(profileToSet);
-                setLoadingProfile(false);
-                return profileToSet;
+                foundProfile = { ...foundTeamMember, authRole };
             }
 
-            // Only check for a Client if no TeamMember was found
-            const foundClient = staticClients.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundClient && (foundClient.password === pass || pass === 'password123')) {
-                const profileToSet = { ...foundClient, authRole: 'client' as const };
-                 setUserProfile(profileToSet);
+            // If no lawyer/admin found, check for a Client
+            if (!foundProfile) {
+                 const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
+                 if (foundClient && (foundClient.password === pass || pass === 'password123')) {
+                    foundProfile = { ...foundClient, authRole: 'client' };
+                }
+            }
+
+            if (foundProfile) {
+                setUserProfile(foundProfile);
                 setLoadingProfile(false);
-                return profileToSet;
+                return foundProfile;
             }
 
             // If neither is found, return null
-            return null;
+            throw new Error("Invalid credentials.");
         }
-    }, []);
+    }, [clients, teamMembers]);
 
     const logout = useCallback(async () => {
         if (isFirebaseEnabled && auth) {

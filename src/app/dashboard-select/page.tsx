@@ -31,8 +31,7 @@ export default function DashboardSelectPage() {
                 break;
             case 'lawyer':
                 const lawyerProfile = userProfile as TeamMember;
-                // Correctly check if licenseNumber is truthy.
-                // A lawyer who has not completed onboarding might not have this.
+                // Correctly check if the lawyer's account is active and onboarded.
                 if (lawyerProfile.status === 'Active' && lawyerProfile.licenseNumber) {
                     router.replace('/lawyer/dashboard');
                 } else {
