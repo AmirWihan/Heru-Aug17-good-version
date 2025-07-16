@@ -176,19 +176,19 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
             const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            const foundClient = staticClients.find(u => u.email.toLowerCase() === lowerCaseEmail);
 
-            let profileToSet: UserProfile | null = null;
-            
             if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
                 const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                profileToSet = { ...foundTeamMember, authRole };
-            } else if (foundClient && (foundClient.password === pass || pass === 'password123')) {
-                profileToSet = { ...foundClient, authRole: 'client' };
-            }
-    
-            if (profileToSet) {
+                const profileToSet = { ...foundTeamMember, authRole };
                 setUserProfile(profileToSet);
+                setLoadingProfile(false);
+                return profileToSet;
+            }
+
+            const foundClient = staticClients.find(u => u.email.toLowerCase() === lowerCaseEmail);
+            if (foundClient && (foundClient.password === pass || pass === 'password123')) {
+                const profileToSet = { ...foundClient, authRole: 'client' as const };
+                 setUserProfile(profileToSet);
                 setLoadingProfile(false);
                 return profileToSet;
             }
