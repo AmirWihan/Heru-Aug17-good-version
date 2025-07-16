@@ -15,3 +15,5 @@ import '@/ai/flows/resume-builder-flow.ts';
 import '@/ai/flows/document-analyzer.ts';
 import '@/ai/flows/cover-letter-flow.ts';
 import '@/ai/flows/writing-assistant-flow.ts';
+
+import '@/ai/schemas/risk-analyzer-schema';
