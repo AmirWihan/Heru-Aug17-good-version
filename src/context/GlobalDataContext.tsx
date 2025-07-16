@@ -175,8 +175,9 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         } else {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
+            
+            // Prioritize checking for TeamMember (Lawyer/Admin) first
             const foundTeamMember = staticTeamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
-
             if (foundTeamMember && (foundTeamMember.password === pass || pass === 'password123')) {
                 const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
                 const profileToSet = { ...foundTeamMember, authRole };
@@ -185,6 +186,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 return profileToSet;
             }
 
+            // Only check for a Client if no TeamMember was found
             const foundClient = staticClients.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundClient && (foundClient.password === pass || pass === 'password123')) {
                 const profileToSet = { ...foundClient, authRole: 'client' as const };
@@ -193,6 +195,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 return profileToSet;
             }
 
+            // If neither is found, return null
             return null;
         }
     }, []);
