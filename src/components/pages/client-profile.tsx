@@ -274,8 +274,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     currentStage: client.caseSummary.currentStatus,
                     countryOfOrigin: client.countryOfOrigin,
                 };
-                const jsonString = JSON.stringify(inputData);
-                const response = await getCaseTimeline(jsonString);
+                const response = await getCaseTimeline(inputData);
                 setTimelineData(response.timeline);
             } catch (err) {
                 console.error("Failed to fetch timeline:", err);
@@ -308,8 +307,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 age: client.age,
                 educationLevel: client.educationLevel,
             };
-            const jsonString = JSON.stringify(inputData);
-            const result = await predictSuccess(jsonString);
+            const result = await predictSuccess(inputData);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -329,8 +327,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setAnalyzedDocTitle(doc.title);
         setIsAnalysisDialogOpen(true);
         try {
-            const jsonString = JSON.stringify({ title: doc.title, category: doc.category });
-            const result = await analyzeDocument(jsonString);
+            const result = await analyzeDocument({ title: doc.title, category: doc.category });
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);
