@@ -325,7 +325,7 @@ export const adminAppointmentsData: AdminAppointment[] = [
 export const teamMembers: TeamMember[] = [
     {
         id: 1, name: 'Sarah Johnson', role: 'Senior Immigration Lawyer', avatar: 'https://i.pravatar.cc/150?u=sarah', type: 'legal',
-        email: 'sarah.j@heru.com', phone: '+1-202-555-0101', password: 'password123', uid: 'static-sarah', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
+        email: 'sarah.johnson@example.com', phone: '+1-202-555-0101', password: 'password123', uid: 'static-sarah', accessLevel: 'Admin', status: 'Active', plan: 'Pro Team', billingCycle: 'annually',
         location: 'Toronto, ON', yearsOfPractice: 12, successRate: 96, licenseNumber: 'LSO-P67890', registrationNumber: 'ICCRC-R45678',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
