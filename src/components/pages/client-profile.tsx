@@ -885,7 +885,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                 )}
                             </div>
                              <div className="lg:col-span-1">
-                                <Card className="sticky top-24">
+                                <Card className="sticky top-20">
                                     <CardHeader className="flex-row gap-2 items-center">
                                         <CheckSquare className="h-5 w-5 text-primary"/>
                                         <div>
