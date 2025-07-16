@@ -40,8 +40,8 @@ export default function RoleSelectionPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                <Card asChild className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
-                    <Link href="/login?role=client">
+                <Link href="/login?role=client" className="h-full">
+                    <Card className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
                         <CardHeader className="flex-1">
                             <User className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
@@ -52,11 +52,11 @@ export default function RoleSelectionPage() {
                                 Proceed as Applicant <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </CardContent>
-                    </Link>
-                </Card>
+                    </Card>
+                </Link>
 
-                 <Card asChild className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
-                    <Link href="/login?role=lawyer">
+                 <Link href="/login?role=lawyer" className="h-full">
+                    <Card className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
                         <CardHeader className="flex-1">
                             <Briefcase className="h-16 w-16 mx-auto text-primary" />
                             <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>
@@ -67,8 +67,8 @@ export default function RoleSelectionPage() {
                                 Proceed as Lawyer <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </CardContent>
-                    </Link>
-                </Card>
+                    </Card>
+                </Link>
             </div>
 
             <footer className="absolute bottom-4 text-center text-xs text-muted-foreground">
