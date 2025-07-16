@@ -176,26 +176,29 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
             
-            // Check team members first
-            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail && (u.password === pass || pass === 'password123'));
+            // Find user by email first
+            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundTeamMember) {
-                const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                const profile = { ...foundTeamMember, authRole };
-                setUserProfile(profile);
-                setLoadingProfile(false);
-                return profile;
+                if (foundTeamMember.password === pass || pass === 'password123') {
+                     const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
+                    const profile = { ...foundTeamMember, authRole };
+                    setUserProfile(profile);
+                    setLoadingProfile(false);
+                    return profile;
+                }
             }
 
-            // If no team member, check clients
-            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail && (u.password === pass || pass === 'password123'));
+            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundClient) {
-                const profile = { ...foundClient, authRole: 'client' as const };
-                setUserProfile(profile);
-                setLoadingProfile(false);
-                return profile;
+                 if (foundClient.password === pass || pass === 'password123') {
+                    const profile = { ...foundClient, authRole: 'client' as const };
+                    setUserProfile(profile);
+                    setLoadingProfile(false);
+                    return profile;
+                }
             }
 
-            // If no user found, throw an error
+            // If no user with matching email/password is found, throw an error
             throw new Error("Invalid credentials.");
         }
     }, [clients, teamMembers]);
