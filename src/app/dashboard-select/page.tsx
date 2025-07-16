@@ -31,8 +31,7 @@ export default function DashboardSelectPage() {
                 break;
             case 'lawyer':
                 const lawyerProfile = userProfile as TeamMember;
-                // Correctly check if the lawyer's account is active and onboarded.
-                if (lawyerProfile.status === 'Active' && lawyerProfile.licenseNumber) {
+                if (lawyerProfile.status === 'Active') {
                     router.replace('/lawyer/dashboard');
                 } else {
                     router.replace('/lawyer/onboarding');

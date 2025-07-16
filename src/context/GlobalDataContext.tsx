@@ -176,23 +176,24 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
             
-            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundTeamMember) {
-                if (foundTeamMember.password === pass || pass === 'password123') { // password123 is for demo
-                    const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                    const profile = { ...foundTeamMember, authRole };
+            // Prioritize finding the user by email first, regardless of array order
+            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
+            if (foundClient) {
+                if (foundClient.password === pass || pass === 'password123') {
+                    const profile = { ...foundClient, authRole: 'client' as const };
                     setUserProfile(profile);
                     setLoadingProfile(false);
                     return profile;
                 } else {
-                     throw new Error("Invalid credentials.");
+                    throw new Error("Invalid credentials.");
                 }
             }
 
-            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundClient) {
-                 if (foundClient.password === pass || pass === 'password123') { // password123 is for demo
-                    const profile = { ...foundClient, authRole: 'client' as const };
+            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
+            if (foundTeamMember) {
+                if (foundTeamMember.password === pass || pass === 'password123') {
+                    const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
+                    const profile = { ...foundTeamMember, authRole };
                     setUserProfile(profile);
                     setLoadingProfile(false);
                     return profile;
