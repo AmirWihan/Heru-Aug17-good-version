@@ -176,29 +176,31 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             // Simulate auth for static data
             const lowerCaseEmail = email.toLowerCase();
             
-            // Find user by email first
             const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundTeamMember) {
-                if (foundTeamMember.password === pass || pass === 'password123') {
-                     const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
+                if (foundTeamMember.password === pass || pass === 'password123') { // password123 is for demo
+                    const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
                     const profile = { ...foundTeamMember, authRole };
                     setUserProfile(profile);
                     setLoadingProfile(false);
                     return profile;
+                } else {
+                     throw new Error("Invalid credentials.");
                 }
             }
 
             const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
             if (foundClient) {
-                 if (foundClient.password === pass || pass === 'password123') {
+                 if (foundClient.password === pass || pass === 'password123') { // password123 is for demo
                     const profile = { ...foundClient, authRole: 'client' as const };
                     setUserProfile(profile);
                     setLoadingProfile(false);
                     return profile;
+                } else {
+                     throw new Error("Invalid credentials.");
                 }
             }
 
-            // If no user with matching email/password is found, throw an error
             throw new Error("Invalid credentials.");
         }
     }, [clients, teamMembers]);
