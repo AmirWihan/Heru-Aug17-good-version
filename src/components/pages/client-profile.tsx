@@ -1,5 +1,4 @@
 
-
 'use client';
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from 'next/navigation';
@@ -1546,3 +1545,5 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         </div>
     );
 });
+
+    
