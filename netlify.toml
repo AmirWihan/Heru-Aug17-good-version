@@ -6,4 +6,4 @@
   command = "npm run dev"
 
 [[plugins]]
-  package = "@netlify/next"
+  package = "@netlify/plugin-nextjs"
