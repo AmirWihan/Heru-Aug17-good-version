@@ -7,20 +7,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { ArrowRight, Crown, MapPin, Award, Users, Languages, DollarSign, Check } from "lucide-react";
 
+import type { TeamMember } from "@/lib/data";
 type LawyerProfileCardProps = {
-    lawyer: {
-        id: number;
-        name: string;
-        role: string;
-        avatar: string;
-        location: string;
-        registrationNumber: string;
-        numEmployees?: number;
-        languages?: string[];
-        consultationType?: 'Free' | 'Paid';
-        plan?: string;
-    };
-    onViewProfile: (lawyer: LawyerProfileCardProps['lawyer']) => void;
+    lawyer: TeamMember;
+    onViewProfile: (lawyer: TeamMember) => void;
     isEnterprise?: boolean;
 };
 

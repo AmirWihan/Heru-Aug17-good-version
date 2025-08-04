@@ -2,25 +2,34 @@
 'use client';
 
 import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User, sendPasswordResetEmail } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { 
-    clients as staticClients, 
-    teamMembers as staticTeamMembers, 
-    tasksData as staticTasks, 
-    appointmentsData as staticAppointments, 
+// Firebase is completely disabled in offline mode
+// All Firebase logic removed. Only offline logic remains.
+
+import {
+    clients as staticClients,
+    teamMembers as staticTeamMembers,
+    tasksData as staticTasks,
+    appointmentsData as staticAppointments,
     invoicesData as staticInvoices,
     notifications as staticNotifications,
     leadsData as staticLeads,
     clientLeadsData as staticClientLeads,
-    type Client, type TeamMember, type Task, type Invoice, type Appointment, type Notification, type IntakeForm, type Lead, type ClientLead,
+    type Client,
+    type TeamMember,
+    type Task,
+    type Appointment,
+    type Invoice,
+    type Notification,
+    type Lead,
+    type ClientLead,
     type ConnectionRequest
 } from '@/lib/data';
-import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
+
+// Type for User when Firebase is disabled
+type User = any;
 
 // Define a unified UserProfile type
-export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' };
+export type UserProfile = (Client | TeamMember) & { authRole: 'admin' | 'lawyer' | 'client' | 'superadmin' };
 
 type ClientInvitation = {
     email: string;
@@ -32,7 +41,22 @@ interface GlobalDataContextType {
     loading: boolean;
     login: (email: string, pass: string) => Promise<UserProfile | null>;
     logout: () => Promise<void>;
-    register: (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }, connectedLawyerId?: number | null) => Promise<UserProfile | null>;
+    register: (details: {
+    role: 'client' | 'lawyer',
+    password?: string,
+    fullName?: string,
+    email?: string,
+    termsAgreed: boolean,
+    marketingConsent?: boolean,
+    firmName?: string,
+    firmAction?: 'register' | 'activation' | 'request_activation',
+    serviceLanguages?: string[],
+    address?: string,
+    website?: string,
+    numberOfEmployees?: string,
+    idCardUrl?: string,
+    idCard?: any
+}, connectedLawyerId?: number | null) => Promise<UserProfile | null>;
     sendPasswordReset: (email: string) => Promise<void>;
     updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
     teamMembers: TeamMember[];
@@ -69,13 +93,12 @@ const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undef
 
 const LOCAL_STORAGE_KEY = 'visafor-ui-prefs';
 
-// This component isolates the useAuthState hook so it's only called when Firebase is enabled.
+// This component is disabled in offline mode
 const AuthStateListener = ({ setAuthData }: { setAuthData: Function }) => {
-    const [user, loading, error] = useAuthState(auth!);
-    
     useEffect(() => {
-        setAuthData({ user, loading, error });
-    }, [user, loading, error, setAuthData]);
+        // In offline mode, set default values
+        setAuthData({ user: null, loading: false, error: undefined });
+    }, [setAuthData]);
 
     return null;
 }
@@ -83,7 +106,7 @@ const AuthStateListener = ({ setAuthData }: { setAuthData: Function }) => {
 export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [authData, setAuthData] = useState<{user: User | null | undefined; loading: boolean; error: Error | undefined}>({
         user: undefined,
-        loading: isFirebaseEnabled,
+        loading: false, // Offline mode, no loading from Firebase
         error: undefined,
     });
     const { user, loading: authLoading } = authData;
@@ -107,21 +130,15 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [isLoaded, setIsLoaded] = useState(false);
     
     const loading = authLoading || loadingProfile;
+    console.log('🔄 Loading state:', { authLoading, loadingProfile, loading });
 
     useEffect(() => {
         const loadUserProfile = async () => {
-            if (isFirebaseEnabled && user) {
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    setUserProfile(userDoc.data() as UserProfile);
-                }
-            } else if (!isFirebaseEnabled) {
-                // In offline mode, login function sets the profile
-            } else {
-                setUserProfile(null);
-            }
-             setLoadingProfile(false);
+            console.log('🔄 Loading user profile...', { user: !!user, authLoading });
+            
+            // In offline mode, login function sets the profile
+            console.log('📱 Offline mode - login function will set profile');
+            setLoadingProfile(false);
         };
 
         if (!authLoading) {
@@ -162,70 +179,77 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
-        if (isFirebaseEnabled && auth) {
-            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-            const userDocRef = doc(db, 'users', userCredential.user.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.exists()) {
-                const profile = userDoc.data() as UserProfile
+        console.log('🔧 Login function called with:', { email, pass });
+        
+        // Simulate auth for static data
+        const lowerCaseEmail = email.toLowerCase();
+        console.log('🔍 Searching for email:', lowerCaseEmail);
+        console.log('👥 Available clients:', clients.map(c => c.email));
+        console.log('👨‍💼 Available team members:', teamMembers.map(t => t.email));
+        
+        // Prioritize finding the user by email first, regardless of array order
+        const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
+        if (foundClient) {
+            console.log('✅ Found client:', foundClient.name);
+            if (foundClient.password === pass || pass === 'password123') {
+                const profile = { ...foundClient, authRole: 'client' as const };
+                console.log('🎉 Client login successful:', profile);
                 setUserProfile(profile);
+                setLoadingProfile(false);
+                console.log('✅ Loading profile set to false for client');
                 return profile;
+            } else {
+                console.log('❌ Client password mismatch');
+                throw new Error("Invalid credentials.");
             }
-            return null;
-        } else {
-            // Simulate auth for static data
-            const lowerCaseEmail = email.toLowerCase();
-            
-            // Prioritize finding the user by email first, regardless of array order
-            const foundClient = clients.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundClient) {
-                if (foundClient.password === pass || pass === 'password123') {
-                    const profile = { ...foundClient, authRole: 'client' as const };
-                    setUserProfile(profile);
-                    setLoadingProfile(false);
-                    return profile;
-                } else {
-                    throw new Error("Invalid credentials.");
-                }
-            }
-
-            const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
-            if (foundTeamMember) {
-                if (foundTeamMember.password === pass || pass === 'password123') {
-                    const authRole = foundTeamMember.type === 'admin' ? 'admin' : 'lawyer';
-                    const profile = { ...foundTeamMember, authRole };
-                    setUserProfile(profile);
-                    setLoadingProfile(false);
-                    return profile;
-                } else {
-                     throw new Error("Invalid credentials.");
-                }
-            }
-
-            throw new Error("Invalid credentials.");
         }
+
+        const foundTeamMember = teamMembers.find(u => u.email.toLowerCase() === lowerCaseEmail);
+        if (foundTeamMember) {
+            console.log('✅ Found team member:', foundTeamMember.name);
+            if (foundTeamMember.password === pass || pass === 'password123') {
+                let authRole: 'admin' | 'lawyer' | 'superadmin';
+                
+                // Check for super admin by email
+                if (foundTeamMember.email === 'admin@heru.com') {
+                    authRole = 'superadmin';
+                } else if (foundTeamMember.type === 'admin') {
+                    authRole = 'admin';
+                } else {
+                    authRole = 'lawyer';
+                }
+                
+                const profile = { ...foundTeamMember, authRole };
+                console.log('🎉 Team member login successful:', profile);
+                setUserProfile(profile);
+                setLoadingProfile(false);
+                console.log('✅ Loading profile set to false for team member');
+                return profile;
+            } else {
+                console.log('❌ Team member password mismatch');
+                 throw new Error("Invalid credentials.");
+            }
+        }
+
+        console.log('❌ No user found with email:', lowerCaseEmail);
+        throw new Error("Invalid credentials.");
     }, [clients, teamMembers]);
 
     const logout = useCallback(async () => {
-        if (isFirebaseEnabled && auth) {
-            await signOut(auth);
-        }
         setUserProfile(null);
     }, []);
 
     const sendPasswordReset = useCallback(async (email: string) => {
-        if (isFirebaseEnabled && auth) {
-            await sendPasswordResetEmail(auth, email);
-        } else {
-            console.warn("Firebase not configured. Password reset is disabled.");
-            // Simulate success in offline mode for UI testing
-            return Promise.resolve();
-        }
+        console.warn("Firebase not configured. Password reset is disabled.");
+        // Simulate success in offline mode for UI testing
+        return Promise.resolve();
     }, []);
 
     const register = useCallback(async (details: Omit<Partial<UserProfile>, 'authRole'> & { role: 'client' | 'lawyer', password?: string, fullName?: string, email?: string, termsAgreed: boolean, marketingConsent?: boolean }, connectedLawyerId: number | null = null): Promise<UserProfile | null> => {
+        console.log('🔍 Register function called with details:', details);
         const { email, password, role, fullName, termsAgreed, marketingConsent } = details;
         if (!email || !password || !role || !fullName) {
+            console.error('❌ Missing details for registration:', { email, password, role, fullName });
             throw new Error("Missing details for registration.");
         }
         
@@ -258,28 +282,30 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             setClients(prev => [...prev, newProfile as Client]);
         } else { // Lawyer
             newProfile = {
-                ...commonData,
+                id: commonData.id,
+                name: commonData.name,
+                email: commonData.email,
+                password: commonData.password,
                 authRole: 'lawyer',
                 role: 'Awaiting Onboarding',
                 avatar: `https://i.pravatar.cc/150?u=${email}`,
-                type: 'legal', phone: '', accessLevel: 'Admin', status: 'Pending Activation', plan: 'Pro Team',
+                type: 'legal', phone: '', accessLevel: 'Admin', status: 'awaiting_approval', plan: 'Pro Team',
                 location: 'Unknown', yearsOfPractice: 0, successRate: 0, licenseNumber: '', registrationNumber: '',
-                firmName: 'Unknown Firm',
+                firmName: (details as any).firmName || 'Unknown Firm',
+                firmAction: (details as any).firmAction || 'register',
+                serviceLanguages: (details as any).serviceLanguages || [],
                 stats: [], specialties: ['Awaiting Activation'],
-                languages: [],
-                consultationType: 'Paid'
-            };
+                languages: (details as any).serviceLanguages || [],
+                consultationType: 'Paid',
+                idCardUrl: (details as any).idCardUrl || undefined
+            } as TeamMember & { authRole: 'lawyer' };
             setTeamMembers(prev => [...prev, newProfile as TeamMember]);
         }
         
         // Simulate login after registration
+        console.log('📝 Setting user profile:', newProfile);
         setUserProfile(newProfile);
         
-        if (isFirebaseEnabled && auth) {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await setDoc(doc(db, "users", userCredential.user.uid), { ...newProfile, uid: userCredential.user.uid });
-        }
-
         return newProfile;
     }, []);
 
@@ -287,11 +313,6 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setUserProfile(currentProfile => {
             if (!currentProfile) return null;
             const updatedProfile = { ...currentProfile, ...updates } as UserProfile;
-            
-            if (isFirebaseEnabled && currentProfile.uid) {
-                const userDocRef = doc(db, 'users', currentProfile.uid);
-                updateDoc(userDocRef, updates).catch(console.error);
-            }
             
             return updatedProfile;
         });
@@ -315,6 +336,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const addTeamMember = useCallback((member: TeamMember) => {
         setTeamMembers(prev => [...prev, member]);
+                    // Firebase is disabled - no team member updates
     }, []);
 
     const addClient = useCallback((client: Client) => {
@@ -325,7 +347,21 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
         setUserProfile(currentProfile => {
             if (currentProfile && currentProfile.id === updatedClient.id) {
-                return { ...currentProfile, ...updatedClient };
+                // Only merge if currentProfile is a Client or TeamMember
+                let merged = { ...currentProfile, ...updatedClient };
+                // Ensure status is only set to allowed values for both Client and TeamMember
+                const allowedStatus = ['Active', 'Blocked', 'On-hold', 'Closed'];
+                if (
+                    (currentProfile as any).status !== undefined &&
+                    !allowedStatus.includes(updatedClient.status as string)
+                ) {
+                    merged.status = 'Active'; // fallback to a safe default
+                }
+                // Remove superadmin from authRole if present
+                if (merged.authRole === 'superadmin') {
+                    merged.authRole = currentProfile.authRole;
+                }
+                return merged as UserProfile;
             }
             return currentProfile;
         });
@@ -365,6 +401,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             avatar: lead.avatar || `https://i.pravatar.cc/150?u=${lead.email}`,
             type: 'legal',
             accessLevel: 'Admin',
+            languages: [],
+            consultationType: 'Paid',
             status: 'Pending Activation',
             plan: 'Pro Team',
             location: 'Unknown',
@@ -434,7 +472,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             logos, setWorkspaceLogo, isLoaded, theme, setTheme,
             sendClientInvitation, consumeClientInvitation, sendConnectionRequest,
         }}>
-            {isFirebaseEnabled && <AuthStateListener setAuthData={setAuthData} />}
+            {/* AuthStateListener is removed as Firebase is disabled */}
             {children}
         </GlobalDataContext.Provider>
     );

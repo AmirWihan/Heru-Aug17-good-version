@@ -17,13 +17,27 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-type SupportTicket = typeof initialData[0];
+import type { Client, TeamMember } from '@/lib/data';
+
+type SupportTicketStatus = 'Open' | 'In Progress' | 'Closed';
+type SupportTicket = {
+  id: string;
+  user: Client | TeamMember;
+  userType: 'Client' | 'Lawyer';
+  subject: string;
+  topic: string;
+  status: SupportTicketStatus;
+  lastUpdated: string;
+  description: string;
+};
+
 
 export function AdminSupportTicketsPage() {
     const { addTask, teamMembers } = useGlobalData();
     const { toast } = useToast();
-    const [tickets, setTickets] = useState(initialData);
+    const [tickets, setTickets] = useState<SupportTicket[]>(initialData as SupportTicket[]);
     const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     // Form state for assigning a task
@@ -33,7 +47,7 @@ export function AdminSupportTicketsPage() {
     const [taskDueDate, setTaskDueDate] = useState('');
     const [taskPriority, setTaskPriority] = useState<Task['priority']>('Medium');
     
-    const getStatusBadgeVariant = (status: string) => {
+    const getStatusBadgeVariant = (status: SupportTicketStatus) => {
         switch (status.toLowerCase()) {
             case 'open': return 'success';
             case 'in progress': return 'warning';

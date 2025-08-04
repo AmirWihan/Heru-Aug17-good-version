@@ -83,8 +83,7 @@ export function ClientOnboarding({ onOnboardingComplete }: ClientOnboardingProps
         setResult(null);
 
         try {
-            const jsonString = JSON.stringify(data);
-            const response = await calculateCrsScore(jsonString);
+            const response = await calculateCrsScore(data);
             setResult(response);
             setCurrentStep(steps.length);
             

@@ -40,35 +40,39 @@ export default function RoleSelectionPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                <Card asChild>
-                    <Link href="/login?role=client" passHref className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
-                        <CardHeader className="flex-1">
-                            <User className="h-16 w-16 mx-auto text-primary" />
-                            <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
-                            <CardDescription className="mt-2">Track your application, manage documents, and communicate with your legal team.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button variant="outline" className="w-full">
-                                Proceed as Applicant <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </CardContent>
-                    </Link>
-                </Card>
+                <Link href="/login?role=client" passHref>
+                    <div className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                        <Card>
+                            <CardHeader className="flex-1">
+                                <User className="h-16 w-16 mx-auto text-primary" />
+                                <CardTitle className="mt-4 text-2xl font-bold">I am an Applicant</CardTitle>
+                                <CardDescription className="mt-2">Track your application, manage documents, and communicate with your legal team.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Button variant="outline" className="w-full">
+                                    Proceed as Applicant <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </Link>
 
-                 <Card asChild>
-                    <Link href="/login?role=lawyer" passHref className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
-                        <CardHeader className="flex-1">
-                            <Briefcase className="h-16 w-16 mx-auto text-primary" />
-                            <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>
-                            <CardDescription className="mt-2">Manage your clients, streamline your workflow with AI tools, and grow your practice.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button variant="outline" className="w-full">
-                                Proceed as Lawyer <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </CardContent>
-                    </Link>
-                </Card>
+                <Link href="/login?role=lawyer" passHref>
+                    <div className="text-center p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                        <Card>
+                            <CardHeader className="flex-1">
+                                <Briefcase className="h-16 w-16 mx-auto text-primary" />
+                                <CardTitle className="mt-4 text-2xl font-bold">I am a Lawyer</CardTitle>
+                                <CardDescription className="mt-2">Manage your clients, streamline your workflow with AI tools, and grow your practice.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Button variant="outline" className="w-full">
+                                    Proceed as Lawyer <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </Link>
             </div>
 
             <footer className="absolute bottom-4 text-center text-xs text-muted-foreground">

@@ -48,6 +48,8 @@ export function AdminTeamManagementPage() {
             phone: '',
             accessLevel: 'Member',
             status: 'Active',
+            languages: ['English'],
+            consultationType: 'Paid',
             plan: 'N/A',
             location: 'Remote',
             yearsOfPractice: 0,

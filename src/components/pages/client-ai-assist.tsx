@@ -15,7 +15,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 // AI Flows
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
-import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { buildCoverLetter } from '@/ai/flows/cover-letter-flow';
+import type { BuildCoverLetterOutput } from '@/ai/schemas/cover-letter-schema';
 import { Client } from '@/lib/data';
 
 const WRITING_ASSISTANT_COST = 5;
@@ -56,8 +57,7 @@ function WritingAssistant() {
         setIsLoading(true);
         setResult(null);
         try {
-            const jsonString = JSON.stringify({ textToImprove, instruction });
-            const response = await assistWithWriting(jsonString);
+            const response = await assistWithWriting({ textToImprove, instruction });
             setResult(response);
             handleUseCoins(WRITING_ASSISTANT_COST);
         } catch (error) {
@@ -135,8 +135,7 @@ function ResumeBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const jsonString = JSON.stringify(apiInput);
-            const response = await buildResume(jsonString);
+            const response = await buildResume(apiInput);
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {
@@ -210,8 +209,7 @@ function CoverLetterBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const jsonString = JSON.stringify(apiInput);
-            const response = await buildCoverLetter(jsonString);
+            const response = await buildCoverLetter(apiInput);
             setResult(response);
             handleUseCoins(CAREER_TOOL_COST);
         } catch (error) {

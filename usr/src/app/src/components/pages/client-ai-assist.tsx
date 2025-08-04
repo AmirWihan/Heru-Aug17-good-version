@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, Gift, Copy, Briefcase, FileText } from 'lucide-react';
-import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // AI Flows

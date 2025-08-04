@@ -17,6 +17,9 @@ import {
     type BuildCoverLetterOutput 
 } from '@/ai/schemas/cover-letter-schema';
 
+export type { BuildCoverLetterOutput };
+
+
 const prompt = ai.definePrompt({
   name: 'coverLetterBuilderPrompt',
   input: { schema: BuildCoverLetterInputSchema },

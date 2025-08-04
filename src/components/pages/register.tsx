@@ -18,7 +18,7 @@ import { useGlobalData } from '@/context/GlobalDataContext';
 import { Checkbox } from '../ui/checkbox';
 
 const registerSchema = z.object({
-  role: z.enum(['lawyer', 'client'], { required_error: 'Please select your role.' }),
+  role: z.enum(['lawyer', 'client', 'admin'], { required_error: 'Please select your role.' }),
   fullName: z.string().min(2, "Full name is required."),
   email: z.string().email("A valid email is required."),
   password: z.string().min(8, "Password must be at least 8 characters."),
@@ -26,6 +26,8 @@ const registerSchema = z.object({
     errorMap: () => ({ message: "You must agree to the terms and conditions." }),
   }),
   marketingConsent: z.boolean().default(false).optional(),
+  // Only basic firm name for lawyers during registration
+  firmName: z.string().min(2, 'Firm name is required.').optional(),
 });
 
 export function RegisterPage() {
@@ -34,6 +36,7 @@ export function RegisterPage() {
     const searchParams = useSearchParams();
     const { register, consumeClientInvitation } = useGlobalData();
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const roleParam = searchParams.get('role');
     const refParam = searchParams.get('ref');
@@ -42,10 +45,11 @@ export function RegisterPage() {
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: { 
-            role: roleParam === 'lawyer' || roleParam === 'client' ? roleParam : (refParam ? 'client' : undefined), 
+            role: roleParam === 'lawyer' || roleParam === 'client' || roleParam === 'admin' ? roleParam : (refParam ? 'client' : undefined), 
             fullName: "", 
             email: emailParam ? decodeURIComponent(emailParam) : "", 
-            password: "" 
+            password: "",
+            firmName: "",
         },
     });
 
@@ -61,9 +65,17 @@ export function RegisterPage() {
     }, [roleParam, refParam, emailParam, form]);
 
 
-    const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+
+
+const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+        console.log('🔍 Registration form submitted with values:', values);
         setIsLoading(true);
         try {
+            // Only validate basic fields for registration
+            if (values.role === 'lawyer' && !values.firmName) {
+                throw new Error("Firm name is required for lawyer registration.");
+            }
+
             const lawyerId = refParam ? parseInt(refParam, 10) : null;
             if (lawyerId && values.role === 'client') {
                 const invitation = consumeClientInvitation(values.email);
@@ -72,7 +84,12 @@ export function RegisterPage() {
                 }
             }
 
-            const newUser = await register(values, lawyerId);
+            const { role, ...rest } = values;
+            const submitRole = role === 'admin' ? 'client' : role;
+            console.log('📝 Calling register function with:', { ...rest, role: submitRole });
+            
+            const newUser = await register({ ...rest, role: submitRole }, lawyerId);
+            console.log('📝 Register function returned:', newUser);
 
             if (!newUser) {
                  throw new Error("This email might already be in use.");
@@ -87,16 +104,20 @@ export function RegisterPage() {
             router.push('/dashboard-select');
 
         } catch (error: any) {
+            console.error('Registration error:', error);
+            setError(error.message || "An unknown error occurred.");
             toast({
                 title: 'Registration Failed',
                 description: error.message || "An unknown error occurred.",
                 variant: 'destructive',
             });
+        } finally {
             setIsLoading(false);
         }
     };
 
     return (
+        <>
         <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md space-y-6">
                 <div className="text-center">
@@ -110,12 +131,23 @@ export function RegisterPage() {
                     </CardHeader>
                     <CardContent>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                                console.error('Form validation errors:', errors);
+                                toast({
+                                    title: 'Validation Error',
+                                    description: 'Please check all required fields.',
+                                    variant: 'destructive',
+                                });
+                            })} className="space-y-4">
                                 <FormField control={form.control} name="role" render={({ field }) => (
                                     <FormItem className="space-y-3">
                                         <FormLabel>I am a...</FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="admin" /></FormControl>
+                                                    <FormLabel className="font-normal">Super Admin</FormLabel>
+                                                </FormItem>
                                                 <FormItem className="flex items-center space-x-2 space-y-0">
                                                     <FormControl><RadioGroupItem value="lawyer" /></FormControl>
                                                     <FormLabel className="font-normal">Lawyer / Professional</FormLabel>
@@ -129,6 +161,19 @@ export function RegisterPage() {
                                         <FormMessage />
                                     </FormItem>
                                 )} />
+
+                                {/* Lawyer-specific firm name only */}
+                                {form.watch('role') === 'lawyer' && (
+                                  <FormField control={form.control} name="firmName" render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Firm Name</FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Your Law Firm Name" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )} />
+                                )}
                                 <FormField control={form.control} name="fullName" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Full Name</FormLabel>
@@ -183,7 +228,10 @@ export function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button className="w-full" type="submit" disabled={isLoading}>
+                                {error && (
+  <div className="text-red-500 text-sm mb-2">{error}</div>
+)}
+<Button className="w-full" type="submit" disabled={isLoading}>
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Create Account
                                 </Button>
@@ -196,5 +244,6 @@ export function RegisterPage() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

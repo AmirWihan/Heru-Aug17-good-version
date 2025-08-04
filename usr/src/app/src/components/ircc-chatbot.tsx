@@ -46,8 +46,7 @@ export function IrccChatbot() {
         setIsLoading(true);
 
         try {
-            const jsonString = JSON.stringify({ query: inputValue });
-            const response = await askHeru(jsonString);
+            const response = await askHeru({ query: inputValue });
             const botMessage: Message = {
                 id: Date.now() + 1,
                 role: 'bot',

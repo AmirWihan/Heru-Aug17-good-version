@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { LawyerConnectDialog } from "@/components/pages/lawyer-connect-dialog";
 
+
+
 const StatCard = ({ label, value, icon }: { label: string, value: string | number, icon: React.ElementType }) => {
     const Icon = icon;
     return (

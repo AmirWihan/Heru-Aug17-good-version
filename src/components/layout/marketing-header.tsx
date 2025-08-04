@@ -28,6 +28,10 @@ export function MarketingHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
+          <Button variant="ghost" title="Super Admin Login" onClick={() => router.push('/admin')}>
+            <Shield className="h-5 w-5 text-yellow-500" />
+            <span className="sr-only">Admin Portal</span>
+          </Button>
           <Button variant="ghost" onClick={() => router.push('/login')}>
             Login
           </Button>

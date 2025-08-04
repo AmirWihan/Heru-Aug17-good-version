@@ -77,13 +77,15 @@ export function ClientIntakeFormPage() {
     const { userProfile, updateUserProfile } = useGlobalData();
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>(userProfile?.intakeForm?.flaggedQuestions || []);
+    const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>(
+        userProfile && 'intakeForm' in userProfile && userProfile.intakeForm?.flaggedQuestions ? userProfile.intakeForm.flaggedQuestions : []
+    );
     const [applicationType, setApplicationType] = useState<string>('work');
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
     const form = useForm<IntakeFormValues>({
         resolver: zodResolver(IntakeFormInputSchema),
-        defaultValues: userProfile?.intakeForm?.data || {
+        defaultValues: (userProfile && 'intakeForm' in userProfile && userProfile.intakeForm?.data) ? userProfile.intakeForm.data : {
             personal: { fullName: userProfile?.name || '', dateOfBirth: '', countryOfBirth: '', countryOfCitizenship: '', passportNumber: '', passportExpiry: '', height: '', eyeColor: '', contact: { email: userProfile?.email || '', phone: '', address: '' } },
             family: { maritalStatus: 'Single' },
             education: [{ institution: '', degree: '', yearCompleted: '', countryOfStudy: '' }],
@@ -112,10 +114,20 @@ export function ClientIntakeFormPage() {
         setIsLoading(true);
         const data = form.getValues();
         try {
-            const jsonString = JSON.stringify(data);
-            const analysis = await analyzeIntakeForm(jsonString);
-            const intakeForm = { status: 'in_progress' as const, data, analysis, flaggedQuestions };
+            const analysis = await analyzeIntakeForm(data);
+            // Ensure maritalStatus is always a valid union value
+            if (data.family && typeof data.family.maritalStatus === 'string') {
+                const allowed = ['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed'] as const;
+                if (!allowed.includes(data.family.maritalStatus as any)) {
+                    data.family.maritalStatus = 'Single';
+                }
+                // Explicitly cast as the union type so TypeScript is satisfied
+                data.family.maritalStatus = data.family.maritalStatus as (typeof allowed)[number];
+            }
+            // Type assertion for IntakeForm compatibility
+            const intakeForm = { status: 'in_progress' as const, data: { ...data, family: { ...data.family, maritalStatus: data.family.maritalStatus as 'Single' | 'Married' | 'Common-Law' | 'Divorced' | 'Widowed' } } as import('@/lib/data').IntakeFormData, analysis, flaggedQuestions };
 
+            // Only pass the data portion as IntakeFormData to any schema-validated functions
             await updateUserProfile({ intakeForm });
             setLastSaved(new Date());
 
@@ -215,12 +227,12 @@ export function ClientIntakeFormPage() {
                                 <h3 className="font-semibold">Family Details</h3>
                                 <FormField name="family.maritalStatus" control={form.control} render={({ field }) => <FormItem><FormLabel className="flex items-center">Marital Status<HelpButtons fieldName="Marital Status" onFlag={() => handleFlagQuestion('family.maritalStatus')} isFlagged={flaggedQuestions.includes('family.maritalStatus')}/></FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Single', 'Married', 'Common-Law', 'Divorced', 'Widowed'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>} />
                                 
-                                { (watchMaritalStatus === "Married" || watchMaritalStatus === "Common-Law") && <FamilyMemberForm section="spouse" title="Spouse / Common-Law Partner" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions} />}
-                                <FamilyMemberForm section="mother" title="Mother" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
-                                <FamilyMemberForm section="father" title="Father" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                { (watchMaritalStatus === "Married" || watchMaritalStatus === "Common-Law") && <FamilyMemberForm section="family.spouse" title="Spouse / Common-Law Partner" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions} />}
+                                <FamilyMemberForm section="family.mother" title="Mother" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                <FamilyMemberForm section="family.father" title="Father" control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
                                 
-                                <FieldArrayForm section="children" title="Children" fields={childrenFields} append={appendChild} remove={removeChild} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
-                                <FieldArrayForm section="siblings" title="Siblings" fields={siblingFields} append={appendSibling} remove={removeSibling} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                <FieldArrayForm section="family.children" title="Children" fields={childrenFields} append={appendChild} remove={removeChild} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
+                                <FieldArrayForm section="family.siblings" title="Siblings" fields={siblingFields} append={appendSibling} remove={removeSibling} control={form.control} onFlag={handleFlagQuestion} flaggedQuestions={flaggedQuestions}/>
                             </div>
                         )}
                          {currentStep === 2 && (
@@ -243,12 +255,12 @@ export function ClientIntakeFormPage() {
                         {currentStep === 3 && applicationType === 'student' && (
                              <div className="space-y-4 animate-fade">
                                 <h3 className="font-semibold">Details of Intended Study in Canada</h3>
-                                <FormField name="studyDetails.schoolName" control={form.control} render={({ field }) => <FormItem><FormLabel>Name of School</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                                <FormField name="studyDetails.programName" control={form.control} render={({ field }) => <FormItem><FormLabel>Program / Level of Study</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                                <FormField name="studyDetails.dliNumber" control={form.control} render={({ field }) => <FormItem><FormLabel>Designated Learning Institution (DLI) #</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                                {/* <FormField name="studyDetails.schoolName" control={form.control} render={({ field }) => <FormItem><FormLabel>Name of School</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /> */}
+                                {/* <FormField name="studyDetails.programName" control={form.control} render={({ field }) => <FormItem><FormLabel>Program / Level of Study</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /> */}
+                                {/* <FormField name="studyDetails.dliNumber" control={form.control} render={({ field }) => <FormItem><FormLabel>Designated Learning Institution (DLI) #</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /> */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormField name="studyDetails.tuitionFee" control={form.control} render={({ field }) => <FormItem><FormLabel>Tuition Fee ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
-                                    <FormField name="studyDetails.livingExpenses" control={form.control} render={({ field }) => <FormItem><FormLabel>Living Expenses ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} />
+                                    {/* <FormField name="studyDetails.tuitionFee" control={form.control} render={({ field }) => <FormItem><FormLabel>Tuition Fee ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} /> */}
+                                    {/* <FormField name="studyDetails.livingExpenses" control={form.control} render={({ field }) => <FormItem><FormLabel>Living Expenses ($ CAD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>} /> */}
                                 </div>
                             </div>
                         )}

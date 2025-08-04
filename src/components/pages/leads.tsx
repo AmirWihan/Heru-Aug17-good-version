@@ -48,6 +48,8 @@ export function LeadsPage() {
         if (!lead) return;
 
         const newClient: Client = {
+            portalStatus: 'Invited',
+            onboardingComplete: false,
             id: Date.now(),
             name: lead.name,
             email: lead.email,

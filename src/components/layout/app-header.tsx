@@ -105,6 +105,11 @@ export function AppHeader({ pageTitle, setSidebarOpen }: AppHeaderProps) {
               {unreadCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{unreadCount}</Badge>}
               <span className="sr-only">Notifications</span>
             </Button>
+            {/* Admin Icon - always visible */}
+            <Button variant="ghost" size="icon" className="relative" onClick={() => router.push('/admin')} title="Super Admin Login">
+              <Crown className="h-5 w-5 text-yellow-500" />
+              <span className="sr-only">Admin Portal</span>
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-9 w-9 cursor-pointer">

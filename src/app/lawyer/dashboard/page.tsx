@@ -18,10 +18,75 @@ import { ActivityLogPage } from '@/components/pages/activity';
 import { SupportPage } from '@/components/pages/support';
 import { NotificationsPage } from '@/components/pages/notifications';
 import { LeadsPage } from '@/components/pages/leads';
+import { useGlobalData } from '@/context/GlobalDataContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function LawyerDashboard() {
-  const { page, setPage } = useLawyerDashboard();
+  const { userProfile, loading } = useGlobalData();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (loading) return; // Wait until loading is complete
+    
+    if (!userProfile) {
+      router.replace('/login');
+      return;
+    }
+    
+    if (userProfile.authRole !== 'lawyer') {
+      router.replace('/not-authorized');
+      return;
+    }
+  }, [userProfile, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!userProfile || userProfile.authRole !== 'lawyer') {
+    return null; // Will redirect
+  }
+
+  return <LawyerDashboardContent />;
+}
+
+function LawyerDashboardContent() {
+  const { page, setPage } = useLawyerDashboard();
+  const { userProfile } = useGlobalData();
+  const router = useRouter();
+
+  // Check lawyer status and redirect if needed
+  useEffect(() => {
+    if (userProfile && userProfile.authRole === 'lawyer') {
+      const lawyer = userProfile as any;
+      
+      // If lawyer is awaiting approval, redirect to pending page
+      if (lawyer.status === 'awaiting_approval') {
+        router.push('/lawyer/pending-approval');
+        return;
+      }
+      
+      // If lawyer needs onboarding, redirect to onboarding
+      if (lawyer.status === 'Active' && lawyer.role === 'Awaiting Onboarding') {
+        router.push('/lawyer/onboarding');
+        return;
+      }
+      
+      // If lawyer needs to set up billing, redirect to billing
+      if (lawyer.status === 'Active' && !lawyer.billingSetUp) {
+        router.push('/lawyer/billing');
+        return;
+      }
+    }
+  }, [userProfile, router]);
+
+  // Gating logic can be refined here if needed, but DashboardPage already handles status
   const pageComponents: { [key: string]: React.ComponentType<any> } = {
     dashboard: DashboardPage,
     leads: LeadsPage,
@@ -40,12 +105,11 @@ export default function LawyerDashboard() {
     support: SupportPage,
     notifications: NotificationsPage,
   };
-
   const PageComponent = pageComponents[page] || DashboardPage;
 
   return (
     <div className="animate-fade">
-        <PageComponent setPage={setPage} />
+      <PageComponent setPage={setPage} />
     </div>
   );
 }

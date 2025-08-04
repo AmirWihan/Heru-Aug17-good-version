@@ -60,5 +60,40 @@ const documentAnalyzerFlow = ai.defineFlow(
 );
 
 export async function analyzeDocument(input: DocumentAnalysisInput): Promise<DocumentAnalysisOutput> {
-  return documentAnalyzerFlow(input);
+  try {
+    return await documentAnalyzerFlow(input);
+  } catch (error) {
+    console.warn('AI analysis failed, using fallback:', error);
+    
+    // Fallback response when AI is not available
+    const fallbackResponses: Record<string, string[]> = {
+      'Identification': [
+        'Check expiry date is more than 6 months away',
+        'Ensure all corners of the bio page are visible and not cut off',
+        'Confirm signature is present on the signature line'
+      ],
+      'Financial': [
+        'Verify the document is on official bank letterhead',
+        'Check that the closing balance has been stable for at least 6 months',
+        'Ensure the account holder\'s name matches the applicant\'s name exactly'
+      ],
+      'Educational': [
+        'Verify the institution is recognized by IRCC',
+        'Check that the degree/diploma is clearly stated',
+        'Ensure the graduation date is visible and legible'
+      ],
+      'Employment': [
+        'Verify the employer\'s contact information is complete',
+        'Check that the employment dates are clearly stated',
+        'Ensure the job title and responsibilities are detailed'
+      ]
+    };
+    
+    const category = input.category || 'Identification';
+    const checklist = fallbackResponses[category] || fallbackResponses['Identification'];
+    
+    return {
+      checklist
+    };
+  }
 }

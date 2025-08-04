@@ -1,5 +1,6 @@
 
 'use client';
+import { Users, Award, CheckSquare, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -73,12 +74,14 @@ export function TeamPage() {
             registrationNumber: 'N/A',
             type: 'legal' as const,
             stats: [
-                { label: 'Clients', value: '0' },
-                { label: 'Success Rate', value: 'N/A' },
-                { label: 'Active Cases', value: '0' },
-                { label: 'Years Practicing', value: '0' }
+                { label: 'Clients', value: '0', icon: Users },
+                { label: 'Success Rate', value: 'N/A', icon: Award },
+                { label: 'Active Cases', value: '0', icon: CheckSquare },
+                { label: 'Years Practicing', value: '0', icon: Briefcase }
             ],
-            specialties: []
+            specialties: [],
+            languages: [],
+            consultationType: 'Free' as const
         };
         
         addTeamMember(newMember);

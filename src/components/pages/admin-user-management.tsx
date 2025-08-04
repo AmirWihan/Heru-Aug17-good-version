@@ -159,10 +159,21 @@ export function UserManagementPage({ setPage }: { setPage: (page: string) => voi
                                                 <TableCell>
                                                      <Badge variant={getStatusBadgeVariant(member.status)}>{member.status}</Badge>
                                                 </TableCell>
-                                                <TableCell className="text-right">
-                                                     <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>
-                                                         View & Approve
-                                                     </Button>
+                                                <TableCell className="text-right space-x-2">
+                                                    {member.status === 'awaiting_approval' ? (
+                                                        <>
+                                                            <Button variant="default" size="sm" onClick={() => { handleUpdateTeamMember({ ...member, status: 'Active' }); toast({ title: 'Lawyer Approved', description: `${member.name} is now active.`, variant: 'default' }); }}>
+                                                                Approve
+                                                            </Button>
+                                                            <Button variant="destructive" size="sm" onClick={() => { handleUpdateTeamMember({ ...member, status: 'Rejected' }); toast({ title: 'Lawyer Rejected', description: `${member.name} has been rejected.`, variant: 'destructive' }); }}>
+                                                                Reject
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(member)}>
+                                                            View Details
+                                                        </Button>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ))}

@@ -28,8 +28,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { documentCategories, documents as documentTemplates, activityTypes } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "../ui/textarea";
-import { Checkbox } from "../ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { predictSuccess, SuccessPredictorOutput } from '@/ai/flows/success-predictor';
 import { cn } from "@/lib/utils";
@@ -128,7 +128,7 @@ const DocumentSection = ({ title, documents, onSelect, selectedDocId, onStatusCh
                         {documents.map(doc => (
                             <TableRow key={doc.id} onClick={() => onSelect(doc)} className={cn("cursor-pointer", selectedDocId === doc.id && "bg-muted")}>
                                 <TableCell className="font-medium">{doc.title}</TableCell>
-                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</TableCell>
+                                <TableCell><Badge variant={getDocumentStatusBadgeVariant(doc.status)}>{doc.status}</Badge></TableCell>
                                 <TableCell className="text-right space-x-1">
                                     <Button variant="ghost" size="icon" title="View Document" onClick={(e) => { e.stopPropagation(); onViewClick(doc); }}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" title="Analyze with AI" onClick={(e) => { e.stopPropagation(); onAnalyze(doc); }}><Sparkles className="h-4 w-4 text-primary" /></Button>
@@ -149,7 +149,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
-    const { userProfile, teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
+    const { userProfile, teamMembers: allTeamMembers, addTask, invoicesData, clients } = useGlobalData();
     const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
     const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
     
@@ -240,7 +240,11 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                     currentStage: client.caseSummary.currentStatus,
                     countryOfOrigin: client.countryOfOrigin,
                 });
-                const response = await getCaseTimeline(jsonString);
+                const response = await getCaseTimeline({
+                    visaType: client.caseSummary.caseType,
+                    currentStage: client.caseSummary.currentStatus,
+                    countryOfOrigin: client.countryOfOrigin,
+                });
                 setTimelineData(response.timeline);
             } catch (err) {
                 console.error("Failed to fetch timeline:", err);
@@ -274,7 +278,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                 educationLevel: client.educationLevel,
             };
             const jsonString = JSON.stringify(inputData);
-            const result = await predictSuccess(jsonString);
+            const result = await predictSuccess(inputData);
             setAnalysisResult(result);
             onUpdateClient({ ...client, analysis: result });
         } catch (error) {
@@ -295,7 +299,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
         setIsAnalysisDialogOpen(true);
         try {
             const jsonString = JSON.stringify({ title: doc.title, category: doc.category });
-            const result = await analyzeDocument(jsonString);
+            const result = await analyzeDocument({ title: doc.title, category: doc.category });
             setDocAnalysisResult(result);
         } catch (error) {
             console.error("Document analysis failed:", error);
@@ -323,6 +327,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             category: newDocCategory,
             dateAdded: new Date().toISOString().split('T')[0],
             status: 'Uploaded' as const,
+            type: 'supporting' as const,
         };
 
         const updatedClient = {
@@ -353,6 +358,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
             category: template.category,
             dateAdded: new Date().toISOString().split('T')[0],
             status: 'Requested' as const,
+            type: 'form' as const,
         };
          const updatedClient = {
             ...client,

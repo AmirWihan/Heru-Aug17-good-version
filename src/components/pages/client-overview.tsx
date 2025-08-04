@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { ArrowRight, FileText, MessageSquare, Search, Sparkles, Loader2, AlertTriangle, Handshake, Check, X, User } from "lucide-react";
+import { ArrowRight, FileText, MessageSquare, Search, Sparkles, Loader2, AlertTriangle, Handshake, Check, X, User, Calendar, Target, TrendingUp, Clock, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getCaseTimeline, type CaseTimelineOutput } from "@/ai/flows/case-timeline-flow";
 import { CaseTimeline } from "@/components/case-timeline";
@@ -12,6 +12,9 @@ import type { Client, TeamMember, ApplicationStatus } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ApplicationProgress } from "@/components/application-progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function ClientOverviewPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
@@ -25,6 +28,10 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
 
     const connectionRequestLawyer = client?.connectionRequestFromLawyerId 
         ? teamMembers.find(m => m.id === client.connectionRequestFromLawyerId) 
+        : null;
+
+    const connectedLawyer = client?.connectedLawyerId 
+        ? teamMembers.find(m => m.id === client.connectedLawyerId) 
         : null;
 
     useEffect(() => {
@@ -81,133 +88,320 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
             variant: "destructive"
         });
     };
+
+    const getStatusColor = (status: ApplicationStatus) => {
+        switch (status) {
+            case 'Approved': return 'bg-green-100 text-green-800 border-green-200';
+            case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
+            case 'In Review': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'Pending Review': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'Awaiting Decision': return 'bg-purple-100 text-purple-800 border-purple-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
+    const getStatusIcon = (status: ApplicationStatus) => {
+        switch (status) {
+            case 'Approved': return <CheckCircle className="h-4 w-4" />;
+            case 'Rejected': return <X className="h-4 w-4" />;
+            case 'In Review': return <Clock className="h-4 w-4" />;
+            case 'Pending Review': return <AlertCircle className="h-4 w-4" />;
+            case 'Awaiting Decision': return <Target className="h-4 w-4" />;
+            default: return <Info className="h-4 w-4" />;
+        }
+    };
     
     if (loading || !client || client.authRole !== 'client') {
-        return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
+            {/* Welcome Banner */}
+            <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                                Welcome back, {client.name}! 👋
+                            </h1>
+                            <p className="text-gray-600 mb-4">
+                                Here's the latest update on your immigration application journey.
+                            </p>
+                            <div className="flex items-center gap-4">
+                                <Badge className={`${getStatusColor(client.caseSummary.currentStatus)} border`}>
+                                    <span className="flex items-center gap-1">
+                                        {getStatusIcon(client.caseSummary.currentStatus)}
+                                        {client.caseSummary.currentStatus}
+                                    </span>
+                                </Badge>
+                                <span className="text-sm text-gray-500">
+                                    {client.caseSummary.caseType} • {client.countryOfOrigin}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm text-gray-500">Next Step</p>
+                            <p className="font-medium text-gray-900">{client.caseSummary.nextStep}</p>
+                            {client.caseSummary.dueDate && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Due: {new Date(client.caseSummary.dueDate).toLocaleDateString()}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Connection Request */}
             {connectionRequestLawyer && (
-                <Card className="border-primary bg-primary/5">
-                    <CardHeader className="flex-row items-center gap-4">
-                         <Avatar className="h-12 w-12">
+                <Card className="border-2 border-blue-200 bg-blue-50">
+                    <CardHeader className="flex-row items-center gap-4 pb-4">
+                        <Avatar className="h-12 w-12">
                             <AvatarImage src={connectionRequestLawyer.avatar} />
                             <AvatarFallback><User /></AvatarFallback>
                         </Avatar>
-                        <div>
-                             <CardTitle className="flex items-center gap-2">
-                                <Handshake className="h-5 w-5 text-primary" />
-                                Connection Request
+                        <div className="flex-1">
+                            <CardTitle className="flex items-center gap-2 text-blue-900">
+                                <Handshake className="h-5 w-5" />
+                                New Connection Request
                             </CardTitle>
-                            <CardDescription>
-                                <span className="font-semibold">{connectionRequestLawyer.name}</span> from <span className="font-semibold">{connectionRequestLawyer.firmName}</span> wants to connect with you.
+                            <CardDescription className="text-blue-700">
+                                {connectionRequestLawyer.name} wants to connect with you to help with your immigration case.
                             </CardDescription>
                         </div>
                     </CardHeader>
-                    <CardFooter className="gap-2">
-                        <Button onClick={handleAcceptRequest}><Check className="mr-2 h-4 w-4"/> Accept & Connect</Button>
-                        <Button variant="ghost" onClick={handleDeclineRequest}><X className="mr-2 h-4 w-4"/>Decline</Button>
-                    </CardFooter>
+                    <CardContent className="pt-0">
+                        <div className="flex gap-3">
+                            <Button 
+                                onClick={handleAcceptRequest}
+                                className="bg-blue-600 hover:bg-blue-700"
+                            >
+                                <Check className="mr-2 h-4 w-4" />
+                                Accept Request
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                onClick={handleDeclineRequest}
+                                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                            >
+                                <X className="mr-2 h-4 w-4" />
+                                Decline
+                            </Button>
+                        </div>
+                    </CardContent>
                 </Card>
             )}
-            <Card className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-accent to-primary text-primary-foreground shadow-lg">
-                <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-3xl font-bold">Welcome, {client.name}! 👋</h2>
-                        <p className="text-primary-foreground/90 mt-1">
-                            Your application status is currently: <span className="font-bold">{client.caseSummary.currentStatus}</span>.
-                            <br/>
-                            Next Step: <span className="font-bold">{client.caseSummary.nextStep}</span>.
-                        </p>
-                    </div>
-                    <Button 
-                        className="bg-primary-foreground/90 text-primary hover:bg-primary-foreground w-full md:w-auto"
-                        onClick={() => setPage('documents')}>
-                        View My Documents <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <Collapsible open={isTimelineVisible} onOpenChange={setIsTimelineVisible}>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle>Case Progress</CardTitle>
-                            <CardDescription>A high-level overview of your application status.</CardDescription>
-                        </div>
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="icon" title="Toggle AI Timeline">
-                                <Sparkles className="h-5 w-5 text-primary" />
-                                <span className="sr-only">Toggle AI Timeline</span>
-                            </Button>
-                        </CollapsibleTrigger>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <ApplicationProgress currentStatus={client.caseSummary.currentStatus as ApplicationStatus} />
-                        
-                        <CollapsibleContent className="space-y-4 animate-accordion-down">
-                           <div className="border-t pt-4">
-                                {isLoading && (
-                                    <div className="flex items-center justify-center h-40">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                        <p className="ml-4 text-muted-foreground">Generating AI timeline...</p>
-                                    </div>
-                                )}
-                                {error && !isLoading && (
-                                    <div className="text-center text-destructive">
-                                        <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
-                                        <p>{error}</p>
-                                    </div>
-                                )}
-                                {timelineData && !isLoading && (
-                                    <>
-                                        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                                            <Sparkles className="h-5 w-5 text-primary" />
-                                            AI-Powered Detailed Timeline
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Here is an estimated, step-by-step projection of your case based on your profile and current processing trends.
-                                        </p>
-                                        <CaseTimeline timeline={timelineData} />
-                                    </>
-                                )}
-                           </div>
-                        </CollapsibleContent>
-                    </CardContent>
-                </Collapsible>
-            </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
+            {/* Connected Lawyer Info */}
+            {connectedLawyer && (
+                <Card className="border-0 shadow-sm">
                     <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start" onClick={() => setPage('documents')}><FileText className="mr-2 h-4 w-4"/> View Required Documents</Button>
-                        <Button variant="outline" className="w-full justify-start" onClick={() => setPage('messages')}><MessageSquare className="mr-2 h-4 w-4"/> Message Your Lawyer</Button>
-                        <Button variant="outline" className="w-full justify-start" onClick={() => setPage('find-lawyer')} disabled={!!client.connectedLawyerId}><Search className="mr-2 h-4 w-4"/> Find a New Lawyer</Button>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Next Appointment</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <User className="h-5 w-5 text-green-600" />
+                            Your Legal Team
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-4">
-                            <div className="bg-muted text-primary rounded-lg p-3 flex flex-col items-center">
-                                <span className="text-sm font-bold">JUL</span>
-                                <span className="text-2xl font-bold">28</span>
+                            <Avatar className="h-16 w-16">
+                                <AvatarImage src={connectedLawyer.avatar} />
+                                <AvatarFallback>{connectedLawyer.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-lg">{connectedLawyer.name}</h3>
+                                <p className="text-muted-foreground">{connectedLawyer.role}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {connectedLawyer.specialties.join(', ')}
+                                </p>
                             </div>
-                            <div>
-                                <p className="font-semibold">Follow-up Call with Emma Johnson</p>
-                                <p className="text-sm text-muted-foreground">Sunday, July 28, 2024 at 2:00 PM</p>
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setPage('messages')}
+                                className="border-green-200 text-green-700 hover:bg-green-50"
+                            >
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                Message
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Application Progress */}
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-blue-600" />
+                            Application Progress
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ApplicationProgress currentStatus={client.caseSummary.currentStatus} />
+                        <div className="mt-4 space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span>Current Stage</span>
+                                <span className="font-medium">{client.caseSummary.currentStatus}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span>Priority</span>
+                                <span className="font-medium">{client.caseSummary.priority}</span>
                             </div>
                         </div>
-                         <Button className="w-full mt-4" onClick={() => setPage('appointments')}>View All Appointments</Button>
+                    </CardContent>
+                </Card>
+
+                {/* Quick Actions */}
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-purple-600" />
+                            Quick Actions
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start h-12"
+                                onClick={() => setPage('documents')}
+                            >
+                                <FileText className="mr-3 h-4 w-4" />
+                                View Documents
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start h-12"
+                                onClick={() => setPage('messages')}
+                            >
+                                <MessageSquare className="mr-3 h-4 w-4" />
+                                Message Lawyer
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start h-12"
+                                onClick={() => setPage('ai-assist')}
+                            >
+                                <Sparkles className="mr-3 h-4 w-4" />
+                                AI Assistant
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="w-full justify-start h-12"
+                                onClick={() => setPage('appointments')}
+                            >
+                                <Calendar className="mr-3 h-4 w-4" />
+                                Schedule Meeting
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Recent Activity */}
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-orange-600" />
+                            Recent Activity
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {client.activity.slice(0, 5).map((activity, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{activity.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(activity.timestamp).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
+
+            {/* AI Timeline */}
+            <Card className="border-0 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-green-600" />
+                        Your Immigration Journey Timeline
+                    </CardTitle>
+                    <CardDescription>
+                        AI-powered timeline showing your personalized immigration journey and next steps.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center h-40">
+                            <div className="text-center">
+                                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                                <p className="text-muted-foreground">Generating your timeline...</p>
+                            </div>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-8">
+                            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                            <p className="text-muted-foreground">{error}</p>
+                            <Button 
+                                variant="outline" 
+                                className="mt-4"
+                                onClick={() => window.location.reload()}
+                            >
+                                Try Again
+                            </Button>
+                        </div>
+                    ) : timelineData ? (
+                        <Tabs defaultValue="timeline" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+                                <TabsTrigger value="progress">Progress View</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="timeline" className="mt-6">
+                                <CaseTimeline timeline={timelineData} />
+                            </TabsContent>
+                            <TabsContent value="progress" className="mt-6">
+                                <div className="space-y-4">
+                                    {timelineData.map((stage, index) => (
+                                        <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
+                                                                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                                 stage.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                                             }`}>
+                                                 {stage.status === 'Completed' ? <Check className="h-4 w-4" /> : index + 1}
+                                             </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-medium">{stage.title}</h4>
+                                                <p className="text-sm text-muted-foreground">{stage.description}</p>
+                                                {stage.estimatedDuration && (
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        Estimated: {stage.estimatedDuration}
+                                                    </p>
+                                                )}
+                                            </div>
+                                                                                         {stage.status === 'Completed' && (
+                                                 <Badge variant="secondary" className="bg-green-100 text-green-700">
+                                                     Completed
+                                                 </Badge>
+                                             )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                    ) : null}
+                </CardContent>
+            </Card>
         </div>
     );
 }

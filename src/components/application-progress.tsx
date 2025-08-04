@@ -13,17 +13,10 @@ export const applicationSteps = [
     { name: 'Decision', icon: CheckCircle },
 ];
 
-export type ApplicationStatus =
-    | 'Profile Setup'
-    | 'Awaiting Documents'
-    | 'Pending Review'
-    | 'In Review'
-    | 'Biometrics Required'
-    | 'Awaiting Decision'
-    | 'Approved'
-    | 'Rejected';
+import type { ApplicationStatus } from "@/lib/data";
 
 const statusToStepIndex: Record<ApplicationStatus, number> = {
+    'New': 0,
     'Profile Setup': 0,
     'Awaiting Documents': 1,
     'Pending Review': 1,

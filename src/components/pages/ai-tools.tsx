@@ -14,7 +14,8 @@ import { applicationChecker, ApplicationCheckerOutput } from '@/ai/flows/applica
 import { summarizeDocument, SummarizeDocumentOutput } from '@/ai/flows/document-summarization';
 import { composeMessage, ComposeMessageOutput } from '@/ai/flows/ai-assisted-messaging';
 import { buildResume, type BuildResumeOutput } from '@/ai/flows/resume-builder-flow';
-import { buildCoverLetter, type BuildCoverLetterOutput } from '@/ai/flows/cover-letter-flow';
+import { buildCoverLetter } from '@/ai/flows/cover-letter-flow';
+import type { BuildCoverLetterOutput } from '@/ai/schemas/cover-letter-schema';
 import { assistWithWriting, WritingAssistantOutput } from '@/ai/flows/writing-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useGlobalData } from '@/context/GlobalDataContext';
@@ -36,8 +37,7 @@ function ApplicationChecker() {
         setIsLoading(true);
         setResult(null);
         try {
-            const jsonString = JSON.stringify({ documentText, applicationType });
-            const response = await applicationChecker(jsonString);
+            const response = await applicationChecker({ documentText, applicationType });
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -119,8 +119,7 @@ function DocumentSummarizer() {
         setIsLoading(true);
         setResult(null);
         try {
-            const jsonString = JSON.stringify({ documentText });
-            const response = await summarizeDocument(jsonString);
+            const response = await summarizeDocument({ documentText });
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -166,8 +165,7 @@ function MessageComposer() {
         setIsLoading(true);
         setResult(null);
         try {
-            const jsonString = JSON.stringify({ clientName, messageContext, tone });
-            const response = await composeMessage(jsonString);
+            const response = await composeMessage({ clientName, messageContext, tone });
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -241,8 +239,7 @@ function ResumeBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const jsonString = JSON.stringify(apiInput);
-            const response = await buildResume(jsonString);
+            const response = await buildResume(apiInput);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -315,8 +312,7 @@ function CoverLetterBuilder() {
                 clientWorkHistory: client.intakeForm.data.workHistory,
                 clientEducation: client.intakeForm.data.education,
             };
-            const jsonString = JSON.stringify(apiInput);
-            const response = await buildCoverLetter(jsonString);
+            const response = await buildCoverLetter(apiInput);
             setResult(response);
         } catch (error) {
             console.error(error);
@@ -387,8 +383,7 @@ function WritingAssistant() {
         setIsLoading(true);
         setResult(null);
         try {
-            const jsonString = JSON.stringify({ textToImprove, instruction });
-            const response = await assistWithWriting(jsonString);
+            const response = await assistWithWriting({ textToImprove, instruction });
             setResult(response);
         } catch (error) {
             console.error(error);

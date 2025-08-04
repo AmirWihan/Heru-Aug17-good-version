@@ -3,6 +3,8 @@ import { useGlobalData } from '@/context/GlobalDataContext';
 import { ClientProfile } from '@/components/pages/client-profile';
 import { notFound, useParams } from 'next/navigation';
 
+
+
 export default function ClientProfilePage() {
     const params = useParams();
     const { clients, updateClient } = useGlobalData();

@@ -19,6 +19,7 @@ const chartConfigClientGrowth = {
 const chartConfigRevenue = {
     value: {
         label: "Revenue",
+        color: "hsl(var(--chart-1))",
     },
     'PR': { label: "PR", color: "hsl(var(--chart-1))" },
     'Work Permit': { label: "Work Permit", color: "hsl(var(--chart-2))" },

@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 
 interface AuthWrapperProps {
     children: ReactNode;
-    requiredRole: 'admin' | 'lawyer' | 'client';
+    requiredRole: 'admin' | 'lawyer' | 'client' | 'superadmin';
 }
 
 export function AuthWrapper({ children, requiredRole }: AuthWrapperProps) {
@@ -24,7 +24,17 @@ export function AuthWrapper({ children, requiredRole }: AuthWrapperProps) {
 
         if (userProfile.authRole !== requiredRole) {
             // If roles don't match, redirect them to their correct dashboard
-            router.replace('/dashboard-select');
+            if (userProfile.authRole === 'superadmin') {
+                router.replace('/superadmin'); // Change this to your superadmin dashboard route
+            } else if (userProfile.authRole === 'admin') {
+                router.replace('/admin');
+            } else if (userProfile.authRole === 'lawyer') {
+                router.replace('/lawyer/dashboard');
+            } else if (userProfile.authRole === 'client') {
+                router.replace('/client/dashboard');
+            } else {
+                router.replace('/dashboard-select');
+            }
         }
 
     }, [userProfile, requiredRole, router, loading]);

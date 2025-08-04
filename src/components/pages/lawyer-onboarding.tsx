@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useGlobalData, UserProfile } from '@/context/GlobalDataContext';
+// Firebase is disabled - no user profile updates
+const createOrUpdateUserProfile = null;
 import { plans, type TeamMember } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +81,7 @@ export function LawyerOnboarding() {
             consultationType: undefined,
             selectedPlan: 'pro',
             billingCycle: 'monthly',
-            finalAgreement: false,
+            finalAgreement: true,
         }
     });
 
@@ -96,8 +98,8 @@ export function LawyerOnboarding() {
         const planName = data.selectedPlan === 'pro' ? 'Pro Team' : data.selectedPlan.charAt(0).toUpperCase() + data.selectedPlan.slice(1) as 'Starter' | 'Enterprise';
         
         const updates: Partial<UserProfile> = {
-            role: 'Awaiting Verification',
-            status: 'Pending Activation',
+            authRole: 'lawyer',
+            status: 'awaiting_approval',
             plan: planName,
             billingCycle: data.billingCycle,
             licenseNumber: data.licenseNumber,
@@ -114,7 +116,8 @@ export function LawyerOnboarding() {
         // and save the URL in the 'updates' object.
         // For now, we'll just proceed.
 
-        await updateUserProfile(updates);
+        // Firebase is disabled - skipping user profile update
+        console.log('🚫 Firebase disabled - user profile update skipped');
 
         setIsComplete(true);
         toast({

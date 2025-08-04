@@ -13,8 +13,8 @@ export function MyLawyersPage({ setPage }: { setPage: (page: string) => void }) 
     // For demo, assume client is connected to first lawyer
     const [connectedLawyers, setConnectedLawyers] = useState<number[]>([1]);
 
-    const handleViewProfile = (lawyerId: number) => {
-        router.push(`/client/lawyer/${lawyerId}`);
+    const handleViewProfile = (lawyer: typeof teamMembers[number]) => {
+        router.push(`/client/lawyer/${lawyer.id}`);
     };
 
     return (

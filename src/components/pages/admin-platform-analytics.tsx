@@ -136,7 +136,7 @@ export function AdminPlatformAnalyticsPage() {
                                     <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                                     <Bar dataKey="revenue" radius={8}>
                                         {reportsData.quarterlyRevenue.map((entry) => (
-                                            <Cell key={entry.quarter} fill={chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue]?.color} />
+                                            <Cell key={entry.quarter} fill={typeof chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue] === 'object' && 'color' in chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue] ? (chartConfigRevenue[entry.quarter as keyof typeof chartConfigRevenue] as { color: string }).color : 'hsl(var(--chart-1))'} />
                                         ))}
                                     </Bar>
                                 </BarChart>

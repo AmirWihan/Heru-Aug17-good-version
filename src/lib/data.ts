@@ -1,9 +1,11 @@
 
 import { FileText, Phone, Landmark, CalendarCheck, FileType, FileSignature, FileHeart, Briefcase, GraduationCap, Users, Home, MessageSquare, CheckSquare, Upload, Mail, Video, UserPlus, Zap, Target, Handshake, BriefcaseBusiness, Bell, LineChart, Newspaper, MapPin, Anchor, Heart, Mountain, Shield, FileArchive, Globe, Wand2, UserCheck, DollarSign, Award, CheckCircle } from "lucide-react";
 import type { SuccessPredictorOutput } from "@/ai/flows/success-predictor";
-import type { IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
+import type { IntakeFormAnalysis as _IntakeFormAnalysis } from "@/ai/flows/intake-form-analyzer";
+export type IntakeFormAnalysis = _IntakeFormAnalysis;
 
 export type ApplicationStatus =
+    | 'New'
     | 'Profile Setup'
     | 'Awaiting Documents'
     | 'Pending Review'
@@ -30,6 +32,7 @@ export type Task = {
     priority: 'High' | 'Medium' | 'Low';
     status: 'To Do' | 'In Progress' | 'Completed';
 };
+
 
 export type PlatformTask = {
     id: number;
@@ -174,6 +177,7 @@ export type IntakeForm = {
 };
 
 export type Client = {
+    authRole?: 'client' | 'lawyer' | 'admin' | 'superadmin';
     id: number;
     name: string;
     email: string;
@@ -221,6 +225,7 @@ export type SocialLink = {
 };
 
 export type TeamMember = {
+    idCardUrl?: string; // Firebase Storage URL for lawyer ID card
     id: number;
     name: string;
     role: string;
@@ -231,7 +236,7 @@ export type TeamMember = {
     uid?: string;
     phone: string;
     accessLevel: 'Admin' | 'Member' | 'Viewer';
-    status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected';
+    status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected' | 'awaiting_approval';
     plan: 'Starter' | 'Pro Team' | 'Enterprise' | 'N/A';
     billingCycle?: 'monthly' | 'annually';
     location: string;
@@ -258,6 +263,9 @@ export type TeamMember = {
         dataAiHint: string;
     }[];
     socials?: SocialLink[];
+    authRole?: 'admin' | 'lawyer' | 'client' | 'superadmin';
+    firmAction?: 'register' | 'request_activation';
+    serviceLanguages?: string[];
 };
 
 export type Lead = {
@@ -377,7 +385,8 @@ export const teamMembers: TeamMember[] = [
         stats: [],
         specialties: ['Platform Management'],
         languages: [],
-        consultationType: 'Paid'
+        consultationType: 'Paid',
+        authRole: 'superadmin' as const
     },
     {
         id: 9,

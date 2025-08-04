@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- img
+- heading "Welcome Back" [level=1]
+- paragraph: Sign in to access your VisaFor dashboard.
+- text: Sign In Email Address
+- textbox "Email Address"
+- text: Password
+- link "Forgot Password?":
+  - /url: /forgot-password/
+  - button "Forgot Password?"
+- textbox "••••••••": password123
+- button:
+  - img
+- button "Sign In"
+- text: Or continue with
+- button "Sign in with Google":
+  - img
+  - text: Sign in with Google
+- paragraph:
+  - text: Don't have an account?
+  - link "Sign Up":
+    - /url: /register/
+- img
+- text: Your data is protected with enterprise-grade security
+- img
+- heading "AI-Powered Case Timelines" [level=2]
+- paragraph: No more guessing games. Our AI provides a personalized, estimated roadmap of your client's entire immigration journey.
+- heading "Welcome, John! 👋" [level=2]
+- paragraph: "Your application status is: In Review"
+- heading "Application Progress" [level=3]
+- progressbar
+- img
+- paragraph: Profile
+- img
+- paragraph: Docs
+- img
+- paragraph: Review
+- img
+- paragraph: Biometrics
+- img
+- paragraph: Decision
+- heading "Quick Actions" [level=3]
+- button "View Documents":
+  - img
+  - text: View Documents
+- button "Message Lawyer":
+  - img
+  - text: Message Lawyer
+- heading "Next Appointment" [level=3]
+- text: JUL 28
+- paragraph: Follow-up with Emma
+- paragraph: July 28, 2024 at 2:00 PM
+- region "Notifications (F8)":
+  - list
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```
