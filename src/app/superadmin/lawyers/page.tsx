@@ -46,6 +46,13 @@ export default function SuperadminLawyersPage() {
                       <Badge variant="secondary">Pending Approval</Badge>
                       <Button 
                         size="sm" 
+                        asChild
+                        variant="outline"
+                      >
+                        <Link href={`/superadmin/lawyers/${lawyer.id}`}>View Details</Link>
+                      </Button>
+                      <Button 
+                        size="sm" 
                         onClick={() => {
                           updateTeamMember({
                             ...lawyer,
