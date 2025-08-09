@@ -46,7 +46,7 @@ export function AdminTeamManagementPage() {
             avatar: `https://i.pravatar.cc/150?u=${values.email}`,
             type: values.role,
             phone: '',
-            accessLevel: 'Member',
+            accessLevel: 'Standard User',
             status: 'Active',
             languages: ['English'],
             consultationType: 'Paid',

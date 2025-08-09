@@ -201,7 +201,7 @@ export function AdminUserDetailSheet({ user, isOpen, onOpenChange, onUpdateUser 
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="Admin">Admin</SelectItem>
-                                                    <SelectItem value="Member">Member</SelectItem>
+                                                    <SelectItem value="Standard User">Standard User</SelectItem>
                                                     <SelectItem value="Viewer">Viewer</SelectItem>
                                                 </SelectContent>
                                             </Select>

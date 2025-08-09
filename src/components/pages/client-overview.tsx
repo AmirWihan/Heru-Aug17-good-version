@@ -125,7 +125,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
     return (
         <div className="space-y-6 p-6">
             {/* Welcome Banner */}
-            <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+            <Card className="border-0 shadow-sm bg-gradient-to-r from-green-50 to-emerald-50">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -235,30 +235,34 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                 </Card>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Application Progress */}
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-blue-600" />
-                            Application Progress
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ApplicationProgress currentStatus={client.caseSummary.currentStatus} />
-                        <div className="mt-4 space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span>Current Stage</span>
-                                <span className="font-medium">{client.caseSummary.currentStatus}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span>Priority</span>
-                                <span className="font-medium">{client.caseSummary.priority}</span>
-                            </div>
+            {/* Application Progress - Full Length */}
+            <Card className="border-0 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-blue-600" />
+                        Application Progress
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ApplicationProgress currentStatus={client.caseSummary.currentStatus} />
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex justify-between text-sm p-3 bg-gray-50 rounded-lg">
+                            <span>Current Stage</span>
+                            <span className="font-medium">{client.caseSummary.currentStatus}</span>
                         </div>
-                    </CardContent>
-                </Card>
+                        <div className="flex justify-between text-sm p-3 bg-gray-50 rounded-lg">
+                            <span>Priority</span>
+                            <span className="font-medium">{client.caseSummary.priority}</span>
+                        </div>
+                        <div className="flex justify-between text-sm p-3 bg-gray-50 rounded-lg">
+                            <span>Case Type</span>
+                            <span className="font-medium">{client.caseSummary.caseType}</span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Quick Actions */}
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
@@ -331,77 +335,88 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
                 </Card>
             </div>
 
-            {/* AI Timeline */}
-            <Card className="border-0 shadow-sm">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5 text-green-600" />
-                        Your Immigration Journey Timeline
-                    </CardTitle>
-                    <CardDescription>
-                        AI-powered timeline showing your personalized immigration journey and next steps.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-40">
-                            <div className="text-center">
-                                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                                <p className="text-muted-foreground">Generating your timeline...</p>
-                            </div>
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-8">
-                            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                            <p className="text-muted-foreground">{error}</p>
-                            <Button 
-                                variant="outline" 
-                                className="mt-4"
-                                onClick={() => window.location.reload()}
-                            >
-                                Try Again
-                            </Button>
-                        </div>
-                    ) : timelineData ? (
-                        <Tabs defaultValue="timeline" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="timeline">Timeline View</TabsTrigger>
-                                <TabsTrigger value="progress">Progress View</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="timeline" className="mt-6">
-                                <CaseTimeline timeline={timelineData} />
-                            </TabsContent>
-                            <TabsContent value="progress" className="mt-6">
-                                <div className="space-y-4">
-                                    {timelineData.map((stage, index) => (
-                                        <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
-                                                                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                                 stage.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                                             }`}>
-                                                 {stage.status === 'Completed' ? <Check className="h-4 w-4" /> : index + 1}
-                                             </div>
-                                            <div className="flex-1">
-                                                <h4 className="font-medium">{stage.title}</h4>
-                                                <p className="text-sm text-muted-foreground">{stage.description}</p>
-                                                {stage.estimatedDuration && (
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Estimated: {stage.estimatedDuration}
-                                                    </p>
-                                                )}
-                                            </div>
-                                                                                         {stage.status === 'Completed' && (
-                                                 <Badge variant="secondary" className="bg-green-100 text-green-700">
-                                                     Completed
-                                                 </Badge>
-                                             )}
-                                        </div>
-                                    ))}
+            {/* AI Timeline - Collapsible Drawer */}
+            <Collapsible open={isTimelineVisible} onOpenChange={setIsTimelineVisible}>
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between cursor-pointer">
+                                <div className="flex items-center gap-2">
+                                    <Target className="h-5 w-5 text-green-600" />
+                                    <CardTitle>Your Immigration Journey Timeline</CardTitle>
                                 </div>
-                            </TabsContent>
-                        </Tabs>
-                    ) : null}
-                </CardContent>
-            </Card>
+                                <Button variant="ghost" size="sm">
+                                    {isTimelineVisible ? 'Hide Timeline' : 'Show Timeline'}
+                                </Button>
+                            </div>
+                        </CollapsibleTrigger>
+                        <CardDescription>
+                            AI-powered timeline showing your personalized immigration journey and next steps.
+                        </CardDescription>
+                    </CardHeader>
+                    <CollapsibleContent>
+                        <CardContent>
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-40">
+                                    <div className="text-center">
+                                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                                        <p className="text-muted-foreground">Generating your timeline...</p>
+                                    </div>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-8">
+                                    <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                                    <p className="text-muted-foreground">{error}</p>
+                                    <Button 
+                                        variant="outline" 
+                                        className="mt-4"
+                                        onClick={() => window.location.reload()}
+                                    >
+                                        Try Again
+                                    </Button>
+                                </div>
+                            ) : timelineData ? (
+                                <Tabs defaultValue="timeline" className="w-full">
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+                                        <TabsTrigger value="progress">Progress View</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="timeline" className="mt-6">
+                                        <CaseTimeline timeline={timelineData} />
+                                    </TabsContent>
+                                    <TabsContent value="progress" className="mt-6">
+                                        <div className="space-y-4">
+                                            {timelineData.map((stage, index) => (
+                                                <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                                        stage.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                                                    }`}>
+                                                        {stage.status === 'Completed' ? <Check className="h-4 w-4" /> : index + 1}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-medium">{stage.title}</h4>
+                                                        <p className="text-sm text-muted-foreground">{stage.description}</p>
+                                                        {stage.estimatedDuration && (
+                                                            <p className="text-xs text-muted-foreground mt-1">
+                                                                Estimated: {stage.estimatedDuration}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    {stage.status === 'Completed' && (
+                                                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                                                            Completed
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
+                            ) : null}
+                        </CardContent>
+                    </CollapsibleContent>
+                </Card>
+            </Collapsible>
         </div>
     );
 }

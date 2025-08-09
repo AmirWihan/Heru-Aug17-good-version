@@ -249,29 +249,33 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
     return (
         <div className="space-y-6 p-6">
             {/* Welcome Section */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Welcome back, {userProfile?.name}!</h1>
-                    <p className="text-muted-foreground">Here's what's happening with your practice today.</p>
-                </div>
-                <Button 
-                    onClick={handleRunAnalysis} 
-                    disabled={isAnalyzing}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                >
-                    {isAnalyzing ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Analyzing...
-                        </>
-                    ) : (
-                        <>
-                            <Brain className="mr-2 h-4 w-4" />
-                            Run AI Analysis
-                        </>
-                    )}
-                </Button>
-            </div>
+            <Card className="border-0 shadow-sm bg-gradient-to-r from-purple-50 to-violet-50 mb-6">
+                <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold font-headline text-gray-900">Welcome back, {userProfile?.name}!</h1>
+                            <p className="text-gray-600 mt-2">Here's what's happening with your practice today.</p>
+                        </div>
+                        <Button 
+                            onClick={handleRunAnalysis} 
+                            disabled={isAnalyzing}
+                            className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+                        >
+                            {isAnalyzing ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Analyzing...
+                                </>
+                            ) : (
+                                <>
+                                    <Brain className="mr-2 h-4 w-4" />
+                                    Run AI Analysis
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

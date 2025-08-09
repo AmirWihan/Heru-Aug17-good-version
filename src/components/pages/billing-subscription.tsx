@@ -67,9 +67,12 @@ const plans = [
   }
 ];
 
+import { useRouter } from 'next/navigation';
+
 export function BillingSubscription() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof billingSchema>>({
     resolver: zodResolver(billingSchema),
@@ -103,8 +106,12 @@ export function BillingSubscription() {
       });
       
       // Here you would typically update the user's subscription status
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cardOnFile', 'true');
+      }
       console.log('Payment processed:', values);
-      
+      // Redirect to dashboard after successful payment
+      router.replace('/lawyer/dashboard');
     } catch (error) {
       toast({
         title: 'Payment Failed',

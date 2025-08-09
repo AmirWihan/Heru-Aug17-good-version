@@ -37,11 +37,11 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
         const lastDismissedDateStr = localStorage.getItem(BANNER_DISMISS_KEY);
         if (lastDismissedDateStr) {
             const lastDismissedDate = new Date(lastDismissedDateStr);
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
             
-            if (lastDismissedDate < thirtyDaysAgo) {
-                // It's been more than 30 days, show the banner
+            if (lastDismissedDate < sevenDaysAgo) {
+                // It's been more than 7 days, show the banner
                 setIsBannerOpen(true);
             }
         } else {

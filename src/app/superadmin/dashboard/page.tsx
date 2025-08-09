@@ -116,7 +116,7 @@ export default function SuperadminDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="border-0 shadow-sm bg-gradient-to-r from-amber-50 to-orange-50">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>

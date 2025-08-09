@@ -235,7 +235,7 @@ export type TeamMember = {
     password?: string;
     uid?: string;
     phone: string;
-    accessLevel: 'Admin' | 'Member' | 'Viewer';
+    accessLevel: 'Admin' | 'Standard User' | 'Viewer';
     status: 'Active' | 'Pending Activation' | 'Suspended' | 'Blocked' | 'Rejected' | 'awaiting_approval';
     plan: 'Starter' | 'Pro Team' | 'Enterprise' | 'N/A';
     billingCycle?: 'monthly' | 'annually';
@@ -431,7 +431,7 @@ export const teamMembers: TeamMember[] = [
         password: 'password123',
         uid: 'static-testlawyer',
         phone: '+1-555-0199',
-        accessLevel: 'Member',
+        accessLevel: 'Standard User',
         status: 'Pending Activation',
         plan: 'Pro Team',
         billingCycle: 'monthly',
@@ -456,7 +456,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 2, name: 'Michael Chen', role: 'Immigration Consultant', avatar: 'https://i.pravatar.cc/150?u=michaelchen', type: 'legal',
-        email: 'michael.c@heru.com', phone: '+1-202-555-0102', password: 'password123', uid: 'static-michael', accessLevel: 'Member', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
+        email: 'michael.c@heru.com', phone: '+1-202-555-0102', password: 'password123', uid: 'static-michael', accessLevel: 'Standard User', status: 'Active', plan: 'Pro Team', billingCycle: 'monthly',
         location: 'Vancouver, BC', yearsOfPractice: 8, successRate: 89, licenseNumber: 'BC-L-11223', registrationNumber: 'ICCRC-R56789',
         firmName: 'Chen & Associates',
         firmAddress: '1055 W Georgia St, Vancouver, BC V6E 3P3',
@@ -474,7 +474,7 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 3, name: 'Sophia Williams', role: 'Immigration Paralegal', avatar: 'https://i.pravatar.cc/150?u=sophia', type: 'legal',
-        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', password: 'password123', uid: 'static-sophia', accessLevel: 'Member', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
+        email: 'sophia.w@heru.com', phone: '+1-202-555-0103', password: 'password123', uid: 'static-sophia', accessLevel: 'Standard User', status: 'Suspended', plan: 'Starter', billingCycle: 'monthly',
         firmName: 'Johnson Legal',
         firmAddress: '789 Bay Street, Toronto, ON M5G 2C2',
         numEmployees: 8,
@@ -514,13 +514,13 @@ export const teamMembers: TeamMember[] = [
     },
     {
         id: 5, name: 'Jessica Miller', role: 'Sales Lead', avatar: 'https://i.pravatar.cc/150?u=jessica', type: 'sales',
-        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', password: 'password123', uid: 'static-jessica', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        email: 'jessica.m@heru.com', phone: '+1-202-555-0105', password: 'password123', uid: 'static-jessica', accessLevel: 'Standard User', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
         stats: [], specialties: [], languages: [], consultationType: 'Paid'
     },
     {
         id: 6, name: 'Chris Davis', role: 'Marketing Advisor', avatar: 'https://i.pravatar.cc/150?u=chris', type: 'advisor',
-        email: 'chris.d@heru.com', phone: '+1-202-555-0106', password: 'password123', uid: 'static-chris', accessLevel: 'Member', status: 'Active', plan: 'N/A', location: 'Remote',
+        email: 'chris.d@heru.com', phone: '+1-202-555-0106', password: 'password123', uid: 'static-chris', accessLevel: 'Standard User', status: 'Active', plan: 'N/A', location: 'Remote',
         yearsOfPractice: 0, successRate: 0, licenseNumber: 'N/A', registrationNumber: 'N/A',
         stats: [], specialties: [], languages: [], consultationType: 'Paid'
     },

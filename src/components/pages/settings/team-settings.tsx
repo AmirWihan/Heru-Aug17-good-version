@@ -10,8 +10,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { useState } from "react";
+
 export function TeamSettings() {
+    const { teamMembers, updateTeamMember } = useGlobalData();
+    const [localMembers, setLocalMembers] = useState(teamMembers.map(m => ({ ...m })));
     const { toast } = useToast();
+
+    const handleRoleChange = (id: string | number, newRole: string) => {
+        setLocalMembers(members => members.map(m => String(m.id) === String(id) ? { ...m, accessLevel: newRole } : m));
+    };
+
+    const handleSave = () => {
+        localMembers.forEach(m => {
+            updateTeamMember(m);
+        });
+        toast({ title: "Changes Saved", description: "User roles and permissions have been updated." });
+    };
+
     return (
         <Card>
             <CardHeader className="flex flex-row justify-between items-center">
@@ -34,7 +51,7 @@ export function TeamSettings() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {teamMembers.map((member) => (
+                        {localMembers.map((member) => (
                             <TableRow key={member.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
@@ -50,13 +67,13 @@ export function TeamSettings() {
                                 </TableCell>
                                 <TableCell>{member.role}</TableCell>
                                 <TableCell className="text-right">
-                                     <Select defaultValue={member.accessLevel}>
-                                        <SelectTrigger className="w-[120px] ml-auto">
+                                     <Select value={member.accessLevel} onValueChange={val => handleRoleChange(member.id, val)}>
+                                        <SelectTrigger className="w-[140px] ml-auto">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Admin">Admin</SelectItem>
-                                            <SelectItem value="Member">Member</SelectItem>
+                                            <SelectItem value="Standard User">Standard User</SelectItem>
                                             <SelectItem value="Viewer">Viewer</SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -65,9 +82,61 @@ export function TeamSettings() {
                         ))}
                     </TableBody>
                 </Table>
+                {/* Permissions Matrix */}
+                <div className="mt-8">
+                  <CardTitle>Permissions Matrix</CardTitle>
+                  <Table className="mt-2">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Admin</TableHead>
+                        <TableHead>Standard User</TableHead>
+                        <TableHead>Viewer</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>View/Manage Team</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>View only</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Financial Results</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>❌</TableCell>
+                        <TableCell>❌</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Delete/Export Accounts</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>❌</TableCell>
+                        <TableCell>❌</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Settings & Reports (High Level)</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>❌</TableCell>
+                        <TableCell>❌</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Edit Firm/Case Data</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>❌</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>View Firm/Case Data</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>✔️</TableCell>
+                        <TableCell>✔️</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
             </CardContent>
              <CardFooter className="border-t pt-6 flex justify-end">
-                <Button onClick={() => toast({ title: "Changes Saved", description: "User roles and permissions have been updated." })}>Save Changes</Button>
+                <Button onClick={handleSave}>Save Changes</Button>
             </CardFooter>
         </Card>
     )

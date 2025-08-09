@@ -37,22 +37,22 @@ interface AppSidebarProps {
 }
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'leads', label: 'Leads', icon: BriefcaseBusiness, roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'clients', label: 'Clients', icon: Users, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'leads', label: 'Leads', icon: BriefcaseBusiness, roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'clients', label: 'Clients', icon: Users, roles: ['Admin', 'Standard User', 'Viewer'] },
   { id: 'team', label: 'Team Management', icon: Users, roles: ['Admin'] },
-  { id: 'documents', label: 'Documents', icon: FileText, roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'applications', label: 'Applications', icon: FileText, badge: '24', roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'appointments', label: 'Appointments', icon: CalendarCheck, roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3', roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive', roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'notifications', label: 'Notifications', icon: Bell, roles: ['Admin', 'Member', 'Viewer'] },
-  { id: 'activity', label: 'Activity Log', icon: FileText, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'documents', label: 'Documents', icon: FileText, roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'applications', label: 'Applications', icon: FileText, badge: '24', roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'appointments', label: 'Appointments', icon: CalendarCheck, roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: '3', roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'messages', label: 'Messages', icon: Mail, badge: '5', badgeVariant: 'destructive' as 'destructive', roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'notifications', label: 'Notifications', icon: Bell, roles: ['Admin', 'Standard User', 'Viewer'] },
+  { id: 'activity', label: 'Activity Log', icon: FileText, roles: ['Admin', 'Standard User', 'Viewer'] },
   { id: 'billing', label: 'Billing', icon: Landmark, roles: ['Admin'] },
   { id: 'reports', label: 'Reports', icon: LineChart, roles: ['Admin'] },
-  { id: 'ai-tools', label: 'AI Tools', icon: Wand2, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'ai-tools', label: 'AI Tools', icon: Wand2, roles: ['Admin', 'Standard User', 'Viewer'] },
   { id: 'settings', label: 'Settings', icon: Settings, roles: ['Admin'] },
-  { id: 'support', label: 'Help & Support', icon: HelpCircle, roles: ['Admin', 'Member', 'Viewer'] },
+  { id: 'support', label: 'Help & Support', icon: HelpCircle, roles: ['Admin', 'Standard User', 'Viewer'] },
 ];
 
 

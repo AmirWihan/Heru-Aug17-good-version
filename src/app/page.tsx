@@ -53,10 +53,16 @@ export default function RoleSelectionPage() {
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
             
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-4 flex gap-2">
                 <Button variant="ghost" size="icon" onClick={handleAdminLogin} title="Super Admin Login" className="hover:bg-yellow-100">
                     <Crown className="h-6 w-6 text-yellow-500" />
                 </Button>
+                <Link href="/lawyer/demo">
+                    <Button variant="ghost" size="sm" className="hover:bg-purple-100 text-purple-600">
+                        <Briefcase className="h-4 w-4 mr-1" />
+                        Demo Lawyer
+                    </Button>
+                </Link>
             </div>
             
             <div className="text-center mb-12 max-w-4xl">

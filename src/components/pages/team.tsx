@@ -33,7 +33,7 @@ const memberFormSchema = z.object({
     role: z.string().min(2, "Role must be at least 2 characters."),
     email: z.string().email("Please enter a valid email address."),
     phone: z.string().optional(),
-    accessLevel: z.enum(['Admin', 'Member', 'Viewer']),
+    accessLevel: z.enum(['Admin', 'Standard User', 'Viewer']),
 });
 
 export function TeamPage() {
@@ -51,7 +51,7 @@ export function TeamPage() {
             role: "",
             email: "",
             phone: "",
-            accessLevel: 'Member',
+            accessLevel: 'Standard User',
         },
     });
 
@@ -156,7 +156,7 @@ export function TeamPage() {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="Admin">Admin</SelectItem>
-                                                        <SelectItem value="Member">Member</SelectItem>
+                                                        <SelectItem value="Standard User">Standard User</SelectItem>
                                                         <SelectItem value="Viewer">Viewer</SelectItem>
                                                     </SelectContent>
                                                 </Select>
@@ -238,7 +238,7 @@ export function TeamPage() {
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectItem value="Admin">Admin (Full Access)</SelectItem>
-                                                <SelectItem value="Member">Member (Standard Access)</SelectItem>
+                                                <SelectItem value="Standard User">Standard User (Standard Access)</SelectItem>
                                                 <SelectItem value="Viewer">Viewer (Read-only)</SelectItem>
                                             </SelectContent>
                                         </Select>
