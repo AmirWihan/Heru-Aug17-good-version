@@ -162,7 +162,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
     const { toast } = useToast();
     const pathname = usePathname();
     const isAdminView = pathname.startsWith('/admin');
-    const { userProfile, teamMembers: allTeamMembers, addTask, invoicesData } = useGlobalData();
+    const { userProfile, teamMembers: allTeamMembers, addTask, invoicesData, can } = useGlobalData();
     const [selectedDocument, setSelectedDocument] = useState<ClientDocument | null>(null);
     const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
     
@@ -858,7 +858,7 @@ export const ClientProfile = React.memo(function ClientProfile({ client, onUpdat
                                     <CardTitle className="text-lg">Client Documents</CardTitle>
                                     <CardDescription>Review, approve, and manage all documents for submission.</CardDescription>
                                 </div>
-                                <Button onClick={() => toast({ title: "Simulating Export...", description: "All approved documents would be zipped and downloaded."})}>
+                                <Button disabled={!can('deleteExport')} onClick={() => toast({ title: "Simulating Export...", description: "All approved documents would be zipped and downloaded."})}>
                                     <FileDown className="mr-2 h-4 w-4" /> Export for Submission
                                 </Button>
                             </div>

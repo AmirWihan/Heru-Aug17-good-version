@@ -1,12 +1,13 @@
 
 'use client';
+import * as XLSX from 'xlsx';
 
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { type Lead } from '@/lib/data';
-import { PlusCircle, Building, Upload, Search, MoreHorizontal, Filter } from 'lucide-react';
+import { PlusCircle, Building, Upload, Search, MoreHorizontal, Filter, Download } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
@@ -40,6 +41,7 @@ export function AdminLeadsPage() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+    const [importFile, setImportFile] = useState<File | null>(null);
 
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
@@ -72,12 +74,139 @@ export function AdminLeadsPage() {
         setIsSheetOpen(true);
     };
     
-    const handleImportLeads = () => {
-        toast({
-            title: 'Import Successful',
-            description: 'Your leads have been imported. This is a demo.',
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        setImportFile(file);
+    };
+
+    const parseCsv = (text: string): Array<Record<string, string>> => {
+        const rows: string[] = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            const next = text[i + 1];
+            if (c === '"') {
+                if (inQuotes && next === '"') { cur += '"'; i++; }
+                else { inQuotes = !inQuotes; }
+            } else if (c === '\n' && !inQuotes) {
+                rows.push(cur); cur = '';
+            } else if (c === '\r') {
+                // ignore CR
+            } else {
+                cur += c;
+            }
+        }
+        if (cur) rows.push(cur);
+        const splitRow = (row: string) => {
+            const out: string[] = [];
+            let field = '';
+            let q = false;
+            for (let i = 0; i < row.length; i++) {
+                const ch = row[i];
+                const next = row[i + 1];
+                if (ch === '"') {
+                    if (q && next === '"') { field += '"'; i++; }
+                    else { q = !q; }
+                } else if (ch === ',' && !q) {
+                    out.push(field); field = '';
+                } else {
+                    field += ch;
+                }
+            }
+            out.push(field);
+            return out;
+        };
+        const header = rows.shift()?.split(',').map(h => h.trim().toLowerCase()) ?? [];
+        return rows.filter(r => r.trim() !== '').map(r => {
+            const cols = splitRow(r);
+            const obj: Record<string, string> = {};
+            header.forEach((h, idx) => { obj[h] = (cols[idx] ?? '').trim(); });
+            return obj;
         });
-        setIsImportOpen(false);
+    };
+
+    const handleImportLeads = async () => {
+        if (!importFile) {
+            toast({ title: 'No file selected', description: 'Choose a .csv file to import.', variant: 'destructive' });
+            return;
+        }
+        try {
+            const ext = importFile.name.split('.').pop()?.toLowerCase();
+            let records: Array<Record<string, string>> = [];
+            if (ext === 'csv') {
+                const text = await importFile.text();
+                records = parseCsv(text);
+            } else if (ext === 'xlsx') {
+                const buf = await importFile.arrayBuffer();
+                const wb = XLSX.read(buf, { type: 'array' });
+                const sheetName = wb.SheetNames[0];
+                const ws = wb.Sheets[sheetName];
+                const json: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                records = json.map(row => {
+                    const obj: Record<string, string> = {};
+                    Object.keys(row).forEach(k => {
+                        obj[k.toLowerCase()] = String(row[k] ?? '').trim();
+                    });
+                    return obj;
+                });
+            } else {
+                toast({ title: 'Unsupported file', description: 'Use .csv or .xlsx.', variant: 'destructive' });
+                return;
+            }
+            if (!records.length) {
+                toast({ title: 'Empty file', description: 'No rows found.' });
+                return;
+            }
+            let created = 0;
+            const owner = salesTeam[0] || { name: 'Admin', avatar: '' };
+            records.forEach(r => {
+                const name = r['name'] || '';
+                const email = r['email'] || '';
+                const company = r['company'] || '';
+                const phone = r['phone'] || '';
+                if (!company || !name || !email) return;
+                const lead: Lead = {
+                    id: Date.now() + Math.floor(Math.random()*1000),
+                    name,
+                    company,
+                    email,
+                    phone,
+                    status: 'New',
+                    source: 'Import',
+                    owner,
+                    lastContacted: new Date().toISOString(),
+                    createdDate: new Date().toISOString(),
+                    avatar: `https://i.pravatar.cc/150?u=${company}-${email}`,
+                    activity: [],
+                } as any;
+                addLead(lead);
+                created++;
+            });
+            toast({ title: 'Import Complete', description: `Imported ${created} lead(s).` });
+            setIsImportOpen(false);
+            setImportFile(null);
+        } catch (e: any) {
+            toast({ title: 'Import failed', description: e?.message || 'Could not parse the file.', variant: 'destructive' });
+        }
+    };
+
+    const handleDownloadSample = () => {
+        const headers = ['name','company','email','phone'];
+        const sampleRows = [
+            ['Jane Doe','Innovate Legal','jane.doe@innovatelegal.com','+1-202-555-0199'],
+            ['John Smith','Orbit Law','john.smith@orbitlaw.com','+1-202-555-0120']
+        ];
+        const csv = [headers.join(','), ...sampleRows.map(r => r.map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'firm-leads-sample.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     const handleAddLead = () => {
@@ -264,22 +393,25 @@ export function AdminLeadsPage() {
                 </DialogContent>
             </Dialog>
 
-             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+            <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Import Firm Leads</DialogTitle>
+                        <DialogTitle>Import Leads</DialogTitle>
                         <DialogDescription>
-                            Upload a CSV or Excel file to bulk import new law firm leads.
+                            Upload a CSV or Excel file to bulk import new firm leads.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="import-file">Upload File (.csv, .xlsx)</Label>
-                            <Input id="import-file" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                            <Input id="import-file" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleFileChange} />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            Ensure your file has columns for 'Firm Name', 'Contact Person', 'Email', and 'Phone'.
+                            Ensure your file has columns for 'name', 'company', 'email', and 'phone'.
                         </p>
+                        <Button type="button" variant="outline" onClick={handleDownloadSample}>
+                            <Download className="mr-2 h-4 w-4" /> Download Sample Template
+                        </Button>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsImportOpen(false)}>Cancel</Button>

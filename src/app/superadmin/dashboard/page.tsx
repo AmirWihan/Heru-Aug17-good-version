@@ -33,9 +33,10 @@ import {
   UserPlus
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Switch } from '@/components/ui/switch';
 
 export default function SuperadminDashboard() {
-  const { teamMembers, clients, notifications, leads } = useGlobalData();
+  const { teamMembers, clients, notifications, leads, getWorkspaceBackup, saveDailyBackup, isAutoBackupEnabled, setAutoBackupEnabled, getCurrentWorkspaceKey } = useGlobalData();
   const router = useRouter();
 
   // Calculate platform metrics
@@ -113,6 +114,26 @@ export default function SuperadminDashboard() {
     </Button>
   );
 
+  const handleBackupNow = () => {
+    const key = getCurrentWorkspaceKey();
+    saveDailyBackup(key);
+    console.log(`Superadmin backup saved for workspace '${key}'.`);
+  };
+
+  const handleDownloadBackup = () => {
+    const key = getCurrentWorkspaceKey();
+    const backup = getWorkspaceBackup(key);
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup-${key}-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
@@ -133,6 +154,30 @@ export default function SuperadminDashboard() {
                 Platform Healthy
               </Badge>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Backup Controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Workspace Backup
+          </CardTitle>
+          <CardDescription>Enable automatic daily backups and manage backups for this workspace.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Switch
+              checked={isAutoBackupEnabled()}
+              onCheckedChange={(val) => setAutoBackupEnabled(getCurrentWorkspaceKey(), !!val)}
+            />
+            <span className="text-sm">Enable automatic daily backup</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleBackupNow}>Backup Now</Button>
+            <Button onClick={handleDownloadBackup}>Download Latest</Button>
           </div>
         </CardContent>
       </Card>

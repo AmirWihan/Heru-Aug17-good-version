@@ -3,8 +3,9 @@
 import { cn } from "@/lib/utils";
 import { User, Lock, Bell, Palette, Building, Users, Puzzle, Database, CreditCard } from 'lucide-react';
 import type { FC } from "react";
+import { useGlobalData } from "@/context/GlobalDataContext";
 
-const navGroups = [
+const baseNavGroups = [
     {
         title: 'Workspace',
         items: [
@@ -37,6 +38,26 @@ interface SettingsSidebarProps {
 }
 
 export const SettingsSidebar: FC<SettingsSidebarProps> = ({ activePage, setActivePage }) => {
+    const { userProfile, can } = useGlobalData();
+    const isAdmin = (userProfile?.authRole === 'superadmin') ||
+      (userProfile?.authRole === 'lawyer' && (userProfile as any).accessLevel === 'Admin');
+
+    const navGroups = (() => {
+        const groups = JSON.parse(JSON.stringify(baseNavGroups)) as typeof baseNavGroups;
+        if (isAdmin) {
+            // insert Roles & Access after Users & Teams
+            const workspace = groups[0];
+            const idx = workspace.items.findIndex((i: any) => i.id === 'team');
+            workspace.items.splice(idx + 1, 0, { id: 'roles', label: 'Roles & Access', icon: Lock });
+        }
+        // Hide Billing if user lacks financials permission
+        const workspace = groups[0];
+        workspace.items = workspace.items.filter((i: any) => {
+            if (i.id === 'billing') return can('financials');
+            return true;
+        });
+        return groups;
+    })();
     return (
         <nav className="space-y-6">
             {navGroups.map((group) => (

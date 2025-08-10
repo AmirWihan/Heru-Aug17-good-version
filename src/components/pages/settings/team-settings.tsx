@@ -1,7 +1,7 @@
 
 'use client';
 
-import { teamMembers } from "@/lib/data";
+import type { TeamMember } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,11 +15,11 @@ import { useState } from "react";
 
 export function TeamSettings() {
     const { teamMembers, updateTeamMember } = useGlobalData();
-    const [localMembers, setLocalMembers] = useState(teamMembers.map(m => ({ ...m })));
+    const [localMembers, setLocalMembers] = useState<TeamMember[]>(teamMembers.map(m => ({ ...m })));
     const { toast } = useToast();
 
-    const handleRoleChange = (id: string | number, newRole: string) => {
-        setLocalMembers(members => members.map(m => String(m.id) === String(id) ? { ...m, accessLevel: newRole } : m));
+    const handleRoleChange = (id: string | number, newRole: TeamMember['accessLevel']) => {
+        setLocalMembers((members: TeamMember[]) => members.map(m => String(m.id) === String(id) ? { ...m, accessLevel: newRole } as TeamMember : m));
     };
 
     const handleSave = () => {
@@ -67,7 +67,7 @@ export function TeamSettings() {
                                 </TableCell>
                                 <TableCell>{member.role}</TableCell>
                                 <TableCell className="text-right">
-                                     <Select value={member.accessLevel} onValueChange={val => handleRoleChange(member.id, val)}>
+                                     <Select value={member.accessLevel} onValueChange={(val: TeamMember['accessLevel']) => handleRoleChange(member.id, val)}>
                                         <SelectTrigger className="w-[140px] ml-auto">
                                             <SelectValue />
                                         </SelectTrigger>

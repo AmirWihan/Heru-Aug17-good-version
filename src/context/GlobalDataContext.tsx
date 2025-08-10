@@ -1,7 +1,6 @@
-
 'use client';
 
-import { createContext, useState, useContext, useCallback, useEffect, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 // Firebase is completely disabled in offline mode
 // All Firebase logic removed. Only offline logic remains.
 
@@ -35,6 +34,11 @@ type ClientInvitation = {
     email: string;
     invitingLawyerId: number;
 }
+
+// ===== Shared RBAC type exports (tenant-scoped) =====
+export type PermissionKey = 'viewManageTeam' | 'financials' | 'deleteExport' | 'highLevelSettings' | 'editData' | 'viewData';
+export type RoleKey = 'Admin' | 'Standard User' | 'Viewer';
+export type RolePermissions = Record<RoleKey, Record<PermissionKey, boolean | 'view-only'>>;
 
 interface GlobalDataContextType {
     userProfile: UserProfile | null;
@@ -81,12 +85,29 @@ interface GlobalDataContextType {
     updateNotification: (id: number, updates: Partial<Notification>) => void;
     logos: { [key: string]: string };
     setWorkspaceLogo: (key: string, src: string | null) => void;
+    // Appearance (tenant-scoped)
+    theme: string; // legacy global color id (fallback)
+    setTheme: (themeId: string) => void; // legacy setter (updates global fallback)
+    getWorkspaceThemeId: (key: string) => string;
+    setWorkspaceThemeId: (key: string, themeId: string) => void;
+    getWorkspaceThemeMode: (key: string) => 'light' | 'dark' | 'system';
+    setWorkspaceThemeMode: (key: string, mode: 'light' | 'dark' | 'system') => void;
     isLoaded: boolean;
-    theme: string;
-    setTheme: (themeId: string) => void;
+    // RBAC permissions (tenant-scoped)
+    getWorkspaceRolePermissions: (key: string) => RolePermissions;
+    setWorkspaceRolePermissions: (key: string, perms: RolePermissions) => void;
+    // Helpers for current context
+    getCurrentWorkspaceKey: () => string;
+    getCurrentWorkspaceRolePermissions: () => RolePermissions;
+    hasPermission: (perm: PermissionKey) => boolean | 'view-only';
+    can: (perm: PermissionKey) => boolean;
     sendClientInvitation: (invitation: ClientInvitation) => void;
     consumeClientInvitation: (email: string) => ClientInvitation | null;
     sendConnectionRequest: (clientId: number, request: ConnectionRequest) => void;
+    getWorkspaceBackup: (key?: string) => any;
+    saveDailyBackup: (key?: string) => void;
+    isAutoBackupEnabled: (key?: string) => boolean;
+    setAutoBackupEnabled: (key: string, enabled: boolean) => void;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -126,7 +147,10 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [invitations, setInvitations] = useState<ClientInvitation[]>([]);
 
     const [logos, setLogos] = useState<{ [key: string]: string }>({});
-    const [theme, setThemeState] = useState('blue');
+    const [theme, setThemeState] = useState('blue'); // legacy fallback color id
+    const [themePrefs, setThemePrefs] = useState<Record<string, { themeId: string; mode: 'light'|'dark'|'system' }>>({});
+    const [rolePermsByWorkspace, setRolePermsByWorkspace] = useState<Record<string, RolePermissions>>({});
+    const [autoBackupEnabledByWorkspace, setAutoBackupEnabledByWorkspace] = useState<Record<string, boolean>>({});
     const [isLoaded, setIsLoaded] = useState(false);
     
     const loading = authLoading || loadingProfile;
@@ -148,9 +172,46 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     }, [user, authLoading]);
 
     const setTheme = useCallback((themeId: string) => {
+        // legacy setter keeps global fallback color id
         setThemeState(themeId);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme: themeId, logos }));
-    }, [logos]);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme: themeId, logos, themePrefs, rolePermsByWorkspace }));
+    }, [logos, themePrefs, rolePermsByWorkspace]);
+
+    // Appearance helpers (tenant-scoped)
+    const getWorkspaceThemeId = useCallback((key: string) => {
+        return themePrefs[key]?.themeId || theme;
+    }, [themePrefs, theme]);
+
+    const setWorkspaceThemeId = useCallback((key: string, themeId: string) => {
+        setThemePrefs(curr => {
+            const next = { ...curr, [key]: { themeId, mode: curr[key]?.mode || 'system' } };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs: next, rolePermsByWorkspace }));
+            return next;
+        });
+    }, [theme, logos, rolePermsByWorkspace]);
+
+    const getWorkspaceThemeMode = useCallback((key: string) => {
+        return themePrefs[key]?.mode || 'system';
+    }, [themePrefs]);
+
+    const setWorkspaceThemeMode = useCallback((key: string, mode: 'light'|'dark'|'system') => {
+        setThemePrefs(curr => {
+            const next = { ...curr, [key]: { themeId: curr[key]?.themeId || theme, mode } };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs: next, rolePermsByWorkspace }));
+            return next;
+        });
+        // Apply document class for dark mode immediately in client
+        if (typeof document !== 'undefined') {
+            const root = document.documentElement;
+            if (mode === 'dark') root.classList.add('dark');
+            else if (mode === 'light') root.classList.remove('dark');
+            else {
+                // system
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                root.classList.toggle('dark', prefersDark);
+            }
+        }
+    }, [theme, logos, rolePermsByWorkspace]);
     
     const setWorkspaceLogo = useCallback((key: string, src: string | null) => {
         setLogos(currentLogos => {
@@ -160,23 +221,148 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             } else {
                 newLogos[key] = src;
             }
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos: newLogos }));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos: newLogos, themePrefs, rolePermsByWorkspace }));
             return newLogos;
         });
-    }, [theme]);
+    }, [theme, themePrefs, rolePermsByWorkspace]);
 
     useEffect(() => {
         try {
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
-                const { theme: storedTheme, logos: storedLogos } = JSON.parse(storedPrefs);
+                const { theme: storedTheme, logos: storedLogos, themePrefs: storedThemePrefs, rolePermsByWorkspace: storedRolePerms, autoBackupEnabledByWorkspace: storedAutoBackup } = JSON.parse(storedPrefs);
                 if (storedTheme) setThemeState(storedTheme);
                 if (storedLogos) setLogos(storedLogos);
+                if (storedThemePrefs) setThemePrefs(storedThemePrefs);
+                if (storedRolePerms) setRolePermsByWorkspace(storedRolePerms);
+                if (storedAutoBackup) setAutoBackupEnabledByWorkspace(storedAutoBackup);
             }
         } finally {
             setIsLoaded(true);
         }
     }, []);
+
+    // ===== RBAC tenant-scoped permissions =====
+    type PermissionKey = 'viewManageTeam' | 'financials' | 'deleteExport' | 'highLevelSettings' | 'editData' | 'viewData';
+    type RoleKey = 'Admin' | 'Standard User' | 'Viewer';
+    type RolePermissions = Record<RoleKey, Record<PermissionKey, boolean | 'view-only'>>;
+
+    const defaultRolePermissions: RolePermissions = {
+        'Admin': { viewManageTeam: true, financials: true, deleteExport: true, highLevelSettings: true, editData: true, viewData: true },
+        'Standard User': { viewManageTeam: true, financials: false, deleteExport: false, highLevelSettings: false, editData: true, viewData: true },
+        'Viewer': { viewManageTeam: 'view-only', financials: false, deleteExport: false, highLevelSettings: false, editData: false, viewData: true },
+    };
+
+    const getWorkspaceRolePermissions = useCallback((key: string): RolePermissions => {
+        return rolePermsByWorkspace[key] || defaultRolePermissions;
+    }, [rolePermsByWorkspace]);
+
+    const setWorkspaceRolePermissions = useCallback((key: string, perms: RolePermissions) => {
+        setRolePermsByWorkspace(curr => {
+            const next = { ...curr, [key]: perms };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace: next, autoBackupEnabledByWorkspace }));
+            return next;
+        });
+    }, [theme, logos, themePrefs, autoBackupEnabledByWorkspace]);
+
+    // Current context helpers
+    const getCurrentWorkspaceKey = useCallback((): string => {
+        const up = userProfile as any;
+        if (userProfile?.authRole === 'lawyer' && up?.firmName) return up.firmName as string;
+        if (userProfile?.authRole === 'superadmin') return 'superadmin';
+        return 'platform';
+    }, [userProfile]);
+
+    const getCurrentWorkspaceRolePermissions = useCallback((): RolePermissions => {
+        const key = getCurrentWorkspaceKey();
+        return getWorkspaceRolePermissions(key);
+    }, [getCurrentWorkspaceKey, getWorkspaceRolePermissions]);
+
+    const hasPermission = useCallback((perm: PermissionKey): boolean | 'view-only' => {
+        // Superadmin full access
+        if (userProfile?.authRole === 'superadmin') return true;
+        const tm = (userProfile as any) || {};
+        const role: RoleKey | undefined = tm.accessLevel as RoleKey | undefined;
+        if (!role) return false;
+        const perms = getCurrentWorkspaceRolePermissions();
+        const val = perms[role]?.[perm];
+        return (val === true || val === 'view-only') ? val : !!val;
+    }, [userProfile, getCurrentWorkspaceRolePermissions]);
+
+    const can = useCallback((perm: PermissionKey): boolean => {
+        const v = hasPermission(perm);
+        return v === true;
+    }, [hasPermission]);
+
+    // ===== Backup utilities =====
+    const getWorkspaceBackup = useCallback((key?: string) => {
+        const workspaceKey = key || getCurrentWorkspaceKey();
+        const backup = {
+            version: 1,
+            timestamp: new Date().toISOString(),
+            workspaceKey,
+            settings: {
+                theme: theme,
+                themePref: themePrefs[workspaceKey] || null,
+                logo: logos[workspaceKey] || null,
+                rolePermissions: rolePermsByWorkspace[workspaceKey] || null,
+            },
+            data: {
+                teamMembers,
+                clients,
+                tasks,
+                appointments,
+                invoicesData,
+                notifications,
+                leads,
+                clientLeads,
+                invitations,
+            },
+        };
+        return backup;
+    }, [getCurrentWorkspaceKey, theme, themePrefs, logos, rolePermsByWorkspace, teamMembers, clients, tasks, appointments, invoicesData, notifications, leads, clientLeads, invitations]);
+
+    const saveDailyBackup = useCallback((key?: string) => {
+        const workspaceKey = key || getCurrentWorkspaceKey();
+        const today = new Date().toISOString().slice(0,10);
+        const storageKey = `backup:${workspaceKey}:${today}`;
+        try {
+            const existing = localStorage.getItem(storageKey);
+            if (!existing) {
+                const backup = getWorkspaceBackup(workspaceKey);
+                localStorage.setItem(storageKey, JSON.stringify(backup));
+            }
+        } catch (e) {
+            console.warn('Failed to persist daily backup', e);
+        }
+        // also record last backup date
+        localStorage.setItem(`backup:last:${workspaceKey}`, today);
+    }, [getWorkspaceBackup, getCurrentWorkspaceKey]);
+
+    const isAutoBackupEnabled = useCallback((key?: string): boolean => {
+        const workspaceKey = key || getCurrentWorkspaceKey();
+        return !!autoBackupEnabledByWorkspace[workspaceKey];
+    }, [autoBackupEnabledByWorkspace, getCurrentWorkspaceKey]);
+
+    const setAutoBackupEnabled = useCallback((key: string, enabled: boolean) => {
+        setAutoBackupEnabledByWorkspace(curr => {
+            const next = { ...curr, [key]: enabled };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace, autoBackupEnabledByWorkspace: next }));
+            return next;
+        });
+    }, [theme, logos, themePrefs, rolePermsByWorkspace]);
+
+    // Trigger auto daily backup once per day when enabled
+    useEffect(() => {
+        if (!isLoaded) return;
+        const key = getCurrentWorkspaceKey();
+        if (!autoBackupEnabledByWorkspace[key]) return;
+        const today = new Date().toISOString().slice(0,10);
+        const last = localStorage.getItem(`backup:last:${key}`);
+        if (last !== today) {
+            saveDailyBackup(key);
+        }
+    }, [isLoaded, autoBackupEnabledByWorkspace, getCurrentWorkspaceKey, saveDailyBackup]);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
         console.log('🔧 Login function called with:', { email, pass });
@@ -465,12 +651,55 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     return (
         <GlobalDataContext.Provider value={{
-            userProfile, loading, login, logout, register, sendPasswordReset, updateUserProfile,
-            teamMembers, clients, tasks, appointments, invoicesData, notifications, leads, clientLeads, addClientLead, updateClientLead,
-            addLead, updateLead, convertLeadToFirm,
-            updateTeamMember, addTeamMember, addClient, updateClient, addTask, addNotification, updateNotification,
-            logos, setWorkspaceLogo, isLoaded, theme, setTheme,
-            sendClientInvitation, consumeClientInvitation, sendConnectionRequest,
+            userProfile,
+            loading,
+            login,
+            logout,
+            register,
+            sendPasswordReset,
+            updateUserProfile,
+            teamMembers,
+            clients,
+            tasks,
+            appointments,
+            invoicesData,
+            notifications,
+            leads,
+            clientLeads,
+            addClientLead,
+            updateClientLead,
+            addLead,
+            updateLead,
+            convertLeadToFirm,
+            updateTeamMember,
+            addTeamMember,
+            addClient,
+            updateClient,
+            addTask,
+            addNotification,
+            updateNotification,
+            logos,
+            setWorkspaceLogo,
+            isLoaded,
+            theme,
+            setTheme,
+            getWorkspaceThemeId,
+            setWorkspaceThemeId,
+            getWorkspaceThemeMode,
+            setWorkspaceThemeMode,
+            getWorkspaceRolePermissions,
+            setWorkspaceRolePermissions,
+            getCurrentWorkspaceKey,
+            getCurrentWorkspaceRolePermissions,
+            hasPermission,
+            can,
+            sendClientInvitation,
+            consumeClientInvitation,
+            sendConnectionRequest,
+            getWorkspaceBackup,
+            saveDailyBackup,
+            isAutoBackupEnabled,
+            setAutoBackupEnabled,
         }}>
             {/* AuthStateListener is removed as Firebase is disabled */}
             {children}

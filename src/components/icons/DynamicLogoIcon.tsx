@@ -16,8 +16,15 @@ export function DynamicLogoIcon({ className }: DynamicLogoIconProps) {
   
   let logoKey: string | null = null;
   
-  if (userProfile?.authRole === 'lawyer' && (userProfile as TeamMember).firmName) {
-    logoKey = (userProfile as TeamMember).firmName!;
+  // Use firm-scoped logo for any firm team member (Admin, Standard User, Viewer).
+  // Only use 'platform' for unauthenticated, clients, or superadmin contexts.
+  if (userProfile && userProfile.authRole !== 'superadmin') {
+    const maybeTeam = userProfile as Partial<TeamMember>;
+    if (maybeTeam.firmName) {
+      logoKey = maybeTeam.firmName;
+    } else {
+      logoKey = 'platform';
+    }
   } else {
     logoKey = 'platform';
   }

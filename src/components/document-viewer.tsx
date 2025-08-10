@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useGlobalData } from '@/context/GlobalDataContext';
 import { Loader2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Save, Download, Printer } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -25,6 +26,7 @@ interface DocumentViewerProps {
 
 export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewerProps) {
     const { toast } = useToast();
+    const { can } = useGlobalData();
     const [numPages, setNumPages] = useState<number | null>(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [scale, setScale] = useState(1.0);
@@ -94,7 +96,9 @@ export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewe
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={handleSave}><Save className="mr-2 h-4 w-4" />Save</Button>
-                        <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Export</Button>
+                        <Button variant="outline" onClick={handleDownload} disabled={!can('deleteExport')}>
+                          <Download className="mr-2 h-4 w-4" />Export
+                        </Button>
                         <Button variant="outline" onClick={handlePrint}><Printer className="mr-2 h-4 w-4" />Print</Button>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 
 const StatCard = ({ title, value, icon: Icon, change, changeType, footer, onClick, trend }: { 
     title: string, 
@@ -137,7 +138,7 @@ const applicationTypes = [
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
     const { toast } = useToast();
-    const { clients, tasks, userProfile, teamMembers, addTask } = useGlobalData();
+    const { clients, tasks, userProfile, teamMembers, addTask, getWorkspaceBackup, saveDailyBackup, isAutoBackupEnabled, setAutoBackupEnabled, getCurrentWorkspaceKey } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [riskAlerts, setRiskAlerts] = useState<ClientAlert[] | null>(null);
     const [selectedAlert, setSelectedAlert] = useState<ClientAlert | null>(null);
@@ -245,6 +246,27 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
     const pendingApplications = clients.filter(c => c.caseSummary.currentStatus === 'Pending Review').length;
     const upcomingAppointments = 5; // This would come from appointments data
     const monthlyRevenue = 61000;
+
+    const handleBackupNow = () => {
+        const key = getCurrentWorkspaceKey();
+        saveDailyBackup(key);
+        toast({ title: "Backup Saved", description: `Daily backup saved for workspace '${key}'.` });
+    };
+
+    const handleDownloadBackup = () => {
+        const key = getCurrentWorkspaceKey();
+        const backup = getWorkspaceBackup(key);
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-${key}-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast({ title: "Backup Downloaded", description: `Backup JSON downloaded for '${key}'.` });
+    };
 
     return (
         <div className="space-y-6 p-6">
@@ -426,6 +448,60 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Team KPI & Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TeamPerformance />
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Activity className="h-5 w-5 text-emerald-600" />
+                            Team Activity Summary
+                        </CardTitle>
+                        <CardDescription>Recent tasks and ownership across your team.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {tasks.slice(0, 6).map((t) => (
+                                <div key={t.id} className="flex items-center justify-between p-3 rounded-md bg-muted/30">
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium truncate">{t.title}</p>
+                                        <p className="text-xs text-muted-foreground truncate">Assigned to {t.assignedTo.name} • Due {format(new Date(t.dueDate), 'PPP')}</p>
+                                    </div>
+                                    <Badge variant={t.status === 'Completed' ? 'success' : t.status === 'In Progress' ? 'info' : 'secondary'}>{t.status}</Badge>
+                                </div>
+                            ))}
+                            {tasks.length === 0 && (
+                                <p className="text-sm text-muted-foreground">No team tasks yet.</p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Backup Controls */}
+            <Card className="border-0 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ShieldAlert className="h-5 w-5 text-blue-600" />
+                        Workspace Backup
+                    </CardTitle>
+                    <CardDescription>Automatically back up this CRM's data, roles, and setup daily. Backups are tenant-scoped.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <Switch
+                            checked={isAutoBackupEnabled()}
+                            onCheckedChange={(val) => setAutoBackupEnabled(getCurrentWorkspaceKey(), !!val)}
+                        />
+                        <span className="text-sm">Enable automatic daily backup</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={handleBackupNow}>Backup Now</Button>
+                        <Button onClick={handleDownloadBackup}>Download Latest</Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Charts Section */}
             <Tabs defaultValue="revenue" className="space-y-4">

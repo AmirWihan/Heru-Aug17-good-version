@@ -8,6 +8,7 @@ import { NotificationsSettings } from './settings/notifications-settings';
 import { AppearanceSettings } from './settings/appearance-settings';
 import { TeamSettings } from './settings/team-settings';
 import { GeneralSettings } from './settings/general-settings';
+import { RolesSettings } from './settings/roles-settings';
 import { Card, CardContent } from '@/components/ui/card';
 import { IntegrationsSettings } from './settings/integrations-settings';
 import { BillingSettings } from './settings/billing-settings';
@@ -32,6 +33,7 @@ export function SettingsPage() {
         'notifications': NotificationsSettings,
         'appearance': AppearanceSettings,
         'team': TeamSettings,
+        'roles': RolesSettings,
         'billing': BillingSettings,
         'integrations': IntegrationsSettings,
         'data': DataSettings,

@@ -15,7 +15,7 @@ import type { TeamMember } from '@/lib/data';
 
 export function GeneralSettings() {
     const { toast } = useToast();
-    const { userProfile, setWorkspaceLogo, updateTeamMember } = useGlobalData();
+    const { userProfile, setWorkspaceLogo, updateTeamMember, logos } = useGlobalData();
     const lawyerProfile = userProfile as TeamMember;
 
     const [firmName, setFirmName] = useState(lawyerProfile?.firmName || '');
@@ -75,6 +75,18 @@ export function GeneralSettings() {
             phone: firmPhone,
             email: firmEmail,
         };
+
+        // If the firm name changed, migrate the logo mapping to the new key
+        const oldFirmName = lawyerProfile.firmName || '';
+        const newFirmName = firmName || '';
+        if (oldFirmName && newFirmName && oldFirmName !== newFirmName) {
+            const existingLogo = logos[oldFirmName];
+            if (existingLogo) {
+                // Set new key to existing logo and remove old key
+                setWorkspaceLogo(newFirmName, existingLogo);
+                setWorkspaceLogo(oldFirmName, null);
+            }
+        }
 
         updateTeamMember(updatedProfile);
         toast({ title: "Settings Saved", description: "Your workspace settings have been updated." });

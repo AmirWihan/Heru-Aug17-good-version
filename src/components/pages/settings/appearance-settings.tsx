@@ -12,8 +12,17 @@ import { useToast } from "@/hooks/use-toast";
 
 
 export function AppearanceSettings() {
-    const { theme, setTheme } = useGlobalData();
+    const { userProfile, getWorkspaceThemeId, setWorkspaceThemeId, getWorkspaceThemeMode, setWorkspaceThemeMode } = useGlobalData();
     const { toast } = useToast();
+
+    const workspaceKey = (() => {
+        if (userProfile?.authRole === 'lawyer' && (userProfile as any).firmName) return (userProfile as any).firmName as string;
+        if (userProfile?.authRole === 'superadmin') return 'superadmin';
+        return 'platform';
+    })();
+
+    const theme = getWorkspaceThemeId(workspaceKey);
+    const mode = getWorkspaceThemeMode(workspaceKey);
 
     const handleSave = () => {
         toast({
@@ -32,10 +41,19 @@ export function AppearanceSettings() {
                  <div>
                     <h3 className="text-lg font-medium">Theme</h3>
                     <p className="text-sm text-muted-foreground">Select your preferred color scheme.</p>
-                    <div className="grid grid-cols-3 gap-4 mt-4">
-                         <Button variant="outline">Light</Button>
-                         <Button variant="default">Dark</Button>
-                         <Button variant="outline">System</Button>
+                    <div className="grid grid-cols-3 gap-2 mt-4">
+                         <Button
+                           variant={mode === 'light' ? 'default' : 'outline'}
+                           onClick={() => setWorkspaceThemeMode(workspaceKey, 'light')}
+                         >Light</Button>
+                         <Button
+                           variant={mode === 'dark' ? 'default' : 'outline'}
+                           onClick={() => setWorkspaceThemeMode(workspaceKey, 'dark')}
+                         >Dark</Button>
+                         <Button
+                           variant={mode === 'system' ? 'default' : 'outline'}
+                           onClick={() => setWorkspaceThemeMode(workspaceKey, 'system')}
+                         >System</Button>
                     </div>
                 </div>
                  <div>
@@ -47,7 +65,7 @@ export function AppearanceSettings() {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <button
-                                            onClick={() => setTheme(t.id)}
+                                            onClick={() => setWorkspaceThemeId(workspaceKey, t.id)}
                                             className={cn(
                                                 "h-8 w-8 rounded-full border-2 flex items-center justify-center",
                                                 theme === t.id ? 'border-primary' : 'border-muted'

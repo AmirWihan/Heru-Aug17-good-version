@@ -58,7 +58,7 @@ const navItems = [
 
 export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
   const router = useRouter();
-  const { userProfile } = useGlobalData();
+  const { userProfile, can, hasPermission } = useGlobalData();
   const teamMember = userProfile as TeamMember;
   const firmName = teamMember?.firmName || 'VisaFor';
 
@@ -133,10 +133,17 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
         <nav className="flex-1 overflow-y-auto">
           <ul className="p-2 space-y-1">
             {navItems.map((item) => {
-              if (item.roles.includes(teamMember.accessLevel)) {
-                return <NavLink key={item.id} item={item} />
+              // Baseline role filter
+              if (!item.roles.includes(teamMember.accessLevel)) return null;
+              // Permission-based visibility
+              if (item.id === 'billing' && !can('financials')) return null;
+              if (item.id === 'reports' && !can('highLevelSettings')) return null;
+              if (item.id === 'team') {
+                const v = hasPermission('viewManageTeam');
+                if (v !== true) return null; // only full manage access shows Team Management
               }
-              return null;
+              if (item.id === 'settings' && !can('highLevelSettings')) return null;
+              return <NavLink key={item.id} item={item} />
             })}
           </ul>
         </nav>
