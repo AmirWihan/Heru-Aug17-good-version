@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import type { ClientLead, Task } from "@/lib/data";
-import { X, User, Building, Phone, Mail, FileText, Plus, MessageSquare, ExternalLink } from "lucide-react";
+import { X, User, Building, Phone, Mail, FileText, Plus, MessageSquare, ExternalLink, CheckCircle2, XCircle, PhoneCall, CircleDot } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,7 +62,16 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         if (statusDraft === lead.status) return;
         const updatedLead: ClientLead = { ...lead, status: statusDraft };
         updateClientLead(updatedLead);
-        toast({ title: 'Status Updated', description: `${lead.name} moved to ${statusDraft}.` });
+        toast({ title: 'Stage updated', description: `${lead.name} moved to ${statusDraft}.` });
+    };
+
+    const setStage = (stage: ClientLead['status']) => {
+        setStatusDraft(stage);
+        if (stage !== lead.status) {
+            const updatedLead: ClientLead = { ...lead, status: stage };
+            updateClientLead(updatedLead);
+            toast({ title: 'Stage updated', description: `${lead.name} moved to ${stage}.` });
+        }
     };
 
     const handleSaveIntake = () => {
@@ -181,18 +190,18 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            <a href={`tel:${lead.phone}`}>
+                                <Button size="sm" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"><PhoneCall className="h-4 w-4 mr-2" /> Call</Button>
+                            </a>
+                            <a href={`mailto:${lead.email}`} target="_blank" rel="noreferrer">
+                                <Button size="sm" className="bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-200"><Mail className="h-4 w-4 mr-2" /> Email</Button>
+                            </a>
+                            <Button size="sm" onClick={openWhatsApp} className="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200">
+                                <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
+                            </Button>
                             <Button variant="outline" size="sm" onClick={() => setIsExpanded((s) => !s)}>
                                 <ExternalLink className="h-4 w-4 mr-2" /> {isExpanded ? 'Shrink' : 'Expand'}
                             </Button>
-                            <Button variant="outline" size="sm" onClick={openWhatsApp}>
-                                <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
-                            </Button>
-                            <a href={`mailto:${lead.email}`} target="_blank" rel="noreferrer">
-                                <Button variant="outline" size="sm"><Mail className="h-4 w-4 mr-2" /> Email</Button>
-                            </a>
-                            <a href={`tel:${lead.phone}`}>
-                                <Button variant="outline" size="sm"><Phone className="h-4 w-4 mr-2" /> Call</Button>
-                            </a>
                             <SheetClose asChild>
                                 <Button variant="ghost" size="icon">
                                     <X className="h-5 w-5" />
@@ -201,39 +210,36 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                         </div>
                     </div>
                 </SheetHeader>
-                <div className="overflow-y-auto flex-1 p-6 space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle className="text-lg">Lead Stage</CardTitle></CardHeader>
-                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-                            <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">Current Stage</p>
-                                <Select value={statusDraft} onValueChange={(v) => setStatusDraft(v as ClientLead['status'])}>
-                                    <SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="New">New</SelectItem>
-                                        <SelectItem value="Contacted">Contacted</SelectItem>
-                                        <SelectItem value="Qualified">Qualified</SelectItem>
-                                        <SelectItem value="Unqualified">Unqualified</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                <div className={`overflow-y-auto flex-1 p-6 ${isExpanded ? 'grid grid-cols-12 gap-6' : 'space-y-6'}`}>
+                    <Card className={`${isExpanded ? 'col-span-12' : ''}`}>
+                        <CardHeader className="pb-3"><CardTitle className="text-lg">Lead Stage</CardTitle></CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button size="sm" variant={lead.status === 'New' ? 'default' : 'outline'} onClick={() => setStage('New')} className={`gap-2 ${lead.status === 'New' ? '' : ''}`}>
+                                    <CircleDot className="h-4 w-4"/> New
+                                </Button>
+                                <Button size="sm" variant={lead.status === 'Contacted' ? 'default' : 'outline'} onClick={() => setStage('Contacted')} className="gap-2">
+                                    <PhoneCall className="h-4 w-4"/> Contacted
+                                </Button>
+                                <Button size="sm" variant={lead.status === 'Qualified' ? 'default' : 'outline'} onClick={() => setStage('Qualified')} className="gap-2">
+                                    <CheckCircle2 className="h-4 w-4"/> Qualified
+                                </Button>
+                                <Button size="sm" variant={lead.status === 'Unqualified' ? 'destructive' : 'outline'} onClick={() => setStage('Unqualified')} className="gap-2">
+                                    <XCircle className="h-4 w-4"/> Unqualified
+                                </Button>
                             </div>
-                            <div className="flex justify-end">
-                                <Button onClick={handleUpdateStatus}>Update Stage</Button>
-                            </div>
-                            <div className="col-span-1 sm:col-span-2">
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span className={`px-2 py-1 rounded ${lead.status === 'New' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>New</span>
-                                    <span className="w-6 h-[2px] bg-border"/>
-                                    <span className={`px-2 py-1 rounded ${lead.status === 'Contacted' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Contacted</span>
-                                    <span className="w-6 h-[2px] bg-border"/>
-                                    <span className={`px-2 py-1 rounded ${lead.status === 'Qualified' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Qualified</span>
-                                    <span className="w-6 h-[2px] bg-border"/>
-                                    <span className={`px-2 py-1 rounded ${lead.status === 'Unqualified' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>Unqualified</span>
-                                </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className={`px-2 py-1 rounded ${lead.status === 'New' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>New</span>
+                                <span className="w-6 h-[2px] bg-border"/>
+                                <span className={`px-2 py-1 rounded ${lead.status === 'Contacted' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Contacted</span>
+                                <span className="w-6 h-[2px] bg-border"/>
+                                <span className={`px-2 py-1 rounded ${lead.status === 'Qualified' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Qualified</span>
+                                <span className="w-6 h-[2px] bg-border"/>
+                                <span className={`px-2 py-1 rounded ${lead.status === 'Unqualified' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>Unqualified</span>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className={`${isExpanded ? 'col-span-5' : ''}`}>
                         <CardHeader><CardTitle className="text-lg">Lead Information</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4 text-sm">
                             <div><p className="text-muted-foreground">Status</p><p><Badge>{lead.status}</Badge></p></div>
@@ -244,7 +250,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             <div><p className="text-muted-foreground">Created</p><p>{new Date(lead.createdDate).toLocaleDateString()}</p></div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className={`${isExpanded ? 'col-span-5' : ''}`}>
                         <CardHeader><CardTitle className="text-lg">Initial Intake</CardTitle></CardHeader>
                         <CardContent className="space-y-4 text-sm">
                             <div className="grid grid-cols-2 gap-4">
@@ -276,7 +282,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className={`${isExpanded ? 'col-span-7' : ''}`}>
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-lg">Activity Log</CardTitle>

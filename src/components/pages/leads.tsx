@@ -2,7 +2,7 @@
 'use client';
 import * as XLSX from 'xlsx';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
@@ -34,7 +34,7 @@ const getStatusBadgeVariant = (status: ClientLead['status']) => {
 };
 
 export function LeadsPage() {
-    const { userProfile, clientLeads, addClientLead, addClient } = useGlobalData();
+    const { userProfile, clientLeads, addClientLead, addClient, updateClientLead } = useGlobalData();
     const { toast } = useToast();
     const [selectedLead, setSelectedLead] = useState<ClientLead | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);

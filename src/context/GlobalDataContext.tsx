@@ -242,12 +242,29 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 if (storedAutoBackup) setAutoBackupEnabledByWorkspace(storedAutoBackup);
                 if (storedBackupSchedule) setBackupScheduleByWorkspace(storedBackupSchedule);
             }
+            // Load persisted data for leads and clientLeads if available
+            const storedLeads = localStorage.getItem('data:leads');
+            if (storedLeads) {
+                try { setLeads(JSON.parse(storedLeads)); } catch {}
+            }
+            const storedClientLeads = localStorage.getItem('data:clientLeads');
+            if (storedClientLeads) {
+                try { setClientLeads(JSON.parse(storedClientLeads)); } catch {}
+            }
         } catch (e) {
             console.warn('Failed to parse local storage prefs', e);
         } finally {
             setIsLoaded(true);
         }
     }, []);
+
+    // Persist leads and clientLeads to localStorage when they change (simple offline persistence)
+    useEffect(() => {
+        try { localStorage.setItem('data:leads', JSON.stringify(leads)); } catch {}
+    }, [leads]);
+    useEffect(() => {
+        try { localStorage.setItem('data:clientLeads', JSON.stringify(clientLeads)); } catch {}
+    }, [clientLeads]);
 
     // ===== RBAC tenant-scoped permissions =====
     type PermissionKey = 'viewManageTeam' | 'financials' | 'deleteExport' | 'highLevelSettings' | 'editData' | 'viewData';
