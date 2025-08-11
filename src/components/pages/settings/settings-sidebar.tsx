@@ -1,7 +1,7 @@
 
 'use client';
 import { cn } from "@/lib/utils";
-import { User, Lock, Bell, Palette, Building, Users, Puzzle, Database, CreditCard } from 'lucide-react';
+import { User, Lock, Bell, Palette, Building2, Users, Puzzle, Database, CreditCard } from 'lucide-react';
 import type { FC } from "react";
 import { useGlobalData } from "@/context/GlobalDataContext";
 
@@ -9,7 +9,7 @@ const baseNavGroups = [
     {
         title: 'Workspace',
         items: [
-            { id: 'general', label: 'General', icon: Building },
+            { id: 'general', label: 'General', icon: Building2 },
             { id: 'team', label: 'Users & Teams', icon: Users },
             { id: 'billing', label: 'Billing', icon: CreditCard },
         ]
@@ -43,7 +43,11 @@ export const SettingsSidebar: FC<SettingsSidebarProps> = ({ activePage, setActiv
       (userProfile?.authRole === 'lawyer' && (userProfile as any).accessLevel === 'Admin');
 
     const navGroups = (() => {
-        const groups = JSON.parse(JSON.stringify(baseNavGroups)) as typeof baseNavGroups;
+        // Preserve icon component references (functions). Avoid JSON cloning which strips functions.
+        const groups = baseNavGroups.map(group => ({
+            ...group,
+            items: [...group.items],
+        }));
         if (isAdmin) {
             // insert Roles & Access after Users & Teams
             const workspace = groups[0];
@@ -65,22 +69,31 @@ export const SettingsSidebar: FC<SettingsSidebarProps> = ({ activePage, setActiv
                     <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{group.title}</h3>
                     <div className="mt-2 space-y-1">
                         {group.items.map((item) => {
-                             const Icon = item.icon;
+                             const Icon = item.icon as any;
+                             const hasIcon = typeof Icon === 'function';
+                             if (!hasIcon && typeof window !== 'undefined') {
+                                 // eslint-disable-next-line no-console
+                                 console.error('[SettingsSidebar] Invalid icon for item', item.id, item);
+                             }
                              return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setActivePage(item.id)}
-                                    className={cn(
-                                        "w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                                        activePage === item.id
-                                            ? "bg-muted text-primary font-semibold"
-                                            : "text-foreground/70 hover:bg-muted/50 hover:text-foreground"
-                                    )}
-                                >
-                                    <Icon className="mr-3 h-5 w-5" />
-                                    <span>{item.label}</span>
-                                </button>
-                             )
+                                 <button
+                                     key={item.id}
+                                     onClick={() => setActivePage(item.id)}
+                                     className={cn(
+                                         "w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                                         activePage === item.id
+                                             ? "bg-muted text-primary font-semibold"
+                                             : "text-foreground/70 hover:bg-muted/50 hover:text-foreground"
+                                     )}
+                                 >
+                                     {hasIcon ? (
+                                         <Icon className="mr-3 h-5 w-5" />
+                                     ) : (
+                                         <span className="mr-3 inline-block" style={{ width: 20, height: 20 }} />
+                                     )}
+                                     <span>{item.label}</span>
+                                 </button>
+                              )
                         })}
                     </div>
                 </div>

@@ -300,6 +300,14 @@ export type ClientLead = {
     lastContacted: string;
     createdDate: string;
     avatar?: string;
+    // Optional intake info captured during initial qualification of the lead
+    intake?: {
+        status: 'not_started' | 'in_progress' | 'submitted' | 'reviewed';
+        score?: number; // AI/heuristic score for lead quality
+        summary?: string; // Short summary of intake findings
+        submittedAt?: string; // ISO date when intake submitted
+        data?: Partial<IntakeFormData>; // partial intake answers captured at lead stage
+    };
     activity?: {
         id: number;
         type: 'Call' | 'Email' | 'Note';

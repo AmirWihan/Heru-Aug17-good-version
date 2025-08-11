@@ -145,6 +145,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
     const [assignedTo, setAssignedTo] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
+    const [showAllAlerts, setShowAllAlerts] = useState(false);
 
     // Status gating for lawyer dashboard
     if (userProfile?.status === 'awaiting_approval') {
@@ -339,8 +340,40 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Quick Actions */}
+            {/* Two-column: Recent Activity (left) and Quick Actions (right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Activity (left) */}
+                <Card className="border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Activity className="h-5 w-5 text-green-600" />
+                            Recent Activity
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {clients.slice(0, 8).map((client) => (
+                                <div key={client.id} className="flex items-center gap-3">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={client.avatar} />
+                                        <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{client.name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {client.caseSummary.currentStatus} • {client.caseType}
+                                        </p>
+                                    </div>
+                                    <Badge variant={getStatusVariant(client.caseSummary.currentStatus)}>
+                                        {client.caseSummary.currentStatus}
+                                    </Badge>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Quick Actions (right) */}
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -377,80 +410,54 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                         </div>
                     </CardContent>
                 </Card>
+            </div>
 
-                {/* Recent Activity */}
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-green-600" />
-                            Recent Activity
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {clients.slice(0, 5).map((client) => (
-                                <div key={client.id} className="flex items-center gap-3">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={client.avatar} />
-                                        <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{client.name}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {client.caseSummary.currentStatus} • {client.caseType}
-                                        </p>
+            {/* Full-width AI Risk Alerts with expand/collapse */}
+            <Card className="border-0 shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                        <ShieldAlert className="h-5 w-5 text-red-600" />
+                        AI Risk Alerts
+                    </CardTitle>
+                    {riskAlerts && riskAlerts.length > 0 && (
+                        <Button size="sm" variant="outline" onClick={() => setShowAllAlerts((v) => !v)}>
+                            {showAllAlerts ? 'Show less' : 'Show all'}
+                        </Button>
+                    )}
+                </CardHeader>
+                <CardContent>
+                    {riskAlerts && riskAlerts.length > 0 ? (
+                        <div className="space-y-3">
+                            {(showAllAlerts ? riskAlerts : riskAlerts.slice(0, 5)).map((alert, index) => (
+                                <div key={index} className="p-3 bg-red-50 rounded-lg border border-red-200">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-red-800">{alert.issueSummary}</p>
+                                            <p className="text-xs text-red-600 mt-1">{alert.clientName}</p>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => openAssignTaskDialog(alert)}
+                                            className="text-xs h-7"
+                                        >
+                                            Assign
+                                        </Button>
                                     </div>
-                                    <Badge variant={getStatusVariant(client.caseSummary.currentStatus)}>
-                                        {client.caseSummary.currentStatus}
-                                    </Badge>
                                 </div>
                             ))}
                         </div>
-                    </CardContent>
-                </Card>
+                    ) : (
+                        <div className="text-center py-6">
+                            <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                            <p className="text-sm text-muted-foreground">No risk alerts detected</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
-                {/* AI Risk Alerts */}
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ShieldAlert className="h-5 w-5 text-red-600" />
-                            AI Risk Alerts
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {riskAlerts && riskAlerts.length > 0 ? (
-                            <div className="space-y-3">
-                                {riskAlerts.slice(0, 3).map((alert, index) => (
-                                    <div key={index} className="p-3 bg-red-50 rounded-lg border border-red-200">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium text-red-800">{alert.issueSummary}</p>
-                                                <p className="text-xs text-red-600 mt-1">{alert.clientName}</p>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => openAssignTaskDialog(alert)}
-                                                className="text-xs h-7"
-                                            >
-                                                Assign
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                                <p className="text-sm text-muted-foreground">No risk alerts detected</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Team KPI & Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Team KPI & Activity - TeamPerformance full-width */}
+            <div className="grid grid-cols-1 gap-6">
                 <TeamPerformance />
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
@@ -479,29 +486,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 </Card>
             </div>
 
-            {/* Backup Controls */}
-            <Card className="border-0 shadow-sm">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <ShieldAlert className="h-5 w-5 text-blue-600" />
-                        Workspace Backup
-                    </CardTitle>
-                    <CardDescription>Automatically back up this CRM's data, roles, and setup daily. Backups are tenant-scoped.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <Switch
-                            checked={isAutoBackupEnabled()}
-                            onCheckedChange={(val) => setAutoBackupEnabled(getCurrentWorkspaceKey(), !!val)}
-                        />
-                        <span className="text-sm">Enable automatic daily backup</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={handleBackupNow}>Backup Now</Button>
-                        <Button onClick={handleDownloadBackup}>Download Latest</Button>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Backup Controls moved to Settings > Data */}
 
             {/* Charts Section */}
             <Tabs defaultValue="revenue" className="space-y-4">

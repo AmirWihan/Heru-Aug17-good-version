@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import type { ClientLead, Task } from "@/lib/data";
-import { X, User, Building, Phone, Mail, FileText, Plus } from "lucide-react";
+import { X, User, Building, Phone, Mail, FileText, Plus, MessageSquare, ExternalLink } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +37,12 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     const { toast } = useToast();
     const { teamMembers, addTask, updateClientLead } = useGlobalData();
     const [isLogActivityOpen, setIsLogActivityOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [statusDraft, setStatusDraft] = useState<LeadDetailSheetProps extends never ? never : ClientLead['status']>(lead.status);
+    const [intakeSummary, setIntakeSummary] = useState(lead.intake?.summary || '');
+    const [intakeScore, setIntakeScore] = useState<number | ''>(lead.intake?.score ?? '');
+    const [intakeStatus, setIntakeStatus] = useState<NonNullable<ClientLead['intake']>['status']>(lead.intake?.status || 'not_started');
+    const [whatsAppMessage, setWhatsAppMessage] = useState('');
     
     // State for new activity
     const [newActivityType, setNewActivityType] = useState("");
@@ -52,6 +58,52 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
 
     const internalTeam = teamMembers.filter(member => member.type === 'legal');
 
+    const handleUpdateStatus = () => {
+        if (statusDraft === lead.status) return;
+        const updatedLead: ClientLead = { ...lead, status: statusDraft };
+        updateClientLead(updatedLead);
+        toast({ title: 'Status Updated', description: `${lead.name} moved to ${statusDraft}.` });
+    };
+
+    const handleSaveIntake = () => {
+        const updatedLead: ClientLead = {
+            ...lead,
+            intake: {
+                status: intakeStatus,
+                summary: intakeSummary || undefined,
+                score: typeof intakeScore === 'number' ? intakeScore : undefined,
+                submittedAt: lead.intake?.submittedAt || (intakeStatus === 'submitted' ? new Date().toISOString() : undefined),
+                data: lead.intake?.data,
+            },
+        };
+        updateClientLead(updatedLead);
+        toast({ title: 'Intake saved', description: 'Lead intake details have been updated.' });
+    };
+
+    const openWhatsApp = () => {
+        const phone = (lead.phone || '').replace(/[^\d+]/g, '');
+        const url = `https://wa.me/${phone.startsWith('+') ? phone.substring(1) : phone}`;
+        window.open(url, '_blank');
+    };
+
+    const logWhatsAppMessage = () => {
+        if (!whatsAppMessage.trim()) return;
+        const newActivity = {
+            id: Date.now(),
+            type: 'Note' as const,
+            notes: `[WhatsApp] ${whatsAppMessage.trim()}`,
+            date: new Date().toISOString(),
+        };
+        const updatedLead: ClientLead = {
+            ...lead,
+            activity: [...(lead.activity || []), newActivity],
+            lastContacted: new Date().toISOString(),
+        };
+        updateClientLead(updatedLead);
+        setWhatsAppMessage('');
+        toast({ title: 'WhatsApp message logged', description: `Saved message for ${lead.name}.` });
+    };
+
     const handleLogActivity = () => {
         if (!newActivityType || !newActivityNotes) {
             toast({ title: 'Error', description: 'Activity Type and Notes are required.', variant: 'destructive' });
@@ -64,6 +116,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             notes: newActivityNotes,
             date: new Date(newActivityDate).toISOString(),
         };
+
+    
 
         let updatedActivities = [...(lead.activity || []), newActivity];
 
@@ -111,8 +165,9 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     };
 
     return (
-        <Sheet open={isOpen} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col h-full">
+        <Sheet open={isOpen} onOpenChange={(v) => { if (!v) setIsExpanded(false); onOpenChange(v); }}>
+            <SheetContent className={`w-full ${isExpanded ? 'sm:max-w-full' : 'sm:max-w-2xl'} p-0 flex flex-col h-full`}
+                side="right">
                 <SheetHeader className="p-6 border-b shrink-0">
                     <div className="flex justify-between items-start">
                          <div className="flex items-center gap-4">
@@ -125,14 +180,59 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                                 {lead.company && <SheetDescription className="flex items-center gap-2"><Building className="h-4 w-4" />{lead.company}</SheetDescription>}
                             </div>
                         </div>
-                        <SheetClose asChild>
-                            <Button variant="ghost" size="icon">
-                                <X className="h-5 w-5" />
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" onClick={() => setIsExpanded((s) => !s)}>
+                                <ExternalLink className="h-4 w-4 mr-2" /> {isExpanded ? 'Shrink' : 'Expand'}
                             </Button>
-                        </SheetClose>
+                            <Button variant="outline" size="sm" onClick={openWhatsApp}>
+                                <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
+                            </Button>
+                            <a href={`mailto:${lead.email}`} target="_blank" rel="noreferrer">
+                                <Button variant="outline" size="sm"><Mail className="h-4 w-4 mr-2" /> Email</Button>
+                            </a>
+                            <a href={`tel:${lead.phone}`}>
+                                <Button variant="outline" size="sm"><Phone className="h-4 w-4 mr-2" /> Call</Button>
+                            </a>
+                            <SheetClose asChild>
+                                <Button variant="ghost" size="icon">
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </SheetClose>
+                        </div>
                     </div>
                 </SheetHeader>
                 <div className="overflow-y-auto flex-1 p-6 space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle className="text-lg">Lead Stage</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                            <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">Current Stage</p>
+                                <Select value={statusDraft} onValueChange={(v) => setStatusDraft(v as ClientLead['status'])}>
+                                    <SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="New">New</SelectItem>
+                                        <SelectItem value="Contacted">Contacted</SelectItem>
+                                        <SelectItem value="Qualified">Qualified</SelectItem>
+                                        <SelectItem value="Unqualified">Unqualified</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex justify-end">
+                                <Button onClick={handleUpdateStatus}>Update Stage</Button>
+                            </div>
+                            <div className="col-span-1 sm:col-span-2">
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span className={`px-2 py-1 rounded ${lead.status === 'New' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>New</span>
+                                    <span className="w-6 h-[2px] bg-border"/>
+                                    <span className={`px-2 py-1 rounded ${lead.status === 'Contacted' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Contacted</span>
+                                    <span className="w-6 h-[2px] bg-border"/>
+                                    <span className={`px-2 py-1 rounded ${lead.status === 'Qualified' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>Qualified</span>
+                                    <span className="w-6 h-[2px] bg-border"/>
+                                    <span className={`px-2 py-1 rounded ${lead.status === 'Unqualified' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>Unqualified</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardHeader><CardTitle className="text-lg">Lead Information</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4 text-sm">
@@ -142,6 +242,38 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             <div><p className="text-muted-foreground">Phone</p><p>{lead.phone}</p></div>
                             <div><p className="text-muted-foreground">Owner</p><p>{lead.owner.name}</p></div>
                             <div><p className="text-muted-foreground">Created</p><p>{new Date(lead.createdDate).toLocaleDateString()}</p></div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle className="text-lg">Initial Intake</CardTitle></CardHeader>
+                        <CardContent className="space-y-4 text-sm">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-muted-foreground">Intake Status</p>
+                                    <div className="mt-1">
+                                        <Select value={intakeStatus} onValueChange={(v) => setIntakeStatus(v as NonNullable<ClientLead['intake']>['status'])}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="not_started">Not Started</SelectItem>
+                                                <SelectItem value="in_progress">In Progress</SelectItem>
+                                                <SelectItem value="submitted">Submitted</SelectItem>
+                                                <SelectItem value="reviewed">Reviewed</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-muted-foreground">Score</p>
+                                    <Input type="number" placeholder="e.g., 78" value={intakeScore} onChange={(e) => setIntakeScore(e.target.value === '' ? '' : Number(e.target.value))} />
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-muted-foreground">Summary</p>
+                                    <Textarea placeholder="Brief intake summary..." value={intakeSummary} onChange={(e) => setIntakeSummary(e.target.value)} />
+                                </div>
+                            </div>
+                            <div className="flex justify-end">
+                                <Button onClick={handleSaveIntake}>Save Intake</Button>
+                            </div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -197,6 +329,16 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                           <div className="rounded-md border p-3">
+                               <div className="flex items-center justify-between gap-2 mb-2">
+                                   <div className="flex items-center gap-2 text-sm font-medium"><MessageSquare className="h-4 w-4"/> WhatsApp message</div>
+                                   <Button size="sm" variant="outline" onClick={openWhatsApp}><ExternalLink className="h-3 w-3 mr-2"/>Open WhatsApp</Button>
+                               </div>
+                               <div className="flex gap-2">
+                                   <Input placeholder="Type a message to log..." value={whatsAppMessage} onChange={(e) => setWhatsAppMessage(e.target.value)} />
+                                   <Button onClick={logWhatsAppMessage}>Log</Button>
+                               </div>
+                           </div>
                            {(lead.activity || []).map((item) => {
                                 const Icon = activityIcons[item.type] || FileText;
                                 return (

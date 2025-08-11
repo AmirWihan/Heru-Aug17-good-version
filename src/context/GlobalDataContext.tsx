@@ -108,6 +108,9 @@ interface GlobalDataContextType {
     saveDailyBackup: (key?: string) => void;
     isAutoBackupEnabled: (key?: string) => boolean;
     setAutoBackupEnabled: (key: string, enabled: boolean) => void;
+    // Backup schedule (HH:mm 24h, local time)
+    getBackupSchedule: (key?: string) => string;
+    setBackupSchedule: (key: string, time: string) => void;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
@@ -151,6 +154,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const [themePrefs, setThemePrefs] = useState<Record<string, { themeId: string; mode: 'light'|'dark'|'system' }>>({});
     const [rolePermsByWorkspace, setRolePermsByWorkspace] = useState<Record<string, RolePermissions>>({});
     const [autoBackupEnabledByWorkspace, setAutoBackupEnabledByWorkspace] = useState<Record<string, boolean>>({});
+    const [backupScheduleByWorkspace, setBackupScheduleByWorkspace] = useState<Record<string, string>>({}); // 'HH:mm'
     const [isLoaded, setIsLoaded] = useState(false);
     
     const loading = authLoading || loadingProfile;
@@ -230,13 +234,16 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
         try {
             const storedPrefs = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedPrefs) {
-                const { theme: storedTheme, logos: storedLogos, themePrefs: storedThemePrefs, rolePermsByWorkspace: storedRolePerms, autoBackupEnabledByWorkspace: storedAutoBackup } = JSON.parse(storedPrefs);
+                const { theme: storedTheme, logos: storedLogos, themePrefs: storedThemePrefs, rolePermsByWorkspace: storedRolePerms, autoBackupEnabledByWorkspace: storedAutoBackup, backupScheduleByWorkspace: storedBackupSchedule } = JSON.parse(storedPrefs);
                 if (storedTheme) setThemeState(storedTheme);
                 if (storedLogos) setLogos(storedLogos);
                 if (storedThemePrefs) setThemePrefs(storedThemePrefs);
                 if (storedRolePerms) setRolePermsByWorkspace(storedRolePerms);
                 if (storedAutoBackup) setAutoBackupEnabledByWorkspace(storedAutoBackup);
+                if (storedBackupSchedule) setBackupScheduleByWorkspace(storedBackupSchedule);
             }
+        } catch (e) {
+            console.warn('Failed to parse local storage prefs', e);
         } finally {
             setIsLoaded(true);
         }
@@ -260,10 +267,10 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
     const setWorkspaceRolePermissions = useCallback((key: string, perms: RolePermissions) => {
         setRolePermsByWorkspace(curr => {
             const next = { ...curr, [key]: perms };
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace: next, autoBackupEnabledByWorkspace }));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace: next, autoBackupEnabledByWorkspace, backupScheduleByWorkspace }));
             return next;
         });
-    }, [theme, logos, themePrefs, autoBackupEnabledByWorkspace]);
+    }, [theme, logos, themePrefs, rolePermsByWorkspace, backupScheduleByWorkspace]);
 
     // Current context helpers
     const getCurrentWorkspaceKey = useCallback((): string => {
@@ -341,28 +348,53 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const isAutoBackupEnabled = useCallback((key?: string): boolean => {
         const workspaceKey = key || getCurrentWorkspaceKey();
-        return !!autoBackupEnabledByWorkspace[workspaceKey];
+        const val = autoBackupEnabledByWorkspace[workspaceKey];
+        // Default to true (enabled) if not set
+        return typeof val === 'boolean' ? val : true;
     }, [autoBackupEnabledByWorkspace, getCurrentWorkspaceKey]);
 
     const setAutoBackupEnabled = useCallback((key: string, enabled: boolean) => {
         setAutoBackupEnabledByWorkspace(curr => {
             const next = { ...curr, [key]: enabled };
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace, autoBackupEnabledByWorkspace: next }));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace, autoBackupEnabledByWorkspace: next, backupScheduleByWorkspace }));
             return next;
         });
-    }, [theme, logos, themePrefs, rolePermsByWorkspace]);
+    }, [theme, logos, themePrefs, rolePermsByWorkspace, backupScheduleByWorkspace]);
 
-    // Trigger auto daily backup once per day when enabled
+    const getBackupSchedule = useCallback((key?: string): string => {
+        const workspaceKey = key || getCurrentWorkspaceKey();
+        // default 22:00 (10 PM)
+        return backupScheduleByWorkspace[workspaceKey] || '22:00';
+    }, [backupScheduleByWorkspace, getCurrentWorkspaceKey]);
+
+    const setBackupSchedule = useCallback((key: string, time: string) => {
+        setBackupScheduleByWorkspace(curr => {
+            const next = { ...curr, [key]: time };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ theme, logos, themePrefs, rolePermsByWorkspace, autoBackupEnabledByWorkspace, backupScheduleByWorkspace: next }));
+            return next;
+        });
+    }, [theme, logos, themePrefs, rolePermsByWorkspace, autoBackupEnabledByWorkspace]);
+
+    // Schedule-based daily backup at configured local time
     useEffect(() => {
         if (!isLoaded) return;
         const key = getCurrentWorkspaceKey();
-        if (!autoBackupEnabledByWorkspace[key]) return;
-        const today = new Date().toISOString().slice(0,10);
-        const last = localStorage.getItem(`backup:last:${key}`);
-        if (last !== today) {
-            saveDailyBackup(key);
-        }
-    }, [isLoaded, autoBackupEnabledByWorkspace, getCurrentWorkspaceKey, saveDailyBackup]);
+        if (!isAutoBackupEnabled(key)) return;
+        const interval = setInterval(() => {
+            const schedule = getBackupSchedule(key); // 'HH:mm'
+            const now = new Date();
+            const [hh, mm] = schedule.split(':').map(n => parseInt(n, 10));
+            const scheduled = new Date();
+            scheduled.setHours(hh, mm, 0, 0);
+            const today = now.toISOString().slice(0,10);
+            const last = localStorage.getItem(`backup:last:${key}`);
+            if (last === today) return; // already backed up today
+            if (now.getTime() >= scheduled.getTime()) {
+                saveDailyBackup(key);
+            }
+        }, 60 * 1000); // check every minute
+        return () => clearInterval(interval);
+    }, [isLoaded, autoBackupEnabledByWorkspace, isAutoBackupEnabled, getCurrentWorkspaceKey, getBackupSchedule, saveDailyBackup]);
 
     const login = useCallback(async (email: string, pass: string): Promise<UserProfile | null> => {
         console.log('🔧 Login function called with:', { email, pass });
@@ -700,6 +732,8 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             saveDailyBackup,
             isAutoBackupEnabled,
             setAutoBackupEnabled,
+            getBackupSchedule,
+            setBackupSchedule,
         }}>
             {/* AuthStateListener is removed as Firebase is disabled */}
             {children}

@@ -4,11 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Upload } from "lucide-react";
+import { useGlobalData } from "@/context/GlobalDataContext";
+import { Download, Upload, ShieldAlert } from "lucide-react";
 
 export function DataSettings() {
     const { toast } = useToast();
+    const {
+        getWorkspaceBackup,
+        saveDailyBackup,
+        isAutoBackupEnabled,
+        setAutoBackupEnabled,
+        getCurrentWorkspaceKey,
+        getBackupSchedule,
+        setBackupSchedule,
+    } = useGlobalData();
+
+    const key = getCurrentWorkspaceKey();
 
     const handleExport = () => {
         toast({
@@ -24,9 +37,60 @@ export function DataSettings() {
         });
     };
 
+    const handleBackupNow = () => {
+        saveDailyBackup(key);
+        toast({ title: "Backup Saved", description: `Daily backup saved for workspace '${key}'.` });
+    };
+
+    const handleDownloadBackup = () => {
+        const backup = getWorkspaceBackup(key);
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-${key}-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast({ title: "Backup Downloaded", description: `Backup JSON downloaded for '${key}'.` });
+    };
+
 
     return (
         <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ShieldAlert className="h-5 w-5 text-blue-600" />
+                        Workspace Backup
+                    </CardTitle>
+                    <CardDescription>Automatic daily backups at your scheduled time. Defaults to 10:00 PM local time.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                        <Switch
+                            checked={isAutoBackupEnabled()}
+                            onCheckedChange={(val) => setAutoBackupEnabled(key, !!val)}
+                        />
+                        <span className="text-sm">Enable automatic daily backup</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <Label htmlFor="backup-time" className="min-w-28">Backup time</Label>
+                        <Input
+                            id="backup-time"
+                            type="time"
+                            step={60}
+                            value={getBackupSchedule()}
+                            onChange={(e) => setBackupSchedule(key, e.target.value)}
+                            className="w-40"
+                        />
+                        <span className="text-xs text-muted-foreground">Local time (24h)</span>
+                    </div>
+                </CardContent>
+                <CardFooter className="border-t pt-6 flex items-center gap-2">
+                    <Button variant="outline" onClick={handleBackupNow}>Backup Now</Button>
+                    <Button onClick={handleDownloadBackup}>Download Latest</Button>
+                </CardFooter>
+            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Import Clients</CardTitle>

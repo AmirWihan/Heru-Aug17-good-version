@@ -6,10 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useGlobalData } from "@/context/GlobalDataContext"
-import { ArrowUp, DollarSign, Percent, UserPlus, Zap, Target } from "lucide-react"
+import { useLawyerDashboard } from "@/context/LawyerDashboardContext"
+import { useRouter } from "next/navigation"
+import { ArrowUp, DollarSign, Percent, UserPlus } from "lucide-react"
 
 export function TeamPerformance() {
     const { teamMembers, clients } = useGlobalData();
+    const { setPage } = useLawyerDashboard();
+    const router = useRouter();
 
     // Calculate performance data from global state
     const salesTeam = teamMembers.filter(m => m.type === 'sales' || m.type === 'advisor');
@@ -42,7 +46,24 @@ export function TeamPerformance() {
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {performanceData.stats.map((stat, index) => (
-                        <div key={index} className={`p-4 rounded-lg ${stat.cardBg}`}>
+                        <div
+                            key={index}
+                            className={`p-4 rounded-lg ${stat.cardBg} cursor-pointer transition-colors hover:bg-muted/50`}
+                            onClick={() => {
+                                if (index === 0) setPage('clients'); // New Clients -> Clients
+                                if (index === 1) setPage('reports'); // Revenue -> Reports
+                                if (index === 2) setPage('leads');   // Conversion -> Leads
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    if (index === 0) setPage('clients');
+                                    if (index === 1) setPage('reports');
+                                    if (index === 2) setPage('leads');
+                                }
+                            }}
+                        >
                             <div className="flex justify-between items-start mb-4">
                                 <span className="text-sm font-semibold text-muted-foreground">{stat.title}</span>
                                 <div className={`p-2 rounded-full ${stat.iconBg}`}>
@@ -62,11 +83,20 @@ export function TeamPerformance() {
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <h4 className="font-semibold">Top Performers</h4>
-                        <Button variant="link" className="p-0 h-auto text-primary">View All</Button>
+                        <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setPage('team')}>View All</Button>
                     </div>
                     <div className="space-y-4">
                         {performanceData.topPerformers.map((performer) => (
-                            <div key={performer.id} className="flex items-center gap-4">
+                            <div
+                                key={performer.id}
+                                className="flex items-center gap-4 cursor-pointer hover:bg-muted/30 p-2 rounded-md"
+                                onClick={() => router.push(`/lawyer/team/${performer.id}`)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') router.push(`/lawyer/team/${performer.id}`);
+                                }}
+                            >
                                 <Avatar className="h-10 w-10">
                                     <AvatarImage src={performer.avatar} alt={performer.name} />
                                     <AvatarFallback>{performer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>

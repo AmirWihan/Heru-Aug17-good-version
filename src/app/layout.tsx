@@ -1,5 +1,6 @@
 
 import type {Metadata} from 'next';
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { GlobalDataProvider } from '@/context/GlobalDataContext';
@@ -24,12 +25,12 @@ export default function RootLayout({
         {/* PWA manifest and meta tags */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#374151" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="VisaFor" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link rel="icon" sizes="192x192" href="/icons/icon-192x192.png" />
-        <link rel="icon" sizes="512x512" href="/icons/icon-512x512.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" type="image/png" />
+        <link rel="icon" sizes="192x192" href="/icons/icon-192x192.png" type="image/png" />
+        <link rel="icon" sizes="512x512" href="/icons/icon-512x512.png" type="image/png" />
       </head>
       <body className="font-body antialiased bg-background">
         <GlobalDataProvider>
@@ -37,9 +38,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           {/* Register Service Worker for PWA */}
-          {typeof window !== 'undefined' && process.env.NODE_ENV === 'production' ? (
-            <>{require('@/components/ServiceWorkerRegister').default()}</>
-          ) : null}
+          <ServiceWorkerRegister />
         </GlobalDataProvider>
       </body>
     </html>
