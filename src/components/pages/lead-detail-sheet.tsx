@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import type { ClientLead, Task } from "@/lib/data";
-import { X, User, Building, Phone, Mail, FileText, Plus, MessageSquare, ExternalLink, CheckCircle2, XCircle, PhoneCall, CircleDot } from "lucide-react";
+import { X, User, Building, Phone, Mail, FileText, Plus, MessageSquare, ExternalLink, CheckCircle2, XCircle, PhoneCall, CircleDot, Maximize2, Minimize2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -224,8 +224,18 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             <Button size="sm" onClick={openWhatsApp} className="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200">
                                 <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => setIsExpanded((s) => !s)}>
-                                <ExternalLink className="h-4 w-4 mr-2" /> {isExpanded ? 'Shrink' : 'Expand'}
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setIsExpanded((s) => !s)}
+                                title={isExpanded ? 'Shrink lead panel' : 'Expand lead panel'}
+                                aria-label={isExpanded ? 'Shrink lead panel' : 'Expand lead panel'}
+                            >
+                                {isExpanded ? (
+                                    <Minimize2 className="h-4 w-4" />
+                                ) : (
+                                    <Maximize2 className="h-4 w-4" />
+                                )}
                             </Button>
                             <SheetClose asChild>
                                 <Button variant="ghost" size="icon">
