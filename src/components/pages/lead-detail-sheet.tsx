@@ -20,6 +20,7 @@ import { useGlobalData } from "@/context/GlobalDataContext";
 import { activityTypes } from "@/lib/data";
 import { Checkbox } from "../ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 interface LeadDetailSheetProps {
     lead: ClientLead;
@@ -48,6 +49,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     const [intakeScore, setIntakeScore] = useState<number | ''>(lead.intake?.score ?? '');
     const [intakeStatus, setIntakeStatus] = useState<NonNullable<ClientLead['intake']>['status']>(lead.intake?.status || 'not_started');
     const [whatsAppMessage, setWhatsAppMessage] = useState('');
+    const [activityRange, setActivityRange] = useState<'2m'|'1m'|'all'>('2m');
+    const [activityKind, setActivityKind] = useState<'all'|'Call'|'Email'|'Note'>('all');
     
     // State for new activity
     const [newActivityType, setNewActivityType] = useState("");
@@ -62,6 +65,10 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     const [followUpTaskPriority, setFollowUpTaskPriority] = useState<Task['priority']>('Medium');
 
     const internalTeam = teamMembers.filter(member => member.type === 'legal');
+    const leadTasks = (useGlobalData().tasks || []).filter(t => t.client?.id === lead.id);
+    const now = new Date();
+    const upcomingTasks = leadTasks.filter(t => t.dueDate && new Date(t.dueDate) >= now).sort((a,b)=> new Date(a.dueDate||'').getTime() - new Date(b.dueDate||'').getTime());
+    const overdueTasks = leadTasks.filter(t => t.dueDate && new Date(t.dueDate) < now).sort((a,b)=> new Date(b.dueDate||'').getTime() - new Date(a.dueDate||'').getTime());
 
     // Persist follow toggle
     if (typeof window !== 'undefined') {
@@ -244,6 +251,29 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                                 </CardContent>
                             </Card>
 
+                            {/* Related List Quick Links */}
+                            <Card className="col-span-12">
+                                <CardHeader className="pb-3"><CardTitle className="text-lg">Related List Quick Links</CardTitle></CardHeader>
+                                <CardContent>
+                                    <div className="flex flex-wrap gap-3 text-sm">
+                                        {[
+                                            { label: 'Assets', count: 0 },
+                                            { label: 'Contacts', count: 0 },
+                                            { label: 'Opportunities', count: 0 },
+                                            { label: 'Work Orders', count: 0 },
+                                            { label: 'Notes', count: 0 },
+                                            { label: 'Files', count: 0 },
+                                            { label: 'Approval History', count: 0 },
+                                            { label: 'Account History', count: 0 },
+                                        ].map(item => (
+                                            <Button key={item.label} variant="outline" size="sm" className="rounded-full">
+                                                {item.label} ({item.count})
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                             {/* Left: Details + Intake */}
                             <div className="col-span-12 lg:col-span-8 space-y-6">
                                 <Card>
@@ -296,9 +326,27 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             <div className="col-span-12 lg:col-span-4 space-y-4">
                                 <Card>
                                     <CardHeader className="pb-3">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between gap-2">
                                             <CardTitle className="text-lg">Activity</CardTitle>
-                                            <div className="text-xs text-muted-foreground">Filters: Within 2 months • All activities • All types</div>
+                                            <div className="flex items-center gap-2">
+                                                <Select value={activityRange} onValueChange={(v)=> setActivityRange(v as any)}>
+                                                    <SelectTrigger className="h-8 w-[130px]"><SelectValue placeholder="Range"/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="2m">Within 2 months</SelectItem>
+                                                        <SelectItem value="1m">Within 1 month</SelectItem>
+                                                        <SelectItem value="all">All time</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Select value={activityKind} onValueChange={(v)=> setActivityKind(v as any)}>
+                                                    <SelectTrigger className="h-8 w-[120px]"><SelectValue placeholder="Type"/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">All types</SelectItem>
+                                                        <SelectItem value="Call">Call</SelectItem>
+                                                        <SelectItem value="Email">Email</SelectItem>
+                                                        <SelectItem value="Note">Note</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-3">
@@ -367,10 +415,10 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
 
                                         {/* Timeline */}
                                         <div className="space-y-4">
-                                            {(lead.activity || []).length === 0 && (
+                                            {filteredActivities.length === 0 && (
                                                 <p className="text-center text-sm text-muted-foreground py-4">No activities logged.</p>
                                             )}
-                                            {(lead.activity || []).map((item) => {
+                                            {filteredActivities.map((item) => {
                                                 const Icon = activityIcons[item.type] || FileText;
                                                 return (
                                                     <div key={item.id} className="flex items-start gap-3">
@@ -385,6 +433,59 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                                         </div>
                                     </CardContent>
                                 </Card>
+
+                                {/* Upcoming & Overdue */}
+                                <Card>
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg">Upcoming & Overdue</CardTitle>
+                                            <div className="text-xs text-muted-foreground space-x-3">
+                                                <button className="hover:underline">Refresh</button>
+                                                <button className="hover:underline">Expand All</button>
+                                                <button className="hover:underline">View All</button>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 text-sm">
+                                        {upcomingTasks.length === 0 && overdueTasks.length === 0 && (
+                                            <p className="text-muted-foreground">No tasks for this lead.</p>
+                                        )}
+                                        {upcomingTasks.length > 0 && (
+                                            <div>
+                                                <p className="text-xs uppercase text-muted-foreground">Upcoming</p>
+                                                <Separator className="my-2"/>
+                                                <div className="space-y-2">
+                                                    {upcomingTasks.slice(0,5).map(t => (
+                                                        <div key={t.id} className="flex items-start gap-3">
+                                                            <div className="mt-1 h-2 w-2 rounded-full bg-emerald-500"/>
+                                                            <div className="flex-1">
+                                                                <p className="font-medium">{t.title}</p>
+                                                                <p className="text-xs text-muted-foreground">Due {t.dueDate ? formatDistanceToNow(new Date(t.dueDate), { addSuffix: true }) : '—'}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {overdueTasks.length > 0 && (
+                                            <div>
+                                                <p className="text-xs uppercase text-muted-foreground">Overdue</p>
+                                                <Separator className="my-2"/>
+                                                <div className="space-y-2">
+                                                    {overdueTasks.slice(0,5).map(t => (
+                                                        <div key={t.id} className="flex items-start gap-3">
+                                                            <div className="mt-1 h-2 w-2 rounded-full bg-red-500"/>
+                                                            <div className="flex-1">
+                                                                <p className="font-medium">{t.title}</p>
+                                                                <p className="text-xs text-muted-foreground">Was due {t.dueDate ? formatDistanceToNow(new Date(t.dueDate), { addSuffix: true }) : '—'}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </div>
                         </div>
                     ) : (
@@ -392,6 +493,9 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                             <Tabs defaultValue="details">
                                 <TabsList>
                                     <TabsTrigger value="details">Details</TabsTrigger>
+                                    <TabsTrigger value="related">Related</TabsTrigger>
+                                    <TabsTrigger value="summary">Summary</TabsTrigger>
+                                    <TabsTrigger value="history">History</TabsTrigger>
                                     <TabsTrigger value="activity">Activity</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="details" className="space-y-6 mt-4">
@@ -451,12 +555,57 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
+                                <TabsContent value="related" className="space-y-6 mt-4">
+                                    <Card>
+                                        <CardHeader className="pb-3"><CardTitle className="text-lg">Related List Quick Links</CardTitle></CardHeader>
+                                        <CardContent>
+                                            <div className="flex flex-wrap gap-3 text-sm">
+                                                {[{label:'Assets',count:0},{label:'Contacts',count:0},{label:'Opportunities',count:0},{label:'Work Orders',count:0},{label:'Notes',count:0},{label:'Files',count:0},{label:'Approval History',count:0},{label:'Account History',count:0}].map(item => (
+                                                    <Button key={item.label} variant="outline" size="sm" className="rounded-full">{item.label} ({item.count})</Button>
+                                                ))}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </TabsContent>
+                                <TabsContent value="summary" className="space-y-6 mt-4">
+                                    <Card>
+                                        <CardHeader className="pb-3"><CardTitle className="text-lg">Additional Information</CardTitle></CardHeader>
+                                        <CardContent className="grid grid-cols-2 gap-4 text-sm">
+                                            <div><p className="text-muted-foreground">Last Activity Date</p><p>{lead.lastContacted ? new Date(lead.lastContacted).toLocaleDateString() : '—'}</p></div>
+                                            <div><p className="text-muted-foreground">Open Opportunities</p><p>$0.00</p></div>
+                                        </CardContent>
+                                    </Card>
+                                </TabsContent>
+                                <TabsContent value="history" className="space-y-6 mt-4">
+                                    <Card>
+                                        <CardHeader className="pb-3"><CardTitle className="text-lg">Account History</CardTitle></CardHeader>
+                                        <CardContent className="text-sm text-muted-foreground">No history available.</CardContent>
+                                    </Card>
+                                </TabsContent>
                                 <TabsContent value="activity" className="mt-4">
                                     <Card>
                                         <CardHeader className="pb-3">
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex items-center justify-between gap-2">
                                                 <CardTitle className="text-lg">Activity</CardTitle>
-                                                <div className="text-xs text-muted-foreground">Filters: Within 2 months • All activities • All types</div>
+                                                <div className="flex items-center gap-2">
+                                                    <Select value={activityRange} onValueChange={(v)=> setActivityRange(v as any)}>
+                                                        <SelectTrigger className="h-8 w-[130px]"><SelectValue placeholder="Range"/></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="2m">Within 2 months</SelectItem>
+                                                            <SelectItem value="1m">Within 1 month</SelectItem>
+                                                            <SelectItem value="all">All time</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <Select value={activityKind} onValueChange={(v)=> setActivityKind(v as any)}>
+                                                        <SelectTrigger className="h-8 w-[120px]"><SelectValue placeholder="Type"/></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All types</SelectItem>
+                                                            <SelectItem value="Call">Call</SelectItem>
+                                                            <SelectItem value="Email">Email</SelectItem>
+                                                            <SelectItem value="Note">Note</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
                                             </div>
                                         </CardHeader>
                                         <CardContent className="space-y-3">
@@ -466,10 +615,10 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                                                 <Button size="sm" variant="outline" onClick={() => setIsLogActivityOpen(true)} className="gap-2"><Plus className="h-4 w-4"/> Log Activity</Button>
                                             </div>
                                             <div className="space-y-4">
-                                                {(lead.activity || []).length === 0 && (
+                                                {filteredActivities.length === 0 && (
                                                     <p className="text-center text-sm text-muted-foreground py-4">No activities logged.</p>
                                                 )}
-                                                {(lead.activity || []).map((item) => {
+                                                {filteredActivities.map((item) => {
                                                     const Icon = activityIcons[item.type] || FileText;
                                                     return (
                                                         <div key={item.id} className="flex items-start gap-3">
