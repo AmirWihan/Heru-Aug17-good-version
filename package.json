@@ -94,6 +94,8 @@
     "@types/react-dom": "^18",
     "concurrently": "^8.2.2",
     "copy-webpack-plugin": "^13.0.0",
+    "eslint": "9.33.0",
+    "eslint-config-next": "15.4.6",
     "genkit-cli": "^1.13.0",
     "playwright": "^1.54.2",
     "postcss": "^8",
