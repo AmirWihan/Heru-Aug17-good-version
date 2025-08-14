@@ -220,6 +220,39 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                 <CardContent className="space-y-4 text-sm">
                   {party.partyType === 'lead' ? (
                     <>
+                      {/* Requested lead summary fields */}
+                      <div>
+                        <p className="text-muted-foreground">Priority</p>
+                        <p className="font-bold text-base">
+                          {(() => {
+                            const score = (party as any).intake?.score as number | undefined;
+                            if (typeof score === 'number') {
+                              if (score >= 80) return 'High';
+                              if (score >= 50) return 'Medium';
+                              return 'Low';
+                            }
+                            return '—';
+                          })()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Case Type</p>
+                        <p className="font-semibold">{(party as any).caseType || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Education</p>
+                        <p className="font-semibold">{(party as any).intake?.data?.education?.[0]?.degree || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Current visa Status</p>
+                        <p className="font-semibold">{(party as any).currentVisaStatus || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Last contact date</p>
+                        <p className="font-semibold">{(party as any).lastContacted || '—'}</p>
+                      </div>
+
+                      {/* Keep existing meta for context */}
                       <div>
                         <p className="text-muted-foreground">Company</p>
                         <p className="font-semibold">{(party as any).company || '—'}</p>
@@ -233,7 +266,7 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                         <p className="font-semibold">{party.source || '—'}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Status</p>
+                        <p className="text-muted-foreground">Lead Status</p>
                         <Badge variant={getStatusBadgeVariant(party.status)}>{party.status}</Badge>
                       </div>
                     </>
