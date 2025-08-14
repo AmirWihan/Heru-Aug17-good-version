@@ -219,7 +219,10 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                   {party.partyType === 'lead' ? (
-                    <>
+                    <LeadSummaryEditable
+                      party={party}
+                      onUpdateParty={onUpdateParty}
+                    />
                       {/* Requested lead summary fields */}
                       <div>
                         <p className="text-muted-foreground">Priority</p>
@@ -424,5 +427,112 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
     </div>
   );
 };
+// --- Editable Lead Summary for left panel ---
+import { useState } from "react";
+import { Pencil } from "lucide-react";
+
+const LeadSummaryEditable: React.FC<{ party: Party; onUpdateParty: (updated: Party) => void }> = ({ party, onUpdateParty }) => {
+  const [editing, setEditing] = useState(false);
+  const [priority, setPriority] = useState<string>(() => {
+    const score = (party as any).intake?.score as number | undefined;
+    if (typeof score === "number") {
+      if (score >= 80) return "High";
+      if (score >= 50) return "Medium";
+      return "Low";
+    }
+    return (party as any).priority || "";
+  });
+  const [caseType, setCaseType] = useState<string>((party as any).caseType || "");
+  const [education, setEducation] = useState<string>((party as any).intake?.data?.education?.[0]?.degree || "");
+  const [visaStatus, setVisaStatus] = useState<string>((party as any).currentVisaStatus || "");
+
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = () => {
+    setSaving(true);
+    // Compose new party object minimally
+    const updated = {
+      ...party,
+      priority,
+      caseType,
+      currentVisaStatus: visaStatus,
+      intake: {
+        ...(party as any).intake,
+        data: {
+          ...((party as any).intake?.data || {}),
+          education: education ? [{ ...((party as any).intake?.data?.education?.[0] || {}), degree: education }] : ((party as any).intake?.data?.education || []),
+        },
+      },
+    };
+    onUpdateParty(updated as Party);
+    setSaving(false);
+    setEditing(false);
+  };
+
+  return (
+    <div className="relative">
+      {!editing && (
+        <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={() => setEditing(true)} title="Edit lead info">
+          <Pencil className="w-4 h-4" />
+        </Button>
+      )}
+      {editing ? (
+        <form className="space-y-3" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+          <div>
+            <Label htmlFor="priority">Priority</Label>
+            <Select id="priority" value={priority} onValueChange={setPriority}>
+              <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="caseType">Case Type</Label>
+            <Input id="caseType" value={caseType} onChange={e => setCaseType(e.target.value)} placeholder="e.g. Student visa" />
+          </div>
+          <div>
+            <Label htmlFor="education">Education</Label>
+            <Input id="education" value={education} onChange={e => setEducation(e.target.value)} placeholder="e.g. Master" />
+          </div>
+          <div>
+            <Label htmlFor="visaStatus">Current visa Status</Label>
+            <Input id="visaStatus" value={visaStatus} onChange={e => setVisaStatus(e.target.value)} placeholder="e.g. Tourist Visa" />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
+            <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
+          </div>
+        </form>
+      ) : (
+        <>
+          <div>
+            <p className="text-muted-foreground">Priority</p>
+            <p className={priority ? "font-bold text-base" : "text-muted-foreground italic"}>{priority || "High"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Case Type</p>
+            <p className={caseType ? "font-semibold" : "text-muted-foreground italic"}>{caseType || "Student visa"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Education</p>
+            <p className={education ? "font-semibold" : "text-muted-foreground italic"}>{education || "Master"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Current visa Status</p>
+            <p className={visaStatus ? "font-semibold" : "text-muted-foreground italic"}>{visaStatus || "Tourist Visa"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Last contact date</p>
+            <p className="font-semibold">{(party as any).lastContacted || "—"}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 // --- End full ClientProfile superset logic ---
 
