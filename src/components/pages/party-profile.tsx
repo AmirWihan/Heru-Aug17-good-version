@@ -252,23 +252,7 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                         <p className="font-semibold">{(party as any).lastContacted || '—'}</p>
                       </div>
 
-                      {/* Keep existing meta for context */}
-                      <div>
-                        <p className="text-muted-foreground">Company</p>
-                        <p className="font-semibold">{(party as any).company || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Owner</p>
-                        <p className="font-semibold">{party.owner?.name || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Source</p>
-                        <p className="font-semibold">{party.source || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Lead Status</p>
-                        <Badge variant={getStatusBadgeVariant(party.status)}>{party.status}</Badge>
-                      </div>
+                      {/* Removed: Company, Owner, Source, Lead Status per request */}
                     </>
                   ) : (
                     <>
