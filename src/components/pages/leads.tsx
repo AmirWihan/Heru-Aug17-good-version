@@ -14,7 +14,7 @@ import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { LeadDetailSheet } from './lead-detail-sheet';
+import { PartyProfile, Party } from './party-profile';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { format } from 'date-fns';
@@ -275,108 +275,102 @@ export function LeadsPage() {
         }, [status, searchTerm, ownershipFilter, userProfile, clientLeads]);
 
         return (
-            <div className="overflow-x-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Contact Person</TableHead>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Owner</TableHead>
-                            <TableHead>Last Contacted</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredLeads.map(lead => (
-                             <TableRow key={lead.id} className="cursor-pointer" onClick={() => handleViewLead(lead)}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={lead.avatar} />
-                                            <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
-                                        </Avatar>
-                                        <div className="font-medium">{lead.name}</div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{lead.company}</TableCell>
-                                <TableCell><Badge variant={getStatusBadgeVariant(lead.status)}>{lead.status}</Badge></TableCell>
-                                <TableCell>{lead.owner.name}</TableCell>
-                                <TableCell suppressHydrationWarning>{format(new Date(lead.lastContacted), 'PP')}</TableCell>
-                                <TableCell className="text-right">
-                                     <DropdownMenu>
-                                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            <DropdownMenuItem onClick={() => handleViewLead(lead)}>View Details</DropdownMenuItem>
-                                            {lead.status === 'Qualified' && <DropdownMenuItem onClick={() => handleConvertLead(lead.id)}>Convert to Client</DropdownMenuItem>}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                 {filteredLeads.length === 0 && <p className="text-center text-muted-foreground py-8">No leads match the current filters.</p>}
-            </div>
-        );
+    <div className="overflow-x-auto">
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Owner</TableHead>
+                    <TableHead>Last Contacted</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {filteredLeads.map(lead => (
+                    <TableRow key={lead.id} className="cursor-pointer" onClick={() => handleViewLead(lead)}>
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={lead.avatar} />
+                                    <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
+                                </Avatar>
+                                <div className="font-medium">{lead.name}</div>
+                            </div>
+                        </TableCell>
+                        <TableCell>{lead.company}</TableCell>
+                        <TableCell><Badge variant={getStatusBadgeVariant(lead.status)}>{lead.status}</Badge></TableCell>
+                        <TableCell>{lead.owner.name}</TableCell>
+                        <TableCell suppressHydrationWarning>{format(new Date(lead.lastContacted), 'PP')}</TableCell>
+                        <TableCell className="text-right">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem onClick={() => handleViewLead(lead)}>View Details</DropdownMenuItem>
+                                    {lead.status === 'Qualified' && <DropdownMenuItem onClick={() => handleConvertLead(lead.id)}>Convert to Client</DropdownMenuItem>}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+        {filteredLeads.length === 0 && <p className="text-center text-muted-foreground py-8">No leads match the current filters.</p>}
+    </div>
+);
     }
 
     return (
         <>
             <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle>Client Leads</CardTitle>
-                                <CardDescription>Manage your pipeline of potential new clients.</CardDescription>
-                            </div>
-                            <div className="flex gap-2">
-                                <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-                                    <Upload className="mr-2 h-4 w-4" />
-                                    Import Leads
-                                </Button>
-                                <Button onClick={() => setIsAddOpen(true)}>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Add Lead
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 pt-4 flex-wrap">
-                            <div className="relative flex-1 min-w-[240px]">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="Search by name or company..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                            </div>
-                            <RadioGroup defaultValue="all" onValueChange={(v) => setOwnershipFilter(v as 'all' | 'mine')} className="flex items-center space-x-2">
-                                <RadioGroupItem value="all" id="all" />
-                                <Label htmlFor="all">All Leads</Label>
-                                <RadioGroupItem value="mine" id="mine" />
-                                <Label htmlFor="mine">My Leads</Label>
-                            </RadioGroup>
-                             <Button variant="outline" onClick={() => { setSearchTerm(''); setOwnershipFilter('all'); }}>
-                                <Filter className="mr-2 h-4 w-4" /> Reset Filters
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                         <Tabs defaultValue="all">
-                            <TabsList>
-                                <TabsTrigger value="all">All ({clientLeads.length})</TabsTrigger>
-                                {statusTabs.map(status => (
-                                    <TabsTrigger key={status} value={status}>{status} ({clientLeads.filter(l => l.status === status).length})</TabsTrigger>
-                                ))}
-                            </TabsList>
-                            <TabsContent value="all" className="mt-4"><LeadsTable /></TabsContent>
-                            {statusTabs.map(status => (
-                                <TabsContent key={status} value={status} className="mt-4"><LeadsTable status={status} /></TabsContent>
-                            ))}
-                        </Tabs>
-                    </CardContent>
-                </Card>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-xl font-bold">Client Leads</h1>
+                        <p className="text-muted-foreground">Manage your pipeline of potential new clients.</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import Leads
+                        </Button>
+                        <Button onClick={() => setIsAddOpen(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Lead
+                        </Button>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4 pt-4 flex-wrap">
+                    <div className="relative flex-1 min-w-[240px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Search by name or company..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                    </div>
+                    <RadioGroup defaultValue="all" onValueChange={(v) => setOwnershipFilter(v as 'all' | 'mine')} className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="all" />
+                        <Label htmlFor="all">All Leads</Label>
+                        <RadioGroupItem value="mine" id="mine" />
+                        <Label htmlFor="mine">My Leads</Label>
+                    </RadioGroup>
+                    <Button variant="outline" onClick={() => { setSearchTerm(''); setOwnershipFilter('all'); }}>
+                        <Filter className="mr-2 h-4 w-4" /> Reset Filters
+                    </Button>
+                </div>
+                <Tabs defaultValue="all">
+                    <TabsList>
+                        <TabsTrigger value="all">All ({clientLeads.length})</TabsTrigger>
+                        {statusTabs.map(status => (
+                            <TabsTrigger key={status} value={status}>{status} ({clientLeads.filter(l => l.status === status).length})</TabsTrigger>
+                        ))}
+                    </TabsList>
+                    <TabsContent value="all" className="mt-4"><LeadsTable /></TabsContent>
+                    {statusTabs.map(status => (
+                        <TabsContent key={status} value={status} className="mt-4"><LeadsTable status={status} /></TabsContent>
+                    ))}
+                </Tabs>
             </div>
-             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+            <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Import Leads</DialogTitle>
@@ -402,7 +396,19 @@ export function LeadsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {selectedLead && <LeadDetailSheet lead={selectedLead} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} onConvert={handleConvertLead} />}
+            {selectedLead && (
+                <Dialog open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <DialogContent className="w-screen max-w-[100vw] h-[100vh] sm:max-w-[96vw] sm:h-[96vh] p-0 overflow-hidden" aria-describedby="lead-detail-description">
+                        <p id="lead-detail-description" className="sr-only">Lead details and actions</p>
+                        <div className="p-6 h-full overflow-auto">
+                            <PartyProfile
+                                party={{ ...selectedLead, partyType: 'lead' } as Party}
+                                onUpdateParty={updated => updateClientLead(updated as any)}
+                            />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                 <DialogContent>
                     <DialogHeader>

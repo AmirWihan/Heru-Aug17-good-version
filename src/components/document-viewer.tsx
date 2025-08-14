@@ -68,7 +68,7 @@ export function DocumentViewer({ isOpen, onOpenChange, document }: DocumentViewe
                 setScale(1.0);
             }
         }}>
-            <DialogContent className="max-w-4xl h-[95vh] flex flex-col p-0">
+            <DialogContent className="w-screen max-w-[100vw] h-[100vh] sm:max-w-[96vw] sm:h-[96vh] flex flex-col p-0 overflow-hidden">
                 <DialogHeader className="p-4 border-b">
                     <DialogTitle>Viewing: {document?.title}</DialogTitle>
                     <DialogDescription>Use the controls below to navigate and manage the document.</DialogDescription>

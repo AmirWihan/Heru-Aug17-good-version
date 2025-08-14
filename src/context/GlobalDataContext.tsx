@@ -251,6 +251,11 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             if (storedClientLeads) {
                 try { setClientLeads(JSON.parse(storedClientLeads)); } catch {}
             }
+            // Hydrate user profile (offline mode persistence)
+            const storedProfile = localStorage.getItem('auth:userProfile');
+            if (storedProfile) {
+                try { setUserProfile(JSON.parse(storedProfile)); } catch {}
+            }
         } catch (e) {
             console.warn('Failed to parse local storage prefs', e);
         } finally {
@@ -430,6 +435,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 const profile = { ...foundClient, authRole: 'client' as const };
                 console.log('🎉 Client login successful:', profile);
                 setUserProfile(profile);
+                try { localStorage.setItem('auth:userProfile', JSON.stringify(profile)); } catch {}
                 setLoadingProfile(false);
                 console.log('✅ Loading profile set to false for client');
                 return profile;
@@ -457,6 +463,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
                 const profile = { ...foundTeamMember, authRole };
                 console.log('🎉 Team member login successful:', profile);
                 setUserProfile(profile);
+                try { localStorage.setItem('auth:userProfile', JSON.stringify(profile)); } catch {}
                 setLoadingProfile(false);
                 console.log('✅ Loading profile set to false for team member');
                 return profile;
@@ -472,6 +479,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
 
     const logout = useCallback(async () => {
         setUserProfile(null);
+        try { localStorage.removeItem('auth:userProfile'); } catch {}
     }, []);
 
     const sendPasswordReset = useCallback(async (email: string) => {
@@ -549,6 +557,7 @@ export function GlobalDataProvider({ children }: { children: ReactNode }) {
             if (!currentProfile) return null;
             const updatedProfile = { ...currentProfile, ...updates } as UserProfile;
             
+            try { localStorage.setItem('auth:userProfile', JSON.stringify(updatedProfile)); } catch {}
             return updatedProfile;
         });
     }, []);
