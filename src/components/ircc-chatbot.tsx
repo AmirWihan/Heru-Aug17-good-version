@@ -20,7 +20,7 @@ type Message = {
 export function IrccChatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: 1, role: 'bot', text: "Hello! I'm the VisaFor AI assistant. Ask me any question about Canadian immigration based on IRCC information." }
+        { id: 1, role: 'bot', text: "Hello! I'm the Heru AI Assistant. Ask me any question about Canadian immigration based on IRCC information." }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
