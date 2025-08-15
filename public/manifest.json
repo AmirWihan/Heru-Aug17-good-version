@@ -1,7 +1,7 @@
 {
-  "name": "VisaFor CRM",
-  "short_name": "VisaFor",
-  "description": "Your AI-powered CRM for Immigration Professionals.",
+  "name": "Heu",
+  "short_name": "Heu",
+  "description": "Heu: Your AI-powered CRM for Immigration Professionals.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F9FAFB",

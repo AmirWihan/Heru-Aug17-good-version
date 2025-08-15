@@ -125,7 +125,7 @@ export function ClientOverviewPage({ setPage }: { setPage: (page: string) => voi
     return (
         <div className="space-y-6 p-6">
             {/* Welcome Banner */}
-            <Card className="border-0 shadow-sm bg-gradient-to-r from-green-50 to-emerald-50">
+            <Card className="border-0 shadow-sm bg-gradient-to-r from-[#36d1c4] to-[#29b6f6]">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>

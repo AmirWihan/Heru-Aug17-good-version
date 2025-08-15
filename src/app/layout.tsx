@@ -7,8 +7,8 @@ import { GlobalDataProvider } from '@/context/GlobalDataContext';
 import { ThemeManager } from '@/components/theme-manager';
 
 export const metadata: Metadata = {
-  title: 'VisaFor | AI-Powered Immigration CRM',
-  description: 'Your AI-powered CRM for Immigration Professionals.',
+  title: 'Heu | AI-Powered CRM',
+  description: 'Heu: Your AI-powered CRM for Immigration Professionals.',
 };
 
 export default function RootLayout({

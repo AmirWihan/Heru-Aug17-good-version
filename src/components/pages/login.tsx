@@ -7,7 +7,8 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { DynamicLogoIcon } from '@/components/icons/DynamicLogoIcon';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import LandingLogo from "@/components/LandingLogo";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,8 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
+  // ...rest of code
+
     const { toast } = useToast();
     const router = useRouter();
     const { login } = useGlobalData();
@@ -68,9 +71,12 @@ export default function LoginPage() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
             <div className="flex items-center justify-center bg-background p-4">
-                 <div className="w-full max-w-md space-y-6">
+                 <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 mx-auto">
+      <div className="flex justify-center mb-6">
+        <LandingLogo size={96} />
+      </div>
                     <div className="text-center">
-                        <DynamicLogoIcon className="mx-auto h-12 w-12" />
+                        {/* Removed DynamicLogoIcon for cleaner branding */}
                         <h1 className="mt-4 font-headline text-3xl font-bold">Welcome Back</h1>
                         <p className="mt-2 text-muted-foreground">Sign in to access your VisaFor dashboard.</p>
                     </div>

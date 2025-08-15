@@ -67,10 +67,10 @@ export default function RoleSelectionPage() {
             
             <div className="text-center mb-12 max-w-4xl">
                 <div className="flex justify-center mb-6">
-                    <DynamicLogoIcon className="h-20 w-20 mx-auto animate-pulse" />
+                    <img src="/landing-logo.png" alt="Heu Logo" className="h-12 w-auto mx-auto animate-pulse" style={{maxHeight:'48px'}} />
                 </div>
-                <h1 className="text-5xl font-bold font-headline text-foreground mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Welcome to VisaFor
+                <h1 className="text-5xl font-bold font-headline text-black mb-4">
+                    Welcome to Heru
                 </h1>
                 <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
                     The AI-powered CRM platform that revolutionizes immigration case management for legal professionals and their clients.

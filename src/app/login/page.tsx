@@ -104,15 +104,15 @@ function LoginPageInner() {
                  <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
                         <div className="flex justify-center mb-6">
-                            <DynamicLogoIcon className="h-16 w-16" />
+                            <img src="/landing-logo.png" alt="Heu Logo" className="h-10 w-auto mx-auto" style={{maxHeight:'40px'}} />
                         </div>
-                        <h1 className="text-3xl font-bold font-headline bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold font-headline text-black">
                             Welcome Back
                         </h1>
                         <p className="mt-2 text-muted-foreground">
                             {isLawyer && "Sign in to access your legal practice dashboard."}
                             {isClient && "Sign in to track your immigration application."}
-                            {!isLawyer && !isClient && "Sign in to access your VisaFor dashboard."}
+                            {!isLawyer && !isClient && "Sign in to access your Heu dashboard."}
                         </p>
                         
                         {/* Role Indicator */}

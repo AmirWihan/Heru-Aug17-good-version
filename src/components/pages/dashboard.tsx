@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { TeamPerformance } from "../sales-team-performance";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart, PieChart, Pie } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGlobalData } from "@/context/GlobalDataContext";
 import { analyzeClientRisks, type RiskAnalysisOutput, type ClientAlert, type RiskAnalysisInput } from "@/ai/flows/risk-analyzer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -137,6 +137,25 @@ const applicationTypes = [
 ];
 
 export function DashboardPage({ setPage }: { setPage: (page: string) => void }) {
+    // PWA Install App Button logic
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [showInstall, setShowInstall] = useState(false);
+    useEffect(() => {
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setShowInstall(true);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+    const handleInstallClick = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') setShowInstall(false);
+        }
+    }
     const { toast } = useToast();
     const { clients, tasks, userProfile, teamMembers, addTask, getWorkspaceBackup, saveDailyBackup, isAutoBackupEnabled, setAutoBackupEnabled, getCurrentWorkspaceKey } = useGlobalData();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -271,109 +290,163 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
 
     return (
         <div className="space-y-6 p-6">
-            {/* Welcome Section */}
-            <Card className="border-0 shadow-sm bg-gradient-to-r from-purple-50 to-violet-50 mb-6">
-                <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold font-headline text-gray-900">Welcome back, {userProfile?.name}!</h1>
-                            <p className="text-gray-600 mt-2">Here's what's happening with your practice today.</p>
+            {/* Welcome Banner */}
+            <Card className="border-0 shadow-sm bg-gradient-to-b from-[#b16cea] via-[#8f6be8] to-[#5f6be6] mb-6 w-full">
+                <CardContent className="py-8 px-4 md:px-12">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 w-full">
+                        {/* Left: Welcome */}
+                        <div className="flex-1 min-w-[220px]">
+                            <div className="flex items-center gap-4">
+  <div className="text-2xl font-bold font-headline text-white">Welcome back, {userProfile?.name || 'User'}!</div>
+  {showInstall && (
+    <Button className="ml-2" variant="outline" onClick={handleInstallClick}>
+      <ArrowDown className="w-4 h-4 mr-2" /> Install App
+    </Button>
+  )}
+</div>
+<p className="text-white mt-2">Here's what's happening with your practice today.</p>
                         </div>
-                        <Button 
-                            onClick={handleRunAnalysis} 
-                            disabled={isAnalyzing}
-                            className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
-                        >
-                            {isAnalyzing ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Analyzing...
-                                </>
-                            ) : (
-                                <>
-                                    <Brain className="mr-2 h-4 w-4" />
-                                    Run AI Analysis
-                                </>
-                            )}
-                        </Button>
+                        {/* Right: Today Tasks/Meetings */}
+                        <div className="flex flex-col items-end min-w-[180px] md:pl-8">
+                            <div className="bg-white/10 rounded-lg px-4 py-3 text-white shadow-sm flex flex-col gap-1 items-end w-full">
+                                <span className="font-semibold text-lg">{tasks?.filter(t => t.dueDate && new Date(t.dueDate).toDateString() === new Date().toDateString()).length || 0} tasks today</span>
+                                <span className="font-semibold text-lg">5 meetings today</span>
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
-
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Active Clients"
-                    value={activeClients.toString()}
-                    icon={Users}
-                    change="+12%"
-                    changeType="up"
-                    trend={12}
-                    onClick={() => setPage('clients')}
-                />
-                <StatCard
-                    title="Pending Applications"
-                    value={pendingApplications.toString()}
-                    icon={FileText}
-                    change="+5%"
-                    changeType="up"
-                    trend={5}
-                    onClick={() => setPage('applications')}
-                />
-                <StatCard
-                    title="Upcoming Appointments"
-                    value={upcomingAppointments.toString()}
-                    icon={CalendarCheck}
-                    change="+2"
-                    changeType="up"
-                    trend={8}
-                    onClick={() => setPage('appointments')}
-                />
-                <StatCard
-                    title="Monthly Revenue"
-                    value={`$${monthlyRevenue.toLocaleString()}`}
-                    icon={DollarSign}
-                    change="+18%"
-                    changeType="up"
-                    trend={18}
-                    onClick={() => setPage('billing')}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <Card className="shadow-sm cursor-pointer hover:shadow-lg transition" onClick={() => setPage('clients')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-muted-foreground font-medium">Active Clients</span>
+                            <span className="bg-green-50 rounded-full p-2">
+                                <Users className="h-5 w-5 text-green-600" />
+                            </span>
+                        </div>
+                        <div className="text-2xl font-bold mb-1">{activeClients}</div>
+                        <div className="flex items-center text-xs text-green-600 font-semibold mb-2">
+                            <ArrowUp className="h-4 w-4 mr-1" />+12%
+                        </div>
+                        <div className="text-xs text-muted-foreground mb-1">12% increase this month</div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 bg-blue-500 rounded-full" style={{ width: '12%' }}></div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-sm cursor-pointer hover:shadow-lg transition" onClick={() => setPage('applications')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-muted-foreground font-medium">Pending Applications</span>
+                            <span className="bg-green-50 rounded-full p-2">
+                                <FileText className="h-5 w-5 text-green-600" />
+                            </span>
+                        </div>
+                        <div className="text-2xl font-bold mb-1">{pendingApplications}</div>
+                        <div className="flex items-center text-xs text-green-600 font-semibold mb-2">
+                            <ArrowUp className="h-4 w-4 mr-1" />+5%
+                        </div>
+                        <div className="text-xs text-muted-foreground mb-1">5% increase this month</div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 bg-blue-500 rounded-full" style={{ width: '5%' }}></div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-sm cursor-pointer hover:shadow-lg transition" onClick={() => setPage('appointments')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-muted-foreground font-medium">Upcoming Appointments</span>
+                            <span className="bg-green-50 rounded-full p-2">
+                                <CalendarCheck className="h-5 w-5 text-green-600" />
+                            </span>
+                        </div>
+                        <div className="text-2xl font-bold mb-1">{upcomingAppointments}</div>
+                        <div className="flex items-center text-xs text-green-600 font-semibold mb-2">
+                            <ArrowUp className="h-4 w-4 mr-1" />+2
+                        </div>
+                        <div className="text-xs text-muted-foreground mb-1">8% increase this month</div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 bg-blue-500 rounded-full" style={{ width: '8%' }}></div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-sm cursor-pointer hover:shadow-lg transition" onClick={() => setPage('billing')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-muted-foreground font-medium">Monthly Revenue</span>
+                            <span className="bg-green-50 rounded-full p-2">
+                                <DollarSign className="h-5 w-5 text-green-600" />
+                            </span>
+                        </div>
+                        <div className="text-2xl font-bold mb-1">${monthlyRevenue.toLocaleString()}</div>
+                        <div className="flex items-center text-xs text-green-600 font-semibold mb-2">
+                            <ArrowUp className="h-4 w-4 mr-1" />+18%
+                        </div>
+                        <div className="text-xs text-muted-foreground mb-1">18% increase this month</div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 bg-blue-500 rounded-full" style={{ width: '18%' }}></div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Two-column: Recent Activity (left) and Quick Actions (right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Activity (left) */}
+            {/* Activity & Quick Actions Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Recent Activity */}
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-green-600" />
+                            <ArrowRight className="h-5 w-5 text-emerald-600" />
                             Recent Activity
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {clients.slice(0, 8).map((client) => (
-                                <div key={client.id} className="flex items-center gap-3">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={client.avatar} />
-                                        <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{client.name}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {client.caseSummary.currentStatus} • {client.caseType}
-                                        </p>
+                            {/* Render recent activity for top 5 clients */}
+                            {clients.slice(0, 5).map((client) => {
+                                // Find most recent activity for this client
+                                const activity = client.activity && client.activity.length > 0 ? client.activity[0] : null;
+                                // Determine status and badge variant
+                                let status = '';
+                                let badgeVariant: any = 'secondary';
+                                if (client.caseSummary.currentStatus === 'Approved') {
+                                    status = 'Approved';
+                                    badgeVariant = 'success';
+                                } else if (client.caseSummary.currentStatus === 'Awaiting Documents') {
+                                    status = 'Awaiting Documents';
+                                    badgeVariant = 'secondary';
+                                } else if (client.caseSummary.currentStatus === 'Pending Review') {
+                                    status = 'Pending Review';
+                                    badgeVariant = 'outline';
+                                }
+                                return (
+                                    <div key={client.id} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <Avatar className="h-10 w-10">
+                                                <AvatarImage src={client.avatar} alt={client.name} />
+                                                <AvatarFallback>{client.name[0]}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <p className="font-medium truncate">{client.name}</p>
+                                                <p className="text-xs text-muted-foreground truncate">
+                                                    {activity ? activity.title : (client.caseSummary.currentStatus === 'Approved' ? 'Approved' : client.caseSummary.currentStatus)}
+                                                    {client.caseType ? ` • ${client.caseType}` : ''}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Badge variant={badgeVariant} className="text-xs px-3 py-1 rounded-full">
+                                            {status || client.caseSummary.currentStatus}
+                                        </Badge>
                                     </div>
-                                    <Badge variant={getStatusVariant(client.caseSummary.currentStatus)}>
-                                        {client.caseSummary.currentStatus}
-                                    </Badge>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Quick Actions (right) */}
+                {/* Quick Actions */}
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -412,6 +485,7 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                 </Card>
             </div>
 
+            {/* Stats Grid */}
             {/* Full-width AI Risk Alerts with expand/collapse */}
             <Card className="border-0 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -421,28 +495,38 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                     </CardTitle>
                     {riskAlerts && riskAlerts.length > 0 && (
                         <Button size="sm" variant="outline" onClick={() => setShowAllAlerts((v) => !v)}>
-                            {showAllAlerts ? 'Show less' : 'Show all'}
                         </Button>
                     )}
                 </CardHeader>
                 <CardContent>
+                    {/* Centered Calculate AI Risk button */}
+                    {!isAnalyzing && (
+                        <div className="flex justify-center mb-6">
+                            <Button
+                                size="lg"
+                                className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-3 rounded-full shadow-md hover:from-purple-600 hover:to-indigo-600"
+                                onClick={handleRunAnalysis}
+                            >
+                                Calculate AI Risk
+                            </Button>
+                        </div>
+                    )}
                     {riskAlerts && riskAlerts.length > 0 ? (
-                        <div className="space-y-3">
-                            {(showAllAlerts ? riskAlerts : riskAlerts.slice(0, 5)).map((alert, index) => (
-                                <div key={index} className="p-3 bg-red-50 rounded-lg border border-red-200">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-red-800">{alert.issueSummary}</p>
-                                            <p className="text-xs text-red-600 mt-1">{alert.clientName}</p>
+                        <div className="space-y-4">
+                            {riskAlerts.slice(0, showAllAlerts ? riskAlerts.length : 3).map((alert, index) => (
+                                <div key={alert.clientId} className="bg-white rounded-md shadow-sm p-4">
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-lg font-bold">{alert.issueSummary}</h2>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => openAssignTaskDialog(alert)}
+                                                className="text-xs h-7"
+                                            >
+                                                Assign
+                                            </Button>
                                         </div>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => openAssignTaskDialog(alert)}
-                                            className="text-xs h-7"
-                                        >
-                                            Assign
-                                        </Button>
                                     </div>
                                 </div>
                             ))}

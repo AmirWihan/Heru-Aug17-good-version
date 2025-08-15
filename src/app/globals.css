@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom purple sidebar gradient for lawyer CRM */
+.sidebar-gradient {
+  background: linear-gradient(180deg, #B16CEA 0%, #8F6BEE 40%, #6E7FF3 100%);
+}
+
+
 body {
   font-family: Arial, Helvetica, sans-serif;
 }

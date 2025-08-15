@@ -36,6 +36,7 @@ import { CaseTimeline } from "@/components/case-timeline";
 import { analyzeDocument, DocumentAnalysisOutput } from "@/ai/flows/document-analyzer";
 import { DocumentViewer } from "@/components/document-viewer";
 import { ApplicationProgress } from "@/components/application-progress";
+import { IntakeScoreQuestionnaire } from "../intake-score-questionnaire";
 
 // Discriminated union type for party
 export type Party = (Client & { partyType: 'client' }) | (ClientLead & { partyType: 'lead' });
@@ -223,40 +224,6 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                       party={party}
                       onUpdateParty={onUpdateParty}
                     />
-                      {/* Requested lead summary fields */}
-                      <div>
-                        <p className="text-muted-foreground">Priority</p>
-                        <p className="font-bold text-base">
-                          {(() => {
-                            const score = (party as any).intake?.score as number | undefined;
-                            if (typeof score === 'number') {
-                              if (score >= 80) return 'High';
-                              if (score >= 50) return 'Medium';
-                              return 'Low';
-                            }
-                            return '—';
-                          })()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Case Type</p>
-                        <p className="font-semibold">{(party as any).caseType || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Education</p>
-                        <p className="font-semibold">{(party as any).intake?.data?.education?.[0]?.degree || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Current visa Status</p>
-                        <p className="font-semibold">{(party as any).currentVisaStatus || '—'}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Last contact date</p>
-                        <p className="font-semibold">{(party as any).lastContacted || '—'}</p>
-                      </div>
-
-                      {/* Removed: Company, Owner, Source, Lead Status per request */}
-                    </>
                   ) : (
                     <>
                       <div>
@@ -282,18 +249,22 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
             </div>
 
             <div className="lg:col-span-2 space-y-6">
-              {/* Keep a right-side stack of cards for visual parity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">{party.partyType === 'lead' ? 'AI Lead Score' : 'AI Success Predictor'}</CardTitle>
-                  {party.partyType === 'client' && (
-                    <CardDescription>
-                      An AI-powered analysis of this profile based on current immigration trends.
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  {party.partyType === 'lead' ? (
+              {/* Intake Questionnaire for leads before AI Lead Score */}
+              {party.partyType === 'lead' && !(party as any).intake?.score && (
+                <IntakeScoreQuestionnaire
+                  onScore={(score, answers) => {
+                    const updated = { ...party, intake: { ...((party as any).intake || {}), score, answers } };
+                    onUpdateParty(updated);
+                  }}
+                />
+              )}
+              {/* AI Lead Score Card, only after intake score is present */}
+              {party.partyType === 'lead' && (party as any).intake?.score && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>AI Lead Score</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="flex items-center justify-center py-4">
                       <div className="relative h-28 w-28">
                         <svg viewBox="0 0 36 36" className="h-28 w-28">
@@ -308,11 +279,10 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">Use the Analyze action to generate insights.</div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
+              {/* End Intake/AI Lead Score logic */}
 
               <Card>
                 <CardHeader>
@@ -427,13 +397,14 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
     </div>
   );
 };
+// --- End full ClientProfile superset logic ---
+
 // --- Editable Lead Summary for left panel ---
-import { useState } from "react";
 import { Pencil } from "lucide-react";
 
 const LeadSummaryEditable: React.FC<{ party: Party; onUpdateParty: (updated: Party) => void }> = ({ party, onUpdateParty }) => {
-  const [editing, setEditing] = useState(false);
-  const [priority, setPriority] = useState<string>(() => {
+  const [editing, setEditing] = React.useState(false);
+  const [priority, setPriority] = React.useState<string>(() => {
     const score = (party as any).intake?.score as number | undefined;
     if (typeof score === "number") {
       if (score >= 80) return "High";
@@ -442,11 +413,11 @@ const LeadSummaryEditable: React.FC<{ party: Party; onUpdateParty: (updated: Par
     }
     return (party as any).priority || "";
   });
-  const [caseType, setCaseType] = useState<string>((party as any).caseType || "");
-  const [education, setEducation] = useState<string>((party as any).intake?.data?.education?.[0]?.degree || "");
-  const [visaStatus, setVisaStatus] = useState<string>((party as any).currentVisaStatus || "");
+  const [caseType, setCaseType] = React.useState<string>((party as any).caseType || "");
+  const [education, setEducation] = React.useState<string>((party as any).intake?.data?.education?.[0]?.degree || "");
+  const [visaStatus, setVisaStatus] = React.useState<string>((party as any).currentVisaStatus || "");
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = React.useState(false);
 
   const handleSave = () => {
     setSaving(true);
@@ -480,7 +451,7 @@ const LeadSummaryEditable: React.FC<{ party: Party; onUpdateParty: (updated: Par
         <form className="space-y-3" onSubmit={e => { e.preventDefault(); handleSave(); }}>
           <div>
             <Label htmlFor="priority">Priority</Label>
-            <Select id="priority" value={priority} onValueChange={setPriority}>
+            <Select value={priority} onValueChange={setPriority}>
               <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="High">High</SelectItem>
@@ -534,5 +505,4 @@ const LeadSummaryEditable: React.FC<{ party: Party; onUpdateParty: (updated: Par
   );
 };
 
-// --- End full ClientProfile superset logic ---
 
