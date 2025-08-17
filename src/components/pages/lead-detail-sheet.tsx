@@ -21,6 +21,7 @@ import { activityTypes } from "@/lib/data";
 import { Checkbox } from "../ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { IntakeScoreQuestionnaire } from "../intake-score-questionnaire";
 
 interface LeadDetailSheetProps {
     lead: ClientLead;
@@ -70,6 +71,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         visaStatus: 'none'|'visitor'|'study'|'work'|'pr'|'citizen';
         spouseName: string;
         spouseCitizenship: string;
+        hasChildren: boolean;
+        childrenCount: number | '';
     }>(() => {
         const d = (lead.intake?.data as any) || {};
         return {
@@ -87,6 +90,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             visaStatus: (d.visaStatus as any) || 'none',
             spouseName: (d.spouseName as any) || '',
             spouseCitizenship: (d.spouseCitizenship as any) || '',
+            hasChildren: Boolean(d.hasChildren ?? false),
+            childrenCount: typeof d.childrenCount === 'number' ? d.childrenCount : '',
         };
     });
     const [intakeStatus, setIntakeStatus] = useState<NonNullable<ClientLead['intake']>['status']>(lead.intake?.status || 'not_started');
@@ -105,6 +110,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     const [editSource, setEditSource] = useState(lead.source || '');
     const [editOwnerName, setEditOwnerName] = useState<string>(lead.owner?.name || teamMembers[0]?.name || '');
     const [showAllTasks, setShowAllTasks] = useState(false);
+    // Show initial screening questionnaire inline when there is no score yet, or when retake is requested
+    const [showQuestionnaire, setShowQuestionnaire] = useState<boolean>(!Boolean(lead.intake?.score));
     
     // State for new activity
     const [newActivityType, setNewActivityType] = useState("");
@@ -173,8 +180,11 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             visaStatus: (d.visaStatus as any) || 'none',
             spouseName: (d.spouseName as any) || '',
             spouseCitizenship: (d.spouseCitizenship as any) || '',
+            hasChildren: Boolean(d.hasChildren ?? false),
+            childrenCount: typeof d.childrenCount === 'number' ? d.childrenCount : '',
         });
         setIntakeScore(lead.intake?.score ?? '');
+        setShowQuestionnaire(!Boolean(lead.intake?.score));
     }, [lead.id]);
 
     // Calculate Canada immigration score only while editing (live preview)
@@ -196,7 +206,9 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         const marriageBase = intakeAnswers.maritalStatus === 'married' ? 5 : 0;
         const spouseLangPtsMap: Record<string, number> = { none: 0, clb4: 1, clb5: 2, clb6: 3, clb7: 4, clb8: 5, clb9: 6, clb10: 7 };
         const spouseLangPts = intakeAnswers.maritalStatus === 'married' ? (spouseLangPtsMap[intakeAnswers.spouseLanguageClb] ?? 0) : 0;
-        setIntakeScore(agePts + eduPts + langPts + workPts + offerPts + familyPts + marriageBase + spouseLangPts);
+        const children = typeof intakeAnswers.childrenCount === 'number' ? intakeAnswers.childrenCount : 0;
+        const childrenPts = intakeAnswers.hasChildren ? Math.min(children * 2, 6) : 0; // +2 per child, max +6
+        setIntakeScore(agePts + eduPts + langPts + workPts + offerPts + familyPts + marriageBase + spouseLangPts + childrenPts);
     }, [intakeAnswers, isEditingIntake]);
 
     // Persist follow toggle
@@ -302,6 +314,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                     visaStatus: intakeAnswers.visaStatus,
                     spouseName: intakeAnswers.spouseName || undefined,
                     spouseCitizenship: intakeAnswers.spouseCitizenship || undefined,
+                    hasChildren: intakeAnswers.hasChildren,
+                    childrenCount: typeof intakeAnswers.childrenCount === 'number' ? intakeAnswers.childrenCount : undefined,
                 },
             },
         };
@@ -327,6 +341,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             visaStatus: (d.visaStatus as any) || 'none',
             spouseName: (d.spouseName as any) || '',
             spouseCitizenship: (d.spouseCitizenship as any) || '',
+            hasChildren: Boolean(d.hasChildren ?? false),
+            childrenCount: typeof d.childrenCount === 'number' ? d.childrenCount : '',
         });
         setIntakeScore(lead.intake?.score ?? '');
         setIsEditingIntake(false);
@@ -545,12 +561,91 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
               <span className={`px-4 py-2 rounded-full text-lg font-semibold mb-1 ${aiColor}`}>{aiLabel}</span>
               <span className="text-2xl font-bold">{aiPercent}</span>
               <span className="text-xs text-muted-foreground">AI Conversion Probability</span>
+              {typeof lead.intake?.score === 'number' && !showQuestionnaire && (
+                <div className="mt-2">
+                  <Button size="sm" variant="outline" onClick={() => setShowQuestionnaire(true)}>Retake Screening</Button>
+                </div>
+              )}
             </div>
           );
         })()}
       </div>
     </div>
-    {/* ...existing intake UI... */}
+    {/* Intake edit form */}
+    <div className="w-full mt-4">
+      {!isEditingIntake && (
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => setIsEditingIntake(true)}>Edit Intake</Button>
+        </div>
+      )}
+      {isEditingIntake && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Marital Status</Label>
+              <Select value={intakeAnswers.maritalStatus} onValueChange={(v: 'single'|'married') => setIntakeAnswers(a => ({...a, maritalStatus: v}))}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="married">Married</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Children</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="has-children" checked={intakeAnswers.hasChildren} onCheckedChange={(v) => setIntakeAnswers(a => ({...a, hasChildren: Boolean(v), childrenCount: Boolean(v) ? (typeof a.childrenCount === 'number' ? a.childrenCount : 1) : ''}))} />
+                  <Label htmlFor="has-children">Has Children</Label>
+                </div>
+                {intakeAnswers.hasChildren && (
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="children-count">Count</Label>
+                    <Input id="children-count" type="number" min={1} max={10} className="w-24" value={typeof intakeAnswers.childrenCount === 'number' ? intakeAnswers.childrenCount : ''} onChange={(e) => {
+                      const n = parseInt(e.target.value, 10);
+                      setIntakeAnswers(a => ({...a, childrenCount: isNaN(n) ? '' : Math.max(1, Math.min(10, n)) }))
+                    }} />
+                    <span className="text-xs text-muted-foreground">(+2 each, max +6)</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {intakeAnswers.maritalStatus === 'married' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label>Spouse Name</Label>
+                <Input className="mt-1" value={intakeAnswers.spouseName} onChange={e => setIntakeAnswers(a => ({...a, spouseName: e.target.value}))} placeholder="e.g., John Doe"/>
+              </div>
+              <div>
+                <Label>Spouse Citizenship</Label>
+                <Input className="mt-1" value={intakeAnswers.spouseCitizenship} onChange={e => setIntakeAnswers(a => ({...a, spouseCitizenship: e.target.value}))} placeholder="e.g., Canada"/>
+              </div>
+              <div>
+                <Label>Spouse Language (CLB)</Label>
+                <Select value={intakeAnswers.spouseLanguageClb} onValueChange={(v: any) => setIntakeAnswers(a => ({...a, spouseLanguageClb: v}))}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select"/></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="clb4">CLB 4</SelectItem>
+                    <SelectItem value="clb5">CLB 5</SelectItem>
+                    <SelectItem value="clb6">CLB 6</SelectItem>
+                    <SelectItem value="clb7">CLB 7</SelectItem>
+                    <SelectItem value="clb8">CLB 8</SelectItem>
+                    <SelectItem value="clb9">CLB 9</SelectItem>
+                    <SelectItem value="clb10">CLB 10</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleSaveIntake}>Save Intake</Button>
+            <Button size="sm" variant="outline" onClick={handleCancelIntake}>Cancel</Button>
+          </div>
+        </div>
+      )}
+    </div>
   </CardContent>
 </Card>
         </section>

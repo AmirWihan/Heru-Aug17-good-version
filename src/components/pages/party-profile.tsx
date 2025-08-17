@@ -126,6 +126,9 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
     }
   };
 
+  // Local toggle to show questionnaire even if a score exists
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+
   return (
     <div className="animate-fade">
       {/* Hero Header — mirror ClientProfile */}
@@ -250,19 +253,23 @@ export const PartyProfile: React.FC<PartyProfileProps> = ({ party, onUpdateParty
 
             <div className="lg:col-span-2 space-y-6">
               {/* Intake Questionnaire for leads before AI Lead Score */}
-              {party.partyType === 'lead' && !(party as any).intake?.score && (
+              {party.partyType === 'lead' && (!(party as any).intake?.score || showQuestionnaire) && (
                 <IntakeScoreQuestionnaire
                   onScore={(score, answers) => {
                     const updated = { ...party, intake: { ...((party as any).intake || {}), score, answers } };
                     onUpdateParty(updated);
+                    setShowQuestionnaire(false);
                   }}
                 />
               )}
               {/* AI Lead Score Card, only after intake score is present */}
-              {party.partyType === 'lead' && (party as any).intake?.score && (
+              {party.partyType === 'lead' && (party as any).intake?.score && !showQuestionnaire && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>AI Lead Score</CardTitle>
+                    <div className="flex items-center justify-between gap-4">
+                      <CardTitle>AI Lead Score</CardTitle>
+                      <Button size="sm" onClick={() => setShowQuestionnaire(true)}>Retake Screening</Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-center py-4">

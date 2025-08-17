@@ -45,3 +45,7 @@ firebase-debug.log
 firestore-debug.log
 # Local Netlify folder
 .netlify
+
+# large artifacts (exclude from deploy)
+playwright-report/
+test-results/

@@ -511,32 +511,34 @@ export function DashboardPage({ setPage }: { setPage: (page: string) => void }) 
                             </Button>
                         </div>
                     )}
-                    {riskAlerts && riskAlerts.length > 0 ? (
-                        <div className="space-y-4">
-                            {riskAlerts.slice(0, showAllAlerts ? riskAlerts.length : 3).map((alert, index) => (
-                                <div key={alert.clientId} className="bg-white rounded-md shadow-sm p-4">
-                                    <div className="flex justify-between items-center">
-                                        <h2 className="text-lg font-bold">{alert.issueSummary}</h2>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => openAssignTaskDialog(alert)}
-                                                className="text-xs h-7"
-                                            >
-                                                Assign
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-6">
-                            <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                            <p className="text-sm text-muted-foreground">No risk alerts detected</p>
-                        </div>
-                    )}
+                    {riskAlerts === null ? null :
+  riskAlerts.length > 0 ? (
+    <div className="space-y-4">
+      {riskAlerts.slice(0, showAllAlerts ? riskAlerts.length : 3).map((alert, index) => (
+        <div key={alert.clientId} className="bg-white rounded-md shadow-sm p-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-bold">{alert.issueSummary}</h2>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => openAssignTaskDialog(alert)}
+                className="text-xs h-7"
+              >
+                Assign
+              </Button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-6">
+      <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+      <p className="text-sm text-muted-foreground">No risk alerts detected</p>
+    </div>
+  )
+}
                 </CardContent>
             </Card>
 

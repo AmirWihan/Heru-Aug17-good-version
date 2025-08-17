@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { useGlobalData } from '@/context/GlobalDataContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
@@ -134,16 +135,16 @@ export function TeamPage() {
                                     {firmMembers.map(member => (
                                         <TableRow key={member.id}>
                                             <TableCell>
-                                                 <div className="flex items-center gap-4">
+                                                <Link href={`/lawyer/team/${member.id}`} className="flex items-center gap-4 p-1 rounded hover:bg-muted/60 transition-colors" title={`View ${member.name}'s profile`}>
                                                     <Avatar className="w-10 h-10">
                                                         <AvatarImage src={member.avatar} />
                                                         <AvatarFallback>{member.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                                                     </Avatar>
                                                     <div>
-                                                        <p className="font-semibold">{member.name}</p>
+                                                        <p className="font-semibold underline-offset-2 group-hover:underline">{member.name}</p>
                                                         <p className="text-sm text-muted-foreground">{member.email}</p>
                                                     </div>
-                                                </div>
+                                                </Link>
                                             </TableCell>
                                             <TableCell>{member.role}</TableCell>
                                             <TableCell>

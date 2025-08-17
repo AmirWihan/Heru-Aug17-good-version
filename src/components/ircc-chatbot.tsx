@@ -91,7 +91,7 @@ export function IrccChatbot() {
                                 <AvatarFallback className="bg-primary text-primary-foreground"><Sparkles className="h-5 w-5"/></AvatarFallback>
                             </Avatar>
                             <div>
-                                <CardTitle className="text-lg">VisaFor AI Assistant</CardTitle>
+                                <CardTitle className="text-lg">Heru AI Assistant</CardTitle>
                                 <CardDescription>Powered by IRCC Data</CardDescription>
                             </div>
                         </CardHeader>
