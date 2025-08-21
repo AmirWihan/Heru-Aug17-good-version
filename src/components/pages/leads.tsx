@@ -3,6 +3,7 @@
 import * as XLSX from 'xlsx';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGlobalData } from '@/context/GlobalDataContext';
@@ -34,10 +35,10 @@ const getStatusBadgeVariant = (status: ClientLead['status']) => {
 };
 
 export function LeadsPage() {
+    const router = useRouter();
     const { userProfile, clientLeads, addClientLead, addClient, updateClientLead } = useGlobalData();
     const { toast } = useToast();
-    const [selectedLead, setSelectedLead] = useState<ClientLead | null>(null);
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    // Removed fullscreen modal state; navigate to dedicated route instead
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [importFile, setImportFile] = useState<File | null>(null);
@@ -99,7 +100,7 @@ export function LeadsPage() {
             title: 'Lead Converted!',
             description: `${lead.name} is now a client.`,
         });
-        setIsSheetOpen(false);
+        // Sheet was removed; nothing to close here.
     }
     
     const handleAddLead = () => {
@@ -129,8 +130,7 @@ export function LeadsPage() {
     };
     
     const handleViewLead = (lead: ClientLead) => {
-        setSelectedLead(lead);
-        setIsSheetOpen(true);
+        router.push(`/lawyer/leads/${lead.id}`);
     };
     
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,19 +396,7 @@ export function LeadsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {selectedLead && (
-                <Dialog open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                    <DialogContent className="w-screen max-w-[100vw] h-[100vh] sm:max-w-[96vw] sm:h-[96vh] p-0 overflow-hidden" aria-describedby="lead-detail-description">
-                        <p id="lead-detail-description" className="sr-only">Lead details and actions</p>
-                        <div className="p-6 h-full overflow-auto">
-                            <PartyProfile
-                                party={{ ...selectedLead, partyType: 'lead' } as Party}
-                                onUpdateParty={updated => updateClientLead(updated as any)}
-                            />
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            )}
+            {/* Lead detail now opens on full page route: /lawyer/leads/[id] */}
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                 <DialogContent>
                     <DialogHeader>

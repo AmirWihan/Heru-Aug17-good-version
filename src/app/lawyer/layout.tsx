@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Rocket, X } from 'lucide-react';
 import { AuthWrapper } from '@/components/auth-wrapper';
 import { IrccChatbot } from '@/components/ircc-chatbot';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 const pageTitles: { [key: string]: string } = {
     'dashboard': 'Dashboard',
@@ -32,6 +34,13 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
     const { page, setPage } = useLawyerDashboard();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isBannerOpen, setIsBannerOpen] = useState(false);
+    const pathname = usePathname();
+    const isLeadDetail = pathname?.startsWith('/lawyer/leads/') === true;
+
+    // Ensure sidebar is open on lead detail pages (including mobile)
+    useEffect(() => {
+        if (isLeadDetail) setSidebarOpen(true);
+    }, [isLeadDetail]);
 
     useEffect(() => {
         const lastDismissedDateStr = localStorage.getItem(BANNER_DISMISS_KEY);
@@ -58,8 +67,8 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
     return (
         <AuthWrapper requiredRole="lawyer">
             <div className="min-h-screen bg-background text-foreground font-body">
-                <AppSidebar activePage={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
-                <div className="flex min-h-screen flex-col md:ml-64">
+                <AppSidebar activePage={page} setPage={setPage} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} pinned={isLeadDetail} />
+                <div className={cn("flex min-h-screen flex-col", isLeadDetail ? "ml-64" : "md:ml-64")}> 
                     <AppHeader pageTitle={pageTitles[page] || 'Dashboard'} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
                     <main className="flex flex-col flex-grow p-4 md:p-6 mb-16">
                         <div className="flex-grow">
@@ -70,7 +79,10 @@ function LawyerDashboardLayoutContent({ children }: { children: React.ReactNode 
                         </footer>
                     </main>
                     {isBannerOpen && (
-                        <div className="fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-sm text-primary-foreground p-3 shadow-lg z-40 border-t border-primary/50 transition-all md:left-64">
+                        <div className={cn(
+                            "fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-sm text-primary-foreground p-3 shadow-lg z-40 border-t border-primary/50 transition-all",
+                            isLeadDetail ? "left-64" : "md:left-64"
+                        )}>
                             <div className="container mx-auto flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-3">
                                     <Rocket className="h-6 w-6" />

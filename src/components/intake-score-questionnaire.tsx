@@ -19,13 +19,18 @@ const BASE_QUESTIONS: Question[] = [
   { key: "education", label: "Highest education completed?", type: "select", options: ["High School", "Diploma", "Bachelor", "Master", "PhD"] },
   { key: "englishClb", label: "English level (CLB)", type: "select", options: ["CLB4", "CLB5", "CLB6", "CLB7", "CLB8", "CLB9", "CLB10"] },
   { key: "frenchClb", label: "French level (CLB)", type: "select", options: ["None", "CLB4", "CLB5", "CLB6", "CLB7", "CLB8", "CLB9", "CLB10"] },
-  { key: "work", label: "Years of skilled work experience?", type: "number", min: 0, max: 30 },
+  { key: "work", label: "Years of skilled work experience (outside Canada)?", type: "number", min: 0, max: 30 },
+  { key: "canadianWorkYears", label: "Years of skilled work experience in Canada?", type: "number", min: 0, max: 30 },
+  { key: "jobOffer", label: "Do you have a valid job offer in Canada?", type: "boolean" },
+  { key: "canadianStudy", label: "Have you completed study in Canada?", type: "boolean" },
+  { key: "provincialNomination", label: "Do you have a provincial nomination (PNP)?", type: "boolean" },
   { key: "adaptability", label: "Do you have relatives in Canada?", type: "select", options: ["Yes", "No"] },
   { key: "maritalStatus", label: "Marital status", type: "select", options: ["Single", "Married"] },
   { key: "hasChildren", label: "Do you have children?", type: "boolean" },
   { key: "childrenCount", label: "How many children?", type: "number", min: 1, max: 12, showIf: (a) => Boolean(a.hasChildren) },
   { key: "spouseEducation", label: "Spouse highest education", type: "select", options: ["High School", "Diploma", "Bachelor", "Master", "PhD"], showIf: (a) => a.maritalStatus === "Married" },
   { key: "spouseEnglishClb", label: "Spouse English level (CLB)", type: "select", options: ["None", "CLB4", "CLB5", "CLB6", "CLB7", "CLB8", "CLB9", "CLB10"], showIf: (a) => a.maritalStatus === "Married" },
+  { key: "spouseFrenchClb", label: "Spouse French level (CLB)", type: "select", options: ["None", "CLB4", "CLB5", "CLB6", "CLB7", "CLB8", "CLB9", "CLB10"], showIf: (a) => a.maritalStatus === "Married" },
 ];
 
 function clbPoints(clb: string, scale: "primary" | "spouse" = "primary") {
@@ -84,6 +89,19 @@ function calculateScore(answers: Record<string, any>) {
   const work = Number(answers.work || 0);
   if (work >= 5) score += 15; else if (work > 0) score += 5;
 
+  // Canadian work experience (simplified)
+  const canWork = Number(answers.canadianWorkYears || 0);
+  if (canWork >= 3) score += 10; else if (canWork >= 1) score += 5;
+
+  // Job offer
+  if (answers.jobOffer === true || answers.jobOffer === "Yes") score += 10;
+
+  // Canadian study
+  if (answers.canadianStudy === true || answers.canadianStudy === "Yes") score += 5;
+
+  // Provincial Nomination Program
+  if (answers.provincialNomination === true || answers.provincialNomination === "Yes") score += 25;
+
   // Adaptability (relatives in Canada)
   if (answers.adaptability === "Yes") score += 5;
 
@@ -97,6 +115,7 @@ function calculateScore(answers: Record<string, any>) {
   if (answers.maritalStatus === "Married") {
     score += educationPoints(answers.spouseEducation, true);
     score += clbPoints(answers.spouseEnglishClb, "spouse");
+    score += clbPoints(answers.spouseFrenchClb, "spouse");
   }
 
   // Clamp to 100
@@ -135,6 +154,7 @@ export const IntakeScoreQuestionnaire: React.FC<{
     if (key === "maritalStatus" && val !== "Married") {
       next.spouseEducation = "";
       next.spouseEnglishClb = "";
+      next.spouseFrenchClb = "";
     }
     setAnswers(next);
   };
@@ -187,14 +207,28 @@ export const IntakeScoreQuestionnaire: React.FC<{
             onChange={e => handleChange(q.key, Number(e.target.value))}
           />
         ) : (
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={Boolean(answers[q.key])}
-              onChange={e => handleChange(q.key, e.target.checked)}
-            />
-            <span>Yes</span>
-          </label>
+          <div className="flex items-center gap-6" role="radiogroup" aria-label={`${q.label} yes or no`}>
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="radio"
+                name={`bool-${q.key}`}
+                value="yes"
+                checked={answers[q.key] === true}
+                onChange={() => handleChange(q.key, true)}
+              />
+              <span>Yes</span>
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="radio"
+                name={`bool-${q.key}`}
+                value="no"
+                checked={answers[q.key] === false}
+                onChange={() => handleChange(q.key, false)}
+              />
+              <span>No</span>
+            </label>
+          </div>
         )}
       </CardContent>
       <CardFooter>

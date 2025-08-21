@@ -60,11 +60,14 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         age: number | '';
         education: 'high_school'|'diploma'|'bachelors'|'masters'|'phd';
         languageClb: 'clb4'|'clb5'|'clb6'|'clb7'|'clb8'|'clb9'|'clb10';
+        frenchClb: 'none'|'clb4'|'clb5'|'clb6'|'clb7'|'clb8'|'clb9'|'clb10';
         workYears: number | '';
+        workInCanadaYears: number | '';
         jobOffer: boolean;
         relativesInCanada: boolean;
         maritalStatus: 'single'|'married';
         spouseLanguageClb: 'none'|'clb4'|'clb5'|'clb6'|'clb7'|'clb8'|'clb9'|'clb10';
+        spouseEducation: 'high_school'|'diploma'|'bachelors'|'masters'|'phd'|'';
         address: string;
         citizenship: string;
         inCanada: boolean;
@@ -79,11 +82,14 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             age: typeof d.age === 'number' ? d.age : '',
             education: (d.education as any) || 'bachelors',
             languageClb: (d.languageClb as any) || 'clb7',
+            frenchClb: (d.frenchClb as any) || 'none',
             workYears: typeof d.workYears === 'number' ? d.workYears : '',
+            workInCanadaYears: typeof d.workInCanadaYears === 'number' ? d.workInCanadaYears : '',
             jobOffer: Boolean(d.jobOffer ?? false),
             relativesInCanada: Boolean(d.relativesInCanada ?? false),
             maritalStatus: (d.maritalStatus as any) || 'single',
             spouseLanguageClb: (d.spouseLanguageClb as any) || 'none',
+            spouseEducation: (d.spouseEducation as any) || '',
             address: (d.address as any) || '',
             citizenship: (d.citizenship as any) || '',
             inCanada: Boolean(d.inCanada ?? false),
@@ -169,11 +175,14 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             age: typeof d.age === 'number' ? d.age : '',
             education: (d.education as any) || 'bachelors',
             languageClb: (d.languageClb as any) || 'clb7',
+            frenchClb: (d.frenchClb as any) || 'none',
             workYears: typeof d.workYears === 'number' ? d.workYears : '',
+            workInCanadaYears: typeof d.workInCanadaYears === 'number' ? d.workInCanadaYears : '',
             jobOffer: Boolean(d.jobOffer ?? false),
             relativesInCanada: Boolean(d.relativesInCanada ?? false),
             maritalStatus: (d.maritalStatus as any) || 'single',
             spouseLanguageClb: (d.spouseLanguageClb as any) || 'none',
+            spouseEducation: (d.spouseEducation as any) || '',
             address: (d.address as any) || '',
             citizenship: (d.citizenship as any) || '',
             inCanada: Boolean(d.inCanada ?? false),
@@ -199,16 +208,24 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         })();
         const eduPts = ({ high_school: 5, diploma: 7, bachelors: 10, masters: 12, phd: 15 } as const)[intakeAnswers.education];
         const langPts = ({ clb4: 0, clb5: 2, clb6: 4, clb7: 6, clb8: 8, clb9: 10, clb10: 12 } as const)[intakeAnswers.languageClb];
+        // French bonus for CLB7+
+        const frenchBonusMap: Record<typeof intakeAnswers.frenchClb, number> = { none: 0, clb4: 0, clb5: 0, clb6: 0, clb7: 10, clb8: 12, clb9: 15, clb10: 20 };
+        const frenchPts = frenchBonusMap[intakeAnswers.frenchClb];
         const work = typeof intakeAnswers.workYears === 'number' ? intakeAnswers.workYears : 0;
         const workPts = work >= 6 ? 12 : work >= 4 ? 10 : work >= 2 ? 8 : work >= 1 ? 5 : 0;
+        // Canadian work experience bonus
+        const caWork = typeof intakeAnswers.workInCanadaYears === 'number' ? intakeAnswers.workInCanadaYears : 0;
+        const caWorkPts = caWork >= 2 ? 10 : caWork >= 1 ? 5 : 0;
         const offerPts = intakeAnswers.jobOffer ? 10 : 0;
         const familyPts = intakeAnswers.relativesInCanada ? 5 : 0;
         const marriageBase = intakeAnswers.maritalStatus === 'married' ? 5 : 0;
         const spouseLangPtsMap: Record<string, number> = { none: 0, clb4: 1, clb5: 2, clb6: 3, clb7: 4, clb8: 5, clb9: 6, clb10: 7 };
         const spouseLangPts = intakeAnswers.maritalStatus === 'married' ? (spouseLangPtsMap[intakeAnswers.spouseLanguageClb] ?? 0) : 0;
+        const spouseEduPtsMap: Record<string, number> = { high_school: 2, diploma: 3, bachelors: 5, masters: 6, phd: 8 };
+        const spouseEduPts = intakeAnswers.maritalStatus === 'married' ? (spouseEduPtsMap[intakeAnswers.spouseEducation] || 0) : 0;
         const children = typeof intakeAnswers.childrenCount === 'number' ? intakeAnswers.childrenCount : 0;
         const childrenPts = intakeAnswers.hasChildren ? Math.min(children * 2, 6) : 0; // +2 per child, max +6
-        setIntakeScore(agePts + eduPts + langPts + workPts + offerPts + familyPts + marriageBase + spouseLangPts + childrenPts);
+        setIntakeScore(agePts + eduPts + langPts + frenchPts + workPts + caWorkPts + offerPts + familyPts + marriageBase + spouseLangPts + spouseEduPts + childrenPts);
     }, [intakeAnswers, isEditingIntake]);
 
     // Persist follow toggle
@@ -303,11 +320,14 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                     age: typeof intakeAnswers.age === 'number' ? intakeAnswers.age : undefined,
                     education: intakeAnswers.education,
                     languageClb: intakeAnswers.languageClb,
+                    frenchClb: intakeAnswers.frenchClb,
                     workYears: typeof intakeAnswers.workYears === 'number' ? intakeAnswers.workYears : undefined,
+                    workInCanadaYears: typeof intakeAnswers.workInCanadaYears === 'number' ? intakeAnswers.workInCanadaYears : undefined,
                     jobOffer: intakeAnswers.jobOffer,
                     relativesInCanada: intakeAnswers.relativesInCanada,
                     maritalStatus: intakeAnswers.maritalStatus,
                     spouseLanguageClb: intakeAnswers.spouseLanguageClb,
+                    spouseEducation: intakeAnswers.spouseEducation || undefined,
                     address: intakeAnswers.address || undefined,
                     citizenship: intakeAnswers.citizenship || undefined,
                     inCanada: intakeAnswers.inCanada,
@@ -325,33 +345,36 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     };
 
     const handleCancelIntake = () => {
-        const d = (lead.intake?.data as any) || {};
-        setIntakeAnswers({
-            age: typeof d.age === 'number' ? d.age : '',
-            education: (d.education as any) || 'bachelors',
-            languageClb: (d.languageClb as any) || 'clb7',
-            workYears: typeof d.workYears === 'number' ? d.workYears : '',
-            jobOffer: Boolean(d.jobOffer ?? false),
-            relativesInCanada: Boolean(d.relativesInCanada ?? false),
-            maritalStatus: (d.maritalStatus as any) || 'single',
-            spouseLanguageClb: (d.spouseLanguageClb as any) || 'none',
-            address: (d.address as any) || '',
-            citizenship: (d.citizenship as any) || '',
-            inCanada: Boolean(d.inCanada ?? false),
-            visaStatus: (d.visaStatus as any) || 'none',
-            spouseName: (d.spouseName as any) || '',
-            spouseCitizenship: (d.spouseCitizenship as any) || '',
-            hasChildren: Boolean(d.hasChildren ?? false),
-            childrenCount: typeof d.childrenCount === 'number' ? d.childrenCount : '',
-        });
-        setIntakeScore(lead.intake?.score ?? '');
-        setIsEditingIntake(false);
+      const d = (lead.intake?.data as any) || {};
+      setIntakeAnswers({
+        age: typeof d.age === 'number' ? d.age : '',
+        education: (d.education as any) || 'bachelors',
+        languageClb: (d.languageClb as any) || 'clb7',
+        frenchClb: (d.frenchClb as any) || 'none',
+        workYears: typeof d.workYears === 'number' ? d.workYears : '',
+        workInCanadaYears: typeof d.workInCanadaYears === 'number' ? d.workInCanadaYears : '',
+        jobOffer: Boolean(d.jobOffer ?? false),
+        relativesInCanada: Boolean(d.relativesInCanada ?? false),
+        maritalStatus: (d.maritalStatus as any) || 'single',
+        spouseLanguageClb: (d.spouseLanguageClb as any) || 'none',
+        spouseEducation: (d.spouseEducation as any) || '',
+        address: (d.address as any) || '',
+        citizenship: (d.citizenship as any) || '',
+        inCanada: Boolean(d.inCanada ?? false),
+        visaStatus: (d.visaStatus as any) || 'none',
+        spouseName: (d.spouseName as any) || '',
+        spouseCitizenship: (d.spouseCitizenship as any) || '',
+        hasChildren: Boolean(d.hasChildren ?? false),
+        childrenCount: typeof d.childrenCount === 'number' ? d.childrenCount : '',
+      });
+      setIntakeScore(lead.intake?.score ?? '');
+      setIsEditingIntake(false);
     };
 
     const openWhatsApp = () => {
-        const phone = (lead.phone || '').replace(/[^\d+]/g, '');
-        const url = `https://wa.me/${phone.startsWith('+') ? phone.substring(1) : phone}`;
-        window.open(url, '_blank');
+      const phone = (lead.phone || '').replace(/[^\d+]/g, '');
+      const url = `https://wa.me/${phone.startsWith('+') ? phone.substring(1) : phone}`;
+      window.open(url, '_blank');
     };
 
     const handleEditSave = () => {
@@ -502,23 +525,9 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
     {/* Main Content */}
     <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-br from-sky-50 via-indigo-50 to-emerald-50">
       <div className="max-w-6xl mx-auto p-6 flex flex-col gap-6">
-        {/* Data Highlights */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader><CardTitle>Data Highlights</CardTitle></CardHeader>
-            <CardContent>
-              {/* Place summary cards/data here as needed */}
-              <div className="flex flex-col gap-2">
-                <div><span className="font-medium">Lifecycle Stage:</span> Lead</div>
-                <div><span className="font-medium">Last Activity Date:</span> {lead.lastContacted ? new Date(lead.lastContacted).toLocaleString() : '—'}</div>
-                <div><span className="font-medium">Created:</span> {new Date(lead.createdDate).toLocaleString()}</div>
-              </div>
-            </CardContent>
-          </Card>
-          {/* Intake/Score summary, etc. */}
-          <Card>
-  <CardHeader><CardTitle>Intake & Score</CardTitle></CardHeader>
-  <CardContent>
+  <Card>
+    <CardHeader><CardTitle>Intake & Score</CardTitle></CardHeader>
+    <CardContent>
     {/* Beautiful color-coded score ring */}
     <div className="flex flex-col md:flex-row items-center gap-6 mb-4">
       {/* Score Ring */}
@@ -533,7 +542,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
             {typeof lead.intake?.score === 'number' ? lead.intake.score : '--'}
           </span>
         </div>
-        <span className="mt-2 text-sm font-medium text-muted-foreground">Score</span>
+        <span className="mt-2 text-sm font-medium text-muted-foreground">Immigration Score</span>
       </div>
       {/* AI Possibility Calculator */}
       <div className="flex flex-col items-center">
@@ -592,6 +601,22 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
               </Select>
             </div>
             <div>
+              <Label>French Language (CLB)</Label>
+              <Select value={intakeAnswers.frenchClb} onValueChange={(v: any) => setIntakeAnswers(a => ({...a, frenchClb: v}))}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="clb4">CLB 4</SelectItem>
+                  <SelectItem value="clb5">CLB 5</SelectItem>
+                  <SelectItem value="clb6">CLB 6</SelectItem>
+                  <SelectItem value="clb7">CLB 7</SelectItem>
+                  <SelectItem value="clb8">CLB 8</SelectItem>
+                  <SelectItem value="clb9">CLB 9</SelectItem>
+                  <SelectItem value="clb10">CLB 10</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label>Children</Label>
               <div className="flex items-center gap-3 mt-2">
                 <div className="flex items-center gap-2">
@@ -609,6 +634,13 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                   </div>
                 )}
               </div>
+            </div>
+            <div>
+              <Label>Canadian Work Experience (years)</Label>
+              <Input className="mt-1" type="number" min={0} max={30} value={typeof intakeAnswers.workInCanadaYears === 'number' ? intakeAnswers.workInCanadaYears : ''} onChange={(e) => {
+                const n = parseInt(e.target.value, 10);
+                setIntakeAnswers(a => ({...a, workInCanadaYears: isNaN(n) ? '' : Math.max(0, Math.min(30, n)) }));
+              }} />
             </div>
           </div>
           {intakeAnswers.maritalStatus === 'married' && (
@@ -637,6 +669,19 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label>Spouse Education</Label>
+                <Select value={intakeAnswers.spouseEducation} onValueChange={(v: any) => setIntakeAnswers(a => ({...a, spouseEducation: v}))}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select"/></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high_school">High School</SelectItem>
+                    <SelectItem value="diploma">Diploma</SelectItem>
+                    <SelectItem value="bachelors">Bachelor's</SelectItem>
+                    <SelectItem value="masters">Master's</SelectItem>
+                    <SelectItem value="phd">PhD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
           <div className="flex gap-2">
@@ -646,9 +691,8 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange, onConvert }: LeadD
         </div>
       )}
     </div>
-  </CardContent>
-</Card>
-        </section>
+    </CardContent>
+  </Card>
         {/* Activities Section */}
         <section>
           <Card>

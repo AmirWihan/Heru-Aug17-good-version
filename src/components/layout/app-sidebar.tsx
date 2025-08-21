@@ -34,6 +34,7 @@ interface AppSidebarProps {
   setPage: (page: string) => void
   isSidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
+  pinned?: boolean
 }
 
 const navItems = [
@@ -56,7 +57,7 @@ const navItems = [
 ];
 
 
-export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen }: AppSidebarProps) {
+export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen, pinned = false }: AppSidebarProps) {
   const router = useRouter();
   const { userProfile, can, hasPermission } = useGlobalData();
   const teamMember = userProfile as TeamMember;
@@ -97,26 +98,28 @@ export function AppSidebar({ activePage, setPage, isSidebarOpen, setSidebarOpen 
     <>
       <div className={cn(
         "fixed inset-0 z-40 bg-black/50 transition-opacity md:hidden",
-        isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-      )} onClick={() => setSidebarOpen(false)}></div>
+        pinned ? "hidden" : (isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none")
+      )} onClick={() => !pinned && setSidebarOpen(false)}></div>
       <aside className={cn(
         "fixed top-0 left-0 z-50 h-full w-64 bg-card shadow-lg flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0",
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        (pinned || isSidebarOpen) ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-4 flex items-center justify-between border-b">
           <Link href="/" className="flex items-center gap-2">
             <DynamicLogoIcon className="h-8 w-8" />
             <span className="text-xl font-bold font-headline text-primary">{firmName}</span>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="h-6 w-6" />
-            <span className="sr-only">Close sidebar</span>
-          </Button>
+          {!pinned && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="h-6 w-6" />
+              <span className="sr-only">Close sidebar</span>
+            </Button>
+          )}
         </div>
 
         <div className="p-4 flex items-center border-b">
